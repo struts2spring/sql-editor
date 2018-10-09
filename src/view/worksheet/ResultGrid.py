@@ -25,7 +25,7 @@ class MyCellEditor(gridlib.PyGridCellEditor):
     """
 
     def __init__(self):
-        print("MyCellEditor ctor\n")
+        logger.info("MyCellEditor ctor\n")
         gridlib.PyGridCellEditor.__init__(self)
 
     def Create(self, parent, id, evtHandler):
@@ -33,7 +33,7 @@ class MyCellEditor(gridlib.PyGridCellEditor):
         Called to create the control, which must derive from wx.Control.
         *Must Override*
         """
-        print("MyCellEditor: Create\n")
+        logger.info("MyCellEditor: Create\n")
         self._tc = wx.TextCtrl(parent, id, "")
         self._tc.SetInsertionPoint(0)
         self.SetControl(self._tc)
@@ -47,7 +47,7 @@ class MyCellEditor(gridlib.PyGridCellEditor):
         If you don't fill the cell (the rect) then be sure to override
         PaintBackground and do something meaningful there.
         """
-        print("MyCellEditor: SetSize %s\n" % rect)
+        logger.info("MyCellEditor: SetSize %s\n" % rect)
         self._tc.SetDimensions(rect.x, rect.y, rect.width + 2, rect.height + 2,
                                wx.SIZE_ALLOW_MINUS_ONE)
 
@@ -56,7 +56,7 @@ class MyCellEditor(gridlib.PyGridCellEditor):
         Show or hide the edit control.  You can use the attr (if not None)
         to set colours or fonts for the control.
         """
-        print("MyCellEditor: Show(self, %s, %s)\n" % (show, attr))
+        logger.info("MyCellEditor: Show(self, %s, %s)\n" % (show, attr))
         super(MyCellEditor, self).Show(show, attr)
 
     def PaintBackground(self, rect, attr):
@@ -66,7 +66,7 @@ class MyCellEditor(gridlib.PyGridCellEditor):
         attribute.  In this class the edit control fills the whole cell so
         don't do anything at all in order to reduce flicker.
         """
-        print("MyCellEditor: PaintBackground\n")
+        logger.info("MyCellEditor: PaintBackground\n")
 
     def BeginEdit(self, row, col, grid):
         """
@@ -74,7 +74,7 @@ class MyCellEditor(gridlib.PyGridCellEditor):
         to begin editing.  Set the focus to the edit control.
         *Must Override*
         """
-        print("MyCellEditor: BeginEdit (%d,%d)\n" % (row, col))
+        logger.info("MyCellEditor: BeginEdit (%d,%d)\n" % (row, col))
         self.startValue = grid.GetTable().GetValue(row, col)
         self._tc.SetValue(self.startValue)
         self._tc.SetInsertionPointEnd()
@@ -92,7 +92,7 @@ class MyCellEditor(gridlib.PyGridCellEditor):
         the value in its string form.
         *Must Override*
         """
-        print("MyCellEditor: EndEdit (%s)\n" % oldVal)
+        logger.info("MyCellEditor: EndEdit (%s)\n" % oldVal)
         val = self._tc.GetValue()
         if val != oldVal:  # self.startValue:
             return val
@@ -106,7 +106,7 @@ class MyCellEditor(gridlib.PyGridCellEditor):
         a non-None value.
         *Must Override*
         """
-        print("MyCellEditor: ApplyEdit (%d,%d)\n" % (row, col))
+        logger.info("MyCellEditor: ApplyEdit (%d,%d)\n" % (row, col))
         val = self._tc.GetValue()
         grid.GetTable().SetValue(row, col, val)  # update the table
 
@@ -118,7 +118,7 @@ class MyCellEditor(gridlib.PyGridCellEditor):
         Reset the value in the control back to its starting value.
         *Must Override*
         """
-        print("MyCellEditor: Reset\n")
+        logger.info("MyCellEditor: Reset\n")
         self._tc.SetValue(self.startValue)
         self._tc.SetInsertionPointEnd()
 
@@ -128,7 +128,7 @@ class MyCellEditor(gridlib.PyGridCellEditor):
         version only checks that the event has no modifiers.  F2 is special
         and will always start the editor.
         """
-        print("MyCellEditor: IsAcceptedKey: %d\n" % (evt.GetKeyCode()))
+        logger.info("MyCellEditor: IsAcceptedKey: %d\n" % (evt.GetKeyCode()))
 
         # # We can ask the base class to do it
         # return super(MyCellEditor, self).IsAcceptedKey(evt)
@@ -142,7 +142,7 @@ class MyCellEditor(gridlib.PyGridCellEditor):
         If the editor is enabled by pressing keys on the grid, this will be
         called to let the editor do something about that first key if desired.
         """
-        print("MyCellEditor: StartingKey %d\n" % evt.GetKeyCode())
+        logger.info("MyCellEditor: StartingKey %d\n" % evt.GetKeyCode())
         key = evt.GetKeyCode()
         ch = None
         if key in [ wx.WXK_NUMPAD0, wx.WXK_NUMPAD1, wx.WXK_NUMPAD2, wx.WXK_NUMPAD3,
@@ -169,11 +169,11 @@ class MyCellEditor(gridlib.PyGridCellEditor):
         called to allow the editor to simulate the click on the control if
         needed.
         """
-        print("MyCellEditor: StartingClick\n")
+        logger.info("MyCellEditor: StartingClick\n")
 
     def Destroy(self):
         """final cleanup"""
-        print("MyCellEditor: Destroy\n")
+        logger.info("MyCellEditor: Destroy\n")
         super(MyCellEditor, self).Destroy()
 
     def Clone(self):
@@ -181,7 +181,7 @@ class MyCellEditor(gridlib.PyGridCellEditor):
         Create a new object which is the copy of this one
         *Must Override*
         """
-        print("MyCellEditor: Clone\n")
+        logger.info("MyCellEditor: Clone\n")
         return MyCellEditor()
         
             
@@ -221,13 +221,13 @@ class ResultDataGrid(gridlib.Grid):
 #         self.addData()
 
     def addData(self, data=None):
-#         print(self.GetRowSizes())
-#         print(self.GetColSizes())
+#         logger.info(self.GetRowSizes())
+#         logger.info(self.GetColSizes())
         self.ClearGrid()
         try:
             if data and len(data) > 0:
-                print('rows:', self.GetNumberRows())
-                print('cols:', self.GetNumberCols())
+#                 logger.info('rows:', self.GetNumberRows())
+#                 logger.info('cols:', self.GetNumberCols())
         #         self.DeleteRows()
                 currentRows, currentCols = (self.GetNumberRows(), self.GetNumberCols())
                 newRows = len(data) - 1
@@ -252,9 +252,9 @@ class ResultDataGrid(gridlib.Grid):
                     self.AppendCols(newCols - currentCols)
         
                 for dataKey, dataValue in data.items():
-                    print(dataKey, dataValue)
+#                     logger.info(dataKey, dataValue)
                     for idx, colValue in enumerate(dataValue):
-        #                 print(idx, dataValue)
+        #                 logger.info(idx, dataValue)
                         if dataKey == 0:
                             self.SetColLabelValue(idx, str(colValue))
                         else:
@@ -280,46 +280,46 @@ class ResultDataGrid(gridlib.Grid):
         # Show cell selection
         # If selection is cell...
         if self.GetSelectedCells():
-            print("Selected cells " + str(self.GetSelectedCells()))
+            logger.info("Selected cells " + str(self.GetSelectedCells()))
         # If selection is block...
         if self.GetSelectionBlockTopLeft():
-            print("Selection block top left " + str(self.GetSelectionBlockTopLeft()))
+            logger.info("Selection block top left " + str(self.GetSelectionBlockTopLeft()))
         if self.GetSelectionBlockBottomRight():
-            print("Selection block bottom right " + str(self.GetSelectionBlockBottomRight()))
+            logger.info("Selection block bottom right " + str(self.GetSelectionBlockBottomRight()))
         
         # If selection is col...
         if self.GetSelectedCols():
-            print("Selected cols " + str(self.GetSelectedCols()))
+            logger.info("Selected cols " + str(self.GetSelectedCols()))
         
         # If selection is row...
         if self.GetSelectedRows():
-            print("Selected rows " + str(self.GetSelectedRows()))
+            logger.info("Selected rows " + str(self.GetSelectedRows()))
 
     def currentcell(self):
         # Show cursor position
         row = self.GetGridCursorRow()
         col = self.GetGridCursorCol()
         cell = (row, col)
-        print("Current cell " + str(cell))
+        logger.info("Current cell " + str(cell))
         
     def OnKey(self, event):
         # If Ctrl+C is pressed...
         if event.ControlDown() and event.GetKeyCode() == 67:
-            print("Ctrl+C")
+            logger.info("Ctrl+C")
             self.selection()
             # Call copy method
             self.copy()
             
         # If Ctrl+V is pressed...
         if event.ControlDown() and event.GetKeyCode() == 86:
-            print("Ctrl+V")
+            logger.info("Ctrl+V")
             self.currentcell()
             # Call paste method
             self.paste()
             
         # If Supr is presed
         if event.GetKeyCode() == 127:
-            print("Supr")
+            logger.info("Supr")
             # Call delete method
             self.delete()
             
@@ -329,7 +329,7 @@ class ResultDataGrid(gridlib.Grid):
             return
 
     def copy(self):
-        print("Copy method")
+        logger.info("Copy method")
         # Number of rows and cols
         rows = self.GetSelectionBlockBottomRight()[0][0] - self.GetSelectionBlockTopLeft()[0][0] + 1
         cols = self.GetSelectionBlockBottomRight()[0][1] - self.GetSelectionBlockTopLeft()[0][1] + 1
@@ -357,7 +357,7 @@ class ResultDataGrid(gridlib.Grid):
             wx.MessageBox("Can't open the clipboard", "Error")
             
     def paste(self):
-        print("Paste method")
+        logger.info("Paste method")
         clipboard = wx.TextDataObject()
         if wx.TheClipboard.Open():
             wx.TheClipboard.GetData(clipboard)
@@ -395,16 +395,16 @@ class ResultDataGrid(gridlib.Grid):
         '''
         keycode = event.GetKeyCode() 
         if keycode == wx.WXK_UP:
-            print('you pressed the UP key!')
+            logger.info('you pressed the UP key!')
             self.grid.MoveCursorUp(False)
         elif keycode == wx.WXK_DOWN:
-            print('you pressed the down key!')
+            logger.info('you pressed the down key!')
             self.grid.MoveCursorDown(False)
         elif keycode == wx.WXK_LEFT:
-            print('you pressed the left key!')
+            logger.info('you pressed the left key!')
             self.grid.MoveCursorLeft(False)
         elif keycode == wx.WXK_RIGHT:
-            print('you pressed the right key')
+            logger.info('you pressed the right key')
             self.grid.MoveCursorRight(False)
         else:
             pass
@@ -437,20 +437,20 @@ class GridCellPopupMenu(wx.Menu):
         wx.Menu.__init__(self)
 
         item = wx.MenuItem(self, wx.NewId(), "Export...")
-        self.AppendItem(item)
+        self.Append(item)
         self.Bind(wx.EVT_MENU, self.onExport, item)
 
         item = wx.MenuItem(self, wx.NewId(), "Count rows")
-        self.AppendItem(item)
+        self.Append(item)
         self.Bind(wx.EVT_MENU, self.countRows, item)
 
     def onExport(self, event):
-        print('onExport')
+        logger.info('onExport')
 #         print "Item Two selected in the %s window" % self.WinName
         pass
 
     def countRows(self, event):
-        print('countRows')
+        logger.info('countRows')
 #         print "Item Three selected in the %s window"%self.WinName
 #         copyValue = self.GetColLabelValue(event.GetCol())
               
@@ -462,7 +462,7 @@ class GridHeaderPopupMenu(wx.Menu):
 #         self.WinName = WinName
     
 #         item = wx.MenuItem(self, wx.NewId(), "Item One")
-#         self.AppendItem(item)
+#         self.Append(item)
 #         self.Bind(wx.EVT_MENU, self.OnItem1, item)
 
         item = wx.MenuItem(self, wx.NewId(), "Sort...")

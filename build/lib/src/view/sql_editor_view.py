@@ -470,7 +470,6 @@ class SizeReportCtrl(wx.PyControl):
 
 
     def OnSize(self, event):
-
         self.Refresh()
         event.Skip()
         

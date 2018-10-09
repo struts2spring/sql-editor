@@ -258,7 +258,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         s = self.GetText()
 #         s.replace
 #         logger.debug("formatCode: %s \n   %s  \n  %s ", s, inputText, new)
-        new_str = s.replace(s, inputText, formatted_sql, maxreplace=1)
+        new_str = s.replace(inputText, formatted_sql, 1)
         self.SetText(new_str)
  
     def Undo(self, *args, **kwargs):

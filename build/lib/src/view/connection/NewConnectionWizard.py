@@ -4,10 +4,12 @@ Created on 04-Feb-2017
 @author: vijay
 '''
 
+
+
 import os
 import wx
 import wx.adv
-from wx.adv import Wizard as wiz
+from wx.adv import Wizard
 from wx.adv import WizardPage, WizardPageSimple
 from src.view.connection.DatabaseNavigation import DatabaseNavigationTree
 from src.sqlite_executer.ConnectExecuteSqlite import ManageSqliteDatabase,\
@@ -15,7 +17,9 @@ from src.sqlite_executer.ConnectExecuteSqlite import ManageSqliteDatabase,\
 from sqlite3 import OperationalError
 import logging
 
+
 logger = logging.getLogger('extensive')
+
 
 
 class TitledPage(WizardPageSimple):
@@ -157,7 +161,7 @@ class ConncectionSettings(WizardPageSimple):
         hbox1.Add(self.connectionNameTextCtrl,0,wx.EXPAND|wx.ALIGN_LEFT|wx.ALL,1)
         
         import wx.lib.filebrowsebutton as brows
-        self.markFile = brows.FileBrowseButton(self.panel,labelText="File path                  :",  fileMode=wx.OPEN, size=(400,30),toolTip='Type database filename or click browse to choose file')
+        self.markFile = brows.FileBrowseButton(self.panel,labelText="File path                  :",  fileMode=wx.FD_OPEN, size=(400,30),toolTip='Type database filename or click browse to choose file')
         self.markFile.Bind(wx.EVT_TEXT, self.onMarkFile)
 
         vbox1.Add(hbox1)
@@ -179,10 +183,10 @@ class CreateNewConncetionWixard():
     def createWizard(self):
         self.wizard = Wizard(None, -1, "Create new connection")
         
-        self.wizard.Bind(EVT_WIZARD_PAGE_CHANGED, self.onPageChange)
-        self.wizard.Bind(EVT_WIZARD_PAGE_CHANGING, self.onPageChanging)
-        self.wizard.Bind(EVT_WIZARD_CANCEL, self.onCancel)
-        self.wizard.Bind(EVT_WIZARD_FINISHED, self.onFinished)
+        self.wizard.Bind(wx.adv.EVT_WIZARD_PAGE_CHANGED, self.onPageChange)
+        self.wizard.Bind(wx.adv.EVT_WIZARD_PAGE_CHANGING, self.onPageChanging)
+        self.wizard.Bind(wx.adv.EVT_WIZARD_CANCEL, self.onCancel)
+        self.wizard.Bind(wx.adv.EVT_WIZARD_FINISHED, self.onFinished)
         
         page1 = SelectDatabaseNamePage(self.wizard, "Select new connection type")
         self.pages.append(page1)

@@ -336,11 +336,12 @@ class CreatingWorksheetPanel(wx.Panel):
             self.splitter.SetOrientation(wx.HORIZONTAL)
         self.splitter.SizeWindows()        
     
-    def setResultData(self, data=None):  
-        logger.debug('setResultData: %s', data)
-        self.data = data
-#         self.data = music
-        self.resultPanel.Layout()
+    def setResultData(self, data=None):
+        if data:
+            logger.debug('setResultData count: %s', len(data.keys()))
+            self.data = data
+#             self.data = music
+            self.resultPanel.Layout()
     def getData(self):
         # Get the data from the ListCtrl sample to play with, converting it
         # from a dictionary to a list of lists, including the dictionary key

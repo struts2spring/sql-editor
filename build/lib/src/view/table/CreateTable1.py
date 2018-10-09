@@ -17,6 +17,10 @@ try:
     from agw import ultimatelistctrl as ULC
 except ImportError:  # if it's not there locally, try the wxPython lib.
     from wx.lib.agw import ultimatelistctrl as ULC
+    
+import logging
+
+logger = logging.getLogger('extensive')
 #---------------------------------------------------------------------------
 
 dataTypeList = ['INTEGER', 'TEXT', 'NULL', 'REAL', 'BLOB', 'NUMERIC']
@@ -845,7 +849,7 @@ class CreatingTablePanel(wx.Panel):
                 try:
                     self.list.DeleteItem(idx)
                 except Exception as e:
-                    print(idx, e)
+                    logger.error(e, exc_info=True)
         print(selectedIndexSet)
 #                 print(idx, item)
 
