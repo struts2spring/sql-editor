@@ -1,0 +1,28 @@
+Metadata-Version: 2.1
+Name: sql-editor
+Version: 0.0.1
+Summary: A graphic SQLite Editor in Python
+Home-page: UNKNOWN
+Author: Vijay
+Author-email: certifyexam0@gmail.com
+License: UNKNOWN
+Description: # sql_editor
+        
+        # SQL editor
+        
+        written in python 3
+Keywords: sqlite,gui,wxpython,sql
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Education
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Topic :: Scientific/Engineering :: Information Analysis
+Description-Content-Type: text/markdown

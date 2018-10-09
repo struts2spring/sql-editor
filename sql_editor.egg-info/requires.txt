@@ -1,0 +1,5 @@
+pypubsub==4.0.0
+six==1.11.0
+sqlalchemy==1.2.12
+wxpython==4.0.3
+sqlparse

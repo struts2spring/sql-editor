@@ -1,0 +1,3 @@
+[console_scripts]
+sql_editor = src.sql_editor:main
+
