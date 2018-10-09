@@ -5,6 +5,12 @@ SQL editor can be build using python 3 only.
 
 ![Screen 1](./docs/images/screen_1.PNG)
 
+## Support the project
+
+To support this project you can: star the repository, report bugs/request features by creating new issues, write code and create PRs or donate.
+
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=EUWCHQJXB9Y2N)
+
 ## Building SQL editor
 
 
@@ -24,6 +30,7 @@ sql_editor
 1. Currently supports only python 3 build.
 2. Support only sqlite database.
 3. Graphical user interface for sqlite 3.
+
 
 
 
