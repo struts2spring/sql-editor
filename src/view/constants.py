@@ -1,5 +1,9 @@
 import wx
 
+TITLE="SQL Editor"
+VERSION="0.0.1"
+
+
 ID_UPDATE_CHECK = wx.NewId()
 ID_newConnection = wx.NewId()
 ID_openConnection = wx.NewId()

@@ -66,7 +66,7 @@ class CommandKeyListCtrlPanel(wx.Panel, listmix.ColumnSorterMixin):
         path=os.path.join('..',"images", "zoom_out.png")
         if os.path.exists(path):
             image = wx.Image(os.path.join('..',"images", "zoom_out.png"), wx.BITMAP_TYPE_PNG).ConvertToBitmap()
-            icon = wx.EmptyIcon()
+            icon = wx.Icon()
             icon.CopyFromBitmap(image)
         
             self.idx1 = self.il.Add(image)
@@ -138,15 +138,15 @@ class CommandKeyListCtrlPanel(wx.Panel, listmix.ColumnSorterMixin):
             info.m_image = 1
             info.m_format = 0
             info.m_text = "Command"
-            self.list.InsertColumnInfo(0, info)
+            self.list.InsertColumn(0, info)
 
             info.m_format = wx.LIST_FORMAT_RIGHT
             info.m_text = "Binding"
-            self.list.InsertColumnInfo(1, info)
+            self.list.InsertColumn(1, info)
 
             info.m_format = 0
             info.m_text = "Category"
-            self.list.InsertColumnInfo(2, info)
+            self.list.InsertColumn(2, info)
 
         items = musicdata.items()
         path = os.path.abspath(__file__)
@@ -156,12 +156,14 @@ class CommandKeyListCtrlPanel(wx.Panel, listmix.ColumnSorterMixin):
             head, tail = os.path.split(path)
             
         imageLocation=os.path.join(path,  "images")
+        count=0
         for key, data in items:
             image = wx.Image(os.path.join(imageLocation, data[3]), wx.BITMAP_TYPE_PNG).ConvertToBitmap()
-            index = self.list.InsertImageStringItem( data[0], self.il.Add(image))
-            self.list.SetStringItem(index, 1, data[1])
-            self.list.SetStringItem(index, 2, data[2])
+            index = self.list.InsertItem(count, data[0], self.il.Add(image))
+            self.list.SetItem(index, 1, data[1])
+            self.list.SetItem(index, 2, data[2])
             self.list.SetItemData(index, key)
+            count +=1
 
         self.list.SetColumnWidth(0, wx.LIST_AUTOSIZE)
         self.list.SetColumnWidth(1, wx.LIST_AUTOSIZE)
@@ -209,7 +211,7 @@ class CommandKeyListCtrlPanel(wx.Panel, listmix.ColumnSorterMixin):
 
     def OnItemSelected(self, event):
         ##print event.GetItem().GetTextColour()
-        self.currentItem = event.m_itemIndex
+        self.currentItem = event.GetIndex()
         logger.debug("OnItemSelected: %s, %s, %s, %s\n" ,
                             self.currentItem,
                             self.list.GetItemText(self.currentItem),
@@ -227,15 +229,15 @@ class CommandKeyListCtrlPanel(wx.Panel, listmix.ColumnSorterMixin):
 
     def OnItemDeselected(self, evt):
         item = evt.GetItem()
-        logger.debug("OnItemDeselected: %d" , evt.m_itemIndex)
+        logger.debug("OnItemDeselected: %d" , evt.GetIndex())
 
         # Show how to reselect something we don't want deselected
-        if evt.m_itemIndex == 11:
+        if evt.GetIndex() == 11:
             wx.CallAfter(self.list.SetItemState, 11, wx.LIST_STATE_SELECTED, wx.LIST_STATE_SELECTED)
 
 
     def OnItemActivated(self, event):
-        self.currentItem = event.m_itemIndex
+        self.currentItem = event.GetIndex()
         logger.debug("OnItemActivated: %s\nTopItem: %s" ,
                            self.list.GetItemText(self.currentItem), self.list.GetTopItem())
 

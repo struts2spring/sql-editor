@@ -10,10 +10,11 @@ from src.view.preference.PreferencePanel import PreferencePanel, AppearancePanel
 from src.view.preference.images import catalog
 # from src.view.images import WXPdemo
 import logging
+from src.view.constants import TITLE
 
 logger = logging.getLogger('extensive')
 
-logger.debug('Opal preferences logger init')
+logger.debug('preferences logger init')
 
 _demoPngs = ["overview", "recent", "frame", "dialog", "moredialog", "core",
      "book", "customcontrol", "morecontrols", "layout", "process",
@@ -58,7 +59,7 @@ _treeList = [
 
 class PrefrencesTree(ExpansionState, TreeCtrl):
     '''
-    Left navigation tree in opal preferences page
+    Left navigation tree in preferences page
     '''
     def __init__(self, parent):
         TreeCtrl.__init__(self, parent, style=wx.TR_DEFAULT_STYLE | 
@@ -122,13 +123,13 @@ class OpalPreference(wx.Frame):
         self.allowAuiFloating = False
         self.SetMinSize((640, 480))
 #         icon = WXPdemo.GetIcon()
-        icon=wx.Icon(16, 16)
+        icon=wx.Icon()
         self.SetIcon(icon)
         
         self.statusBar = self.CreateStatusBar(2, wx.STB_SIZEGRIP)
         self.statusBar.SetStatusWidths([-2, -1])
 
-        statusText = "Opal Database Visualizer"
+        statusText = TITLE
         self.statusBar.SetStatusText(statusText, 0)
 
         self.pnl = pnl = MainPanel(self)
@@ -147,8 +148,8 @@ class OpalPreference(wx.Frame):
         self.nb = wx.Notebook(rightPanel, -1, style=wx.CLIP_CHILDREN)
         self.nb.AssignImageList(imgList)
 #         self.panel = PreferencePanel(self.nb, -1, style=wx.CLIP_CHILDREN, preferenceName="Preferences")
-        self.panel = self.getPreferencePanelObj(preferenceName="Opal Preferences")
-        self.nb.AddPage(self.panel, "Opal Preferences", imageId=0)
+        self.panel = self.getPreferencePanelObj(preferenceName="Preferences")
+        self.nb.AddPage(self.panel, "Preferences", imageId=0)
         # Create a TreeCtrl
         leftPanel = wx.Panel(pnl, style=wx.TAB_TRAVERSAL | wx.CLIP_CHILDREN)
         self.treeMap = {}
@@ -209,10 +210,20 @@ class OpalPreference(wx.Frame):
     # Makes sure the user was intending to quit the application
     def OnCloseFrame(self, event):
         logger.debug('OnCloseFrame')
+        if event.CanVeto() and self.fileNotSaved:
+
+            if wx.MessageBox("The file has not been saved... continue closing?",
+                             "Please confirm",
+                             wx.ICON_QUESTION | wx.YES_NO) != wx.YES:
+    
+                event.Veto()
+                return
         self.OnExitApp(event)
     # Destroys the main frame which quits the wxPython application
     def OnExitApp(self, event):
         logger.debug('OnExitApp')
+        self.Close()
+        self.__close_callback()
         self.Destroy()
         
     def OnSearchMenu(self, event):
@@ -266,9 +277,9 @@ class OpalPreference(wx.Frame):
                     
         self.tree.Freeze()
         self.tree.DeleteAllItems()
-        self.root = self.tree.AddRoot("Opal Preferences")
+        self.root = self.tree.AddRoot("Preferences")
         self.tree.SetItemImage(self.root, 0)
-        self.tree.SetItemPyData(self.root, 0)
+        self.tree.SetItemData(self.root, 0)
 
         treeFont = self.tree.GetFont()
         catFont = self.tree.GetFont()
@@ -299,14 +310,14 @@ class OpalPreference(wx.Frame):
             if items:
                 child = self.tree.AppendItem(self.root, category, image=count)
                 self.tree.SetItemFont(child, catFont)
-                self.tree.SetItemPyData(child, count)
+                self.tree.SetItemData(child, count)
                 if not firstChild: firstChild = child
                 for childItem in items:
                     image = count
 #                     if DoesModifiedExist(childItem):
 #                         image = len(_demoPngs)
                     theDemo = self.tree.AppendItem(child, childItem, image=image)
-                    self.tree.SetItemPyData(theDemo, count)
+                    self.tree.SetItemData(theDemo, count)
                     self.treeMap[childItem] = theDemo
                     if current and (childItem, category) == current:
                         selectItem = theDemo
@@ -369,11 +380,11 @@ class OpalPreference(wx.Frame):
         self.nb.InsertPage(0, self.getPreferencePanelObj(preferenceName), preferenceName, imageId=0)
         self.pnl.Thaw()
     
-    def getPreferencePanelObj(self, preferenceName='Opal Preferences'):
+    def getPreferencePanelObj(self, preferenceName='Preferences'):
         preferencePanelObj = None
         if preferenceName == 'General':
             preferencePanelObj = GeneralPreferencePanel(self.nb,preferenceName=preferenceName)
-        elif preferenceName == 'Opal Preferences':
+        elif preferenceName == 'Preferences':
             preferencePanelObj = PreferencePanel(self.nb,preferenceName=preferenceName)
         elif preferenceName == 'Appearance':
             preferencePanelObj = AppearancePanel(self.nb,preferenceName=preferenceName)
