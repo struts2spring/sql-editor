@@ -210,20 +210,10 @@ class OpalPreference(wx.Frame):
     # Makes sure the user was intending to quit the application
     def OnCloseFrame(self, event):
         logger.debug('OnCloseFrame')
-        if event.CanVeto() and self.fileNotSaved:
-
-            if wx.MessageBox("The file has not been saved... continue closing?",
-                             "Please confirm",
-                             wx.ICON_QUESTION | wx.YES_NO) != wx.YES:
-    
-                event.Veto()
-                return
         self.OnExitApp(event)
     # Destroys the main frame which quits the wxPython application
     def OnExitApp(self, event):
         logger.debug('OnExitApp')
-        self.Close()
-        self.__close_callback()
         self.Destroy()
         
     def OnSearchMenu(self, event):
