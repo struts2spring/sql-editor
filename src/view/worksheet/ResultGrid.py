@@ -466,11 +466,11 @@ class GridHeaderPopupMenu(wx.Menu):
 #         self.Bind(wx.EVT_MENU, self.OnItem1, item)
 
         item = wx.MenuItem(self, wx.NewId(), "Sort...")
-        self.AppendItem(item)
+        self.Append(item)
         self.Bind(wx.EVT_MENU, self.OnItem2, item)
 
         item = wx.MenuItem(self, wx.NewId(), "Copy Selected Header")
-        self.AppendItem(item)
+        self.Append(item)
         self.Bind(wx.EVT_MENU, self.OnItem3, item)
 
     def OnItem1(self, event):

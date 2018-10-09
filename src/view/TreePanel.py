@@ -75,7 +75,7 @@ class CreatingTreePanel(wx.Panel):
     #                 if SearchDemo(childItem, value):
                     self.searchItems[category].append(childItem)
         except Exception as e:
-            print(e)
+            logger.error(e, exc_info=True)
         wx.EndBusyCursor()
         self.recreateTree()   
     #---------------------------------------------    
@@ -842,7 +842,7 @@ if __name__ == '__main__':
     frame = wx.Frame(None)
     try: 
         panel = CreatingTreePanel(frame, preferenceName='asfd')
-    except:
-        pass
+    except Exception as ex:
+        print(ex)
     frame.Show()
     app.MainLoop()

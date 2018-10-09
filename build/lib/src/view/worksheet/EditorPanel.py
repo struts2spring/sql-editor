@@ -217,8 +217,10 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         self.registerAllImages()
         
 #         stc.EVT_STC_MARGINCLICK(self, self.GetId(), self.OnMarginClick)
-        wx.EVT_RIGHT_DOWN(self, self.onRightMouseDown)
-        wx.EVT_LEFT_UP(self, self.onLeftMouseUp)
+#         wx.EVT_RIGHT_DOWN(self, self.onRightMouseDown)
+#         wx.EVT_LEFT_UP(self, self.onLeftMouseUp)
+        self.Bind(wx.EVT_RIGHT_DOWN, self.onRightMouseDown)
+        self.Bind(wx.EVT_LEFT_UP, self.onLeftMouseUp)
         self.Bind(stc.EVT_STC_UPDATEUI, self.OnUpdateUI)
         self.Bind(stc.EVT_STC_MARGINCLICK, self.OnMarginClick)
         self.Bind(wx.EVT_KEY_DOWN, self.OnKeyPressed)

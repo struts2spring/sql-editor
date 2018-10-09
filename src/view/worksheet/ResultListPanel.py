@@ -322,8 +322,8 @@ class CreatingResultWithToolbarPanel(wx.Panel):
 # 
 #         elif "view" == os.path.split(os.getcwd())[-1:][0]:
 #             imageLocation = os.path.join("..", "images")
-        tb1.AddLabelTool(id=ID_RUN, label="Pin", shortHelp="Pin result", bitmap=wx.Bitmap(os.path.join(path, "pin2_green.png")))
-        tb1.AddLabelTool(id=ID_EXECUTE_SCRIPT, label="Result refresh", shortHelp="Result refresh", bitmap=wx.Bitmap(os.path.join(path, "resultset_refresh.png")))
+        tb1.AddTool(ID_RUN, "Pin", wx.Bitmap(os.path.join(path, "pin2_green.png")))
+        tb1.AddTool(ID_EXECUTE_SCRIPT, "Result refresh", wx.Bitmap(os.path.join(path, "resultset_refresh.png")))
         tb1.AddSeparator()
 
         tb1.Realize()

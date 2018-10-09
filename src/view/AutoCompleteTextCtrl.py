@@ -344,8 +344,11 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin ):
         '''
         if show :
             size = self.dropdown.GetSize()
-            width, height = self . GetSizeTuple()
-            x, y = self . ClientToScreenXY ( 0, height )
+            width, height = self.GetSize()
+            try:
+                x, y = self.ClientToScreen( 0, height )
+            except Exception as ex:
+                logger.error(ex, exc_info=True)
             if size.GetWidth() != width :
                 size.SetWidth(width)
                 self.dropdown.SetSize(size)

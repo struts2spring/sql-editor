@@ -217,8 +217,10 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         self.registerAllImages()
         
 #         stc.EVT_STC_MARGINCLICK(self, self.GetId(), self.OnMarginClick)
-        wx.EVT_RIGHT_DOWN(self, self.onRightMouseDown)
-        wx.EVT_LEFT_UP(self, self.onLeftMouseUp)
+#         wx.EVT_RIGHT_DOWN(self, self.onRightMouseDown)
+#         wx.EVT_LEFT_UP(self, self.onLeftMouseUp)
+        self.Bind(wx.EVT_RIGHT_DOWN, self.onRightMouseDown)
+        self.Bind(wx.EVT_LEFT_UP, self.onLeftMouseUp)
         self.Bind(stc.EVT_STC_UPDATEUI, self.OnUpdateUI)
         self.Bind(stc.EVT_STC_MARGINCLICK, self.OnMarginClick)
         self.Bind(wx.EVT_KEY_DOWN, self.OnKeyPressed)
@@ -256,7 +258,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         s = self.GetText()
 #         s.replace
 #         logger.debug("formatCode: %s \n   %s  \n  %s ", s, inputText, new)
-        new_str = s.replace(s, inputText, formatted_sql, maxreplace=1)
+        new_str = s.replace(inputText, formatted_sql, 1)
         self.SetText(new_str)
  
     def Undo(self, *args, **kwargs):

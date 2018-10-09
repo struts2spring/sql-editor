@@ -163,7 +163,7 @@ class CreateWorksheetTabPanel(wx.Panel):
             itemId = wx.ID_ANY
             item = wx.MenuItem(self.popupmenu, itemId, popupRow['label'])
             item.SetBitmap(wx.ArtProvider.GetBitmap(popupRow['icon'], wx.ART_MENU, (16, 16)))
-            self.popupmenu.AppendItem(item)
+            self.popupmenu.Append(item)
             self.Bind(wx.EVT_MENU, popupRow['eventMethod'], item)
 #             deleteMenuItem = wx.MenuItem(menu, wx.ID_DELETE, "Delete \t Delete")
 #             delBmp = wx.ArtProvider.GetBitmap(wx.ART_DELETE, wx.ART_MENU, (16, 16))
@@ -262,10 +262,10 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
 #             playImage=wx.Bitmap(os.path.join("..", "images", "play.png"))
             
 #         playImage=wx.Bitmap(os.path.join(imageLocation, "sql_exec.png"))
-        tb1.AddLabelTool(id=ID_RUN, label="Run", shortHelp="Run single line   (Ctrl+Enter)", bitmap=wx.Bitmap(os.path.join(path, "triangle_green.png"))) 
-        tb1.AddLabelTool(id=ID_executeScript, label="Run Script  F9", shortHelp="execute script ", bitmap=wx.Bitmap(os.path.join(path, "sql_script_exec.png")))
+        tb1.AddTool(ID_RUN, "Run F5",wx.Bitmap(os.path.join(path, "triangle_green.png"))) 
+        tb1.AddTool(ID_executeScript, "Run Script  F9", bitmap=wx.Bitmap(os.path.join(path, "sql_script_exec.png")))
         tb1.AddSeparator()
-        tb1.AddLabelTool(id=ID_SPELL_CHECK, label="Spelling check", shortHelp="Check spelling", bitmap=wx.Bitmap(os.path.join(path, "abc.png")))
+        tb1.AddTool(ID_SPELL_CHECK, "Spelling check", wx.Bitmap(os.path.join(path, "abc.png")))
         self.Bind(wx.EVT_MENU, self.executeSQL, id=ID_RUN)
 #         tb1.AddLabelTool(id=ID_openConnection, label="Open Connection", shortHelp="Open Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "open.png")))
 #         tb1.AddLabelTool(id=ID_newConnection, label="Open Connection", shortHelp="Open Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "open.png")))
