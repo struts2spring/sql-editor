@@ -65,6 +65,7 @@ class MyGrid(grd.Grid):
 
     def afterCheckBox(self,isChecked):
         # print 'afterCheckBox',self.GridCursorRow,isChecked
+        pass
 
 class TestFrame(wx.Frame):
     def __init__(self, parent):
