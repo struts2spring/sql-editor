@@ -2,8 +2,34 @@ language: python
 python:
   - "3.6"
 # command to install dependencies
-install:
-  - pip install -r requirements.txt
-# command to run tests  
-script:
-  - pytest
+addons:
+  apt:
+    packages:
+    - libwebkitgtk-dev
+    - libjpeg-dev
+    - libtiff-dev
+    - libgtk2.0-dev
+    - libsdl1.2-dev
+    - libgstreamer-plugins-base0.10-dev
+    - freeglut3
+    - freeglut3-dev
+    - libnotify-dev
+
+# command to install dependencies
+install: 
+  - sudo apt-get update
+  - sudo apt-get install libwebkitgtk-dev libjpeg-dev libtiff-dev libgtk2.0-dev libsdl1.2-dev freeglut3 freeglut3-dev libnotify-dev
+  - echo "SIX_INSTALLATION"
+  - travis_wait 60 sudo pip install -Uv six
+  - echo "WXPYTHON_INSTALLATION"
+  - wget "https://robotframework.transformidea.com/RIDE/packages/Linux/Fedora_26/wxPython-4.0.0b2-cp27-cp27mu-linux_x86_64.whl"
+  - sudo pip install wxPython-4.0.0b2-cp27-cp27mu-linux_x86_64.whl 
+ #travis_wait 60 sudo pip install -Uv wxpython
+  - echo "WXPYTHON_INSTALLATION_FINISHED"
+  - "pip install requests coveralls nose-htmloutput nose coverage"
+  - echo "INSTALLATION_FINISHED"
+  - python -V
+script: nosetests -v --with-id  --with-coverage --with-html --cover-package=./
+
+after_success:  
+  - coveralls 
