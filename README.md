@@ -40,3 +40,10 @@ sql_editor
 
 
 ![Screen 3](./docs/images/screen_3.PNG)
+
+
+### Repository
+
+[![Repo on GitHub](https://img.shields.io/badge/repo-GitHub-3D76C2.svg)](https://github.com/struts2spring/sql-editor)
+[![Repo on GitLab](https://img.shields.io/badge/repo-GitLab-6C488A.svg)](https://gitlab.com/struts2spring/sql-editor)
+

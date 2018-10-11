@@ -4,3 +4,6 @@
 ./venv
 ./*.pyc
 *.pyc
+venv/
+build/
+sql_editor.egg-info/
