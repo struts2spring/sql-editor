@@ -269,6 +269,7 @@ class CreatingTreePanel(wx.Panel):
     #---------------------------------------------
     def OnSelChanged(self, event):
         logger.debug('OnSelChanged')
+        pass
     #---------------------------------------------
     def OnTreeRightDown(self, event):
         
@@ -307,7 +308,7 @@ class CreatingTreePanel(wx.Panel):
 
         
         menu = wx.Menu()
-        data = self.tree.GetPyData(item)
+        data = self.tree.GetItemData(item)
         rightClickDepth = data['depth']
         if rightClickDepth == 0:
             rootNewConnection = menu.Append(ID_ROOT_NEW_CONNECTION, "New connection ")
@@ -319,7 +320,7 @@ class CreatingTreePanel(wx.Panel):
             self.Bind(wx.EVT_MENU, self.onRootRefresh, rootRefresh)
             self.Bind(wx.EVT_MENU, self.onRootNewConnection, rootNewConnection)
         elif rightClickDepth == 1:
-            if self.connDict.has_key(self.tree.GetItemText(self.tree.GetSelection())) :
+            if self.tree.GetItemText(self.tree.GetSelection()) in self.connDict:
                 item1 = menu.Append(ID_DISCONNECT_DB, "Disconnect")
                 self.Bind(wx.EVT_MENU, self.onDisconnectDb, item1)
             else:
@@ -328,16 +329,16 @@ class CreatingTreePanel(wx.Panel):
             
             sqlEditorBmp = wx.MenuItem(menu, ID_newWorksheet, "SQL Editor in new Tab")
             sqlEditorBmp.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "script.png"))))
-            item3 = menu.AppendItem(sqlEditorBmp)
+            item3 = menu.Append(sqlEditorBmp)
             
             infoMenuItem = wx.MenuItem(menu, wx.ID_ANY, "Properties")
             infoBmp = wx.ArtProvider.GetBitmap(wx.ART_INFORMATION, wx.ART_MENU, (16, 16)) 
             infoMenuItem.SetBitmap(infoBmp)     
-            item4 = menu.AppendItem(infoMenuItem)      
+            item4 = menu.Append(infoMenuItem)      
             
             refreshBmp = wx.MenuItem(menu, wx.ID_REFRESH, "&Refresh")
             refreshBmp.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "database_refresh.png"))))
-            item5 = menu.AppendItem(refreshBmp)
+            item5 = menu.Append(refreshBmp)
             
             
             item6 = menu.Append(wx.ID_ANY, "Edit Connection")
@@ -349,7 +350,7 @@ class CreatingTreePanel(wx.Panel):
             deleteMenuItem = wx.MenuItem(menu, wx.ID_DELETE, "Delete \t Delete")
             delBmp = wx.ArtProvider.GetBitmap(wx.ART_DELETE, wx.ART_MENU, (16, 16))
             deleteMenuItem.SetBitmap(delBmp)
-            delMenu = menu.AppendItem(deleteMenuItem)
+            delMenu = menu.Append(deleteMenuItem)
 #             self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
             
             
@@ -504,15 +505,19 @@ class CreatingTreePanel(wx.Panel):
     def onConnectDb(self, event):
         logger.debug('onConnectDb')
 #         item = self.tree.GetSelection() 
-        if self.tree.GetItemText(self.tree.GetSelection()) not in self.connDict:
-            self.connDict[self.tree.GetItemText(self.tree.GetSelection())] = True
-            selectedItemId = self.tree.GetSelection()
-            if self.getNodeOnOpenConnection(selectedItemId):
-    #         self.addNode(targetNode=, nodeLabel='got conncted',pydata=data, image=16)
-            # Todo change icon to enable
-                selectedItemText = self.tree.GetItemText(self.tree.GetSelection())
-                self.setAutoCompleteText(selectedItemText)
-                self.openWorksheet()
+        try:
+            if self.tree.GetItemText(self.tree.GetSelection()) not in self.connDict:
+                self.connDict[self.tree.GetItemText(self.tree.GetSelection())] = True
+                selectedItemId = self.tree.GetSelection()
+                if self.getNodeOnOpenConnection(selectedItemId):
+        #         self.addNode(targetNode=, nodeLabel='got conncted',pydata=data, image=16)
+                # Todo change icon to enable
+                        selectedItemText = self.tree.GetItemText(self.tree.GetSelection())
+                        self.setAutoCompleteText(selectedItemText)
+                        self.openWorksheet()
+        except Exception as e:
+            logger.error(e, exc_info=True)
+                    
     
     def setAutoCompleteText(self, selectedItemText):
         '''
@@ -527,7 +532,7 @@ class CreatingTreePanel(wx.Panel):
     #         textCtrl.SetSelection(choice.index(selectedItemText))
             textCtrl.SetInsertionPointEnd()
             textCtrl.SetSelection(-1, -1)
-            textCtrl._showDropDown(False)
+            textCtrl._showDropDown(True)
     
     def onDisconnectDb(self, event):
         logger.debug('onDisconnectDb')
@@ -652,7 +657,7 @@ class CreatingTreePanel(wx.Panel):
                                 image = 4
                             child1 = self.addNode(targetNode=child0, nodeLabel=nodeLabel, pydata=data, image=image) 
                             
-                            logger.debug("k1 : %s, v1: %s", k1, v1)
+#                             logger.debug("k1 : %s, v1: %s", k1, v1)
                             if k0 == 'table':
                                 data = dict()
                                 data['depth'] = 4
@@ -683,7 +688,7 @@ class CreatingTreePanel(wx.Panel):
                                                 image = 18
                                                 break
                                     child2 = self.addNode(targetNode=child1_1, nodeLabel=nodeLabel, pydata=data, image=image) 
-                                    logger.debug(v2)
+#                                     logger.debug(v2)
         else:
             updateStatus = "Unable to connect '" + databaseAbsolutePath + ".' No such file. "
             self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window.text.AppendText("\n" + updateStatus)

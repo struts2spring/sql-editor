@@ -78,9 +78,9 @@ class DatabaseMainFrame(wx.Frame):
         tb1.AddTool(ID_newConnection, "New Connection", wx.Bitmap(os.path.join(path, "connect.png")))
         tb1.AddSeparator()
         
-#         tb1.AddLabelTool(id=ID_openConnection, label="Open Connection", shortHelp="Open Database Connection", bitmap=wx.Bitmap(os.path.join(path, "database_connect.png")))
-#         tb1.AddLabelTool(id=ID_newWorksheet, label="Script", shortHelp="Script", bitmap=wx.Bitmap(os.path.join(path, "script.png")))
-#         tb1.AddTool(wx.ID_PREFERENCES, "Preferences", wx.Bitmap(os.path.join(path, "preference.png")))
+        tb1.AddTool(ID_openConnection, "Open Connection", wx.Bitmap(os.path.join(path, "database_connect.png")))
+        tb1.AddTool(ID_newWorksheet, "Script", wx.Bitmap(os.path.join(path, "script.png")))
+        tb1.AddTool(wx.ID_PREFERENCES, "Preferences", wx.Bitmap(os.path.join(path, "preference.png")))
         
         ###################################################################################################
         args = {}
@@ -112,7 +112,6 @@ class DatabaseMainFrame(wx.Frame):
 #                 ]
 
         self._ctrl = TextCtrlAutoComplete(tb1, **args)
-#         self._ctrl=wx.TextCtrl(tb1)
         self._ctrl.SetSize((200, 25))
         self._ctrl.SetChoices(self.dynamic_choices)
         self._ctrl.SetEntryCallback(self.setDynamicChoices)
