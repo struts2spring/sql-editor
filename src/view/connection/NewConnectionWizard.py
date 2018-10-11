@@ -110,7 +110,7 @@ class SelectDatabaseNamePage(WizardPageSimple):
         self.tree.DeleteAllItems()
         self.root = self.tree.AddRoot("Connections")
         self.tree.SetItemImage(self.root, 0)
-        self.tree.SetItemPyData(self.root, 0)
+        self.tree.SetItemData(self.root, 0)
 
         treeFont = self.tree.GetFont()
         catFont = self.tree.GetFont()

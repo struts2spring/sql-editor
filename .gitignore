@@ -3,3 +3,4 @@
 ./sql_editor.egg-info
 ./venv
 ./*.pyc
+*.pyc

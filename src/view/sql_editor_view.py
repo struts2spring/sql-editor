@@ -112,7 +112,7 @@ class DatabaseMainFrame(wx.Frame):
 #                 ]
 
         self._ctrl = TextCtrlAutoComplete(tb1, **args)
-        self._ctrl.SetSize((200, 25))
+        self._ctrl.SetSize((250, 25))
         self._ctrl.SetChoices(self.dynamic_choices)
         self._ctrl.SetEntryCallback(self.setDynamicChoices)
         self._ctrl.SetMatchFunction(self.match)
@@ -131,7 +131,7 @@ class DatabaseMainFrame(wx.Frame):
         """ Simply function that receive the row values when the
             user select an item
         """
-        logger.debug("Select Callback called...:" + values)
+        logger.debug(values)
         
     def setDynamicChoices(self):
         ctrl = self._ctrl

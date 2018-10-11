@@ -29,7 +29,17 @@ def getSmallUpArrowBitmap():
     return wx.Bitmap(getSmallUpArrowImage())
 
 def getSmallUpArrowImage():
-    return getSmallDnArrowImage()
+    path = os.path.abspath(__file__)
+    tail = None
+    while tail != 'src':
+        path = os.path.abspath(os.path.join(path, '..'))
+        head, tail = os.path.split(path)
+        
+    imageLocation = os.path.join(path, "images")
+    image = wx.Image(os.path.join(imageLocation, "bullet_arrow_up.png"), wx.BITMAP_TYPE_PNG).ConvertToBitmap()
+    
+#     stream = StringIO.StringIO(getSmallDnArrowData())
+    return image
 #     stream = io.StringIO(getSmallUpArrowData())
 #     return wx.ImageFromStream(stream)
 
@@ -54,7 +64,7 @@ def getSmallDnArrowImage():
         head, tail = os.path.split(path)
         
     imageLocation = os.path.join(path, "images")
-    image = wx.Image(os.path.join(imageLocation, "Opal_database.png"), wx.BITMAP_TYPE_PNG).ConvertToBitmap()
+    image = wx.Image(os.path.join(imageLocation, "bullet_arrow_down.png"), wx.BITMAP_TYPE_PNG).ConvertToBitmap()
     
 #     stream = StringIO.StringIO(getSmallDnArrowData())
     return image

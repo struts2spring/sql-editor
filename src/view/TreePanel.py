@@ -532,7 +532,7 @@ class CreatingTreePanel(wx.Panel):
     #         textCtrl.SetSelection(choice.index(selectedItemText))
             textCtrl.SetInsertionPointEnd()
             textCtrl.SetSelection(-1, -1)
-            textCtrl._showDropDown(True)
+            textCtrl._showDropDown(False)
     
     def onDisconnectDb(self, event):
         logger.debug('onDisconnectDb')
