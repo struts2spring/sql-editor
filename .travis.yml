@@ -22,8 +22,8 @@ install:
   - echo "SIX_INSTALLATION"
   - travis_wait 60 sudo pip install -Uv six
   - echo "WXPYTHON_INSTALLATION"
-  - wget "https://robotframework.transformidea.com/RIDE/packages/Linux/Fedora_26/wxPython-4.0.0b2-cp27-cp27mu-linux_x86_64.whl"
-  - sudo pip install wxPython-4.0.0b2-cp27-cp27mu-linux_x86_64.whl 
+  - wget "https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-14.04/wxPython-4.0.3-cp36-cp36m-linux_x86_64.whl"
+  - sudo pip install wxPython-4.0.3-cp36-cp36m-linux_x86_64.whl
  #travis_wait 60 sudo pip install -Uv wxpython
   - echo "WXPYTHON_INSTALLATION_FINISHED"
   - "pip install requests coveralls nose-htmloutput nose coverage"
