@@ -34,6 +34,7 @@ setuptools.setup(
         'sqlparse',
 #         'pycairo'
     ],
+    python_requires='>=3',
     entry_points={
         'console_scripts': [
             'sql_editor = src.sql_editor:main',

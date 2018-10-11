@@ -153,16 +153,16 @@ class Frame1(wx.Frame):
         Col = event.GetCol()
         
         #All cells have a value, regardless of the editor.
-        print 'Changed cell: (%u, %u)' % (Row, Col)
-        print 'value: %s' % self.grid1.GetCellValue(Row, Col)
+        # print('Changed cell: (%u, %u)' % (Row, Col))
+        # print 'value: %s' % self.grid1.GetCellValue(Row, Col)
         
         #Row 0 means a GridCellChoiceEditor, so we should have associated
         #an index and client data.
-        if Row == 0:
-            print 'index: %u' % self.grid1.index
-            print 'data: %s' % self.grid1.data
+        # if Row == 0:
+        #     print 'index: %u' % self.grid1.index
+        #     print 'data: %s' % self.grid1.data
         
-        print ''            #blank line to make it pretty.
+        # print ''            #blank line to make it pretty.
         event.Skip()
  
     
@@ -173,9 +173,9 @@ class Frame1(wx.Frame):
         self.grid1.index = self.comboBox.GetSelection()
         self.grid1.data = self.comboBox.GetClientData(self.grid1.index)
         
-        print 'ComboBoxChanged: %s' % self.comboBox.GetValue()
-        print 'ComboBox index: %u' % self.grid1.index 
-        print 'ComboBox data: %u\n' % self.grid1.data
+        # print 'ComboBoxChanged: %s' % self.comboBox.GetValue()
+        # print 'ComboBox index: %u' % self.grid1.index 
+        # print 'ComboBox data: %u\n' % self.grid1.data
         event.Skip()
 
 
@@ -192,8 +192,8 @@ class Frame1(wx.Frame):
         #that later, once all of the text has been entered.
         self.grid1.index = self.comboBox.GetSelection()
         
-        print 'ComboBoxText: %s' % self.comboBox.GetValue()
-        print 'ComboBox index: %u\n' % self.grid1.index
+        # print 'ComboBoxText: %s' % self.comboBox.GetValue()
+        # print 'ComboBox index: %u\n' % self.grid1.index
         event.Skip()
 
 
@@ -228,7 +228,7 @@ class Frame1(wx.Frame):
             #Update the silly client data counter
             self.grid1.counter = self.grid1.counter + 1
         
-        print 'OnGrid1EditorHidden: (%u, %u)\n' % (Row, Col)
+        # print 'OnGrid1EditorHidden: (%u, %u)\n' % (Row, Col)
 
         event.Skip()
 
@@ -238,7 +238,7 @@ class Frame1(wx.Frame):
         Row = event.GetRow()
         Col = event.GetCol()
         
-        print 'OnGrid1EditorCreated: (%u, %u)\n' % (Row, Col)
+        # print 'OnGrid1EditorCreated: (%u, %u)\n' % (Row, Col)
         
         #In this example, all cells in row 0 are GridCellChoiceEditors,
         #so we need to setup the selection list and bindings. We can't
