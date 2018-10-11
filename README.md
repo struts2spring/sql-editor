@@ -1,5 +1,9 @@
 # SQL editor
+
+[![License](http://img.shields.io/badge/license-MIT-green.svg?style=flat)](./LICENSE)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=EUWCHQJXB9Y2N)
 ----------------------------------------------
+
 
 SQL editor can be build using python 3 only. 
 
