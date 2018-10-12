@@ -29,12 +29,11 @@ install:
   - echo "INSTALLATION_FINISHED"
   - pip install -r requirements.txt
   - python -V
-
+script: nosetests -v --with-id  --with-coverage --with-html --cover-package=./
 deploy:
   provider: pypi
   user: struts2spring
   password: SomeDefaultText
-
 notifications:
   email:
     recipients:
@@ -42,6 +41,6 @@ notifications:
     on_success: always # default: change
     on_failure: always # default: always
 
-script: nosetests -v --with-id  --with-coverage --with-html --cover-package=./
+
 
 
