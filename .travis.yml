@@ -28,7 +28,6 @@ install:
   - "pip install requests coveralls nose-htmloutput nose coverage"
   - echo "INSTALLATION_FINISHED"
   - pip install -r requirements.txt
-  - pip install .
   - python -V
 script: nosetests -v --with-id  --with-coverage --with-html --cover-package=./
 
