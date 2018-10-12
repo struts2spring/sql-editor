@@ -30,17 +30,3 @@ install:
   - pip install -r requirements.txt
   - python -V
 script: nosetests -v --with-id  --with-coverage --with-html --cover-package=./
-deploy:
-  provider: pypi
-  user: struts2spring
-  password: SomeDefaultText
-notifications:
-  email:
-    recipients:
-      - certifyexam0@gmail.com
-    on_success: always # default: change
-    on_failure: always # default: always
-
-
-
-

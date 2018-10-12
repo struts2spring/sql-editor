@@ -621,7 +621,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         fileMenu = wx.Menu()   
         imp = wx.Menu()
         imp.Append(wx.ID_ANY, 'Import newsfeed list...') 
-        fileMenu.AppendMenu(wx.ID_ANY, 'I&mport', imp)
+        fileMenu.Append(wx.ID_ANY, 'I&mport', imp)
         if self.popmenu:
             self.popmenu.Append(fileMenu)
             self.PopupMenu(self.popmenu, event.GetPosition())

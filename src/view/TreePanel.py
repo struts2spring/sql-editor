@@ -811,7 +811,7 @@ class DatabaseNavigationTree(ExpansionState, TreeCtrl):
         self.AssignImageList(imgList)
 
     def GetItemIdentity(self, item):
-        return self.GetPyData(item)
+        return self.GetItemData(item)
 
     def Freeze(self):
         if 'wxMSW' in wx.PlatformInfo:
