@@ -1,8 +1,4 @@
-./dist
-./build
-./sql_editor.egg-info
-./venv
-./*.pyc
+/*.pyc
 *.pyc
 venv/
 build/
