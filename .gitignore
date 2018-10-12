@@ -4,3 +4,4 @@ venv/
 build/
 sql_editor.egg-info/
 dist/
+src/*.pyc
