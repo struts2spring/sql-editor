@@ -17,7 +17,7 @@ print(packages)
 
 setuptools.setup(
     name="sql_editor",
-    version=0.0.2,
+    version=get_version(),
     author="Vijay",
     author_email="certifyexam0@gmail.com",
     description="A graphic SQLite Editor in Python",
