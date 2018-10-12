@@ -27,8 +27,21 @@ install:
   - echo "WXPYTHON_INSTALLATION_FINISHED"
   - "pip install requests coveralls nose-htmloutput nose coverage"
   - echo "INSTALLATION_FINISHED"
+  - pip install -r requirements.txt
+  - pip install .
   - python -V
 script: nosetests -v --with-id  --with-coverage --with-html --cover-package=./
 
 after_success:  
   - coveralls 
+deploy:
+  provider: pypi
+  user: struts2spring
+  password: SomeDefaultText
+
+notifications:
+  email:
+    recipients:
+      - certifyexam0@gmail.com
+    on_success: always # default: change
+    on_failure: always # default: always

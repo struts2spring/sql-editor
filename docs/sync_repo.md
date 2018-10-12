@@ -7,3 +7,4 @@ origin  https://gitlab.com/struts2spring/sql_editor.git (fetch)
 origin  https://gitlab.com/struts2spring/sql_editor.git (push)
 
 git remote set-url origin https://github.com/struts2spring/sql-editor.git
+
