@@ -2,7 +2,6 @@ import os
 
 import wx.grid
 
-
 from src.view.worksheet.EditorPanel import CreatingEditorPanel
 import logging
 
@@ -13,6 +12,7 @@ class CreateTableFrame(wx.Frame):
     '''
     frame contains splitter between (table head, toolbar and grid) and editor panel..
     '''
+
     def __init__(self, parent, title):
         wx.Frame.__init__(self, parent, -1, title, size=(970, 720),
                           style=wx.DEFAULT_FRAME_STYLE | wx.NO_FULL_REPAINT_ON_RESIZE)
@@ -50,91 +50,99 @@ class CreateTableFrame(wx.Frame):
         if tableDict:
             self.tableDict = tableDict
         else:
-            self.tableDict=dict()
+            self.tableDict = dict()
             self.tableDict['schemaName'] = 'schema_1'
             self.tableDict['tableName'] = 'Table_1'
-            self.tableDict['rows']=list()
-            self.tableDict['row']=dict()
+            self.tableDict['rows'] = list()
+            self.tableDict['row'] = dict()
             self.tableDict['row'][0] = ["icon", "Column name", "Data type", "Primary key", "Allow null", "Unique", "Auto increment", "Default value"]
         self.createTablePanel.setData(self.tableDict)
         self.createTablePanel.headPanel.setData(self.tableDict)    
         
     def OnCloseFrame(self, event):
         self.Destroy()
+
     def createNewTableStatusBar(self):
         logger.debug('creating status bar')
         self.statusbar = self.CreateStatusBar(2, wx.STB_SIZEGRIP)
         self.statusbar.SetStatusWidths([-2, -3])
         self.statusbar.SetStatusText(self.getCurrentCursorPosition(), 0)
         self.statusbar.SetStatusText("Welcome Opal Database Visualizer", 1)
+
     def getCurrentCursorPosition(self):
         lineNo = 1
         column = 1
         return "Line " + str(lineNo) + " , Column " + str(column)
+
+
 class CreateTableHeadPanel(wx.Panel):
+
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent     
         import  wx.lib.rcsizer  as rcs
         sizer = rcs.RowColSizer()
 #         vBox = wx.BoxSizer(wx.VERTICAL)
-        self.tableDict=dict()
+        self.tableDict = dict()
 #         self.setData(self.tableDict)
-
         
         schemaNameLabel = wx.StaticText(self, -1, "Schema Name:")
         self.schemaNameText = wx.TextCtrl(self, -1, '', size=(250, -1))
-        self.schemaNameText.Bind( wx.EVT_TEXT, self.onSchemaName ) 
+        self.schemaNameText.Bind(wx.EVT_TEXT, self.onSchemaName) 
         
         tableNameLabel = wx.StaticText(self, -1, "Table Name:")
         self.tableNameText = wx.TextCtrl(self, -1, '', size=(250, -1))
-        self.tableNameText.Bind( wx.EVT_TEXT, self.onTableName) 
+        self.tableNameText.Bind(wx.EVT_TEXT, self.onTableName) 
         
         sizer.Add(schemaNameLabel, flag=wx.EXPAND, row=1, col=1)
         sizer.Add(self.schemaNameText, row=1, col=2)
         
         sizer.Add(tableNameLabel, flag=wx.EXPAND, row=2, col=1)
         sizer.Add(self.tableNameText, row=2, col=2)
-        
 
 #         vBox.Add(sizer)
         self.SetSizer(sizer)
 #         self.Layout()
 
     def setData(self, tableDict=None):
-        if tableDict and len(tableDict)>1:
-            self.tableDict=tableDict
+        if tableDict and len(tableDict) > 1:
+            self.tableDict = tableDict
             self.schemaNameText.SetValue(self.tableDict['schemaName'])
             self.tableNameText.SetValue(self.tableDict['tableName'])
         else:
-            self.tableDict['schemaName']=''
-            self.tableDict['tableName']=''
-    def onSchemaName(self,event):
+            self.tableDict['schemaName'] = ''
+            self.tableDict['tableName'] = ''
+
+    def onSchemaName(self, event):
         logger.debug("onSchemaName")    
         try:   
-            self.GetParent().tableDict['schemaName']=self.schemaNameText.GetValue()
+            self.GetParent().tableDict['schemaName'] = self.schemaNameText.GetValue()
             self.GetParent().updateTableEditorPanel()
         except Exception as e:
             logger.error(e, exc_info=True)
-    def onTableName(self,event):
+
+    def onTableName(self, event):
         logger.debug("onTableName") 
         try:   
-            self.GetTopLevelParent().createTablePanel.tableDict['tableName']=self.tableNameText.GetValue()
+            self.GetTopLevelParent().createTablePanel.tableDict['tableName'] = self.tableNameText.GetValue()
             self.GetTopLevelParent().createTablePanel.updateTableEditorPanel()
         except Exception as e:
             logger.error(e, exc_info=True)
+
+
 class CreateButtonPanel(wx.Panel):
+
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent         
         sizer = wx.BoxSizer(wx.VERTICAL)
         hbox = wx.BoxSizer(wx.HORIZONTAL)
         okButton = wx.Button(self, 50, "Ok", (20, 220))
-        okButton.SetToolTipString("Execute script to create table.")
+        okButton.SetToolTip("Execute script to create table.")
         self.Bind(wx.EVT_BUTTON, self.onOkClick, okButton)
         
         cancelButton = wx.Button(self, 51, "Cancel", (20, 220))
-        cancelButton.SetToolTipString("Execute script to create table.")
+        cancelButton.SetToolTip("Execute script to create table.")
         self.Bind(wx.EVT_BUTTON, self.onCancelButtonClick, cancelButton)
 
 #         b.SetBitmap(images.Mondrian.Bitmap,
@@ -150,17 +158,20 @@ class CreateButtonPanel(wx.Panel):
 #         sizer.Add(vBox, 1, wx.EXPAND , 0)
         self.SetAutoLayout(True)
         self.SetSizer(sizer)
+
     def onOkClick(self, event):
         logger.debug('onOkClick')
 
     def onCancelButtonClick(self, event):
         logger.debug('onCancelButtonClick')
         self.GetTopLevelParent().Destroy()
+
         
 class CreateTablePanel(wx.Panel):
     '''
     This panel is going to contain table head, toolbar and grid.
     '''
+
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
@@ -193,8 +204,7 @@ class CreateTablePanel(wx.Panel):
     def setData(self, tableDict=None):
         logger.debug('setData')
         if tableDict:
-            self.tableDict=tableDict
-
+            self.tableDict = tableDict
 
     def getData(self):
         logger.debug('getData')
@@ -212,21 +222,21 @@ class CreateTablePanel(wx.Panel):
         tb.SetToolBitmapSize(tsize)
         
         # tb.AddSimpleTool(10, new_bmp, "New", "Long help for 'New'")
-        tb.AddLabelTool(10, "Add a column", plus_bmp, shortHelp="Add a column", longHelp="Add a new Column")
+        tb.AddTool(10, "Add a column", plus_bmp, "Add a new Column")
         self.Bind(wx.EVT_TOOL, self.onAddColumnClick, id=10)
 #         self.Bind(wx.EVT_TOOL_RCLICKED, self.OnToolRClick, id=10)
 
         # tb.AddSimpleTool(20, open_bmp, "Open", "Long help for 'Open'")
-        tb.AddLabelTool(20, "Remove a column", minus_bmp, shortHelp="Remove a column", longHelp="Remove a column")
+        tb.AddTool(20, "Remove a column", minus_bmp, "Remove a column")
         self.Bind(wx.EVT_TOOL, self.onRemoveColumnClick, id=20)
 #         self.Bind(wx.EVT_TOOL_RCLICKED, self.OnToolRClick, id=20)
 
         tb.AddSeparator()
-        tb.AddSimpleTool(30, goUp_bmp, "Move field up", "move column up'")
+        tb.AddTool(30, "Move field up", goUp_bmp, "move column up'")
         self.Bind(wx.EVT_TOOL, self.onMoveUpClick, id=30)
 #         self.Bind(wx.EVT_TOOL_RCLICKED, self.OnToolRClick, id=30)
 
-        tb.AddSimpleTool(40, goDown_bmp, "Move field down", "move column down")
+        tb.AddTool(40, "Move field down", goDown_bmp, "move column down")
         self.Bind(wx.EVT_TOOL, self.onMoveDownClick, id=40)
 #         self.Bind(wx.EVT_TOOL_RCLICKED, self.OnToolRClick, id=40)
 
@@ -238,31 +248,30 @@ class CreateTablePanel(wx.Panel):
         logger.debug('onAddColumn clicked')
         
         rowNum = len(self.tableDict['row'])
-        if rowNum==1:
-            columnName="Id"
+        if rowNum == 1:
+            columnName = "Id"
         else:
-            columnName="Column_" + str(rowNum)
-        isPrimaryKey =  "" # setting blank for unchecked column
-        isAutoIncrement =  "" # setting blank for unchecked column
-        isNotNull= "" # setting blank for unchecked column
-        isUnique= "" # setting blank for unchecked column
-        default=None
+            columnName = "Column_" + str(rowNum)
+        isPrimaryKey = ""  # setting blank for unchecked column
+        isAutoIncrement = ""  # setting blank for unchecked column
+        isNotNull = ""  # setting blank for unchecked column
+        isUnique = ""  # setting blank for unchecked column
+        default = None
         if rowNum == 1:
             iconIndex = 0  # random.choice([0, 1, 2, 3])
             datatype = "INTEGER"  # random.choice(["INTEGER", "TEXT"])
             isPrimaryKey = "1"
-            isNotNull= "" # setting blank for unchecked column
-            isUnique= "" # setting blank for unchecked column
+            isNotNull = ""  # setting blank for unchecked column
+            isUnique = ""  # setting blank for unchecked column
         elif rowNum > 1:
             iconIndex = 1  # random.choice([0, 1, 2, 3])
             datatype = "VARCHAR"  # random.choice(["INTEGER", "TEXT"])
-            isPrimaryKey = "" # setting blank for unchecked column
+            isPrimaryKey = ""  # setting blank for unchecked column
         
         if isPrimaryKey == "1":
             isAutoIncrement = "1"
            
         self.tableDict['row'][rowNum] = [str(iconIndex), columnName, datatype, isPrimaryKey, "0", isUnique, isAutoIncrement, default ]        
-        
         
         self.tableDict['rows'].append({
             'rowNum':rowNum,
@@ -274,7 +283,6 @@ class CreateTablePanel(wx.Panel):
             'isUnique':isUnique,
             'default': default
             })
-        
             
 #         data.append(row)
         grid = self.GetTopLevelParent().createTablePanel.grid
@@ -289,7 +297,7 @@ class CreateTablePanel(wx.Panel):
         
     def updateTableEditorPanel(self):
         logger.debug('updateTableEditorPanel')
-        tableDict=self.GetParent().GetChildren()[0].tableDict
+        tableDict = self.GetParent().GetChildren()[0].tableDict
         if self.GetTopLevelParent().getEditorPanel():
             self.GetTopLevelParent().getEditorPanel().sstc.SetText(self.createSql(tableDict))
         
@@ -306,10 +314,10 @@ class CreateTablePanel(wx.Panel):
             if 'ifNotExists' in  tableDict.keys():
                 sqlList.append('IF NOT EXISTS')
             if 'schemaName' in tableDict.keys():
-                if tableDict['schemaName'].strip() !='':
+                if tableDict['schemaName'].strip() != '':
                     sqlList.append("'" + tableDict['schemaName'] + "'.'" + tableDict['tableName'] + "'")
                 else:
-                    sqlList.append("'"+ tableDict['tableName'] + "'")
+                    sqlList.append("'" + tableDict['tableName'] + "'")
                     
             else:
                 sqlList.append("'" + tableDict['tableName'] + "'")
@@ -318,15 +326,15 @@ class CreateTablePanel(wx.Panel):
             for idx, column in enumerate(tableDict['rows']):
                 sqlList.append("'" + column['columnName'] + "'")
                 sqlList.append(column['dataType'])
-                if column['isPrimaryKey']=='1':
+                if column['isPrimaryKey'] == '1':
                     sqlList.append('PRIMARY KEY')
-                    if column['isAutoIncrement']=='1':
+                    if column['isAutoIncrement'] == '1':
                         sqlList.append('AUTOINCREMENT')
-                elif column['isNotNull']=='1':
+                elif column['isNotNull'] == '1':
                     sqlList.append('NOT NULL')
-                elif column['isUnique']=='1':
+                elif column['isUnique'] == '1':
                     sqlList.append('UNIQUE')
-                elif column['isUnique']=='1':
+                elif column['isUnique'] == '1':
                     sqlList.append('UNIQUE')
                 elif 'check' in column.keys():
                     sqlList.append('CHECK ( ' + column['check'] + ' )')
@@ -338,9 +346,10 @@ class CreateTablePanel(wx.Panel):
             sqlList.append(')')  
             sqlList.append(';')  
         sql = " ".join(sqlList)
-        logger.debug('sql: %s',sql)
+        logger.debug('sql: %s', sql)
 #         formatedSql=sqlparse.format(sql, encoding=None)
         return sql                      
+
     def onRemoveColumnClick(self, event):
         logger.debug('onRemoveColumnClick clicked')
         self.removeRow()
@@ -351,7 +360,10 @@ class CreateTablePanel(wx.Panel):
         
     def onMoveDownClick(self, event):
         logger.debug('onMoveDownClick clicked')
+
+
 class SimpleGrid(wx.grid.Grid):
+
     def __init__(self, parent):
         wx.grid.Grid.__init__(self, parent, -1, size=(400, 300))
 #         data=dict()
@@ -392,18 +404,6 @@ class SimpleGrid(wx.grid.Grid):
         
         self.lastSelectedCell = None
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
         self.bindAllEvent()
     
     def bindAllEvent(self):
@@ -440,12 +440,13 @@ class SimpleGrid(wx.grid.Grid):
             logger.debug(self.GetCellValue(row, col))
             wx.MilliSleep(100)
 #             self.toggleCheckBox(row, col)
-            wx.CallLater(100,self.toggleCheckBox,(row,col))
+            wx.CallLater(100, self.toggleCheckBox, (row, col))
         evt.Skip()
+
     def toggleCheckBox(self, cell):
         try:
             self.cb.Value = not self.cb.Value
-            self.afterCheckBox(self.cb.Value,cell)
+            self.afterCheckBox(self.cb.Value, cell)
         except Exception as e:
             logger.error(e, exc_info=True)
 
@@ -456,7 +457,7 @@ class SimpleGrid(wx.grid.Grid):
             row, col = cell
             if self.isChecked:
                 self.SetCellValue(row, col, '1')
-                if col==3:
+                if col == 3:
                     # Setting image icon for primary key
                     self.SetCellValue(row, 0, "0")
             else:
@@ -531,12 +532,11 @@ class SimpleGrid(wx.grid.Grid):
                 self.MoveCursorRight(False)
         else:
             evt.Skip()
+
     def onCheckBox(self, evt):
-        logger.debug('onCheckBox lastSelectedCell:%s',self.lastSelectedCell)
+        logger.debug('onCheckBox lastSelectedCell:%s', self.lastSelectedCell)
         if self.lastSelectedCell:
             self.afterCheckBox(evt.IsChecked(), row=self.lastSelectedCell[0], col=self.lastSelectedCell[1])
-
-        
 
     ########################### Check box close ###################################    
                  
@@ -601,7 +601,6 @@ class SimpleGrid(wx.grid.Grid):
                                                                      evt.GetBottomRightCoords())
         evt.Skip()
  
- 
     def OnCellChange(self, evt):
  
         # Show how to stay in a cell that has bad data.  We can't just
@@ -612,7 +611,6 @@ class SimpleGrid(wx.grid.Grid):
         logger.debug("OnCellChange: (%s,%s) %s , sourceValue : %s" , evt.GetRow(), evt.GetCol(), evt.GetPosition(), sourceValue)
         sourceRow = evt.GetRow()
         sourceCol = evt.GetCol()
-        
         
         if sourceCol == 2:
             targetRow = sourceRow
@@ -628,6 +626,7 @@ class SimpleGrid(wx.grid.Grid):
                             self.SetCellValue(targetRow, targetCol, "1")
                             break
         self.Refresh()
+
 #         if value == 'no good':
 #             self.moveTo = evt.GetRow(), evt.GetCol()
 #         #All cells have a value, regardless of the editor.
@@ -647,7 +646,7 @@ class SimpleGrid(wx.grid.Grid):
             msg = 'Selected'
         else:
             msg = 'Deselected'
-        logger.debug("OnSelectCell: %s (%d,%d) %s\n" ,msg, evt.GetRow(),
+        logger.debug("OnSelectCell: %s (%d,%d) %s\n" , msg, evt.GetRow(),
                                                  evt.GetCol(), evt.GetPosition())
 #  
         row = self.GetGridCursorRow()
@@ -678,7 +677,6 @@ class SimpleGrid(wx.grid.Grid):
                                                evt.GetPosition())
         evt.Skip()
  
- 
     def OnEditorHidden(self, evt):
         if evt.GetRow() == 6 and evt.GetCol() == 3 and \
            wx.MessageBox("Are you sure you wish to  finish editing this cell?",
@@ -686,13 +684,10 @@ class SimpleGrid(wx.grid.Grid):
             evt.Veto()
             return
  
-        logger.debug("OnEditorHidden: (%d,%d) %s\n" ,evt.GetRow(),
+        logger.debug("OnEditorHidden: (%d,%d) %s\n" , evt.GetRow(),
                                                 evt.GetCol(),
                                                 evt.GetPosition())
         evt.Skip()
- 
- 
-
 
     # This method fires when the underlying GridCellChoiceEditor ComboBox
     # is done with a selection.
@@ -705,9 +700,6 @@ class SimpleGrid(wx.grid.Grid):
         logger.debug('ComboBox index: %u' , self.index)
         logger.debug('ComboBox data: %u\n' , self.data)
         event.Skip()        
-        
-        
-        
         
     # This method fires when any text editing is done inside the text portion
     # of the ComboBox. This method will fire once for each new character, so
@@ -724,17 +716,16 @@ class SimpleGrid(wx.grid.Grid):
         
         logger.debug('ComboBoxText: %s' , self.comboBox.GetValue())
         logger.debug('ComboBox index: %u\n' , self.index)
-        selectedColName=self.GetParent().tableDict['row'][0][self.lastSelectedCell[1]]
-        colName="".join(selectedColName.split(' ')).lower()
-        columns=self.GetParent().tableDict['rows'][self.lastSelectedCell[0]].keys()
+        selectedColName = self.GetParent().tableDict['row'][0][self.lastSelectedCell[1]]
+        colName = "".join(selectedColName.split(' ')).lower()
+        columns = self.GetParent().tableDict['rows'][self.lastSelectedCell[0]].keys()
         for col in columns:
             if colName in col.lower():
-                colName=col
+                colName = col
                 break
-                
         
-        logger.debug("currentValue:%s",self.GetParent().tableDict['rows'][self.lastSelectedCell[0]][colName])
-        self.GetParent().tableDict['rows'][self.lastSelectedCell[0]][colName]=self.comboBox.GetValue()
+        logger.debug("currentValue:%s", self.GetParent().tableDict['rows'][self.lastSelectedCell[0]][colName])
+        self.GetParent().tableDict['rows'][self.lastSelectedCell[0]][colName] = self.comboBox.GetValue()
         self.GetParent().updateTableEditorPanel()
 #         self.updateGridCell()
         event.Skip()
@@ -768,7 +759,6 @@ class SimpleGrid(wx.grid.Grid):
                 # - append currentRows:
                 self.AppendRows(newRows - currentRows)
                 
-                
             if newCols < currentCols:
                 # - Delete rows:
                 self.DeleteCols(pos=0, numCols=currentCols - newCols, updateLabels=True)
@@ -776,7 +766,6 @@ class SimpleGrid(wx.grid.Grid):
             if newCols > currentCols:
                 # - append currentRows:
                 self.AppendCols(newCols - currentCols)
-            
     
             self.fillTableData(data)
         else:
@@ -792,7 +781,7 @@ class SimpleGrid(wx.grid.Grid):
     
     def fillTableData(self, data=None):  
         for dataKey, dataValue in data.items():
-            logger.debug("dataKey:%s , dataValue: %s",dataKey, dataValue)
+            logger.debug("dataKey:%s , dataValue: %s", dataKey, dataValue)
             for idx, colValue in enumerate(dataValue):
 #                 logger.debug(idx, dataValue)
                 if dataKey == 0:
@@ -811,7 +800,7 @@ class SimpleGrid(wx.grid.Grid):
                             selectedDataType = dataType
                             break
                     self.SetCellValue(dataKey - 1, idx, selectedDataType[0])
-                    self.SetColSize(idx,100)
+                    self.SetColSize(idx, 100)
                     
                 elif dataKey > 0 and idx in self.comboBoxList:
                     self.SetCellValue(dataKey - 1, idx, str(colValue))      
@@ -829,24 +818,26 @@ class SimpleGrid(wx.grid.Grid):
                     attr.SetRenderer(GridCellIconRenderer(self.bmpList))
                     self.SetColAttr(idx, attr)  
                     self.SetCellValue(dataKey - 1, idx, str(colValue))
-                    self.SetColSize(idx,50)
+                    self.SetColSize(idx, 50)
                 
-                if idx==0:
-                    self.SetColSize(idx,50)  
-                elif idx==1:  
-                    self.SetColSize(idx,140)  
-                elif idx==2:  
-                    self.SetColSize(idx,150)  
-                elif idx==3:  
-                    self.SetColSize(idx,120)  
-                elif idx==4:  
-                    self.SetColSize(idx,100)  
-                elif idx==5:  
-                    self.SetColSize(idx,70)  
-                elif idx==6:  
-                    self.SetColSize(idx,150)  
-                elif idx==7:  
-                    self.SetColSize(idx,150)  
+                if idx == 0:
+                    self.SetColSize(idx, 50)  
+                elif idx == 1:  
+                    self.SetColSize(idx, 140)  
+                elif idx == 2:  
+                    self.SetColSize(idx, 150)  
+                elif idx == 3:  
+                    self.SetColSize(idx, 120)  
+                elif idx == 4:  
+                    self.SetColSize(idx, 100)  
+                elif idx == 5:  
+                    self.SetColSize(idx, 70)  
+                elif idx == 6:  
+                    self.SetColSize(idx, 150)  
+                elif idx == 7:  
+                    self.SetColSize(idx, 150)  
+
+
 class GridCellIconRenderer(wx.grid.PyGridCellRenderer):
     """
     Utility class for displaying an icon in a table column.
@@ -862,7 +853,7 @@ class GridCellIconRenderer(wx.grid.PyGridCellRenderer):
         try: 
             selectedBmp = self.bmpList[int(self.selectBmpIndex)]
         except Exception as e:
-            logger.error(e ,exc_info=True) 
+            logger.error(e , exc_info=True) 
         
         image = wx.MemoryDC()
         image.SelectObject(selectedBmp)
@@ -874,7 +865,7 @@ class GridCellIconRenderer(wx.grid.PyGridCellRenderer):
         else:
             dc.SetBrush(wx.Brush(wx.WHITE, wx.SOLID))
             dc.SetPen(wx.Pen(wx.WHITE, 1, wx.SOLID))
-        dc.DrawRectangleRect(rect)        
+        dc.DrawRectangle(rect)        
         # copy the image but only to the size of the grid cell
         width, height = selectedBmp.GetWidth(), selectedBmp.GetHeight()
 
@@ -887,14 +878,15 @@ class GridCellIconRenderer(wx.grid.PyGridCellRenderer):
         dc.Blit(rect.x + 1, rect.y + 1, width, height,
                 image,
                 0, 0, wx.COPY, True)
+
                       
 class GenericTable(wx.grid.PyGridTableBase):
+
     def __init__(self, data, rowLabels=None, colLabels=None):
         wx.grid.PyGridTableBase.__init__(self)
         self.data = data
         self.rowLabels = rowLabels
         self.colLabels = colLabels
-
         
     def GetNumberRows(self):
         """Return the number of rows in the grid"""
@@ -931,7 +923,6 @@ class GenericTable(wx.grid.PyGridTableBase):
     def GetTypeName(self, row, col):
         """Return the name of the data type of the value in the cell"""
         return None
-    
 
                    
 if __name__ == '__main__':

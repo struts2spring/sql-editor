@@ -6,7 +6,7 @@ Created on 31-Dec-2016
 import wx
 from wx import TreeCtrl
 from wx.lib.mixins.treemixin import ExpansionState
-from src.view.Constant import keyMap
+from src.view.constants import keyMap
 import os
 import logging
 

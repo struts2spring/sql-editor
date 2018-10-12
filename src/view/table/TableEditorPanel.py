@@ -7,7 +7,6 @@ Created on 15-Dec-2016
 import wx
 import wx.stc as stc
 import keyword
-from src.view.images import images
 import os
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 # from src.sqlite.executer.ConnectExecuteSqlite import SQLExecuter
@@ -105,7 +104,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         self.SetBufferedDraw(False)
         self.SetViewEOL(False)
         self.SetEOLMode(stc.STC_EOL_CRLF)
-        self.SetUseAntiAliasing(True)
+#         self.SetUseAntiAliasing(True)
         
         self.SetEdgeMode(stc.STC_EDGE_BACKGROUND)
         self.SetEdgeColumn(78)
@@ -187,7 +186,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         
         
 #         stc.EVT_STC_MARGINCLICK(self, self.GetId(), self.OnMarginClick)
-        wx.EVT_RIGHT_DOWN(self, self.OnPopUp)
+        self.Bind(wx.EVT_RIGHT_DOWN, self.OnPopUp)
         self.Bind(stc.EVT_STC_UPDATEUI, self.OnUpdateUI)
         self.Bind(stc.EVT_STC_MARGINCLICK, self.OnMarginClick)
         self.Bind(wx.EVT_KEY_DOWN, self.OnKeyPressed)
@@ -543,7 +542,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 f |= stc.STC_SCMOD_ALT
             elif uk == 'SHIFT':
                 f |= stc.STC_SCMOD_SHIFT
-            elif keylist.has_key(uk):
+            elif uk in keylist:
                 ikey = keylist[uk]
             elif len(uk) == 1:
                 ikey = ord(uk)

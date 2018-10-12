@@ -9,10 +9,11 @@ from wx.lib.mixins.listctrl import CheckListCtrlMixin
 import datetime
 import os
 from collections import OrderedDict
-from src.view.images import images
+
 import wx.stc as stc
 from src.view.table import TableEditorPanel
 from src.view.table.TableEditorPanel import SqlStyleTextCtrl
+import sqlparse
 try:
     from agw import ultimatelistctrl as ULC
 except ImportError:  # if it's not there locally, try the wxPython lib.
@@ -36,6 +37,8 @@ class CreatingTableFrame(wx.Frame):
         self.Bind(wx.EVT_CLOSE, self.OnCloseFrame)
         self.allowAuiFloating = False 
         self.SetMinSize((640, 480))
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        self.buttonPanel = CreateButtonPanel(self)
         splitter = wx.SplitterWindow(self, -1, style=wx.SP_3D)
 #         splitter2 = wx.SplitterWindow(splitter1, -1, style=wx.SP_3D)
         self.creatingTable = CreatingTablePanel(splitter)
@@ -53,6 +56,9 @@ class CreatingTableFrame(wx.Frame):
 #         self.tableEditorPanel = TableEditorPanel(splitter)
         splitter.SetMinimumPaneSize(20)
         splitter.SplitHorizontally(self.creatingTable, self.sstc)
+        sizer.Add(splitter, 1, wx.EXPAND)
+        sizer.Add(self.buttonPanel, 0, wx.EXPAND)
+        self.SetSizer(sizer)
 #         self.creatingToolbar()
         self.Center()
         self.createStatusBar()
@@ -62,10 +68,10 @@ class CreatingTableFrame(wx.Frame):
         self.Destroy()
 
     def createStatusBar(self):
-        print('creating status bar')
-        self.statusbar = self.CreateStatusBar(2, wx.ST_SIZEGRIP)
+        logger.info('creating status bar')
+        self.statusbar = self.CreateStatusBar(2, wx.STB_SIZEGRIP)
         self.statusbar.SetStatusWidths([-2, -3])
-        self.statusbar.SetStatusText(self.getCurrentCursorPosition(), 0)
+#         self.statusbar.SetStatusText(self.getCurrentCursorPosition(), 0)
         self.statusbar.SetStatusText("Welcome Opal Database Visualizer", 1)
 
 class TableListCtrl(ULC.UltimateListCtrl,
@@ -80,6 +86,9 @@ class CreatingTablePanel(wx.Panel):
     def __init__(self, parent, *args, **kw):
         wx.Panel.__init__(self, parent, -1, style=wx.WANTS_CHARS | wx.SUNKEN_BORDER)
         self.parent = parent
+        self.generatedSQL=None
+        
+        
         vBox = wx.BoxSizer(wx.VERTICAL)
         self.choiceId = 1000
         self.choices = ['INTEGER', 'TEXT', 'NUMERIC', 'REAL', 'BLOB']
@@ -126,17 +135,17 @@ class CreatingTablePanel(wx.Panel):
         self.imageList = ULC.PyImageList(16, 16)
         
          
-        print('not===============', __file__) 
-#         print(os.path.realpath(__file__))
-#         print(os.path.dirname(os.path.abspath(__file__)))
-#         print(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")))
+        logger.info('not==============='+ __file__) 
+#         logger.info(os.path.realpath(__file__))
+#         logger.info(os.path.dirname(os.path.abspath(__file__)))
+#         logger.info(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")))
         path = os.path.abspath(__file__)
         tail = None
         while tail != 'src':
             path = os.path.abspath(os.path.join(path, '..'))
             head, tail = os.path.split(path)
-        print('while===============', os.path.abspath(os.path.join(path, "images", "key.png"))) 
-        print(path)
+        logger.info('while==============='+ os.path.abspath(os.path.join(path, "images", "key.png"))) 
+        logger.info(path)
         self.imageId["key.png"] = self.imageList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "images", "key.png"))))
         self.imageId["textfield.png"] = self.imageList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "images", "textfield.png"))))
         self.imageId["unique_constraint.png"] = self.imageList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "images", "unique_constraint.png"))))
@@ -252,14 +261,14 @@ class CreatingTablePanel(wx.Panel):
         self.IsDrag = False
         event.Skip()
     def _onMouseDown(self, event):
-        print('_onMouseDown')
+        logger.info('_onMouseDown')
         self.IsInControl = True
         event.Skip()        
     def PopulateList(self):
 
         self.list.Freeze()
-        font = wx.SystemSettings_GetFont(wx.SYS_DEFAULT_GUI_FONT)
-        boldfont = wx.SystemSettings_GetFont(wx.SYS_DEFAULT_GUI_FONT)
+        font = wx.SystemSettings.GetFont(wx.SYS_DEFAULT_GUI_FONT)
+        boldfont = wx.SystemSettings.GetFont(wx.SYS_DEFAULT_GUI_FONT)
         boldfont.SetWeight(wx.BOLD)
         boldfont.SetPointSize(12)
         boldfont.SetUnderlined(True)
@@ -338,7 +347,7 @@ class CreatingTablePanel(wx.Panel):
         
         item3 = self.list.GetItem(self._itemId, 3)
         self.choiceId = 1000 + int(column['id'])
-        print('=======================================>', self.choiceId)
+        logger.info('=======================================>'+ str(self.choiceId))
         dataTypeChoice = wx.Choice(self.list, self.choiceId, (100, 50), choices=self.choices)
         dataTypeChoice.Bind(wx.EVT_CHOICE, self.OnChoice)
         for idx , choice in enumerate(self.choices):
@@ -352,15 +361,15 @@ class CreatingTablePanel(wx.Panel):
         
         if len(self.tableDict['columns'])>0:
             self.list.Focus(len(self.tableDict['columns'])-1)
-        print(self.tableDict)  
+        logger.info(self.tableDict)  
         self.updateTableEditorPanel()  
         
         
     def OnChoice(self, event):
 #         self.label.SetLabel("selected "+ self.choice.GetString( self.choice.GetSelection() ) +" from Choice")
-        print(self.list)
-        print(event.GetClientObject().GetId())
-        print(event.GetString())
+        logger.info(self.list)
+        logger.info(event.GetClientObject().GetId())
+        logger.info(event.GetString())
         rowId = event.GetClientObject().GetId() - 1000
 #         self.updateItemStatus(index=index)
         self.tableDict['columns'][rowId]['dataType'] = event.GetString()
@@ -368,7 +377,7 @@ class CreatingTablePanel(wx.Panel):
     def removeRow(self): 
         try:
             if self.list.GetFocusedItem() != -1:
-                print(self.list.GetSelectedItemCount())
+                logger.info(self.list.GetSelectedItemCount())
                 selectedItem = self.list.GetFocusedItem()
 #                 self.list.Select(selectedItem._itemId-1, True)
                 id = self.list.GetItemText(selectedItem)
@@ -381,7 +390,7 @@ class CreatingTablePanel(wx.Panel):
                 
         except KeyError:
             pass
-#         print(self.listctrldata)
+#         logger.info(self.listctrldata)
 #         self.display()
     def updateTableDict(self):
         pass
@@ -408,21 +417,21 @@ class CreatingTablePanel(wx.Panel):
         tb.SetToolBitmapSize(tsize)
         
         # tb.AddSimpleTool(10, new_bmp, "New", "Long help for 'New'")
-        tb.AddLabelTool(10, "Add a column", plus_bmp, shortHelp="Add a column", longHelp="Add a new Column")
+        tb.AddTool(10, "Add a column", plus_bmp, "Add a new Column")
         self.Bind(wx.EVT_TOOL, self.onAddColumnClick, id=10)
 #         self.Bind(wx.EVT_TOOL_RCLICKED, self.OnToolRClick, id=10)
 
         # tb.AddSimpleTool(20, open_bmp, "Open", "Long help for 'Open'")
-        tb.AddLabelTool(20, "Remove a column", minus_bmp, shortHelp="Remove a column", longHelp="Remove a column")
+        tb.AddTool(20, "Remove a column", minus_bmp, "Remove a column")
         self.Bind(wx.EVT_TOOL, self.onRemoveColumnClick, id=20)
 #         self.Bind(wx.EVT_TOOL_RCLICKED, self.OnToolRClick, id=20)
 
         tb.AddSeparator()
-        tb.AddSimpleTool(30, goUp_bmp, "Move field up", "move column up'")
+        tb.AddTool(30,"Move field up", goUp_bmp,  "move column up'")
         self.Bind(wx.EVT_TOOL, self.onMoveUpClick, id=30)
 #         self.Bind(wx.EVT_TOOL_RCLICKED, self.OnToolRClick, id=30)
 
-        tb.AddSimpleTool(40, goDown_bmp, "Move field down", "move column down")
+        tb.AddTool(40, "Move field down", goDown_bmp,  "move column down")
         self.Bind(wx.EVT_TOOL, self.onMoveDownClick, id=40)
 #         self.Bind(wx.EVT_TOOL_RCLICKED, self.OnToolRClick, id=40)
 
@@ -431,20 +440,20 @@ class CreatingTablePanel(wx.Panel):
         return tb
 
     def onAddColumnClick(self, event):
-        print('onAddColumn clicked')
+        logger.info('onAddColumn clicked')
         self.addRow()
         
     def onRemoveColumnClick(self, event):
-        print('onRemoveColumnClick clicked')
+        logger.info('onRemoveColumnClick clicked')
         self.removeRow()
 #         self.updateItemStatus(event.GetIndex(), event.GetItem())
     
         
     def onMoveUpClick(self, event):
-        print('onMoveUpClick clicked')
+        logger.info('onMoveUpClick clicked')
         
     def onMoveDownClick(self, event):
-        print('onMoveDownClick clicked')
+        logger.info('onMoveDownClick clicked')
         
         
     # Used by the ColumnSorterMixin, see wx/lib/mixins/listctrl.py
@@ -485,15 +494,15 @@ class CreatingTablePanel(wx.Panel):
         x = event.GetX()
         y = event.GetY()
 
-        print("x, y = %s\n" % str((x, y)))
+#         logger.info("x, y = %s\n" % str((x, y)))
         
         item, flags = self.list.HitTest((x, y))
 #         item, flags,subItem = self.list.HitTestSubItem((x, y))
-        print('---right down:', item, ':', flags)
+        logger.info('---right down:'+ item+ ':'+ flags)
 
         if item != wx.NOT_FOUND and flags & wx.LIST_HITTEST_ONITEM:
             self.list.Select(item)
-            print('right down:', item)
+            logger.info('right down:'+ item)
 
         event.Skip()
 
@@ -504,20 +513,20 @@ class CreatingTablePanel(wx.Panel):
 
 
     def OnItemSelected(self, event):
-        print('OnItemSelected:')
+        logger.info('OnItemSelected:')
         self.startIndex = event.GetIndex()
         self.currentItem = event.GetIndex()
         self.updateItemStatus(event.GetIndex(), event.GetItem())
-#         print("OnItemSelected: %s, %s, %s, %s\n" % (self.currentItem,
+#         logger.info("OnItemSelected: %s, %s, %s, %s\n" % (self.currentItem,
 #                                                             self.list.GetItemText(self.currentItem),
 #                                                             self.getColumnText(self.currentItem, 1),
 #                                                             self.getColumnText(self.currentItem, 2)))
 # 
 #         if self.list.GetPyData(self.currentItem):
-#             print("PYDATA = %s\n" % repr(self.list.GetPyData(self.currentItem)))
+#             logger.info("PYDATA = %s\n" % repr(self.list.GetPyData(self.currentItem)))
 # 
 #         if self.currentItem == 10:
-#             print("OnItemSelected: Veto'd selection\n")
+#             logger.info("OnItemSelected: Veto'd selection\n")
 #             # event.Veto()  # doesn't work
 #             # this does
 #             self.list.SetItemState(10, 0, wx.LIST_STATE_SELECTED)
@@ -527,7 +536,7 @@ class CreatingTablePanel(wx.Panel):
 
     def OnItemDeselected(self, event):
         item = event.GetItem()
-        print("OnItemDeselected: %d\n" % event.m_itemIndex)
+        logger.info("OnItemDeselected: {}".format(event.m_itemIndex))
 #         self.updateItemStatus(event.GetIndex(), event.GetItem())
 # #        # Show how to reselect something we don't want deselected
 # #        if evt.m_itemIndex == 11:
@@ -535,17 +544,17 @@ class CreatingTablePanel(wx.Panel):
         event.Skip()
     def updateItemStatus(self, index, item=None):
         
-        print('getColumnText0:' + self.getColumnText(index, 0))
+        logger.info('getColumnText0:' + self.getColumnText(index, 0))
         for col in range(4, 8):
             itemCol = self.list.GetItem(index, col)
-            print(col, item._itemId, index, itemCol.IsChecked())
+            logger.info("{},{},{},{}".format(col, item._itemId, index, itemCol.IsChecked()))
         column = self.tableDict['columns'][int(self.getColumnText(index, 0))]
         
         
         dataTypeItem = self.list.GetItem(index, 3)
         dataTypeChoice = dataTypeItem.GetWindow()
         idx = dataTypeChoice.GetSelection()
-        print(idx)
+        logger.info(idx)
         
         
 #         item3 = self.list.GetItem(column['id'], 3)
@@ -561,9 +570,9 @@ class CreatingTablePanel(wx.Panel):
         
         
         
-        print('before ----------------------------------------------->', self.list.GetItem(index, 4).IsChecked())
+        logger.info('before ----------------------------------------------->'+ str(self.list.GetItem(index, 4).IsChecked()))
         isPrimaryKey = self.list.GetItem(index, 4).IsChecked()
-        print('after ----------------------------------------------->', self.list.GetItem(index, 4).IsChecked())
+        logger.info('after ----------------------------------------------->'+ str(self.list.GetItem(index, 4).IsChecked()))
         column['isPrimaryKey'] = isPrimaryKey
         isNotNull = self.list.GetItem(index, 5).IsChecked()
         column["isNotNull"] = isNotNull
@@ -577,15 +586,18 @@ class CreatingTablePanel(wx.Panel):
 #                 column=col
 #                 break
 #                     column["description"]= 'No'
-        print(self.tableDict)
+        logger.info(self.tableDict)
         self.updateTableEditorPanel()
         
         
     def updateTableEditorPanel(self):
-        self.GetTopLevelParent().sstc.SetText(self.createSql())
-        pass
+        self.generatedSQL=self.createSql()
+        formatted_sql = sqlparse.format(self.generatedSQL, reindent=True, keyword_case='upper')
+        self.GetTopLevelParent().sstc.SetText(formatted_sql)
+        logger.info('updateTableEditorPanel')
     
     def createSql(self):    
+        logger.info('createSql')
         sqlList = list()
         sqlList.append("CREATE")
         if 'temp' in self.tableDict.keys():
@@ -598,7 +610,7 @@ class CreatingTablePanel(wx.Panel):
         else:
             sqlList.append("'" + self.tableDict['tableName'] + "'")
         sqlList.append('(')
-        print(self.tableDict['columns'])
+        logger.info(self.tableDict['columns'])
         for key, column in self.tableDict['columns'].items():
             sqlList.append("'" + column['columnName'] + "'")
             sqlList.append(column['dataType'])
@@ -627,10 +639,10 @@ class CreatingTablePanel(wx.Panel):
         
     def OnItemActivated(self, event):
         self.currentItem = event.m_itemIndex
-        print("OnItemActivated: %s\nTopItem: %s\n" % (self.list.GetItemText(self.currentItem), self.list.GetTopItem()))
+        logger.info("OnItemActivated: " + (self.list.GetItemText(self.currentItem) +":"+ self.list.GetTopItem()))
 
     def OnBeginEdit(self, event):
-        print("OnBeginEdit\n")
+        logger.info("OnBeginEdit\n")
 #         event.Allow()
         
     def _onInsert(self, event):
@@ -646,49 +658,49 @@ class CreatingTablePanel(wx.Panel):
         self.dragIndex = -1
 #         event.Skip()
     def OnItemDelete(self, event):
-        print("OnItemDelete\n")
+        logger.info("OnItemDelete\n")
         self._onStripe()
         event.Skip()
     def _onStripe(self):
         if self.list.GetItemCount() > 0:
             for x in range(self.list.GetItemCount()):
                 if x % 2 == 0:
-                    self.list.SetItemBackgroundColour(x, wx.SystemSettings_GetColour(wx.SYS_COLOUR_3DLIGHT))
+                    self.list.SetItemBackgroundColour(x, wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DLIGHT))
                 else:
                     self.list.SetItemBackgroundColour(x, wx.WHITE)
     def OnColClick(self, event):
-        print("OnColClick: %d\n" % event.GetColumn())
+        logger.info("OnColClick: " + event.GetColumn())
         event.Skip()
 
     def OnColRightClick(self, event):
         item = self.list.GetColumn(event.GetColumn())
-        print("OnColRightClick: %d %s\n" % (event.GetColumn(), (item.GetText(), item.GetAlign(),
+        logger.info("OnColRightClick: " + (event.GetColumn(), (item.GetText(), item.GetAlign(),
                                                                         item.GetWidth(), item.GetImage())))
 
     def OnColBeginDrag(self, event):
-        print("OnColBeginDrag\n")
+        logger.info("OnColBeginDrag\n")
         # # Show how to not allow a column to be resized
         # if event.GetColumn() == 0:
         #    event.Veto()
 
 
     def OnColDragging(self, event):
-        print("OnColDragging\n")
+        logger.info("OnColDragging\n")
 
     def OnColEndDrag(self, event):
-        print("OnColEndDrag\n")
+        logger.info("OnColEndDrag\n")
 
     def OnBeginDrag(self, event):
         self.IsDrag = True
         self.dragIndex = event.GetIndex()
-        print("OnBeginDrag\n", self.dragIndex)
+        logger.info("OnBeginDrag\n"+ self.dragIndex)
         event.Skip()
         
            
-#         print(event.GetIndex())
+#         logger.info(event.GetIndex())
 #         data=wx.PyTextDataObject()
 #         index=event.GetIndex()
-# #         print(self.list.GetdragcursorData())
+# #         logger.info(self.list.GetdragcursorData())
 #         
 #         
 #         dropSource=wx.DropSource(self)
@@ -699,7 +711,7 @@ class CreatingTablePanel(wx.Panel):
 
     def OnEndDrag(self, event):     
         self.dropIndex = event.GetIndex()   
-        print("OnEndDrag\n", self.dropIndex)
+        logger.info("OnEndDrag: "+ self.dropIndex)
         
         
         #----------
@@ -723,15 +735,15 @@ class CreatingTablePanel(wx.Panel):
         thisItem_6 = self.list.GetItem(self.startIndex, 6)
         thisItem_7 = self.list.GetItem(self.startIndex, 7)
         
-        print('thisItem_3.GetWindow()----------', thisItem_3.GetWindow())
+        logger.info('thisItem_3.GetWindow()----------'+ thisItem_3.GetWindow())
         
         
         for x in range(self.list.GetColumnCount()):
             dropList.append(self.list.GetItem(self.startIndex, x).GetText())
         
         thisItem.SetId(self.dropIndex)
-        print('dropList------------>', dropList)
-        print('thisItem------------>', thisItem)
+        logger.info('dropList------------>'+ dropList)
+        logger.info('thisItem------------>'+ thisItem)
 #         thisItem.set
         
         self.list.DeleteItem(self.startIndex)
@@ -774,16 +786,16 @@ class CreatingTablePanel(wx.Panel):
         
         
 #         self.list.SetStringItem(self.dropIndex , 8, column['description'], it_kind=0)        
-        print(self.tableDict)
+        logger.info(self.tableDict)
         self.updateTableEditorPanel()
         
     def OnDoubleClick(self, event):
-        print("OnDoubleClick item %s\n" % self.list.GetItemText(self.currentItem))
+        logger.info("OnDoubleClick item %s\n" + self.list.GetItemText(self.currentItem))
         event.Skip()
 
     def OnRightClick(self, event):
-        print("OnRightClick %s\n" % self.list.GetItemText(self.currentItem))
-        print('GetColumn:', self.list.GetSizeTuple())
+        logger.info("OnRightClick %s\n" + self.list.GetItemText(self.currentItem))
+        logger.info('GetColumn:'+ self.list.GetSizeTuple())
         # only do this part the first time so the events are only bound once
         if not hasattr(self, "popupID1"):
             self.popupID1 = wx.NewId()
@@ -819,7 +831,7 @@ class CreatingTablePanel(wx.Panel):
         countSel = 0
         selectedIndexSet = set()
         count = self.list._mainWin.GetItemCount()
-        for line in xrange(count):
+        for line in range(count):
             if self.list._mainWin.GetLine(line).IsHighlighted():
                 countSel += 1
                 selectedIndexSet.add(line)
@@ -831,14 +843,14 @@ class CreatingTablePanel(wx.Panel):
         selectedIndexSet = set()
         while index != -1:
             selectedIndexSet.add(self.list.GetItemText(index))
-            print("      %s: %s" % (self.list.GetItemText(index), self.getColumnText(index, 1)))
+#             logger.info("      %s: %s" % (self.list.GetItemText(index), self.getColumnText(index, 1)))
 #             self.list.DeleteItem(index)
             index = self.list.GetNextSelected(index)
             if index > -1:
                 selectedIndexSet.add(self.list.GetItemText(index))
                 
         count = self.list._mainWin.GetItemCount()
-        for line in xrange(count):
+        for line in range(count):
             if self.list._mainWin.GetItem(line):
                 countSel += 1
                 selectedIndexSet.add(line)
@@ -850,24 +862,24 @@ class CreatingTablePanel(wx.Panel):
                     self.list.DeleteItem(idx)
                 except Exception as e:
                     logger.error(e, exc_info=True)
-        print(selectedIndexSet)
-#                 print(idx, item)
+        logger.info(selectedIndexSet)
+#                 logger.info(idx, item)
 
 
 
     def OnPopupTwo(self, event):
-        print("Selected items:")
+        logger.info("Selected items:")
         index = self.list.GetFirstSelected()
 
         while index != -1:
-            print("      %s: %s" % (self.list.GetItemText(index), self.getColumnText(index, 1)))
+            logger.info("      %s: %s" % (self.list.GetItemText(index), self.getColumnText(index, 1)))
 #             self.list.Dele
             index = self.list.GetNextSelected(index)
 
-        print("\n")
+        logger.info("\n")
 
     def OnPopupThree(self, event):
-        print("Popup three")
+        logger.info("Popup three")
         self.list.ClearAll()
         wx.CallAfter(self.PopulateList)
         
@@ -877,10 +889,56 @@ class CreatingTablePanel(wx.Panel):
 
     def OnPopupFive(self, event):
         item = self.list.GetItem(self.currentItem)
-        print(("%s, %s, %s") % (item._text, item._itemId, self.list.GetItemData(self.currentItem)))
+#         logger.info(("%s, %s, %s") % (item._text, item._itemId, self.list.GetItemData(self.currentItem)))
 
     def OnPopupSix(self, event):
         self.list.EditLabel(self.currentItem)
+        
+class CreateButtonPanel(wx.Panel):
+
+    def __init__(self, parent=None, *args, **kw):
+        wx.Panel.__init__(self, parent, id=-1)
+        self.parent = parent         
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        hbox = wx.BoxSizer(wx.HORIZONTAL)
+        okButton = wx.Button(self, 50, "Ok", (20, 220))
+        okButton.SetToolTip("Execute script to create table.")
+        self.Bind(wx.EVT_BUTTON, self.onOkClick, okButton)
+        
+        cancelButton = wx.Button(self, 51, "Cancel", (20, 220))
+        cancelButton.SetToolTip("Execute script to create table.")
+        self.Bind(wx.EVT_BUTTON, self.onCancelButtonClick, cancelButton)
+
+#         b.SetBitmap(images.Mondrian.Bitmap,
+#                     wx.LEFT    # Left is the default, the image can be on the other sides too
+#                     #wx.RIGHT
+#                     #wx.TOP
+#                     #wx.BOTTOM
+#                     )
+        hbox.Add(okButton)    
+        hbox.Add(cancelButton)    
+#         sizer.Add(cancelButton, 0, wx.ALIGN_RIGHT | wx.RIGHT | wx.BOTTOM)
+        sizer.Add(hbox, 0, wx.ALIGN_RIGHT | wx.RIGHT | wx.BOTTOM)
+#         sizer.Add(vBox, 1, wx.EXPAND , 0)
+        self.SetAutoLayout(True)
+        self.SetSizer(sizer)
+
+    def onOkClick(self, event):
+        logger.debug('onOkClick')
+        
+        self.executeSQL()
+
+    def onCancelButtonClick(self, event):
+        logger.debug('onCancelButtonClick')
+        self.GetTopLevelParent().Destroy()
+
+
+    def executeSQL(self):
+        '''
+        '''
+        error = 'success'
+        logger.info(self.GetTopLevelParent().createTablePanel.generatedSQL)
+
 if __name__ == '__main__':
     app = wx.App(False)
     frame = CreatingTableFrame(None, 'table creation')

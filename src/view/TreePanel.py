@@ -10,12 +10,13 @@ from wx import TreeCtrl
 from wx.lib.mixins.treemixin import ExpansionState
 from src.view.constants import ID_newWorksheet,  ID_CONNECT_DB, \
     ID_DISCONNECT_DB, ID_ROOT_NEW_CONNECTION, ID_ROOT_REFERESH, keyMap
-from src.view.table.CreateNewTable import CreateTableFrame
+# from src.view.table.CreateTable import CreateTableFrame
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter, \
     ManageSqliteDatabase
 from src.view.connection.NewConnectionWizard import CreateNewConncetionWixard
 from src.view.schema.CreateSchemaViewer import CreateErDiagramFrame
 import logging
+from src.view.table.CreateTable import CreatingTableFrame
 
 logger = logging.getLogger('extensive')
 
@@ -601,11 +602,11 @@ class CreatingTreePanel(wx.Panel):
         createErDiagramFrame.Show()        
     def onNewTable(self, event):
         logger.debug('onNewTable')
-        tableFrame = CreateTableFrame(None, 'Table creation')
+        tableFrame = CreatingTableFrame(None, 'Table creation')
 #         frame = CreateTableFrame(None, 'table creation')
     
-        tableDict = dict()
-        tableFrame.setData(tableDict)
+#         tableDict = dict()
+#         tableFrame.setData(tableDict)
         tableFrame.Show()
 #         app.MainLoop()
         
