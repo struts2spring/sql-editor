@@ -44,6 +44,4 @@ notifications:
 
 script: nosetests -v --with-id  --with-coverage --with-html --cover-package=./
 
-after_success:
-  - coveralls 
 
