@@ -237,13 +237,13 @@ class SQLExecuter():
             for t in types:
 #                 logger.debug t[0], type(t)
                 tObjectArrayList = list()
-                query = "select tbl_name from sqlite_master where type='%s' order by tbl_name;" % t[0]
+                query = "select tbl_name from sqlite_master where type='{}' order by tbl_name;".format(t[0])
                 logger.debug(query)
                 tObjectList = cur.execute(query).fetchall()
                 tableColumnList = list()
                 for tObj in tObjectList:
                     if t[0] == 'table' or t[0] == 'index':
-                        tableColumnsOrIndexesSql = "PRAGMA " + t[0] + "_info(%s);" % tObj[0]
+                        tableColumnsOrIndexesSql = "PRAGMA {}_info('{}');".format(t[0],tObj[0])
                         logger.debug(tableColumnsOrIndexesSql)
                         tableColumnsOrIndexesList = cur.execute(tableColumnsOrIndexesSql).fetchall()
 #                         logger.debug objChildList
@@ -361,13 +361,16 @@ class ManageSqliteDatabase():
             for t in types:
 #                 logger.debug t[0], type(t)
                 tObjectArrayList = list()
-                query = "select tbl_name from sqlite_master where type='%s' order by tbl_name;" % t[0]
+                query = "select tbl_name from sqlite_master where type='{}' order by tbl_name;".format(t[0])
                 logger.debug(query)
                 tObjectList = cur.execute(query).fetchall()
                 tableColumnList = list()
                 for tObj in tObjectList:
                     if t[0] == 'table' or t[0] == 'index':
-                        tableColumnsOrIndexesSql = "PRAGMA " + t[0] + "_info(%s);" % tObj[0]
+#                         tableColumnsOrIndexesSql = "PRAGMA " + t[0] + "_info(%s);" % tObj[0]
+                        tableColumnsOrIndexesSql = "PRAGMA {}_info('{}');".format(t[0], tObj[0])
+                        
+                        
 #                         logger.debug(tableColumnsOrIndexesSql)
                         tableColumnsOrIndexesList = cur.execute(tableColumnsOrIndexesSql).fetchall()
 #                         logger.debug objChildList
@@ -465,7 +468,7 @@ class ManageSqliteDatabase():
             
             cur = self.conn.cursor() 
 #             logger.debug('before')
-            cur.execute("SELECT * FROM " + table)
+            cur.execute("SELECT * FROM {}".format(table))
         
             rows = cur.fetchall()
             

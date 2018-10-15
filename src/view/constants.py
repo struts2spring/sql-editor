@@ -8,6 +8,7 @@ ID_UPDATE_CHECK = wx.NewId()
 ID_newConnection = wx.NewId()
 ID_openConnection = wx.NewId()
 ID_newWorksheet = wx.NewId()
+ID_deleteWithDatabase = wx.NewId()
 
 ID_RUN = wx.NewId()
 ID_EXECUTE_SCRIPT = wx.NewId()

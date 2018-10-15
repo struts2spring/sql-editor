@@ -8,7 +8,7 @@ import wx
 import os
 from wx import TreeCtrl
 from wx.lib.mixins.treemixin import ExpansionState
-from src.view.constants import ID_newWorksheet,  ID_CONNECT_DB, \
+from src.view.constants import ID_newWorksheet, ID_CONNECT_DB, ID_deleteWithDatabase, \
     ID_DISCONNECT_DB, ID_ROOT_NEW_CONNECTION, ID_ROOT_REFERESH, keyMap
 # from src.view.table.CreateTable import CreateTableFrame
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter, \
@@ -17,11 +17,13 @@ from src.view.connection.NewConnectionWizard import CreateNewConncetionWixard
 from src.view.schema.CreateSchemaViewer import CreateErDiagramFrame
 import logging
 from src.view.table.CreateTable import CreatingTableFrame
+from src.view.util.FileOperations import FileOperations
 
 logger = logging.getLogger('extensive')
 
 
 class CreatingTreePanel(wx.Panel):
+
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
@@ -79,6 +81,7 @@ class CreatingTreePanel(wx.Panel):
             logger.error(e, exc_info=True)
         wx.EndBusyCursor()
         self.recreateTree()   
+
     #---------------------------------------------    
     def recreateTree(self, evt=None):
         # Catch the search type (name or content)
@@ -91,24 +94,19 @@ class CreatingTreePanel(wx.Panel):
                 # Do not`scan all the demo files for every char
                 # the user input, use wx.EVT_TEXT_ENTER instead
                 return
-
-
                     
         self.createDefaultNode()
                     
         self.tree.Expand(self.root)
-
         
         self.tree.Thaw()
         self.searchItems = {}
-
     
     #---------------------------------------------
     def createDefaultNode(self):
         logger.debug("TreePanel.createDefaultNode")
         sqlExecuter = SQLExecuter()
         dbList = sqlExecuter.getListDatabase()
-        
         
         fullSearch = False
         expansionState = self.tree.GetExpansionState()
@@ -160,8 +158,6 @@ class CreatingTreePanel(wx.Panel):
             # Appending connections
             self.addNode(targetNode=self.root, nodeLabel=db[1], pydata=data, image=image)
 
-
-
         if firstChild:
             self.tree.Expand(firstChild)
         if filter:
@@ -172,8 +168,6 @@ class CreatingTreePanel(wx.Panel):
             self.skipLoad = True
             self.tree.SelectItem(selectItem)
             self.skipLoad = False      
-    
-    
             
     def addNode(self, targetNode=None, nodeLabel='label', pydata=None, image=16):  
         nodeCreated = self.tree.AppendItem(targetNode, nodeLabel, image=image)
@@ -202,7 +196,6 @@ class CreatingTreePanel(wx.Panel):
     def onTreeItemActivated(self, event):
         logger.debug('onTreeItemActivated')
         self.onConnectDb(event)
-        
         
     def onTreeKeyDown(self, event):
         logger.debug('onTreeKeyDown')
@@ -235,6 +228,7 @@ class CreatingTreePanel(wx.Panel):
             else:
                 keyname = "(%s)unknown" % keycode
         return modifiers + keyname
+
     #----------------------------------------------------------------------
     def onF2KeyPress(self, event):
         try:
@@ -248,6 +242,7 @@ class CreatingTreePanel(wx.Panel):
         except Exception as e:
             logger.error(e, exc_info=True)
         pass
+
     def onTreeCopy(self, event):
         """"""
         self.dataObj = wx.TextDataObject()
@@ -267,10 +262,12 @@ class CreatingTreePanel(wx.Panel):
         if item == self.tree.GetSelection():
             logger.debug(self.tree.GetItemText(item) + " Overview")
         event.Skip()
+
     #---------------------------------------------
     def OnSelChanged(self, event):
         logger.debug('OnSelChanged')
         pass
+
     #---------------------------------------------
     def OnTreeRightDown(self, event):
         
@@ -306,7 +303,6 @@ class CreatingTreePanel(wx.Panel):
             event.Skip()
             return
         logger.debug('OnTreeRightUp')
-
         
         menu = wx.Menu()
         data = self.tree.GetItemData(item)
@@ -316,7 +312,7 @@ class CreatingTreePanel(wx.Panel):
             
             refreshBmp = wx.MenuItem(menu, ID_ROOT_REFERESH, "&Refresh")
             refreshBmp.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "database_refresh.png"))))
-            rootRefresh = menu.AppendItem(refreshBmp)
+            rootRefresh = menu.Append(refreshBmp)
             
             self.Bind(wx.EVT_MENU, self.onRootRefresh, rootRefresh)
             self.Bind(wx.EVT_MENU, self.onRootNewConnection, rootNewConnection)
@@ -341,36 +337,38 @@ class CreatingTreePanel(wx.Panel):
             refreshBmp.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "database_refresh.png"))))
             item5 = menu.Append(refreshBmp)
             
-            
             item6 = menu.Append(wx.ID_ANY, "Edit Connection")
             menu.AppendSeparator()
 #             item7 = wx.MenuItem(menu, wx.ID_ANY, "&Smile!\tCtrl+S", "This one has an icon")
 #             item7.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "index.png"))))
 #             menu.AppendItem(item7)
             
-            deleteMenuItem = wx.MenuItem(menu, wx.ID_DELETE, "Delete \t Delete")
+            deleteMenuItem = wx.MenuItem(menu, wx.ID_DELETE, "Delete reference \t Delete")
             delBmp = wx.ArtProvider.GetBitmap(wx.ART_DELETE, wx.ART_MENU, (16, 16))
             deleteMenuItem.SetBitmap(delBmp)
             delMenu = menu.Append(deleteMenuItem)
-#             self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
             
+            deleteWithDatabaseMenuItem = wx.MenuItem(menu, ID_deleteWithDatabase, "Delete with database \t Delete")
+            delBmp = wx.ArtProvider.GetBitmap(wx.ART_DELETE, wx.ART_MENU, (16, 16))
+            deleteWithDatabaseMenuItem.SetBitmap(delBmp)
+            deleteWithDatabaseMenu = menu.Append(deleteWithDatabaseMenuItem)
+#             self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
             
             self.Bind(wx.EVT_MENU, self.onOpenSqlEditorTab, item3)
             self.Bind(wx.EVT_MENU, self.onProperties, item4)
             self.Bind(wx.EVT_MENU, self.onRefresh, item5)
             self.Bind(wx.EVT_MENU, self.onEditConnection, item6)
             self.Bind(wx.EVT_MENU, self.onDeleteConnection, delMenu)
-
-            
+            self.Bind(wx.EVT_MENU, self.onDeleteWithDatabaseTable, deleteWithDatabaseMenu)
 
         elif rightClickDepth == 2:
             if 'table' in self.tree.GetItemText(item):
                 newTableItem = menu.Append(wx.ID_ANY, "Create new table")
                 erDiagramItem = menu.Append(wx.ID_ANY, "Create ER diagram")
-                item2 = menu.Append(wx.ID_ANY, "Refresh  \tF5")
+                refreshTableItem = menu.Append(wx.ID_ANY, "Refresh  \tF5")
                 self.Bind(wx.EVT_MENU, self.onNewTable, newTableItem)
                 self.Bind(wx.EVT_MENU, self.onCreateErDiagramItem, erDiagramItem)
-
+                self.Bind(wx.EVT_MENU, self.onRefreshTable, refreshTableItem)
                 
             if 'view' in self.tree.GetItemText(item):
                 newViewItem = menu.Append(wx.ID_ANY, "Create new view")
@@ -393,10 +391,10 @@ class CreatingTreePanel(wx.Panel):
             deleteTableItem = wx.MenuItem(menu, wx.ID_DELETE, "Delete \t Delete")
             delBmp = wx.ArtProvider.GetBitmap(wx.ART_DELETE, wx.ART_MENU, (16, 16))
             deleteTableItem.SetBitmap(delBmp)
-            delTableMenu = menu.AppendItem(deleteTableItem)
-            
+            delTableMenu = menu.Append(deleteTableItem)
             
             self.Bind(wx.EVT_MENU, self.onDeleteTable, delTableMenu)
+            
             self.Bind(wx.EVT_MENU, self.onEditTable, editTableItem)
             self.Bind(wx.EVT_MENU, self.onRenameTable, renameTableItem)
             self.Bind(wx.EVT_MENU, self.onCopyCreateTableStatement, copyCreateTableItem)
@@ -409,17 +407,14 @@ class CreatingTreePanel(wx.Panel):
 #             self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
             self.Bind(wx.EVT_MENU, self.onRenameColumn, renameColumnItem)
         
-        
-        
         self.PopupMenu(menu)
-        menu.Destroy() 
-        
-    
+        menu.Destroy()
+
     def onDeleteTable(self, event):
         logger.debug('onDeleteTable')
         try:
 #             data = self.tree.GetPyData(self.tree.GetSelection()).Data
-            depth = self.tree.GetItemData(self.tree.GetSelection()).Data['depth']
+            depth = self.tree.GetItemData(self.tree.GetSelection())['depth']
             ##################################################################################
             sqlExecuter = SQLExecuter(database='_opal.sqlite')
             textCtrl = self.GetTopLevelParent()._ctrl
@@ -431,20 +426,26 @@ class CreatingTreePanel(wx.Panel):
     #         connectionName = data['connection_name']
 #             databaseAbsolutePath = data['db_file_path']
             if os.path.isfile(databaseAbsolutePath) and depth == 3:     
-                text = 'DROP TABLE ' + self.tree.GetItemText(self.tree.GetSelection())
+                text = "DROP TABLE '{}'".format(self.tree.GetItemText(self.tree.GetSelection()))
                 dbObjects = ManageSqliteDatabase(connectionName=selectedItemText , databaseAbsolutePath=databaseAbsolutePath).executeText(text)
                 self.recreateTree(event) 
         except Exception as e:
             logger.error(e, exc_info=True)
+
     def onRootRefresh(self, event):
         logger.debug('onRootRefresh')
         self.recreateTree(event)
+
     def onRootNewConnection(self, event):
         logger.debug('onRootNewConnection')
         CreateNewConncetionWixard().createWizard()
         
+        # Refresh tree.
+        self.onRootRefresh(event)
+        
     def onCopyCreateTableStatement(self, event):
         logger.debug('onCopyCreateTableStatement')
+
     def onRenameColumn(self, event):
         logger.debug('onRenameColumn')
         initialColumnName = self.tree.GetItemText(self.tree.GetSelection())
@@ -495,6 +496,7 @@ class CreatingTreePanel(wx.Panel):
         
     def onEditTable(self, event):
         logger.debug('onEditTable')
+
     def OnItemBackground(self, event):
         logger.debug('OnItemBackground')
         try:
@@ -503,6 +505,7 @@ class CreatingTreePanel(wx.Panel):
             self.tree.EditLabel(item)
         except Exception as e:
             logger.error(e, exc_info=True)
+
     def onConnectDb(self, event):
         logger.debug('onConnectDb')
 #         item = self.tree.GetSelection() 
@@ -518,7 +521,6 @@ class CreatingTreePanel(wx.Panel):
                         self.openWorksheet()
         except Exception as e:
             logger.error(e, exc_info=True)
-                    
     
     def setAutoCompleteText(self, selectedItemText):
         '''
@@ -541,10 +543,12 @@ class CreatingTreePanel(wx.Panel):
         selectedItem = self.tree.GetSelection()
         if selectedItem:
             self.tree.DeleteChildren(selectedItem)
+
             # Todo change icon to dissable
     def onOpenSqlEditorTab(self, event):
         logger.debug('onOpenSqlEditorTab')
         self.openWorksheet()
+
     def openWorksheet(self):
         if hasattr(self.GetTopLevelParent(), '_mgr'):
             sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("sqlExecution")
@@ -552,7 +556,6 @@ class CreatingTreePanel(wx.Panel):
 
     def onProperties(self, event):
         logger.debug('onProperties')
-        
         
     def onRefresh(self, event=None):
         logger.debug('onRefresh')
@@ -574,6 +577,24 @@ class CreatingTreePanel(wx.Panel):
 #             self.getNodeOnOpenConnection(selectedItemId)
     def onEditConnection(self, event):
         logger.debug('onEditConnection')
+        
+    def onDeleteWithDatabaseTable(self, event):
+        logger.debug('onDeleteWithDatabaseTable')
+#         self.onDeleteConnection(event)
+        ##################################################################################
+        sqlExecuter = SQLExecuter(database='_opal.sqlite')
+        selectedItemId = self.tree.GetSelection()
+        selectedItemText = self.tree.GetItemText(self.tree.GetSelection())
+        dbFilePath = sqlExecuter.getDbFilePath(selectedItemText)
+        logger.debug("dbFilePath: %s", dbFilePath)
+        
+        ##################################################################################
+        fileOperations = FileOperations()
+        fileRemoved = fileOperations.removeFile(filename=dbFilePath)
+        if selectedItemText and fileRemoved:
+            self.sqlExecuter.removeConnctionRow(selectedItemText)
+            self.recreateTree()
+
     def onDeleteConnection(self, event):
         logger.debug('onDeleteConnection')
         selectedItemId = self.tree.GetSelection()
@@ -600,6 +621,7 @@ class CreatingTreePanel(wx.Panel):
         createErDiagramFrame = CreateErDiagramFrame(None)
         createErDiagramFrame.setDbObjects(dbObjects=dbObjects)
         createErDiagramFrame.Show()        
+
     def onNewTable(self, event):
         logger.debug('onNewTable')
         tableFrame = CreatingTableFrame(None, 'Table creation')
@@ -612,11 +634,11 @@ class CreatingTreePanel(wx.Panel):
         
     def onNewView(self, event):
         logger.debug('onNewView')
+
 #         tableFrame = CreateTableFrame(None, 'Table creation')
     def onNewIndex(self, event):
         logger.debug('onNewIndex')
 #         tableFrame = CreateTableFrame(None, 'Table creation')
-        
         
     def getNodeOnOpenConnection(self, selectedItemId):
         '''
@@ -701,13 +723,12 @@ class CreatingTreePanel(wx.Panel):
             
         return isSuccessfullyConnected
 
-
-
         
 class DatabaseNavigationTree(ExpansionState, TreeCtrl):
     '''
     Left navigation tree in database page
     '''
+
     def __init__(self, parent):
         TreeCtrl.__init__(self, parent, style=wx.TR_DEFAULT_STYLE | 
                                wx.TR_HAS_VARIABLE_ROW_HEIGHT)
@@ -729,7 +750,6 @@ class DatabaseNavigationTree(ExpansionState, TreeCtrl):
 #                           'EVT_TREE_SEL_CHANGING': self.OnSelChanging, "EVT_TREE_ITEM_HYPERLINK": self.OnHyperLink
                           }
         self.SetInitialSize((100, 80))
-        
             
     def AppendItem(self, parent, text, image=-1, wnd=None):
 
@@ -768,6 +788,7 @@ class DatabaseNavigationTree(ExpansionState, TreeCtrl):
         logger.debug("OnKeyDown: You Pressed : %s", keyname)
 
         event.Skip()            
+
     def BuildTreeImageList(self):
         logger.debug('BuildTreeImageList')
         path = os.path.abspath(__file__)
@@ -807,7 +828,6 @@ class DatabaseNavigationTree(ExpansionState, TreeCtrl):
 #         imgList.Add(wx.Bitmap(path2))
 #         for png in _demoPngs:
 #             imgList.Add(catalog[png].GetBitmap())
-            
 
         self.AssignImageList(imgList)
 
@@ -823,11 +843,13 @@ class DatabaseNavigationTree(ExpansionState, TreeCtrl):
             return super(DatabaseNavigationTree, self).Thaw()
 #---------------------------------------------------------------------------
 
+
 class MainPanel(wx.Panel):
     """
     Just a simple derived panel where we override Freeze and Thaw so they are
     only used on wxMSW.    
     """
+
     def Freeze(self):
         if 'wxMSW' in wx.PlatformInfo:
             return super(MainPanel, self).Freeze()
@@ -835,6 +857,8 @@ class MainPanel(wx.Panel):
     def Thaw(self):
         if 'wxMSW' in wx.PlatformInfo:
             return super(MainPanel, self).Thaw()
+
+
 #---------------------------------------------------------------------------
 if __name__ == '__main__':
 #     treeImageLevel = dict()
