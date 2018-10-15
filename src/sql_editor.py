@@ -5,13 +5,7 @@ import os
 import tempfile
 from src.view.sql_editor_view import DatabaseMainFrame
 
-
-__version__='0.0.1'
-
-
 logger = logging.getLogger('extensive')
-
-
 
 LOG_SETTINGS = {
 'version': 1,
@@ -26,7 +20,7 @@ LOG_SETTINGS = {
         'class': 'logging.handlers.RotatingFileHandler',
         'level': 'DEBUG',
         'formatter': 'detailed',
-        'filename': os.path.join(tempfile.gettempdir(),'sql_editor.log'),
+        'filename': os.path.join(tempfile.gettempdir(), 'sql_editor.log'),
         'mode': 'a',
         'maxBytes': 10485760,
         'backupCount': 5,
@@ -44,19 +38,21 @@ LOG_SETTINGS = {
 },
 'loggers': {
     'extensive': {
-        'level':'DEBUG',
-        'handlers': ['file','console' ]
+        'level': 'DEBUG',
+        'handlers': ['file', 'console']
         },
 }
 }
 logging.config.dictConfig(LOG_SETTINGS)
-print( os.path.join(tempfile.gettempdir()))
+print(os.path.join(tempfile.gettempdir()))
+
 
 def main():
     app = wx.App()
     frame = DatabaseMainFrame(None)
     frame.Show()
     app.MainLoop()
+
 
 if __name__ == '__main__':
     main()
