@@ -6,14 +6,11 @@ with open("README.md", "r") as fh:
 
 
 def get_version():
-    with open(os.path.join('src', 'sql_editor.py')) as f:
+    with open(os.path.join('src', '__init__.py')) as f:
         for line in f:
             if line.strip().startswith('__version__'):
                 return eval(line.split('=')[-1])
 
-            
-packages=setuptools.find_packages()
-print(packages)
 
 setuptools.setup(
     name="sql_editor",
@@ -24,15 +21,14 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     keywords=['sqlite', 'gui', 'wxpython', 'sql'],
-#     url="https://github.com/pypa/sampleproject",
+    url="https://github.com/struts2spring/sql-editor",
     packages=setuptools.find_packages(),
     install_requires=[
         'pypubsub==4.0.0',
         'six==1.11.0',
         'sqlalchemy==1.2.12',
         'wxpython==4.0.3',
-        'sqlparse',
-#         'pycairo'
+        'sqlparse'
     ],
     python_requires='>=3',
     entry_points={
@@ -53,8 +49,7 @@ setuptools.setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Topic :: Scientific/Engineering :: Information Analysis',
-        ],
-    package_data={'src.images':['*.png']},
+    ],
+    package_data={'src.images': ['*.png']},
     include_package_data=True
 )
-
