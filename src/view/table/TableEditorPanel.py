@@ -348,8 +348,6 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 
             lineNum = lineNum + 1
 
-
-
     def Expand(self, line, doExpand, force=False, visLevels=0, level=-1):
         lastChild = self.GetLastChild(line, level)
         line = line + 1
@@ -396,7 +394,6 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 #         fileMenu.AppendMenu(wx.ID_ANY, 'I&mport', imp)
 #         self.popmenu.Append(fileMenu)
 #         self.PopupMenu(self.popmenu, event.GetPosition())
-        
         
     def initKeyShortCut(self):
         self.CmdKeyClearAll()
@@ -616,7 +613,7 @@ class CreatingEditorPanel(wx.Panel):
 #         self.sstc.SetText(demoText + open('book.sql').read())
         self.sstc.EmptyUndoBuffer()
         self.sstc.Colourise(0, -1)
-        self.sstc.SetBestFittingSize(wx.Size(400, 400))
+#         self.sstc.SetBestFittingSize(wx.Size(400, 400))
 
         # line numbers in the margin
         self.sstc.SetMarginType(1, stc.STC_MARGIN_NUMBER)

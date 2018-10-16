@@ -9,19 +9,21 @@ import re
 from os.path import expanduser
 import sys
 import logging
+from datetime import date, datetime
+from sqlalchemy.sql.expression import false
 
 logger = logging.getLogger('extensive')
-
 
 
 class SQLExecuter():
     '''
     '''
+
     def __init__(self, database='_opal.sqlite'):
         logger.debug(self.__class__.__name__)
         home = expanduser("~")
         databasePath = os.path.join(home, database)
-        logger.debug('databasePath: %s',databasePath)
+        logger.debug('databasePath: %s', databasePath)
         self.conn = sqlite3.connect(databasePath)
 #         self.createOpalTables()
         
@@ -74,7 +76,7 @@ class SQLExecuter():
         return returnRows
     
     def getColumn(self, tableName=None):
-        logger.debug('tableName: %s',tableName)
+        logger.debug('tableName: %s', tableName)
         try:
             with self.conn:    
                 cur = self.conn.cursor() 
@@ -98,7 +100,7 @@ class SQLExecuter():
         ''' This method takes input text to execute in database.
         returns output as dict
         '''
-        logger.debug('text: %s',text)
+        logger.debug('text: %s', text)
         error = 'success'
         sqlOutput = dict()
         try:
@@ -123,9 +125,8 @@ class SQLExecuter():
         except Exception as e:
             logger.error(e, exc_info=True)
             self.conn.rollback()
-        logger.debug('len(sqlOutput) : %s',len(sqlOutput))
+        logger.debug('len(sqlOutput) : %s', len(sqlOutput))
         return sqlOutput
-    
     
     def createOpalTables(self):
         '''
@@ -203,19 +204,20 @@ class SQLExecuter():
         row['connection_name'] = connectionName
         row['db_file_path'] = dbFilePath
         row['dbms_id'] = 1
-        rowList=list()
+        rowList = list()
         rowList.append(row)
         self.sqlite_insert('conns', rowList)
 #         "insert into conns (connection_name, db_file_path, dbms_id) values (  'database_sqlite_2','/docs/github/OpalDatabaseVisualizer-v1/src/sqlite_executer/_opal_2.sqlite', 1);"
 
-    def removeConnctionRow(self,connectionName=None):
+    def removeConnctionRow(self, connectionName=None):
         try:
             with self.conn:    
                 cur = self.conn.cursor() 
-                sqlQuery="DELETE FROM conns WHERE connection_name=?"
-                cur.execute(sqlQuery,(connectionName,))
+                sqlQuery = "DELETE FROM conns WHERE connection_name=?"
+                cur.execute(sqlQuery, (connectionName,))
         except Exception as e:
             logger.error(e, exc_info=True)
+
     def getObject(self):
     
         con = None
@@ -243,7 +245,7 @@ class SQLExecuter():
                 tableColumnList = list()
                 for tObj in tObjectList:
                     if t[0] == 'table' or t[0] == 'index':
-                        tableColumnsOrIndexesSql = "PRAGMA {}_info('{}');".format(t[0],tObj[0])
+                        tableColumnsOrIndexesSql = "PRAGMA {}_info('{}');".format(t[0], tObj[0])
                         logger.debug(tableColumnsOrIndexesSql)
                         tableColumnsOrIndexesList = cur.execute(tableColumnsOrIndexesSql).fetchall()
 #                         logger.debug objChildList
@@ -304,15 +306,70 @@ class SQLExecuter():
         return dbObjects
     
     def getDbFilePath(self, connectionName=None):
-        sqlScript = "select db_file_path from conns where connection_name= '" + connectionName + "'"
-        cur = self.conn.cursor()   
-        rows = cur.execute(sqlScript).fetchone()
         dbFilePath = None
-        if rows:
-            dbFilePath = rows[0]
+        if connectionName:
+            sqlScript = "select db_file_path from conns where connection_name= '{}'".format(connectionName)
+            cur = self.conn.cursor()   
+            rows = cur.execute(sqlScript).fetchone()
+            if rows:
+                dbFilePath = rows[0]
         return dbFilePath
+
+
+class SQLUtils():
+
+    def __init__(self):
+        pass
+
+    def updateSqlLog(self, sqlText, duration, connectionName=None):
+        logger.debug('updateSqlLog : %s', sqlText)
+        sqlExecuter = SQLExecuter(database='_opal.sqlite')
+        table = 'sql_log'
+        rows = [{'id':None, 'sql':str(sqlText), 'connection_name':connectionName, 'created_time':datetime.now(), 'executed':'1', 'duration':duration}]
+        sqlExecuter.sqlite_insert(table, rows)
+        
+    def refreshSqlLogUi(self):
+        logger.debug('refreshSqlLogUi')
+        historyGrid = self.GetTopLevelParent()._mgr.GetPane("sqlLog").window
+        sqlText = 'select * from sql_log order by created_time desc;'
+        sqlExecuter = SQLExecuter(database='_opal.sqlite')
+        sqlOutput = sqlExecuter.executeText(sqlText)
+        historyGrid.addData(data=sqlOutput)
+    
+    def getDbFilePath(self, connectionName):
+        sqlExecuter = SQLExecuter(database='_opal.sqlite')
+        return  sqlExecuter.getDbFilePath(connectionName)
+    
+    def definingTableName(self, connectionName=None):
+        '''
+        This is to define new table name .
+        '''
+        
+#         while
+        tableName=None
+        try:
+            manageSqliteDatabase = ManageSqliteDatabase(connectionName=connectionName, databaseAbsolutePath=self.getDbFilePath(connectionName))
+            sqlText = "select tbl_name from sqlite_master order by tbl_name;"
+            tbl_name_list = manageSqliteDatabase.executeSelectQuery(sqlText)
+            logger.debug(tbl_name_list)
+            
+            tablePresent=False
+            i=1
+            while not tablePresent:
+                tableName='Table {}'.format(i)
+                if tuple([tableName]) in tbl_name_list:
+                    logger.info(tableName+' already present')
+                    i +=1
+                else:
+                    tablePresent=True
+             
+        except Exception as e:
+            logger.error(e, exc_info=True)
+        
+        return tableName
     
 class ManageSqliteDatabase():
+
     def __init__(self, connectionName=None, databaseAbsolutePath=None):
         '''
         @param param: connection_name
@@ -321,14 +378,14 @@ class ManageSqliteDatabase():
 #         databaseAbsolutePath=os.path.abspath(databaseAbsolutePath)
 #         databasePath=os.path.abspath(databaseAbsolutePath)
 #         databaseAbsolutePath=os.path.normpath(databaseAbsolutePath)
-        pathDir=os.path.dirname(databaseAbsolutePath)
-        head, tail=os.path.split(databaseAbsolutePath)
+        pathDir = os.path.dirname(databaseAbsolutePath)
+        head, tail = os.path.split(databaseAbsolutePath)
         os.chdir(pathDir)
         self.conn = sqlite3.connect(tail)
         self.connectionName = connectionName
  
     def createTable(self):
-        sql='''
+        sql = '''
         CREATE TABLE  if not exists ABC
           (
             id INTEGER PRIMARY KEY
@@ -370,7 +427,6 @@ class ManageSqliteDatabase():
 #                         tableColumnsOrIndexesSql = "PRAGMA " + t[0] + "_info(%s);" % tObj[0]
                         tableColumnsOrIndexesSql = "PRAGMA {}_info('{}');".format(t[0], tObj[0])
                         
-                        
 #                         logger.debug(tableColumnsOrIndexesSql)
                         tableColumnsOrIndexesList = cur.execute(tableColumnsOrIndexesSql).fetchall()
 #                         logger.debug objChildList
@@ -407,8 +463,8 @@ class ManageSqliteDatabase():
             with self.conn:    
                 cur = self.conn.cursor() 
 #                 logger.debug('before')
-                listOfSqls=text.strip().lower().split(';')
-                if len(listOfSqls)>1 and not text.strip().lower().startswith('select'):
+                listOfSqls = text.strip().lower().split(';')
+                if len(listOfSqls) > 1 and not text.strip().lower().startswith('select'):
                     cur.executescript(text)
                 elif text.strip().lower().startswith('update'):
                     cur.execute(text)
@@ -432,6 +488,13 @@ class ManageSqliteDatabase():
 #             raise e
 #         logger.debug(sqlOutput)
         return sqlOutput
+    
+    def executeSelectQuery(self, text=None):
+        rows=None
+        with self.conn:    
+                cur = self.conn.cursor() 
+                rows = cur.execute(text).fetchall()
+        return rows
     
     def sqlite_insert(self, table, rows):
         '''
@@ -495,9 +558,14 @@ class ManageSqliteDatabase():
             logger.error(e, exc_info=True)
             self.conn.rollback()
             raise e    
+
     
 if __name__ == "__main__":
     logger.debug('hi')
+    tableName=SQLUtils().definingTableName(connectionName='picture')
+    print(tableName)
+    
+#########################################################################################
 #     sqlExecuter = SQLExecuter(database='_opal.sqlite')
 #     sqlExecuter = SQLExecuter(database='_opal.sqlite')
 # #     sqlExecuter.getDbFilePath('database_sqlite_1')
@@ -525,4 +593,4 @@ if __name__ == "__main__":
 ##########################################################################################
             
 #     logger.debug(dbList)
-    ManageSqliteDatabase(connectionName="1", databaseAbsolutePath=r"_opal_1.sqlite")
+#     ManageSqliteDatabase(connectionName="1", databaseAbsolutePath=r"_opal_1.sqlite")

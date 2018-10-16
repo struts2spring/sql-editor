@@ -12,7 +12,7 @@ from src.view.constants import ID_newWorksheet, ID_CONNECT_DB, ID_deleteWithData
     ID_DISCONNECT_DB, ID_ROOT_NEW_CONNECTION, ID_ROOT_REFERESH, keyMap
 # from src.view.table.CreateTable import CreateTableFrame
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter, \
-    ManageSqliteDatabase
+    ManageSqliteDatabase, SQLUtils
 from src.view.connection.NewConnectionWizard import CreateNewConncetionWixard
 from src.view.schema.CreateSchemaViewer import CreateErDiagramFrame
 import logging
@@ -366,8 +366,11 @@ class CreatingTreePanel(wx.Panel):
                 newTableItem = menu.Append(wx.ID_ANY, "Create new table")
                 erDiagramItem = menu.Append(wx.ID_ANY, "Create ER diagram")
                 refreshTableItem = menu.Append(wx.ID_ANY, "Refresh  \tF5")
+                
                 self.Bind(wx.EVT_MENU, self.onNewTable, newTableItem)
+                
                 self.Bind(wx.EVT_MENU, self.onCreateErDiagramItem, erDiagramItem)
+                
                 self.Bind(wx.EVT_MENU, self.onRefreshTable, refreshTableItem)
                 
             if 'view' in self.tree.GetItemText(item):
@@ -431,6 +434,9 @@ class CreatingTreePanel(wx.Panel):
                 self.recreateTree(event) 
         except Exception as e:
             logger.error(e, exc_info=True)
+    
+    def onRefreshTable(self, event):
+        logger.debug('onRefreshTable')
 
     def onRootRefresh(self, event):
         logger.debug('onRootRefresh')
@@ -624,7 +630,12 @@ class CreatingTreePanel(wx.Panel):
 
     def onNewTable(self, event):
         logger.debug('onNewTable')
-        tableFrame = CreatingTableFrame(None, 'Table creation')
+        item = self.tree.item  
+        connectionName = self.tree.GetItemText(self.tree.GetItemParent(item))
+        
+        newTableName = SQLUtils().definingTableName(connectionName)
+        
+        tableFrame = CreatingTableFrame(None, 'Table creation', connectionName, newTableName)
 #         frame = CreateTableFrame(None, 'table creation')
     
 #         tableDict = dict()
