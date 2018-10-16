@@ -17,7 +17,7 @@ from src.view.connection.NewConnectionWizard import CreateNewConncetionWixard
 from src.view.schema.CreateSchemaViewer import CreateErDiagramFrame
 import logging
 from src.view.table.CreateTable import CreatingTableFrame
-from src.view.util.FileOperations import FileOperations
+from src.view.util.FileOperationsUtil import FileOperations
 
 logger = logging.getLogger('extensive')
 
@@ -337,7 +337,7 @@ class CreatingTreePanel(wx.Panel):
             refreshBmp.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "database_refresh.png"))))
             item5 = menu.Append(refreshBmp)
             
-            item6 = menu.Append(wx.ID_ANY, "Edit Connection")
+            item6 = menu.Append(wx.ID_ANY, "Properties")
             menu.AppendSeparator()
 #             item7 = wx.MenuItem(menu, wx.ID_ANY, "&Smile!\tCtrl+S", "This one has an icon")
 #             item7.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "index.png"))))
@@ -620,7 +620,7 @@ class CreatingTreePanel(wx.Panel):
         logger.debug("dbFilePath: %s", dbFilePath)
         
         ################################################################################## 
-        depth = self.tree.GetItemData(self.tree.GetSelection()).Data['depth']   
+        depth = self.tree.GetItemData(self.tree.GetSelection())['depth']   
         if os.path.isfile(dbFilePath):     
             dbObjects = ManageSqliteDatabase(connectionName=selectedItemText , databaseAbsolutePath=dbFilePath).getObject()   
              

@@ -75,12 +75,12 @@ class DatabaseMainFrame(wx.Frame):
         # create some toolbars
         tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize)
         tb1.SetToolBitmapSize(wx.Size(16, 16))
-        tb1.AddTool(ID_newConnection, "New Connection", wx.Bitmap(os.path.join(path, "connect.png")))
+        tb1.AddTool(ID_newConnection, "New Connection", wx.Bitmap(os.path.join(path, "connect.png")),shortHelp='Create a new connection')
         tb1.AddSeparator()
         
-        tb1.AddTool(ID_openConnection, "Open Connection", wx.Bitmap(os.path.join(path, "database_connect.png")))
-        tb1.AddTool(ID_newWorksheet, "Script", wx.Bitmap(os.path.join(path, "script.png")))
-        tb1.AddTool(wx.ID_PREFERENCES, "Preferences", wx.Bitmap(os.path.join(path, "preference.png")))
+        tb1.AddTool(ID_openConnection, "Open Connection", wx.Bitmap(os.path.join(path, "database_connect.png")),shortHelp='Open Connection')
+        tb1.AddTool(ID_newWorksheet, "Script", wx.Bitmap(os.path.join(path, "script.png")),shortHelp='Open a new script worksheet')
+        tb1.AddTool(wx.ID_PREFERENCES, "Preferences", wx.Bitmap(os.path.join(path, "preference.png")),shortHelp='Preference')
         
         ###################################################################################################
         args = {}
@@ -232,7 +232,7 @@ class DatabaseMainFrame(wx.Frame):
 
     def constructSqlPane(self):
         worksheet = CreateWorksheetTabPanel(self)      
-          
+#         worksheet.addTab('Start Page')
         return worksheet
     
     def getCurrentCursorPosition(self):

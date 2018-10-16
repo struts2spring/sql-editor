@@ -232,7 +232,7 @@ class HistoryGrid(gridlib.Grid):
 #         self.SetColSize(1, 150)
 #         self.SetColSize(2, 150)
         sqlExecuter = SQLExecuter(database='_opal.sqlite')
-        sqlText='select * from sql_log;'
+        sqlText='select * from sql_log order by created_time desc;'
         sqlOutput = sqlExecuter.executeText(sqlText)
         if sqlOutput:
             self.addData(data=sqlOutput)

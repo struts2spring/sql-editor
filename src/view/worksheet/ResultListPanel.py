@@ -1,7 +1,7 @@
 
 import wx
 import wx.dataview as dv
-import wx.aui as aui
+import wx.lib.agw.aui.auibook as aui
 import os
 from src.view.constants import ID_RUN,ID_EXECUTE_SCRIPT, ID_RESULT_REFRESH,\
     ID_ROW_ADD, ID_ROW_DELETE, ID_RESULT_NEXT, ID_RESULT_PREVIOUS,\
@@ -376,7 +376,7 @@ class CreateResultSheetTabPanel(wx.Panel):
         resultSheetPanel = CreatingResultWithToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN)
 #             worksheetPanel.worksheetPanel.editorPanel
         name='ResultSheet '
-        self._nb.AddPage(resultSheetPanel, name, False,0)      
+        self._nb.AddPage(resultSheetPanel, name)      
         self.Bind(aui.EVT_AUINOTEBOOK_TAB_RIGHT_DOWN, self.onTabRightDown, self._nb)
         self.Bind(aui.EVT_AUINOTEBOOK_BG_DCLICK, self.onBgDoubleClick, self._nb)  
         self.Bind(aui.EVT_AUINOTEBOOK_PAGE_CLOSE, self.onCloseClick, self._nb)  

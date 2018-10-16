@@ -8,10 +8,12 @@ from src.view.worksheet.EditorPanel import CreatingEditorPanel
 from src.view.worksheet.ResultListPanel import CreateResultSheetTabPanel
 import os
 
-import wx.aui as aui
+import wx.lib.agw.aui.auibook as aui
+
 from src.view.constants import ID_RUN
 from wx import ID_SPELL_CHECK
 import logging
+from src.view.worksheet.WelcomePage import WelcomePanel
 
 logger = logging.getLogger('extensive')
 
@@ -54,14 +56,15 @@ class CreateWorksheetTabPanel(wx.Panel):
 
     def addTab(self, name='Start Page'):
         if name == 'Start Page':
-            pass
+            worksheetPanel=WelcomePanel(self._nb)
         else:
             worksheetPanel = CreatingWorksheetWithToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN)
 #             worksheetPanel.worksheetPanel.editorPanel
             name = 'Worksheet ' + str(len(self.GetPages(type(worksheetPanel))))
-            self._nb.AddPage(worksheetPanel, name, False, 0)
-            self.Bind(aui.EVT_AUINOTEBOOK_TAB_RIGHT_DOWN, self.onTabRightDown, self._nb)
-            self.Bind(aui.EVT_AUINOTEBOOK_BG_DCLICK, self.onBgDoubleClick, self._nb)
+        self._nb.AddPage(worksheetPanel, name)
+        self.Bind(aui.EVT_AUINOTEBOOK_TAB_RIGHT_DOWN, self.onTabRightDown, self._nb)
+        self.Bind(aui.EVT_AUINOTEBOOK_BG_DCLICK, self.onBgDoubleClick, self._nb)
+#         self.Bind(aui.AUI_NB_CLOSE_BUTTON, handler, source, id, id2)
 
     def onBgDoubleClick(self, event):
         logger.debug('onBgDoubleClick')
@@ -111,8 +114,11 @@ class CreateWorksheetTabPanel(wx.Panel):
     def onCloseTab(self, event=None, currentlySelectedPage=None):
         logger.debug("onCloseTab")
         logger.debug("currentlySelectedPage %s", currentlySelectedPage)
-        self._nb.DeletePage(currentlySelectedPage)
-        
+#         self._nb.RemovePage(currentlySelectedPage)
+        if self._nb.DeletePage(currentlySelectedPage) :
+            logger.info('page deleted')
+        npages = self._nb.GetPageCount()
+        logger.debug("npages {}".format(npages))
     def onCloseOthersTabs(self, event=None, currentlySelectedPage=None):
         logger.debug("onCloseOthersTab")
         logger.debug("currentlySelectedPage %s", currentlySelectedPage)

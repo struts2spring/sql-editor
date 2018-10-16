@@ -95,6 +95,7 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin ):
             therest['style']=wx.TE_PROCESS_ENTER
         wx.TextCtrl.__init__(self, parent, **therest )
         #Some variables
+        self.SetToolTip('Select database')
         self._dropDownClick = dropDownClick
         self._colNames = colNames
         self._multiChoices = multiChoices
