@@ -22,7 +22,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     keywords=['sqlite', 'gui', 'wxpython', 'sql'],
     url="https://github.com/struts2spring/sql-editor",
-    packages=setuptools.find_packages(exclude=('tests',)),
+    packages=setuptools.find_packages(),
     install_requires=[
         'pypubsub==4.0.0',
         'six==1.11.0',
