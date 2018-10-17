@@ -19,7 +19,7 @@ logger = logging.getLogger('extensive')
 
 
 
-ID_executeScript = wx.NewId()
+ID_executeScript = wx.NewIdRef()
 
 class CreateWorksheetTabPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):

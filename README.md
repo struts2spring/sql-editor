@@ -3,10 +3,13 @@
 
 [![License](http://img.shields.io/badge/license-MIT-green.svg?style=flat)](./LICENSE)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=EUWCHQJXB9Y2N)
+[![Build Status](https://travis-ci.com/struts2spring/sql-editor.svg?branch=master)](https://travis-ci.com/struts2spring/sql-editor)
+[![Repo on GitHub](https://img.shields.io/badge/repo-GitHub-3D76C2.svg)](https://github.com/struts2spring/sql-editor)
 ----------------------------------------------
 
+<img style="float: left;" src="./src/images/Opal_database.png">     
+SQL editor is free, open source,  Integrated Development Environment(IDE) for working with SQL in SQLite databases. 
 
-SQL editor can be build using python 3 only. 
 
 ![Screen 1](./docs/images/screen_1.PNG)
 
@@ -46,7 +49,6 @@ sql_editor
 ### Repository
 
 [![Repo on GitHub](https://img.shields.io/badge/repo-GitHub-3D76C2.svg)](https://github.com/struts2spring/sql-editor)
-[![Repo on GitLab](https://img.shields.io/badge/repo-GitLab-6C488A.svg)](https://gitlab.com/struts2spring/sql-editor)
 
 =======
 # sql-editor

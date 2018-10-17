@@ -829,6 +829,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 resultListPanel = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].GetCurrentPage().Children[1].splitter.Children[1]
         #         if sqlOutput:
                 if resultListPanel._nb.GetCurrentPage():
+                    resultListPanel._nb.GetCurrentPage().bottomResultToolbar.SetStatusText('Count: {}'.format(len(sqlOutput)-1))
                     resultListPanel._nb.GetCurrentPage().resultPanel.addData(data=sqlOutput)
         except TypeError as te:
             logger.error(te, exc_info=True)

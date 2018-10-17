@@ -286,7 +286,9 @@ class CreatingResultWithToolbarPanel(wx.Panel):
 
         ####################################################################
         self.topResultToolbar = self.constructTopResultToolBar()
-        self.bottomResultToolbar = self.constructBottomResultToolBar()
+        self.bottomResultToolbar=wx.StatusBar(self)
+        self.bottomResultToolbar.SetStatusText('Count: {}'.format(len(self.getData())))
+#         self.bottomResultToolbar = self.constructBottomResultToolBar()
 #         self.resultPanel = ResultPanel(self, data=self.getData())
         self.resultPanel = ResultDataGrid(self, data=self.getData())
 #         bottomResultToolbar = self.constructBottomResultToolBar()
@@ -303,14 +305,19 @@ class CreatingResultWithToolbarPanel(wx.Panel):
         self.SetSizer(sizer)    
     
     def constructBottomResultToolBar(self):
-        tb2 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
-                 wx.TB_FLAT | wx.TB_NODIVIDER)
-        str = "This is a different font."
-        bottomBarText = StaticText(self, -1, str, (20, 120))
-        tb2.AddLabelTool('asfd')
+#         tb2 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
+#                  wx.TB_FLAT | wx.TB_NODIVIDER)
+#         str = "This is a different font."
+#         bottomBarText = wx.InfoBar(self)
+#         bottomBarText.ShowMessage("asdf")
+# #         tb2.AddLabelTool('asfd' bitmap=wx.Bitmap(os.path.join(imageLocation, "resultset_last.png")))
+#         tb2.AddTool
+#         
+#         tb2.Realize()
         
-        tb2.Realize()
-        return tb2   
+        self.statusbar = wx.StatusBar(self).Create(self)
+#         self.statusbar.SetStatusText('This goes in your statusbar')
+        return self.statusbar   
     def constructTopResultToolBar(self):
         path = os.path.abspath(__file__)
         tail = None

@@ -195,6 +195,8 @@ class ResultDataGrid(gridlib.Grid):
         self.Bind(gridlib.EVT_GRID_LABEL_RIGHT_CLICK, self.showHeaderPopupMenu)
         self.Bind(wx.EVT_KEY_DOWN, self.OnKey)
         
+#         self.SetCellAlignment(row, col, horiz, vert)
+        
         # Somebody changed the grid so the type registry takes precedence
         # over the default attribute set for editors and renderers, so we
         # have to set null handlers for the type registry before the
@@ -260,6 +262,7 @@ class ResultDataGrid(gridlib.Grid):
                         else:
                             try:
                                 self.SetCellValue(dataKey - 1, idx, str(colValue))
+#                                 self.SetCellAlignment(dataKey - 1,idx, wx.ALIGN_RIGHT)
                             except Exception as e:
                                 logger.error(e, exc_info=True)  
             else:
@@ -436,11 +439,11 @@ class GridCellPopupMenu(wx.Menu):
     def __init__(self, header=None):
         wx.Menu.__init__(self)
 
-        item = wx.MenuItem(self, wx.NewId(), "Export...")
+        item = wx.MenuItem(self, wx.NewIdRef(), "Export...")
         self.Append(item)
         self.Bind(wx.EVT_MENU, self.onExport, item)
 
-        item = wx.MenuItem(self, wx.NewId(), "Count rows")
+        item = wx.MenuItem(self, wx.NewIdRef(), "Count rows")
         self.Append(item)
         self.Bind(wx.EVT_MENU, self.countRows, item)
 
@@ -461,15 +464,15 @@ class GridHeaderPopupMenu(wx.Menu):
         self.header = header
 #         self.WinName = WinName
     
-#         item = wx.MenuItem(self, wx.NewId(), "Item One")
+#         item = wx.MenuItem(self, wx.NewIdRef(), "Item One")
 #         self.Append(item)
 #         self.Bind(wx.EVT_MENU, self.OnItem1, item)
 
-        item = wx.MenuItem(self, wx.NewId(), "Sort...")
+        item = wx.MenuItem(self, wx.NewIdRef(), "Sort...")
         self.Append(item)
         self.Bind(wx.EVT_MENU, self.OnItem2, item)
 
-        item = wx.MenuItem(self, wx.NewId(), "Copy Selected Header")
+        item = wx.MenuItem(self, wx.NewIdRef(), "Copy Selected Header")
         self.Append(item)
         self.Bind(wx.EVT_MENU, self.OnItem3, item)
 
