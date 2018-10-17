@@ -8,6 +8,7 @@ from src.view.constants import ID_RUN,ID_EXECUTE_SCRIPT, ID_RESULT_REFRESH,\
     ID_APPLY_CHANGE, ID_RESULT_FIRST, ID_RESULT_LAST
 from src.view.worksheet.ResultGrid import ResultDataGrid
 import logging
+from wx import StaticText
 
 logger = logging.getLogger('extensive')
 #----------------------------------------------------------------------
@@ -285,6 +286,7 @@ class CreatingResultWithToolbarPanel(wx.Panel):
 
         ####################################################################
         self.topResultToolbar = self.constructTopResultToolBar()
+        self.bottomResultToolbar = self.constructBottomResultToolBar()
 #         self.resultPanel = ResultPanel(self, data=self.getData())
         self.resultPanel = ResultDataGrid(self, data=self.getData())
 #         bottomResultToolbar = self.constructBottomResultToolBar()
@@ -292,13 +294,23 @@ class CreatingResultWithToolbarPanel(wx.Panel):
         ####################################################################
         vBox.Add(self.topResultToolbar , 0, wx.EXPAND | wx.ALL, 0)
         vBox.Add(self.resultPanel , 1, wx.EXPAND | wx.ALL, 0)
+        vBox.Add(self.bottomResultToolbar , 0, wx.EXPAND | wx.ALL, 0)
 #         vBox.Add(bottomResultToolbar , 0, wx.EXPAND | wx.ALL, 0)
 #         vBox.Add(resultPanel , 1, wx.EXPAND | wx.ALL)
         sizer = wx.BoxSizer(wx.VERTICAL)
 #         sizer.Add(worksheetToolbar ,.9, wx.EXPAND | wx.ALL, 0)
         sizer.Add(vBox, 1, wx.EXPAND , 0)
         self.SetSizer(sizer)    
+    
+    def constructBottomResultToolBar(self):
+        tb2 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
+                 wx.TB_FLAT | wx.TB_NODIVIDER)
+        str = "This is a different font."
+        bottomBarText = StaticText(self, -1, str, (20, 120))
+        tb2.AddLabelTool('asfd')
         
+        tb2.Realize()
+        return tb2   
     def constructTopResultToolBar(self):
         path = os.path.abspath(__file__)
         tail = None

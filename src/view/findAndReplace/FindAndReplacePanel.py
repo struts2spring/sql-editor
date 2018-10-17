@@ -5,9 +5,13 @@ Created on 05-Feb-2017
 '''
 import wx
 
-import logging
+import logging, logging.config
+from src.view.constants import LOG_SETTINGS
 
 logger = logging.getLogger('extensive')
+
+logging.config.dictConfig(LOG_SETTINGS)
+
 
 class CreatingFindAndReplaceFrame(wx.Frame):
 
@@ -20,9 +24,11 @@ class CreatingFindAndReplaceFrame(wx.Frame):
         self.Bind(wx.EVT_CLOSE, self.OnCloseFrame)
 
         self.Show()
+
     def OnCloseFrame(self, event):
         logger.debug('OnCloseFrame')
         self.OnExitApp(event)
+
     # Destroys the main frame which quits the wxPython application
     def OnExitApp(self, event):
         logger.debug('OnExitApp')
@@ -30,16 +36,20 @@ class CreatingFindAndReplaceFrame(wx.Frame):
             self.GetParent().frame = None
         self.Destroy()
 
+
 #---------------------------------------------------------------------------
 class CreatingFindAndReplacePanel(wx.Panel):
 
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
-        self.findText=''
-        self.replaceText=''
+        self.findText = ''
+        self.replaceText = ''
         vBox = wx.BoxSizer(wx.VERTICAL)
-        import  wx.lib.rcsizer  as rcs
+        try:
+            import  wx.lib.rcsizer  as rcs
+        except Exception as e:
+            logger.error(e, exc_info=True)
         rowColumnSizer = rcs.RowColSizer()
 #         sizer = wx.GridBagSizer(hgap=3, vgap=3)
         sizer = wx.BoxSizer(wx.VERTICAL)
@@ -60,27 +70,25 @@ class CreatingFindAndReplacePanel(wx.Panel):
         h2.Add(tableNameLabel, 0, wx.ALL, 2)
         h2.Add(tableNameText, 0, wx.ALL, 2)
         
-        
-        
         directionRadioBox = wx.RadioBox(self, -1, "Direction", (10, 10), wx.DefaultSize, ['Forward', 'Backword'], 1, wx.RA_SPECIFY_COLS)
         scopeRadioBox = wx.RadioBox(self, -1, "Scope", (10, 10), wx.DefaultSize, ['All', 'Selected lines'], 1, wx.RA_SPECIFY_COLS)
 
         # first the static box
         box_10 = wx.StaticBox(self, -1, 'Options')
-        cb1=wx.CheckBox(box_10, -1, "Case sensitive", (35, 40), (150, 20))
-        cb2=wx.CheckBox(box_10, -1, "Wra&p search", (35, 60), (150, 20))
-        cb3=wx.CheckBox(box_10, -1, "&Incremental", (35, 80), (150, 20))
-        cb4=wx.CheckBox(box_10, -1, "Regular expressions", (35, 80), (150, 20))
-        cb5=wx.CheckBox(box_10, -1, "Whole word", (35, 80), (150, 20))
+        cb1 = wx.CheckBox(box_10, -1, "Case sensitive", (35, 40), (150, 20))
+        cb2 = wx.CheckBox(box_10, -1, "Wra&p search", (35, 60), (150, 20))
+        cb3 = wx.CheckBox(box_10, -1, "&Incremental", (35, 80), (150, 20))
+        cb4 = wx.CheckBox(box_10, -1, "Regular expressions", (35, 80), (150, 20))
+        cb5 = wx.CheckBox(box_10, -1, "Whole word", (35, 80), (150, 20))
         # then the sizer
-        staticBoxSizer_11 = wx.StaticBoxSizer(box_10,  wx.VERTICAL)
+        staticBoxSizer_11 = wx.StaticBoxSizer(box_10, wx.VERTICAL)
         rowColumnSizer1 = rcs.RowColSizer()
-        rowColumnSizer1.Add( cb1,row=1, col=1)
-        rowColumnSizer1.Add( cb2,row=2, col=1)
-        rowColumnSizer1.Add( cb3,row=3, col=1)
+        rowColumnSizer1.Add(cb1, row=1, col=1)
+        rowColumnSizer1.Add(cb2, row=2, col=1)
+        rowColumnSizer1.Add(cb3, row=3, col=1)
 #         rowColumnSizer1.Add( (2,2),row=1, col=2)
-        rowColumnSizer1.Add( cb4,row=2, col=2)
-        rowColumnSizer1.Add( cb5,row=3, col=2)
+        rowColumnSizer1.Add(cb4, row=2, col=2)
+        rowColumnSizer1.Add(cb5, row=3, col=2)
         staticBoxSizer_11.Add(rowColumnSizer1)
 #         staticBoxSizer_11.AddMany( [ cb1,
 #                  cb2,
@@ -111,16 +119,15 @@ class CreatingFindAndReplacePanel(wx.Panel):
         self.Bind(wx.EVT_BUTTON, self.GetParent().OnExitApp, self.closeButton)
         self.closeButton.SetDefault()
         
-        rowColumnSizer.Add(self.findButton,row=1, col=1)
-        rowColumnSizer.Add(self.replaceButton,row=2, col=1)
-        rowColumnSizer.Add(self.replaceFindButton,row=1, col=2)
-        rowColumnSizer.Add(self.replaceAllButton,row=2, col=2)
-        rowColumnSizer.Add(self.closeButton,row=3, col=2)
+        rowColumnSizer.Add(self.findButton, row=1, col=1)
+        rowColumnSizer.Add(self.replaceButton, row=2, col=1)
+        rowColumnSizer.Add(self.replaceFindButton, row=1, col=2)
+        rowColumnSizer.Add(self.replaceAllButton, row=2, col=2)
+        rowColumnSizer.Add(self.closeButton, row=3, col=2)
         
         hbox000 = wx.BoxSizer(wx.HORIZONTAL)
-        hbox000.Add((2,2),1, wx.EXPAND | wx.ALL , 2) 
+        hbox000.Add((2, 2), 1, wx.EXPAND | wx.ALL , 2) 
         hbox000.Add(rowColumnSizer)
-        
         
         vBox.Add(h1, 0, wx.EXPAND , 0)  
         vBox.Add(h2, 0, wx.EXPAND , 0)  
@@ -141,11 +148,14 @@ class CreatingFindAndReplacePanel(wx.Panel):
         self.SetAutoLayout(True)       
         
     def onFindClicked(self, event):
-        logger.debug('onFindClicked: '+ self.findText) 
+        logger.debug('onFindClicked: ' + self.findText) 
+
     def onReplaceClicked(self, event):
         logger.debug('onReplaceClicked') 
+
     def onReplaceFindClicked(self, event):
         logger.debug('onReplaceFindClicked') 
+
     def onReplaceAllClicked(self, event):
         logger.debug('onReplaceAllClicked') 
 
@@ -163,5 +173,6 @@ class CreatingFindAndReplacePanel(wx.Panel):
 if __name__ == '__main__':
     app = wx.App(False)
     frame = CreatingFindAndReplaceFrame(None, 'Find / Replace')
+    frame.Show()
     app.MainLoop()
 
