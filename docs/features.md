@@ -2,7 +2,7 @@
 
 | S. No | Item description                                                             | [x] Status |
 | ----: | ---------------------------------------------------------------------------- | ---------: |
-| 1     | Result counting of grid.                                                     | [ ]        |
+| 1     | Result counting of grid.                                                     | [x]        |
 | 2     | Blob data display of a row.                                                  | [ ]        |
 | 3     | Grid result based on datatype . numerical values should be right align.      | [ ]        |
 | 4     | Sorting result column should work.                                           | [ ]        |

@@ -418,13 +418,100 @@ class ResultDataGrid(gridlib.Grid):
         """
         Create and display a popup menu on right-click event
         """
-        col=event.GetCol()
-        if col>=0:
-            header = self.GetColLabelValue(event.GetCol())
-            menu = GridHeaderPopupMenu(header=header)
-            self.PopupMenu(menu, event.GetPosition())
-            menu.Destroy()
+        row, col = event.GetRow(), event.GetCol()
+        if row == -1: self.colPopup(col, event)
+        elif col == -1: self.rowPopup(row, event)
+        
+#         if col>=0:
+#             header = self.GetColLabelValue(event.GetCol())
+#             menu = GridHeaderPopupMenu(header=header)
+#             self.PopupMenu(menu, event.GetPosition())
+#             menu.Destroy()
+            
+    def rowPopup(self, row, evt):
+        """(row, evt) -> display a popup menu when a row label is right clicked"""
+        appendID = wx.NewIdRef()
+        deleteID = wx.NewIdRef()
+        x = self.GetRowSize(row)/2
 
+        if not self.GetSelectedRows():
+            self.SelectRow(row)
+
+        menu = wx.Menu()
+        xo, yo = evt.GetPosition()
+        menu.Append(appendID, "Append Row")
+        menu.Append(deleteID, "Delete Row(s)")
+
+        def append(event, self=self, row=row):
+            self._table.AppendRow(row)
+            self.Reset()
+
+        def delete(event, self=self, row=row):
+            rows = self.GetSelectedRows()
+            self._table.DeleteRows(rows)
+            self.Reset()
+
+        self.Bind(wx.EVT_MENU, append, id=appendID)
+        self.Bind(wx.EVT_MENU, delete, id=deleteID)
+        self.PopupMenu(menu)
+        menu.Destroy()
+        return
+    
+    def colPopup(self, col, evt):
+        """(col, evt) -> display a popup menu when a column label is
+        right clicked"""
+        x = self.GetColSize(col)/2
+        menu = wx.Menu()
+        copyHeaderId = wx.NewIdRef()
+        sortID = wx.NewIdRef()
+
+        xo, yo = evt.GetPosition()
+        self.SelectCol(col)
+        cols = self.GetSelectedCols()
+        header=self.GetColLabelValue(col)
+        self.Refresh()
+        menu.Append(copyHeaderId, "Copy Selected Header")
+        menu.Append(sortID, "Sort Column")
+        
+        
+#         self.header = header
+#         item = wx.MenuItem(self, wx.NewIdRef(), "Sort...")
+#         self.Append(item)
+#         self.Bind(wx.EVT_MENU, self.OnSortColumn, item)
+# 
+#         item = wx.MenuItem(self, wx.NewIdRef(), "Copy Selected Header")
+#         self.Append(item)
+#         self.Bind(wx.EVT_MENU, self.OnItem3, item)
+
+        def delete(event, self=self, col=col):
+            cols = self.GetSelectedCols()
+            self._table.DeleteCols(cols)
+            self.Reset()
+
+        def sort(event, self=self, col=col):
+            logger.info('started sorting')
+            pass
+#             self._table.SortColumn(col)
+#             self.Reset()
+        def copyColumnName(event, self=self, header=header):
+            """"""
+            self.dataObj = wx.TextDataObject()
+            self.dataObj.SetText(header)
+            if wx.TheClipboard.Open():
+                wx.TheClipboard.SetData(self.dataObj)
+                wx.TheClipboard.Close()
+            else:
+                wx.MessageBox("Unable to open the clipboard", "Error")
+#             self.header = header
+            pass
+        self.Bind(wx.EVT_MENU, copyColumnName, id=copyHeaderId)
+
+        if len(cols) == 1:
+            self.Bind(wx.EVT_MENU, sort, id=sortID)
+
+        self.PopupMenu(menu)
+        menu.Destroy()
+        return
 #----------------------------------------------------------------------
     def showGridCellPopupMenu(self, event):
         """
@@ -470,21 +557,36 @@ class GridHeaderPopupMenu(wx.Menu):
 
         item = wx.MenuItem(self, wx.NewIdRef(), "Sort...")
         self.Append(item)
-        self.Bind(wx.EVT_MENU, self.OnItem2, item)
+        self.Bind(wx.EVT_MENU, self.OnSortColumn, item)
 
         item = wx.MenuItem(self, wx.NewIdRef(), "Copy Selected Header")
         self.Append(item)
-        self.Bind(wx.EVT_MENU, self.OnItem3, item)
+        self.Bind(wx.EVT_MENU, self.copyColumnName, item)
 
     def OnItem1(self, event):
 #         print "Item One selected in the %s window" % self.WinName
         pass
 
-    def OnItem2(self, event):
-#         print "Item Two selected in the %s window" % self.WinName
-        pass
+    def OnSortColumn(self, event):
+        """
+        col -> sort the data based on the column indexed by col
+        """
+        logger.debug('OnSortColumn')
+        col =  event.GetCol()
+        name = self.colnames[col]
+        _data = []
 
-    def OnItem3(self, event):
+        for row in self.data:
+            rowname, entry = row
+            _data.append((entry.get(name, None), row))
+
+        _data.sort()
+        self.data = []
+
+        for sortvalue, row in _data:
+            self.data.append(row)
+
+    def copyColumnName(self, event):
 #         print "Item Three selected in the %s window"%self.WinName
 #         copyValue = self.GetColLabelValue(event.GetCol())
         self.onCopy(self.header)
