@@ -16,3 +16,14 @@
 | 12    | Drag and drop sqlite file to create connection                               | []         |
 | 13    | Open already open tree connection. As it is lost after recreate method call. | []         |
 
+
+
+### Available Features
+
+| S. No | Item description                                                             | [x] Status |
+| ----: | ---------------------------------------------------------------------------- | ---------: |
+|1|SQLite Highlight code editor with advanced search strings.| []|
+|2|Undo and redo| []|
+|3|Search and Replace| []|
+|4|Export the sql result in CSV.| []|
+|5|Jump to line| []|
