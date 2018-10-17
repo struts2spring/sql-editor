@@ -1,4 +1,8 @@
-from src.sql_editor import add
+
+
+# content of test_sample.py
+def add(x):
+	return x + 1
 
 
 def test_add():

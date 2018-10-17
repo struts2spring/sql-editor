@@ -18,9 +18,6 @@ def main():
     app.MainLoop()
 
 
-# content of test_sample.py
-def add(x):
-    return x + 1
 
 
 if __name__ == '__main__':
