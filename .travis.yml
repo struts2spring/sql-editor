@@ -1,3 +1,4 @@
+sudo: required
 language: python
 cache: pip
 deploy:
@@ -7,6 +8,11 @@ deploy:
   distributions: sdist bdist_wheel
 python:
   - "3.6"
+
+branches:
+  only:
+    - master
+
 # command to install dependencies
 addons:
   apt:
@@ -36,7 +42,11 @@ install:
   - pip install -r requirements.txt
   - python -V
 
-
+# command to run tests
+script:
+  - pytest
+after_success:
+- coveralls
 notifications:
   email:
     recipients:
