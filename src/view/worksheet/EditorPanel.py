@@ -7,30 +7,24 @@ Created on 15-Dec-2016
 
 import wx
 import wx.stc as stc
-import keyword
 # from src.view.images import images
-import os
+import os, re
 # import string
 
 # from src.SqlBeautifier.sqlbeautifier import SqlBeautifierCommand
 # from src.view import SqliteKeywords
-from src.view.findAndReplace.FindAndReplacePanel import CreatingFindAndReplaceFrame
 from src.view.findAndReplace.GoToLinePanel import CreatingGoToLinePanel
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter, \
     ManageSqliteDatabase
-from datetime import date, datetime
+from datetime import datetime
 import time
 import logging
-# from sys import exc_info
 from sqlite3 import OperationalError
 import sqlparse
 from src.view import SqliteKeywords
 
 logger = logging.getLogger('extensive')
-# from src.format_sql.shortcuts import Beautify
-# from src.format_sql.shortcuts import format_sql
 
-#----------------------------------------------------------------------
 keylist = {
     'DOWN'  :stc.STC_KEY_DOWN,
     'UP'    :stc.STC_KEY_UP,
@@ -38,7 +32,6 @@ keylist = {
     'RIGHT' :stc.STC_KEY_RIGHT,
     'HOME'  :stc.STC_KEY_HOME,
     'END'   :stc.STC_KEY_END,
-    
     'PGUP'  :stc.STC_KEY_PRIOR,
     'PGDN'  :stc.STC_KEY_NEXT,
     'DEL'   :stc.STC_KEY_DELETE,
@@ -51,11 +44,8 @@ keylist = {
     '-'     :stc.STC_KEY_SUBTRACT,
     '/'     :stc.STC_KEY_DIVIDE,
 }
-demoText = """select * from book;
+demoText = """select * from table_name;
 """
-
-#----------------------------------------------------------------------
-print(wx.Platform) 
 
 if wx.Platform == '__WXMSW__':
     faces = { 'times': 'Consolas',
@@ -97,7 +87,6 @@ else:
               'size2': 10,
              }
 
-#----------------------------------------------------------------------
 
 
 class SqlStyleTextCtrl(stc.StyledTextCtrl):
@@ -400,7 +389,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             logger.debug('ctrl+Alt+Down: duplicate line of code')
             selectedText = self.GetSelectedText()
             logger.debug(selectedText)
-            lineNo = self.GetCurrentLine()
+            # lineNo = self.GetCurrentLine()
             lineText, column = self.GetCurLine()
             if selectedText != None:
                 self.AddText(lineText)
@@ -506,17 +495,43 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             evtType = "**Unknown Event Type**"
         if et in [wx.wxEVT_COMMAND_FIND_REPLACE]:
             replaceTxt = "Replace text: %s" % evt.GetReplaceString()
-            import re
-            self.SetText(re.sub(findstring, evt.GetReplaceString(), self.GetText(), count=1, flags=re.I)) #'bye bye bye'
+#             self.SetText(re.sub(findstring, evt.GetReplaceString(), self.GetText(), count=1, flags=re.I)) 
+            backward = not (evt.GetFlags() & wx.FR_DOWN)
+            if backward:
+                start = self.GetSelection()[0]
+                loc = textstring.rfind(findstring, 0, start)
+            else:
+                start = self.GetSelection()[1]
+                loc = textstring.find(findstring, start)
+            if loc == -1 and start != 0:
+                # string not found, start at beginning
+                if backward:
+                    start = end
+                    loc = textstring.rfind(findstring, 0, start)
+                else:
+                    start = 0
+                    loc = textstring.find(findstring, start)
+            if loc == -1:
+                dlg = wx.MessageDialog(self, 'Find String Not Found',
+                            'Find String Not Found ',
+                            wx.OK | wx.ICON_INFORMATION)
+                dlg.ShowModal()
+                dlg.Destroy()
+            if self.finddlg:
+                if loc == -1:
+                    self.finddlg.SetFocus()
+                    return
+    #             else:
+    #                 self.finddlg.Destroy()
+    #                 self.finddlg = None
+            self.ShowPosition(loc)
+            self.SetSelection(loc, loc + len(findstring))
+            self.SetText(self.GetText()[:loc]+evt.GetReplaceString()+self.GetText()[loc+len(findstring):])
             #TODO : need to be workd
-            # new_str = self.GetText().replace(findstring, evt.GetReplaceString(), 1)
-            # self.SetText(new_str)
         if et in [wx.wxEVT_COMMAND_FIND_REPLACE_ALL]:
-            import re
-            self.SetText(re.sub(findstring, evt.GetReplaceString(), self.GetText(), flags=re.I)) #'bye bye bye'
             # replaceTxt = "Replace text: %s" % evt.GetReplaceString()
-            # new_str = self.GetText().replace(findstring, evt.GetReplaceString())
-            # self.SetText(new_str)
+            self.SetText(re.sub(findstring, evt.GetReplaceString(), self.GetText(), flags=re.I)) 
+
         if et in [wx.wxEVT_COMMAND_FIND, wx.wxEVT_COMMAND_FIND_NEXT]:
             backward = not (evt.GetFlags() & wx.FR_DOWN)
             if backward:
@@ -708,7 +723,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         event.Skip()
 
     def onRightMouseDown(self, event):
-        other_menus = []
+        # other_menus = []
         logger.debug('OnPopUp self:%s event:%s', self, event)
         if self.popmenu:
             self.popmenu.Destroy()
@@ -1039,7 +1054,6 @@ class CreatingEditorPanel(wx.Panel):
         self.SetSizer(sizer)
 
 
-#---------------------------------------------------------------------------
 if __name__ == '__main__':
     app = wx.App(False)
     frame = wx.Frame(None)

@@ -10,3 +10,6 @@ git remote set-url origin https://github.com/struts2spring/sql-editor.git
 
 sudo python3 setup.py install
 sudo python3 -m twine upload --skip-existing  dist/*
+
+# command to create windows executable
+pyinstaller src\sql_editor.py

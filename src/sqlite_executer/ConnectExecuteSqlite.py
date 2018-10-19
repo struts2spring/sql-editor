@@ -10,7 +10,7 @@ from os.path import expanduser
 import sys
 import logging
 from datetime import date, datetime
-from sqlalchemy.sql.expression import false
+
 
 logger = logging.getLogger('extensive')
 
