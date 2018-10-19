@@ -356,7 +356,7 @@ class SQLUtils():
             tablePresent=False
             i=1
             while not tablePresent:
-                tableName='Table {}'.format(i)
+                tableName='Table_{}'.format(i)
                 if tuple([tableName]) in tbl_name_list:
                     logger.info(tableName+' already present')
                     i +=1
