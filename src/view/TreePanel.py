@@ -9,7 +9,8 @@ import os
 from wx import TreeCtrl
 from wx.lib.mixins.treemixin import ExpansionState
 from src.view.constants import ID_newWorksheet, ID_CONNECT_DB, ID_deleteWithDatabase, \
-    ID_DISCONNECT_DB, ID_ROOT_NEW_CONNECTION, ID_ROOT_REFERESH, keyMap
+    ID_DISCONNECT_DB, ID_ROOT_NEW_CONNECTION, ID_ROOT_REFERESH, keyMap,\
+    ID_Import
 # from src.view.table.CreateTable import CreateTableFrame
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter, \
     ManageSqliteDatabase, SQLUtils
@@ -331,7 +332,11 @@ class CreatingTreePanel(wx.Panel):
             infoMenuItem = wx.MenuItem(menu, wx.ID_ANY, "Properties")
             infoBmp = wx.ArtProvider.GetBitmap(wx.ART_INFORMATION, wx.ART_MENU, (16, 16)) 
             infoMenuItem.SetBitmap(infoBmp)     
-            item4 = menu.Append(infoMenuItem)      
+            item4 = menu.Append(infoMenuItem)    
+            
+            importBmp = wx.MenuItem(menu, ID_Import, "&Import")
+            importBmp.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "database_refresh.png"))))
+            importMenu = menu.Append(importBmp)  
             
             refreshBmp = wx.MenuItem(menu, wx.ID_REFRESH, "&Refresh")
             refreshBmp.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "database_refresh.png"))))
@@ -356,6 +361,7 @@ class CreatingTreePanel(wx.Panel):
             
             self.Bind(wx.EVT_MENU, self.onOpenSqlEditorTab, item3)
             self.Bind(wx.EVT_MENU, self.onProperties, item4)
+            self.Bind(wx.EVT_MENU, self.onImport, importMenu)
             self.Bind(wx.EVT_MENU, self.onRefresh, item5)
             self.Bind(wx.EVT_MENU, self.onEditConnection, item6)
             self.Bind(wx.EVT_MENU, self.onDeleteConnection, delMenu)
@@ -562,6 +568,9 @@ class CreatingTreePanel(wx.Panel):
 
     def onProperties(self, event):
         logger.debug('onProperties')
+        
+    def onImport(self, event=None):
+        logger.debug('onImport')
         
     def onRefresh(self, event=None):
         logger.debug('onRefresh')

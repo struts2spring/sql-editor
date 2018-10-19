@@ -107,6 +107,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                  pos=wx.DefaultPosition, size=wx.DefaultSize,
                  style=0):
         stc.StyledTextCtrl.__init__(self, parent, ID, pos, size, style)    
+        self.findData = wx.FindReplaceData()
         self.popmenu = None
         self.frame = None
         self.adviceList = list()
@@ -412,8 +413,13 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             event.Skip()
         elif event.ControlDown() and  key == 70:
             logger.debug('ctrl+F: for find and relpace')
-            if self.frame == None:
-                self.frame = CreatingFindAndReplaceFrame(self, 'Find / Replace')
+            self.findData.SetFindString(self.GetSelectedText())
+        
+            self.finddlg = wx.FindReplaceDialog(self, self.findData, "Find & Replace", wx.FR_REPLACEDIALOG)
+            self.BindFindEvents(self.finddlg)
+            self.finddlg.Show(True)
+#             if self.frame == None:
+#                 self.frame = CreatingFindAndReplaceFrame(self, 'Find / Replace')
 #             self.copyClipboard(text=self.GetSelectedText())
             event.Skip()            
         elif not event.ControlDown() and event.AltDown() and key == 317:
@@ -469,6 +475,95 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 self.AutoCompShow(0, "|".join(self.getAdvice()))
         else:
             event.Skip()
+            
+# =========================================================================
+    def BindFindEvents(self, win):
+        win.Bind(wx.EVT_FIND, self.OnFind)
+        win.Bind(wx.EVT_FIND_NEXT, self.OnFind)
+        win.Bind(wx.EVT_FIND_REPLACE, self.OnFind)
+        win.Bind(wx.EVT_FIND_REPLACE_ALL, self.OnFind)
+        win.Bind(wx.EVT_FIND_CLOSE, self.OnFindClose)        
+        
+    def OnFind(self, evt):
+        
+        end = self.GetLastPosition()
+        textstring = self.GetRange(0, end).lower()
+        findstring = evt.GetFindString().lower()
+        replaceTxt = ""
+        #print(repr(evt.GetFindString()), repr(self.findData.GetFindString()))
+        map = {
+            wx.wxEVT_COMMAND_FIND : "FIND",
+            wx.wxEVT_COMMAND_FIND_NEXT : "FIND_NEXT",
+            wx.wxEVT_COMMAND_FIND_REPLACE : "REPLACE",
+            wx.wxEVT_COMMAND_FIND_REPLACE_ALL : "REPLACE_ALL",
+            }
+
+        et = evt.GetEventType()
+
+        if et in map:
+            evtType = map[et]
+        else:
+            evtType = "**Unknown Event Type**"
+        if et in [wx.wxEVT_COMMAND_FIND_REPLACE]:
+            replaceTxt = "Replace text: %s" % evt.GetReplaceString()
+            import re
+            self.SetText(re.sub(findstring, evt.GetReplaceString(), self.GetText(), count=1, flags=re.I)) #'bye bye bye'
+            #TODO : need to be workd
+            # new_str = self.GetText().replace(findstring, evt.GetReplaceString(), 1)
+            # self.SetText(new_str)
+        if et in [wx.wxEVT_COMMAND_FIND_REPLACE_ALL]:
+            import re
+            self.SetText(re.sub(findstring, evt.GetReplaceString(), self.GetText(), flags=re.I)) #'bye bye bye'
+            # replaceTxt = "Replace text: %s" % evt.GetReplaceString()
+            # new_str = self.GetText().replace(findstring, evt.GetReplaceString())
+            # self.SetText(new_str)
+        if et in [wx.wxEVT_COMMAND_FIND, wx.wxEVT_COMMAND_FIND_NEXT]:
+            backward = not (evt.GetFlags() & wx.FR_DOWN)
+            if backward:
+                start = self.GetSelection()[0]
+                loc = textstring.rfind(findstring, 0, start)
+            else:
+                start = self.GetSelection()[1]
+                loc = textstring.find(findstring, start)
+            if loc == -1 and start != 0:
+                # string not found, start at beginning
+                if backward:
+                    start = end
+                    loc = textstring.rfind(findstring, 0, start)
+                else:
+                    start = 0
+                    loc = textstring.find(findstring, start)
+            if loc == -1:
+                dlg = wx.MessageDialog(self, 'Find String Not Found',
+                            'Find String Not Found ',
+                            wx.OK | wx.ICON_INFORMATION)
+                dlg.ShowModal()
+                dlg.Destroy()
+            if self.finddlg:
+                if loc == -1:
+                    self.finddlg.SetFocus()
+                    return
+    #             else:
+    #                 self.finddlg.Destroy()
+    #                 self.finddlg = None
+            self.ShowPosition(loc)
+            self.SetSelection(loc, loc + len(findstring))
+
+
+        logger.info("%s -- Find text: %s   Replace text: %s  Flags: %d  \n" %
+                       (evtType, evt.GetFindString(), replaceTxt, evt.GetFlags()))
+        
+
+#         findstring = self.finddata.GetFindString().lower()
+
+    
+        
+
+    def OnFindClose(self, evt):
+        logger.info("FindReplaceDialog closing...\n")
+        evt.GetDialog().Destroy()
+#         self.EnableButtons()
+# =========================================================================
             
     def getAdvice(self):
         del self.adviceList[:]
@@ -924,7 +1019,7 @@ class CreatingEditorPanel(wx.Panel):
         self.parent = parent
         
         vBox = wx.BoxSizer(wx.VERTICAL)
-
+        self.findData = wx.FindReplaceData()
         ####################################################################
         self.sstc = SqlStyleTextCtrl(self, -1)
         self.sstc.initKeyShortCut()

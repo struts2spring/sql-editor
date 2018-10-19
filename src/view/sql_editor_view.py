@@ -39,6 +39,8 @@ class DatabaseMainFrame(wx.Frame):
         icon = wx.Icon()
         icon.CopyFromBitmap(image)
         
+
+        
         self.SetIcon(icon)
         self.SetMinSize(wx.Size(400, 300))
         self.createMenuBar()

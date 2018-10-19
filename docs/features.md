@@ -12,11 +12,10 @@
 | 8     | Delete database should be working.                                           | [x]        |
 | 9     | Remember last 5 path in create new database.                                 | [ ]        |
 | 10    | Create new connection . Need to work on Refresh part.                        | [X]        |
-| 11    | Working find and replace                                                     | []         |
-| 12    | Drag and drop sqlite file to create connection                               | []         |
-| 13    | Open already open tree connection. As it is lost after recreate method call. | []         |
-
-
+| 11    | Working find and replace. Need to work on Replace part.                      | [ ]        |
+| 12    | Drag and drop sqlite file to create connection                               | [ ]        |
+| 13    | Open already open tree connection. As it is lost after recreate method call. | [ ]        |
+| 14    | Import csv file.                                                             | [ ]        |
 
 ### Available Features
 
