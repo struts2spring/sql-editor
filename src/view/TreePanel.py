@@ -19,6 +19,7 @@ from src.view.schema.CreateSchemaViewer import CreateErDiagramFrame
 import logging
 from src.view.table.CreateTable import CreatingTableFrame
 from src.view.util.FileOperationsUtil import FileOperations
+from src.view.importing.importCsvExcel import ImportingCsvExcelFrame
 
 logger = logging.getLogger('extensive')
 
@@ -334,8 +335,8 @@ class CreatingTreePanel(wx.Panel):
             infoMenuItem.SetBitmap(infoBmp)     
             item4 = menu.Append(infoMenuItem)    
             
-            importBmp = wx.MenuItem(menu, ID_Import, "&Import")
-            importBmp.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "database_refresh.png"))))
+            importBmp = wx.MenuItem(menu, ID_Import, "&Import CSV / Excel")
+            importBmp.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "import.png"))))
             importMenu = menu.Append(importBmp)  
             
             refreshBmp = wx.MenuItem(menu, wx.ID_REFRESH, "&Refresh")
@@ -565,12 +566,16 @@ class CreatingTreePanel(wx.Panel):
         if hasattr(self.GetTopLevelParent(), '_mgr'):
             sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("sqlExecution")
             sqlExecutionTab.window.addTab("Worksheet")
-
+    
     def onProperties(self, event):
         logger.debug('onProperties')
         
     def onImport(self, event=None):
         logger.debug('onImport')
+        selectedItem = self.tree.GetSelection()
+        connectionName = self.tree.GetItemText(selectedItem)
+        frame = ImportingCsvExcelFrame(None, 'Import CSV Excel', connectionName)
+        frame.Show()
         
     def onRefresh(self, event=None):
         logger.debug('onRefresh')

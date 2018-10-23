@@ -11,7 +11,6 @@ import sys
 import logging
 from datetime import date, datetime
 
-
 logger = logging.getLogger('extensive')
 
 
@@ -344,30 +343,43 @@ class SQLUtils():
         '''
         This is to define new table name .
         '''
-        
-#         while
-        tableName=None
+        tableName = None
         try:
             manageSqliteDatabase = ManageSqliteDatabase(connectionName=connectionName, databaseAbsolutePath=self.getDbFilePath(connectionName))
             sqlText = "select tbl_name from sqlite_master order by tbl_name;"
             tbl_name_list = manageSqliteDatabase.executeSelectQuery(sqlText)
             logger.debug(tbl_name_list)
             
-            tablePresent=False
-            i=1
+            tablePresent = False
+            i = 1
             while not tablePresent:
-                tableName='Table_{}'.format(i)
+                tableName = 'Table_{}'.format(i)
                 if tuple([tableName]) in tbl_name_list:
-                    logger.info(tableName+' already present')
-                    i +=1
+                    logger.info(tableName + ' already present')
+                    i += 1
                 else:
-                    tablePresent=True
+                    tablePresent = True
              
         except Exception as e:
             logger.error(e, exc_info=True)
         
         return tableName
     
+    def importingData(self, connectionName=None, sqlList=None):
+        logger.info('importingData to {}'.format(connectionName))
+        count = 0
+        try:
+            manageSqliteDatabase = ManageSqliteDatabase(connectionName=connectionName, databaseAbsolutePath=self.getDbFilePath(connectionName))
+            for sql in sqlList:
+                manageSqliteDatabase.executeText(sql)
+                count += 1
+        except Exception as e:
+            count -= 1
+            logger.error(e, exc_info=True)      
+        importStatus= "Total rows {} / {} inserted.".format(count, len(sqlList)-1)
+        logger.info("Total rows {} / {} inserted.".format(count, len(sqlList)-1))
+        return importStatus
+
 class ManageSqliteDatabase():
 
     def __init__(self, connectionName=None, databaseAbsolutePath=None):
@@ -398,25 +410,18 @@ class ManageSqliteDatabase():
         '''
         Method returns all database object [ table, view, index] from the given sqlite database path
         '''
-    
         con = None
         
         try:
-#             self.connection = sqlite3.connect('_opal.sqlite')
-            
             cur = self.conn.cursor()    
             cur.execute('SELECT SQLITE_VERSION()')
-            
             data = cur.fetchone()
-            
             logger.debug("SQLite version: %s" % data)   
             cur.execute("select tbl_name from sqlite_master where type='table';")
             types = cur.execute("select distinct type from sqlite_master;").fetchall()
             databaseList = list()
             dbObjects = list()
-#             logger.debug types
             for t in types:
-#                 logger.debug t[0], type(t)
                 tObjectArrayList = list()
                 query = "select tbl_name from sqlite_master where type='{}' order by tbl_name;".format(t[0])
                 logger.debug(query)
@@ -424,30 +429,20 @@ class ManageSqliteDatabase():
                 tableColumnList = list()
                 for tObj in tObjectList:
                     if t[0] == 'table' or t[0] == 'index':
-#                         tableColumnsOrIndexesSql = "PRAGMA " + t[0] + "_info(%s);" % tObj[0]
                         tableColumnsOrIndexesSql = "PRAGMA {}_info('{}');".format(t[0], tObj[0])
-                        
-#                         logger.debug(tableColumnsOrIndexesSql)
                         tableColumnsOrIndexesList = cur.execute(tableColumnsOrIndexesSql).fetchall()
-#                         logger.debug objChildList
                         tableColumnsOrIndexes = list()
                         for objChild in tableColumnsOrIndexesList:
                             tableColumnsOrIndexes.append(objChild)
-#                             print objChild
                         tableColumnList.append({tObj[0]: tableColumnsOrIndexes})
                     if t[0] == 'view':
                         tableColumnList.append({tObj[0]: []})
                         logger.debug('view')
-
                 dbObjects.append({t[0]: tableColumnList})
-#             logger.debug(dbObjects)
-
         except sqlite3.Error as e:
             logger.error(e, exc_info=True)
             sys.exit(1)
-            
         finally:
-            
             if self.conn:
                 self.conn.close()
         databaseList.append(self.connectionName)
@@ -462,7 +457,6 @@ class ManageSqliteDatabase():
         try:
             with self.conn:    
                 cur = self.conn.cursor() 
-#                 logger.debug('before')
                 listOfSqls = text.strip().lower().split(';')
                 if len(listOfSqls) > 1 and not text.strip().lower().startswith('select'):
                     cur.executescript(text)
@@ -470,13 +464,9 @@ class ManageSqliteDatabase():
                     cur.execute(text)
                 else:
                     rows = cur.execute(text).fetchall()
-#                     logger.debug(rows)
-#                     logger.debug(cur.description) 
-    #                 logger.debug(rows)
                     if cur.description:
                         headerList = list()
                         for idx, desc in enumerate(cur.description):
-        #                     logger.debug(idx, desc)
                             headerList.append(desc[0])
                         sqlOutput[0] = tuple(headerList)
                         for idx, item in enumerate(rows):
@@ -485,12 +475,10 @@ class ManageSqliteDatabase():
             logger.error(e, exc_info=True)
             raise e
             self.conn.rollback()
-#             raise e
-#         logger.debug(sqlOutput)
         return sqlOutput
     
     def executeSelectQuery(self, text=None):
-        rows=None
+        rows = None
         with self.conn:    
                 cur = self.conn.cursor() 
                 rows = cur.execute(text).fetchall()
@@ -562,7 +550,7 @@ class ManageSqliteDatabase():
     
 if __name__ == "__main__":
     logger.debug('hi')
-    tableName=SQLUtils().definingTableName(connectionName='picture')
+    tableName = SQLUtils().definingTableName(connectionName='picture')
     print(tableName)
     
 #########################################################################################

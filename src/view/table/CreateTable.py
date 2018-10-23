@@ -969,6 +969,6 @@ class CreateButtonPanel(wx.Panel):
 
 if __name__ == '__main__':
     app = wx.App(False)
-    frame = CreatingTableFrame(None, 'table creation')
+    frame = CreatingTableFrame(None, 'table creation',"_opal.sqlite","tempTable")
     frame.Show()
     app.MainLoop()
