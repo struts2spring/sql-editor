@@ -40,7 +40,7 @@ sql_editor
 3. Graphical user interface for sqlite 3.
 
 
-
+![Import csv / Excel data](./docs/images/import_csv_excel.PNG)
 
 
 ![Screen 3](./docs/images/screen_3.PNG)
