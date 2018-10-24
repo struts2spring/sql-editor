@@ -6,7 +6,7 @@ from src.view.constants import ID_openConnection, ID_newWorksheet, ID_newConnect
     ID_SQL_EXECUTION, ID_SQL_LOG, ID_UPDATE_CHECK, TITLE, VERSION
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 # from src.view.AutoCompleteTextCtrl import TextCtrlAutoComplete
-from wx import aui, ID_PREFERENCES
+from wx import  ID_PREFERENCES
 from src.view.worksheet.WorksheetPanel import CreateWorksheetTabPanel
 from src.view.SqlOutputPanel import SqlScriptOutputPanel
 from src.view.history.HistoryListPanel import HistoryGrid
@@ -15,7 +15,15 @@ import platform
 import sys
 from src.view.preference.OpalPreferences import OpalPreference
 from src.view.AutoCompleteTextCtrl import TextCtrlAutoComplete
-
+from src.view.openConnection.OpenExistingConnection import OpenExistingConnectionFrame
+# from src.view.openConnection.OpenExistingConnection import OpenExistingConnectionFrame
+try:
+    from agw import aui
+    from agw.aui import aui_switcherdialog as ASD
+except ImportError:  # if it's not there locally, try the wxPython lib.
+    import wx.lib.agw.aui as aui
+    from wx.lib.agw.aui import aui_switcherdialog as ASD
+    
 logger = logging.getLogger('extensive')
 
 
@@ -38,8 +46,6 @@ class DatabaseMainFrame(wx.Frame):
         image = wx.Image(os.path.join(imageLocation, "Opal_database.png"), wx.BITMAP_TYPE_PNG).ConvertToBitmap()
         icon = wx.Icon()
         icon.CopyFromBitmap(image)
-        
-
         
         self.SetIcon(icon)
         self.SetMinSize(wx.Size(400, 300))
@@ -75,15 +81,16 @@ class DatabaseMainFrame(wx.Frame):
         logger.debug(path)
         path = os.path.abspath(os.path.join(path, "images"))
         # create some toolbars
-        tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize)
-        tb1.SetToolBitmapSize(wx.Size(16, 16))
-        tb1.AddTool(ID_newConnection, "New Connection", wx.Bitmap(os.path.join(path, "connect.png")),shortHelp='Create a new connection')
+        tb1 = aui.AuiToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize, agwStyle=aui.AUI_TB_DEFAULT_STYLE | aui.AUI_TB_OVERFLOW)
+        
+        tb1.SetToolBitmapSize(wx.Size(42, 42))
+        tb1.AddSimpleTool(tool_id=ID_newConnection, label="New Connection", bitmap=wx.Bitmap(os.path.join(path, "connect.png")), short_help_string='Create a new connection')
         tb1.AddSeparator()
         
-        tb1.AddTool(ID_openConnection, "Open Connection", wx.Bitmap(os.path.join(path, "database_connect.png")),shortHelp='Open Connection')
-        tb1.AddTool(ID_newWorksheet, "Script", wx.Bitmap(os.path.join(path, "script.png")),shortHelp='Open a new script worksheet')
-        tb1.AddTool(wx.ID_PREFERENCES, "Preferences", wx.Bitmap(os.path.join(path, "preference.png")),shortHelp='Preference')
-        
+        tb1.AddSimpleTool(ID_openConnection, "Open Connection", wx.Bitmap(os.path.join(path, "database_connect.png")), short_help_string='Open Connection')
+        tb1.AddSimpleTool(ID_newWorksheet, "Script", wx.Bitmap(os.path.join(path, "script.png")), short_help_string='Open a new script worksheet')
+        tb1.AddSimpleTool(wx.ID_PREFERENCES, "Preferences", wx.Bitmap(os.path.join(path, "preference.png")), short_help_string='Preference')
+#         tb1.DoGetBestSize()
         ###################################################################################################
         args = {}
         if True:
@@ -354,6 +361,14 @@ class DatabaseMainFrame(wx.Frame):
         
     def onOpenConnection(self, event):
         logger.debug('onOpenConnection')
+        self.openFrame()
+#         databasefile=page2.markFile.GetValue() 
+#         connectionName=page2.connectionNameTextCtrl.GetValue()
+#         self.createNewDatabase( connectionName=connectionName,databaseAbsolutePath=databasefile)
+
+    def openFrame(self):
+        frame = OpenExistingConnectionFrame(None, 'Open Existing Connection')
+        frame.Show()
 
     def onNewConnection(self, event):
         logger.debug('onNewConnection')
