@@ -15,7 +15,10 @@
 | 11    | Working find and replace. Need to work on Replace part.                      | [ ]        |
 | 12    | Drag and drop sqlite file to create connection                               | [ ]        |
 | 13    | Open already open tree connection. As it is lost after recreate method call. | [ ]        |
-| 14    | Import csv file.                                                             | [ ]        |
+| 14    | Import csv file.                                                             | [X ]       |
+| 15    | Double click on table to open table info tab.                                | []         |
+| 16    | Import excel sheet with various tabs.                                        | []         |
+| 4     | Export the sql result in CSV.                              | []         |
 
 ### Available Features
 
@@ -24,5 +27,4 @@
 | 1     | SQLite Highlight code editor with advanced search strings. | []         |
 | 2     | Undo and redo                                              | []         |
 | 3     | Search and Replace                                         | []         |
-| 4     | Export the sql result in CSV.                              | []         |
 | 5     | Jump to line                                               | []         |
