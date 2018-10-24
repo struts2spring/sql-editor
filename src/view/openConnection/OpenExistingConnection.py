@@ -6,13 +6,13 @@ import logging.config
 from src.view.constants import TITLE, LOG_SETTINGS
 from src.view.util.FileOperationsUtil import FileOperations
 import ntpath
-from src.sqlite_executer.ConnectExecuteSqlite import SQLUtils
+from src.sqlite_executer.ConnectExecuteSqlite import SQLUtils, SQLExecuter
 
 logger = logging.getLogger('extensive')
 logging.config.dictConfig(LOG_SETTINGS)
 
 
-class OpenExistingConnectionFrame(wx.Frame):
+class OpenExistingConnectionFrame(wx.Dialog):
     
     def __init__(self, parent, title):
         wx.Frame.__init__(self, parent, -1, title, size=(500, 200),
@@ -32,7 +32,7 @@ class OpenExistingConnectionFrame(wx.Frame):
         
         self.SetSizer(sizer)
         self.Center()
-        self.createStatusBar()
+#         self.createStatusBar()
         self.Show(True)
     
     def OnCloseFrame(self, event):
@@ -87,6 +87,11 @@ class CreateOpenConnectionPanel(wx.Panel):
         logger.info('FileBrowseButton: %s\n' % evt.GetString())
         self.filePath = evt.GetString()
         self.setConnectionName(filePath=self.filePath)
+        sqlExecuter=SQLExecuter()
+        obj=sqlExecuter.getObject()
+        if len(obj[1])==0:
+            sqlExecuter.createOpalTables()
+        sqlExecuter.addNewConnectionRow(self.filePath, self.connectionNameText.GetValue())
                        
     def onChangeConnectionName(self, event):
         logger.info('onChangeConnectionName')
@@ -100,6 +105,7 @@ class CreateOpenConnectionPanel(wx.Panel):
         head, tail = ntpath.split(filePath)
         connectionName = "_".join(tail.split(sep=".")[:-1])
         self.connectionNameText.SetValue(connectionName)
+        
 #         fileOperations = FileOperations()
 #         self.data = fileOperations.readCsvFile(filePath=filePath, columnNameFirstRow=columnNameFirstRow, delimiter=delimiter, quotechar=quotechar)
 #         self.GetTopLevelParent().resultDataGrid.addData(self.data)
@@ -149,13 +155,13 @@ class CreateButtonPanel(wx.Panel):
 #         print(sqlList)
 #         connectionName = self.GetTopLevelParent().connectionName
 #         importStatus = SQLUtils().importingData(connectionName=connectionName, sqlList=sqlList)
-        dlg = wx.MessageDialog(self, "Some status",
-                       'Importing data status',
-                       wx.OK | wx.ICON_INFORMATION
-                       #wx.YES_NO | wx.NO_DEFAULT | wx.CANCEL | wx.ICON_INFORMATION
-                       )
-        dlg.ShowModal()
-        dlg.Destroy()
+#         dlg = wx.MessageDialog(self, "Some status",
+#                        'Importing data status',
+#                        wx.OK | wx.ICON_INFORMATION
+#                        #wx.YES_NO | wx.NO_DEFAULT | wx.CANCEL | wx.ICON_INFORMATION
+#                        )
+#         dlg.ShowModal()
+#         dlg.Destroy()
         self.GetTopLevelParent().Destroy()
         
     def onCancelButtonClick(self, event):

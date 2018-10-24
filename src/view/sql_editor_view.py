@@ -367,16 +367,28 @@ class DatabaseMainFrame(wx.Frame):
 #         self.createNewDatabase( connectionName=connectionName,databaseAbsolutePath=databasefile)
 
     def openFrame(self):
-        frame = OpenExistingConnectionFrame(None, 'Open Existing Connection')
-        frame.Show()
+        dialog=OpenExistingConnectionFrame(None, 'Open Existing Connection')
+        result=  dialog.ShowModal()
+        self.refreshDatabaseNaviagtionTree()
+#         if  result==  wx.ID_OK:
+#             logger.info('ok')
+#         else:
+#             logger.info('Cancel')
+#         frame = OpenExistingConnectionFrame(None, 'Open Existing Connection')
+#         frame.Show()
+#         if frame ==None:
+#             logger.info("OpenExistingConnectionFrame closed")
 
     def onNewConnection(self, event):
         logger.debug('onNewConnection')
         CreateNewConncetionWixard().createWizard()
+        self.refreshDatabaseNaviagtionTree()
+
+    def refreshDatabaseNaviagtionTree(self):
         databaseNavTab = self.GetTopLevelParent()._mgr.GetPane("databaseNaviagor")
         databaseNavTab.window.recreateTree()
         logger.debug("recreating database navigation tree.")
-
+        
     def onNewWorksheet(self, event):
         logger.debug('onNewWorksheet')
 #         all_panes = self._mgr.GetAllPanes()
