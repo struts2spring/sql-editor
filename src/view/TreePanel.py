@@ -51,6 +51,7 @@ class CreatingTreePanel(wx.Panel):
         self.tree.Bind(wx.EVT_TREE_ITEM_COLLAPSED, self.OnItemCollapsed)
         self.tree.Bind(wx.EVT_TREE_SEL_CHANGED, self.OnSelChanged)
         self.tree.Bind(wx.EVT_LEFT_DOWN, self.OnTreeLeftDown)
+        self.tree.Bind(wx.EVT_LEFT_DCLICK, self.OnTreeDoubleclick)
         self.tree.Bind(wx.EVT_TREE_ITEM_ACTIVATED, self.onTreeItemActivated)
         self.tree.Bind(wx.EVT_TREE_KEY_DOWN, self.onTreeKeyDown)
         self.tree.Bind(wx.EVT_TREE_BEGIN_DRAG, self.onTreeBeginDrag)
@@ -181,7 +182,7 @@ class CreatingTreePanel(wx.Panel):
     #---------------------------------------------
     def OnItemExpanded(self, event):
         item = event.GetItem()
-#         logger.debug("OnItemExpanded: %s" % self.tree.GetItemText(item))
+        logger.debug("OnItemExpanded: %s" % self.tree.GetItemText(item))
         event.Skip()
 
     #---------------------------------------------
@@ -256,6 +257,25 @@ class CreatingTreePanel(wx.Panel):
                 clipboard.SetData(self.dataObj)
         except TypeError:
             wx.MessageBox("Unable to open the clipboard", "Error")
+        
+    def OnTreeDoubleclick(self, event):
+        logger.info("OnTreeDoubleclick")
+        pt = event.GetPosition();
+        item, flags = self.tree.HitTest(pt)
+        data = self.tree.GetItemData(item)
+        rightClickDepth = data['depth']
+        logger.info("Depth: {}".format(data['depth']))
+        if rightClickDepth==1:
+            self.onConnectDb(event)
+        if rightClickDepth==3:
+            # Open a new tab in SQL execution Pane. It is for table info.
+            # TODO 
+            pass
+        if self.tree.IsExpanded(item):
+            self.tree.Collapse(item)
+        else:
+            self.tree.Expand(item)
+            
         
     def OnTreeLeftDown(self, event):
         # reset the overview text if the tree item is clicked on again
