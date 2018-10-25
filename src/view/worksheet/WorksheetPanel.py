@@ -14,6 +14,7 @@ from src.view.constants import ID_RUN
 from wx import ID_SPELL_CHECK
 import logging
 from src.view.worksheet.WelcomePage import WelcomePanel
+from src.view.worksheet.tableInfoPanel import CreatingTableInfoPanel
 
 logger = logging.getLogger('extensive')
 
@@ -57,11 +58,15 @@ class CreateWorksheetTabPanel(wx.Panel):
     def addTab(self, name='Start Page'):
         if name == 'Start Page':
             worksheetPanel=WelcomePanel(self._nb)
-        else:
+        elif name.startswith('tableInfo_'):
+            worksheetPanel= CreatingTableInfoPanel(self._nb, -1, style=wx.CLIP_CHILDREN)
+            name=name.replace('tableInfo_','',1)
+        elif name.startswith('Worksheet'):
             worksheetPanel = CreatingWorksheetWithToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN)
 #             worksheetPanel.worksheetPanel.editorPanel
             name = 'Worksheet ' + str(len(self.GetPages(type(worksheetPanel))))
         self._nb.AddPage(worksheetPanel, name)
+        self.SetCurrentPage(worksheetPanel)
         self.Bind(aui.EVT_AUINOTEBOOK_TAB_RIGHT_DOWN, self.onTabRightDown, self._nb)
         self.Bind(aui.EVT_AUINOTEBOOK_BG_DCLICK, self.onBgDoubleClick, self._nb)
 #         self.Bind(aui.AUI_NB_CLOSE_BUTTON, handler, source, id, id2)
@@ -219,7 +224,9 @@ class CreatingStartPanel(wx.Panel):
         sizer = wx.BoxSizer(wx.VERTICAL)
 #         sizer.Add(worksheetToolbar ,.9, wx.EXPAND | wx.ALL, 0)
         sizer.Add(vBox, 1, wx.EXPAND , 0)
-        self.SetSizer(sizer)    
+        self.SetSizer(sizer)   
+
+
 class CreatingWorksheetWithToolbarPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)

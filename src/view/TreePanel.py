@@ -270,7 +270,8 @@ class CreatingTreePanel(wx.Panel):
         if rightClickDepth==3:
             # Open a new tab in SQL execution Pane. It is for table info.
             # TODO 
-            pass
+            sheetName= "tableInfo_{}".format(self.tree.GetItemText(item))
+            self.openWorksheet(sheetName=sheetName)
         if self.tree.IsExpanded(item):
             self.tree.Collapse(item)
         else:
@@ -551,7 +552,7 @@ class CreatingTreePanel(wx.Panel):
                 # Todo change icon to enable
                         selectedItemText = self.tree.GetItemText(self.tree.GetSelection())
                         self.setAutoCompleteText(selectedItemText)
-                        self.openWorksheet()
+                        self.openWorksheet(sheetName="Worksheet")
         except Exception as e:
             logger.error(e, exc_info=True)
     
@@ -580,12 +581,13 @@ class CreatingTreePanel(wx.Panel):
             # Todo change icon to dissable
     def onOpenSqlEditorTab(self, event):
         logger.debug('onOpenSqlEditorTab')
-        self.openWorksheet()
+        self.openWorksheet(sheetName="Worksheet")
 
-    def openWorksheet(self):
+    def openWorksheet(self, sheetName="Worksheet"):
         if hasattr(self.GetTopLevelParent(), '_mgr'):
             sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("sqlExecution")
-            sqlExecutionTab.window.addTab("Worksheet")
+            if sqlExecutionTab.window:
+                sqlExecutionTab.window.addTab(sheetName)
     
     def onProperties(self, event):
         logger.debug('onProperties')
