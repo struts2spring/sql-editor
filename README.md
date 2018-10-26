@@ -5,7 +5,7 @@
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=EUWCHQJXB9Y2N)
 [![Build Status](https://travis-ci.com/struts2spring/sql-editor.svg?branch=master)](https://travis-ci.com/struts2spring/sql-editor)
 [![Repo on GitHub](https://img.shields.io/badge/repo-GitHub-3D76C2.svg)](https://github.com/struts2spring/sql-editor)
-[![PyPI version](https://badge.fury.io/py/sql-editor@2x.png)](https://badge.fury.io/py/sql-editor)
+[![PyPI version](https://badge.fury.io/py/sql-editor.svg)](https://badge.fury.io/py/sql-editor)
 ----------------------------------------------
 
 <img style="float: left;" src="./src/images/Opal_database.png">     
