@@ -1,7 +1,12 @@
 
 import wx
 import wx.dataview as dv
-import wx.lib.agw.aui.auibook as aui
+try:
+    from agw import aui
+    from agw.aui import aui_switcherdialog as ASD
+except ImportError:  # if it's not there locally, try the wxPython lib.
+    import wx.lib.agw.aui as aui
+    from wx.lib.agw.aui import aui_switcherdialog as ASD
 import os
 from src.view.constants import ID_RUN,ID_EXECUTE_SCRIPT, ID_RESULT_REFRESH,\
     ID_ROW_ADD, ID_ROW_DELETE, ID_RESULT_NEXT, ID_RESULT_PREVIOUS,\
@@ -237,24 +242,28 @@ class ResultPanel(wx.Panel):
     def constructBottomResultToolBar(self):
         
         # create some toolbars
-        tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
+        tb1 =  aui.AuiToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
                          wx.TB_FLAT | wx.TB_NODIVIDER)
         tb1.SetToolBitmapSize(wx.Size(16, 16))
-        playImage = None
-        if "worksheet" == os.path.split(os.getcwd())[-1:][0]:
-            imageLocation = os.path.join("..", "..", "images")
-
-        elif "view" == os.path.split(os.getcwd())[-1:][0]:
-            imageLocation = os.path.join("..", "images")
-        tb1.AddLabelTool(id=ID_ROW_ADD, label="Row add", shortHelp="Row add ", bitmap=wx.Bitmap(os.path.join(imageLocation, "row_add.png")))
-        tb1.AddLabelTool(id=ID_ROW_DELETE, label="Row delete", shortHelp="Row delete ", bitmap=wx.Bitmap(os.path.join(imageLocation, "row_delete.png")))
-        tb1.AddLabelTool(id=ID_APPLY_CHANGE, label="Apply data change", shortHelp="Apply data change ", bitmap=wx.Bitmap(os.path.join(imageLocation, "accept.png")))
+        path = os.path.abspath(__file__)
+        tail = None
+        try:
+            while tail != 'src':
+                path = os.path.abspath(os.path.join(path, '..',))
+                head, tail = os.path.split(path)
+        except Exception as e:
+            logger.error(e, exc_info=True)
+        logger.info('path {}'.format(path))
+        imageLocation = os.path.abspath(os.path.join(path, "images"))   
+        tb1.AddSimpleTool(ID_ROW_ADD, "Row add", wx.Bitmap(os.path.join(imageLocation, "row_add.png")), short_help_string="Row add ")
+        tb1.AddSimpleTool(ID_ROW_DELETE, "Row delete", wx.Bitmap(os.path.join(imageLocation, "row_delete.png")), short_help_string="Row delete ")
+        tb1.AddSimpleTool(ID_APPLY_CHANGE, "Apply data change", wx.Bitmap(os.path.join(imageLocation, "accept.png")), short_help_string="Apply data change ")
         tb1.AddSeparator()
-        tb1.AddLabelTool(id=ID_RESULT_REFRESH, label="Result refresh", shortHelp="Result refresh ", bitmap=wx.Bitmap(os.path.join(imageLocation, "resultset_refresh.png")))
-        tb1.AddLabelTool(id=ID_RESULT_FIRST, label="Result first", shortHelp="Result first ", bitmap=wx.Bitmap(os.path.join(imageLocation, "resultset_first.png")))
-        tb1.AddLabelTool(id=ID_RESULT_NEXT, label="Result next", shortHelp="Result next ", bitmap=wx.Bitmap(os.path.join(imageLocation, "resultset_next.png")))
-        tb1.AddLabelTool(id=ID_RESULT_PREVIOUS, label="Result previous", shortHelp="Result previous ", bitmap=wx.Bitmap(os.path.join(imageLocation, "resultset_previous.png")))
-        tb1.AddLabelTool(id=ID_RESULT_LAST, label="Result last", shortHelp="Result last ", bitmap=wx.Bitmap(os.path.join(imageLocation, "resultset_last.png")))
+        tb1.AddSimpleTool(ID_RESULT_REFRESH, "Result refresh", wx.Bitmap(os.path.join(imageLocation, "resultset_refresh.png")), short_help_string="Result refresh ")
+        tb1.AddSimpleTool(ID_RESULT_FIRST, "Result first", wx.Bitmap(os.path.join(imageLocation, "resultset_first.png")), short_help_string="Result first ")
+        tb1.AddSimpleTool(ID_RESULT_NEXT, "Result next", wx.Bitmap(os.path.join(imageLocation, "resultset_next.png")), short_help_string="Result next ")
+        tb1.AddSimpleTool(ID_RESULT_PREVIOUS, "Result previous", wx.Bitmap(os.path.join(imageLocation, "resultset_previous.png")), short_help_string="Result previous ")
+        tb1.AddSimpleTool(ID_RESULT_LAST, "Result last", wx.Bitmap(os.path.join(imageLocation, "resultset_last.png")), short_help_string="Result last ")
         tb1.AddSeparator()
 
         tb1.Realize()
