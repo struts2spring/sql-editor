@@ -5,6 +5,7 @@ import os
 from src.view.constants import ID_RUN, ID_EXECUTE_SCRIPT, LOG_SETTINGS
 from src.view.worksheet.ResultListPanel import ResultPanel
 import logging.config
+from src.view.util.FileOperationsUtil import FileOperations
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -136,30 +137,15 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
         self.SetSizer(sizer)    
         
     def constructTopResultToolBar(self):
-        path = os.path.abspath(__file__)
-        tail = None
-#         head, tail = os.path.split(path)
-#         logger.info('createAuiManager',head, tail )
-        try:
-            while tail != 'src':
-                path = os.path.abspath(os.path.join(path, '..',))
-                head, tail = os.path.split(path)
-        except Exception as e:
-            logger.error(e, exc_info=True)
-        logger.info('path {}'.format(path))
-        path = os.path.abspath(os.path.join(path, "images"))        
+        
+        fileOperations=FileOperations()
         # create some toolbars
         tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
                          wx.TB_FLAT | wx.TB_NODIVIDER)
         tb1.SetToolBitmapSize(wx.Size(16, 16))
-#         playImage = None
-#         if "worksheet" == os.path.split(os.getcwd())[-1:][0]:
-#             imageLocation = os.path.join("..", "..", "images")
-# 
-#         elif "view" == os.path.split(os.getcwd())[-1:][0]:
-#             imageLocation = os.path.join("..", "images")
-        tb1.AddTool(ID_RUN, "Pin", wx.Bitmap(os.path.join(path, "pin2_green.png")))
-        tb1.AddTool(ID_EXECUTE_SCRIPT, "Result refresh", wx.Bitmap(os.path.join(path, "resultset_refresh.png")))
+
+        tb1.AddTool(ID_RUN, "Pin", fileOperations.getImageBitmap(imageName="pin2_green.png"))
+        tb1.AddTool(ID_EXECUTE_SCRIPT, "Result refresh",  fileOperations.getImageBitmap(imageName="resultset_refresh.png"))
         tb1.AddSeparator()
 
         tb1.Realize()

@@ -3,10 +3,14 @@ import os
 import logging.config
 import csv
 from src.view.constants import LOG_SETTINGS
+import wx
 
 logger = logging.getLogger('extensive')
 logging.config.dictConfig(LOG_SETTINGS)
 
+
+
+BAD_IMAGE = -1
 
 class FileOperations():
 
@@ -65,7 +69,7 @@ class FileOperations():
 		partialSql = "CREATE TABLE IF NOT EXISTS '{}' ( ".format(tableName)
 		for column in columnHeader:
 			partialSql += "'{}' TEXT ,".format(column)
-		partialSql =partialSql[:-1]
+		partialSql = partialSql[:-1]
 		partialSql += ");"	
 		return partialSql
 
@@ -73,20 +77,70 @@ class FileOperations():
 
 		logger.info("insertScript")
 
-		sqlList=list()
+		sqlList = list()
 		sqlList.append(self.createTableScript(tableName, columnHeader=data[0]))
 		for row in data.items():
-			partialSql="INSERT INTO '{}' (".format(tableName)
+			partialSql = "INSERT INTO '{}' (".format(tableName)
 			for column in data[0]:
 				partialSql += "'{}' ,".format(column)
-			partialSql =partialSql[:-1]
-			partialSql +=") VALUES ("
+			partialSql = partialSql[:-1]
+			partialSql += ") VALUES ("
 			for dataRow in row[1]:
 				partialSql += "'{}' ,".format(dataRow)
-			partialSql =partialSql[:-1]
-			partialSql +=");"
+			partialSql = partialSql[:-1]
+			partialSql += ");"
 			sqlList.append(partialSql)
 		return sqlList
+	
+	def getImagePath(self):
+		"""
+		this method return impagePath
+		"""
+		
+		path = os.path.abspath(__file__)
+		tail = None
+# 		 head, tail = os.path.split(path)
+# 		 logger.info('createAuiManager',head, tail )
+		try:
+			while tail != 'src':
+				path = os.path.abspath(os.path.join(path, '..',))
+				head, tail = os.path.split(path)
+		except Exception as e:
+			logger.error(e, exc_info=True)
+		logger.info('path {}'.format(path))
+		path = os.path.abspath(os.path.join(path, "images")) 
+		return path
+	
+	def getImageBitmap(self, imageName=None, path=None):
+# 		return wx.BitmapFromImage(self.ConvertBMP(imageName, path))
+		if not path:
+			path = self.getImagePath()
+		return wx.Bitmap(os.path.join(path, imageName), wx.BITMAP_TYPE_PNG)
+	def ConvertBMP(self,  imageName=None, path=None):
+		"""
+	    Convert file
+	
+	    :param string `file_nm`: path to file
+	
+	    :return: :class:`wx.Image` or BAD_IMAGE
+	    """
+
+		if not path:
+			path = os.path.join(self.getImagePath(), imageName)
+					
+		fl_fld = os.path.splitext(path)
+		ext = fl_fld[1]
+		ext = ext[1:].lower()
+		
+		# Don't try to create it directly because wx throws up
+		# an annoying messasge dialog if the type isn't supported.
+		if wx.Image.CanRead(path):
+			image = wx.Image(path, wx.BITMAP_TYPE_ANY)
+			return image
+		
+		# BAD_IMAGE means a bad image, None just means no image (i.e. directory)
+		return BAD_IMAGE
+
 if __name__ == "__main__":
 # 	print(".".join("Book1_csv.csv".split(sep=".")[:-1]))
 	fileOperations = FileOperations()
