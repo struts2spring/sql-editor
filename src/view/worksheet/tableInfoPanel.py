@@ -35,6 +35,7 @@ SQL Tab:
 
 '''
 
+
 class CreatingTableInfoFrame(wx.Frame):
     
     def __init__(self, parent, title):
@@ -45,7 +46,6 @@ class CreatingTableInfoFrame(wx.Frame):
         sizer = wx.BoxSizer(wx.VERTICAL)        
         # self.buttonPanel = CreateButtonPanel(self)
         ####################################################################
-        
         
         self.creatingTableInfoPanel = CreatingTableInfoPanel(self)
         ####################################################################
@@ -60,7 +60,10 @@ class CreatingTableInfoFrame(wx.Frame):
 
     def OnCloseFrame(self, event):
         self.Destroy()  
+
+
 class CreatingTableInfoPanel(wx.Panel):
+
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
@@ -73,6 +76,7 @@ class CreatingTableInfoPanel(wx.Panel):
         self.addTab()
         ####################################################################
         self.__DoLayout()
+
 #         # vBox.Add(worksheetToolbar , 0, wx.EXPAND | wx.ALL, 0)
 #         # vBox.Add(self.worksheetPanel , 1, wx.EXPAND | wx.ALL, 0)
 # #         vBox.Add(resultPanel , 1, wx.EXPAND | wx.ALL)
@@ -82,16 +86,17 @@ class CreatingTableInfoPanel(wx.Panel):
 #         self.SetSizer(sizer)  
     def addTab(self, name='Start Page'):
 #             worksheetPanel.worksheetPanel.editorPanel
-        name='Columns '
+        name = 'Columns '
         
         # add following list of tabs
-        listOfTabs=['Columns', 'Indexes', 'Data', 'References', 'Triggers', 'SQL', 'ER diagram']
+        listOfTabs = ['Columns', 'Indexes', 'Data', 'References', 'Triggers', 'SQL', 'ER diagram']
         for tabName in listOfTabs:
-            tableInfoPanel = CreatingTableInfoToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN)
+            tableInfoPanel = CreatingTableInfoToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN, tabName=tabName)
             self._nb.AddPage(tableInfoPanel, tabName)      
             self.Bind(aui.EVT_AUINOTEBOOK_TAB_RIGHT_DOWN, self.onTabRightDown, self._nb)
             self.Bind(aui.EVT_AUINOTEBOOK_BG_DCLICK, self.onBgDoubleClick, self._nb)  
             self.Bind(aui.EVT_AUINOTEBOOK_PAGE_CLOSE, self.onCloseClick, self._nb)          
+
     def __DoLayout(self):
         """Layout the panel"""
         sizer = wx.BoxSizer(wx.VERTICAL)
@@ -99,26 +104,30 @@ class CreatingTableInfoPanel(wx.Panel):
         self.SetAutoLayout(True)
         self.SetSizer(sizer)
         self.Layout()
-    def onTabRightDown(self,event):
+
+    def onTabRightDown(self, event):
         logger.info('onTabRightDown')
         
-    def onBgDoubleClick(self,event):
+    def onBgDoubleClick(self, event):
         logger.info('onBgDoubleClick')
         
-    def onCloseClick(self,event):
+    def onCloseClick(self, event):
         logger.info('onCloseClick')
         self.GetCurrentPage()        
+
         
 class CreatingTableInfoToolbarPanel(wx.Panel):
+
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
-        self.data=list()
+        self.tabName = kw['tabName']
+        self.data = list()
         vBox = wx.BoxSizer(wx.VERTICAL)
-
+        print(kw)
         ####################################################################
         self.topResultToolbar = self.constructTopResultToolBar()
-        self.bottomResultToolbar=wx.StatusBar(self)
+        self.bottomResultToolbar = wx.StatusBar(self)
         self.resultPanel = ResultPanel(self, data=None)
         self.bottomResultToolbar.SetStatusText("some text")
 #         self.bottomResultToolbar = self.constructBottomResultToolBar()
@@ -138,19 +147,21 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
         
     def constructTopResultToolBar(self):
         
-        fileOperations=FileOperations()
+        fileOperations = FileOperations()
         # create some toolbars
         tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
                          wx.TB_FLAT | wx.TB_NODIVIDER)
         tb1.SetToolBitmapSize(wx.Size(16, 16))
 
         tb1.AddTool(ID_RUN, "Pin", fileOperations.getImageBitmap(imageName="pin2_green.png"))
-        tb1.AddTool(ID_EXECUTE_SCRIPT, "Result refresh",  fileOperations.getImageBitmap(imageName="resultset_refresh.png"))
+        tb1.AddTool(ID_EXECUTE_SCRIPT, "Result refresh", fileOperations.getImageBitmap(imageName="resultset_refresh.png"))
         tb1.AddSeparator()
 
         tb1.Realize()
         
         return tb1     
+
+
 if __name__ == '__main__':
     
     app = wx.App(False)
