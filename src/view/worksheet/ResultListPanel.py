@@ -137,12 +137,12 @@ class ResultPanel(wx.Panel):
         self.Sizer.Add(self.dvc, 1, wx.EXPAND)
         
         # Add some buttons to help out with the tests
-        b1 = wx.Button(self, label="New View", name="newView")
-        self.Bind(wx.EVT_BUTTON, self.OnNewView, b1)
-        b2 = wx.Button(self, label="Add Row")
-        self.Bind(wx.EVT_BUTTON, self.OnAddRow, b2)
-        b3 = wx.Button(self, label="Delete Row(s)")
-        self.Bind(wx.EVT_BUTTON, self.OnDeleteRows, b3)
+#         b1 = wx.Button(self, label="New View", name="newView")
+#         self.Bind(wx.EVT_BUTTON, self.OnNewView, b1)
+#         b2 = wx.Button(self, label="Add Row")
+#         self.Bind(wx.EVT_BUTTON, self.OnAddRow, b2)
+#         b3 = wx.Button(self, label="Delete Row(s)")
+#         self.Bind(wx.EVT_BUTTON, self.OnDeleteRows, b3)
 
 #         btnbox = wx.BoxSizer(wx.HORIZONTAL)
 #         btnbox.Add(b1, 0, wx.LEFT|wx.RIGHT, 5)
@@ -205,32 +205,32 @@ class ResultPanel(wx.Panel):
         # Let's change our minds and not let the first col be moved.
         c0.Reorderable = False     
              
-    def OnNewView(self, evt):
-        f = wx.Frame(None, title="New view, shared model", size=(600,400))
-        ResultPanel(f,  self.model)
-        b = f.FindWindowByName("newView")
-        b.Disable()
-        f.Show()
-
-
-    def OnDeleteRows(self, evt):
-        # Remove the selected row(s) from the model. The model will take care
-        # of notifying the view (and any other observers) that the change has
-        # happened.
-        items = self.dvc.GetSelections()
-        rows = [self.model.GetRow(item) for item in items]
-        self.model.DeleteRows(rows)
-
-        
-    def OnAddRow(self, evt):
-        # Add some bogus data to a new row in the model's data
+#     def OnNewView(self, evt):
+#         f = wx.Frame(None, title="New view, shared model", size=(600,400))
+#         ResultPanel(f,  self.model)
+#         b = f.FindWindowByName("newView")
+#         b.Disable()
+#         f.Show()
+# 
+# 
+#     def OnDeleteRows(self, evt):
+#         # Remove the selected row(s) from the model. The model will take care
+#         # of notifying the view (and any other observers) that the change has
+#         # happened.
+#         items = self.dvc.GetSelections()
+#         rows = [self.model.GetRow(item) for item in items]
+#         self.model.DeleteRows(rows)
+# 
+#         
+#     def OnAddRow(self, evt):
+#         # Add some bogus data to a new row in the model's data
 #         id = len(self.model.data) + 1
 #         value = [str(id),
 #                  'new artist %d' % id,
 #                  'new title %d' % id,
 #                  'genre %d' % id]
 #         self.model.AddRow(value)
-        pass
+#         pass
                 
 
     def OnEditingDone(self, evt):
