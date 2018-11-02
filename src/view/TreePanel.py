@@ -587,7 +587,7 @@ class CreatingTreePanel(wx.Panel):
         if hasattr(self.GetTopLevelParent(), '_mgr'):
             sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("sqlExecution")
             if sqlExecutionTab.window:
-                sqlExecutionTab.window.addTab(sheetName)
+                sqlExecutionTab.window.addTab(name=sheetName)
     
     def onProperties(self, event):
         logger.debug('onProperties')

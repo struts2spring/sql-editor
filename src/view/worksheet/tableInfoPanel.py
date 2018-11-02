@@ -6,6 +6,10 @@ from src.view.constants import ID_RUN, ID_EXECUTE_SCRIPT, LOG_SETTINGS
 from src.view.worksheet.ResultListPanel import ResultPanel
 import logging.config
 from src.view.util.FileOperationsUtil import FileOperations
+from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter, \
+    ManageSqliteDatabase
+from src.view.worksheet.ResultGrid import ResultDataGrid
+from src.view.SqlOutputPanel import SqlScriptOutputPanel
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -44,6 +48,7 @@ class CreatingTableInfoFrame(wx.Frame):
         self.Bind(wx.EVT_CLOSE, self.OnCloseFrame)
         self.SetMinSize((400, 100))
         sizer = wx.BoxSizer(wx.VERTICAL)        
+        self.title = title
         # self.buttonPanel = CreateButtonPanel(self)
         ####################################################################
         
@@ -67,7 +72,7 @@ class CreatingTableInfoPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
-        
+        self.tableName = kw['tableName']
         vBox = wx.BoxSizer(wx.VERTICAL)
 
         ####################################################################
@@ -86,12 +91,12 @@ class CreatingTableInfoPanel(wx.Panel):
 #         self.SetSizer(sizer)  
     def addTab(self, name='Start Page'):
 #             worksheetPanel.worksheetPanel.editorPanel
-        name = 'Columns '
+#         name = 'Columns '
         
         # add following list of tabs
         listOfTabs = ['Columns', 'Indexes', 'Data', 'References', 'Triggers', 'SQL', 'ER diagram']
         for tabName in listOfTabs:
-            tableInfoPanel = CreatingTableInfoToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN, tabName=tabName)
+            tableInfoPanel = CreatingTableInfoToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN, tableName=self.tableName, tabName=tabName)
             self._nb.AddPage(tableInfoPanel, tabName)      
             self.Bind(aui.EVT_AUINOTEBOOK_TAB_RIGHT_DOWN, self.onTabRightDown, self._nb)
             self.Bind(aui.EVT_AUINOTEBOOK_BG_DCLICK, self.onBgDoubleClick, self._nb)  
@@ -128,7 +133,8 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
         ####################################################################
         self.topResultToolbar = self.constructTopResultToolBar()
         self.bottomResultToolbar = wx.StatusBar(self)
-        self.resultPanel = ResultPanel(self, data=None)
+        resultPanel = self.getPanelByTabName(tableName=kw['tableName'], tabName=kw['tabName'])
+#         self.resultPanel = ResultPanel(self, data=None)
         self.bottomResultToolbar.SetStatusText("some text")
 #         self.bottomResultToolbar = self.constructBottomResultToolBar()
 #         self.resultPanel = ResultDataGrid(self, data=self.getData())
@@ -137,7 +143,7 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
         ####################################################################
         vBox.Add(self.topResultToolbar , 0, wx.EXPAND | wx.ALL, 0)
 #         vBox.Add(self.resultPanel , 1, wx.EXPAND | wx.ALL, 0)
-        vBox.Add(self.resultPanel , 1, wx.EXPAND | wx.ALL)
+        vBox.Add(resultPanel , 1, wx.EXPAND | wx.ALL)
         vBox.Add(self.bottomResultToolbar , 0, wx.EXPAND | wx.ALL, 0)
 #         vBox.Add(bottomResultToolbar , 0, wx.EXPAND | wx.ALL, 0)
         sizer = wx.BoxSizer(wx.VERTICAL)
@@ -160,6 +166,76 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
         tb1.Realize()
         
         return tb1     
+
+    def getPanelByTabName(self, tableName=None, tabName=None):
+        resultPanel = wx.Panel()
+        tableData = None
+        sampleData = None
+        indexData = None
+        referencesData = None
+        triggersData = None
+        try:
+            selectedItemText, dbFilePath = self.findingConnectionName()
+            db = ManageSqliteDatabase(connectionName=selectedItemText, databaseAbsolutePath=dbFilePath)
+            result = db.sqlite_select(tableName="sqlite_master")
+            for row in result:
+                # selection of table and table name
+                if row[0] == 'table' and row[1] == tableName:
+                    tableData = None
+                    indexData = None
+                    sqlData = row[4]
+        except Exception as e:
+            logger.error(e, exc_info=True)
+            
+        if tabName == 'Columns':
+            data = {
+            0: ('ID', 'PICTURE', 'TYPE', 'FILE_NAME'),
+            1: (1, None, u'.jpg', u'IMG_20180918_115610'),
+            2: (1, None, u'.jpg', u'IMG_20180918_115610')
+            }
+            resultPanel = ResultDataGrid(self, data=None)
+            resultPanel.addData(tableData)
+        elif tabName == 'Indexes':
+            resultPanel = ResultDataGrid(self, data=None)
+            resultPanel.addData(indexData)
+        elif tabName == 'Data':
+            resultPanel = ResultDataGrid(self, data=None)
+            resultPanel.addData(sampleData)
+        elif tabName == 'References':
+            resultPanel = ResultDataGrid(self, data=None)
+            resultPanel.addData(referencesData)
+        elif tabName == 'Triggers':
+            resultPanel = ResultDataGrid(self, data=None)
+            resultPanel.addData(triggersData)
+        elif tabName == 'Triggers':
+            resultPanel = ResultDataGrid(self, data=None)
+            resultPanel.addData(triggersData)
+        elif tabName == 'SQL':
+            resultPanel = SqlScriptOutputPanel(self, data=None)
+            try:
+                resultPanel.text.SetText(sqlData)
+            except Exception as e:
+                logger.error(e, exc_info=True)
+                
+        elif tabName == 'ER diagram':
+            resultPanel = wx.Panel()
+        
+        return resultPanel
+
+    def findingConnectionName(self):
+        '''
+        This method defines connection name based on selected connection in the tree.
+        @return: (connectionName, databaseAbsolutePath)
+        '''
+        ##################################################################################
+        sqlExecuter = SQLExecuter(database='_opal.sqlite')
+        textCtrl = self.GetTopLevelParent()._ctrl
+        connectionName = textCtrl.GetValue()
+        databaseAbsolutePath = sqlExecuter.getDbFilePath(connectionName)
+        logger.debug("databaseAbsolutePath: %s", databaseAbsolutePath)
+        
+        ##################################################################################        
+        return connectionName, databaseAbsolutePath
 
 
 if __name__ == '__main__':

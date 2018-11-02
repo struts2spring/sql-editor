@@ -376,9 +376,10 @@ class SQLUtils():
         except Exception as e:
             count -= 1
             logger.error(e, exc_info=True)      
-        importStatus= "Total rows {} / {} inserted.".format(count, len(sqlList)-1)
-        logger.info("Total rows {} / {} inserted.".format(count, len(sqlList)-1))
+        importStatus = "Total rows {} / {} inserted.".format(count, len(sqlList) - 1)
+        logger.info("Total rows {} / {} inserted.".format(count, len(sqlList) - 1))
         return importStatus
+
 
 class ManageSqliteDatabase():
 
@@ -408,7 +409,7 @@ class ManageSqliteDatabase():
         
     def getObject(self):
         '''
-        Method returns all database object [ table, view, index] from the given sqlite database path
+        @return: Method returns all database object [ table, view, index] from the given sqlite database path
         '''
         con = None
         
@@ -451,7 +452,7 @@ class ManageSqliteDatabase():
 
     def executeText(self, text=None):
         ''' This method takes input text to execute in database.
-        returns output as dict
+        @return script output as dict
         '''
         sqlOutput = dict()
         try:
@@ -512,26 +513,23 @@ class ManageSqliteDatabase():
             self.conn.rollback()
             raise e
     
-    def sqlite_select(self, table):
+    def sqlite_select(self, tableName=None):
         
         returnRows = list()
-        with self.conn:    
-            
-            cur = self.conn.cursor() 
-#             logger.debug('before')
-            cur.execute("SELECT * FROM {}".format(table))
-        
-            rows = cur.fetchall()
-            
-            for row in rows:
-                returnRows.append(row)
+        if tableName:
+            with self.conn:    
+                cur = self.conn.cursor() 
+                cur.execute("SELECT * FROM {}".format(tableName))
+                rows = cur.fetchall()
+                for row in rows:
+                    returnRows.append(row)
         return returnRows
     
     def getColumn(self, tableName=None):
         try:
             with self.conn:    
                 cur = self.conn.cursor() 
-                sql = "SELECT name, sql FROM sqlite_master WHERE type='table' AND name = '" + tableName + "';"
+                sql = "SELECT name, sql FROM sqlite_master WHERE type='table' AND name = '{}';".format(tableName)
                 rows = cur.execute(sql).fetchall()
                 tableCreateStmt = rows[0][1]
                 match = re.findall(r'[^[]*\[([^]]*)\]', tableCreateStmt)
@@ -550,8 +548,8 @@ class ManageSqliteDatabase():
     
 if __name__ == "__main__":
     logger.debug('hi')
-    tableName = SQLUtils().definingTableName(connectionName='picture')
-    print(tableName)
+#     tableName = SQLUtils().definingTableName(connectionName='picture')
+#     print(tableName)
     
 #########################################################################################
 #     sqlExecuter = SQLExecuter(database='_opal.sqlite')
@@ -581,4 +579,9 @@ if __name__ == "__main__":
 ##########################################################################################
             
 #     logger.debug(dbList)
-#     ManageSqliteDatabase(connectionName="1", databaseAbsolutePath=r"_opal_1.sqlite")
+    connectionName="emp"
+    sqlExecuter=SQLExecuter()
+    databaseAbsolutePath=sqlExecuter.getDbFilePath(connectionName=connectionName)
+    db=ManageSqliteDatabase(connectionName=connectionName ,databaseAbsolutePath=databaseAbsolutePath)
+    result=db.sqlite_select(tableName="sqlite_master")
+    print(result)
