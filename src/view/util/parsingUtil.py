@@ -1,4 +1,10 @@
 import re
+import logging.config
+from src.view.constants import LOG_SETTINGS
+
+logger = logging.getLogger('extensive')
+
+logging.config.dictConfig(LOG_SETTINGS)
 
 
 class SqlParser():
@@ -10,47 +16,71 @@ class SqlParser():
         
 #         https://www.debuggex.com/
 # https://pythex.org/
-#         print(createSql)
+#         logger.debug(createSql)
 #         pattern='''(\s*CREATE TABLE\s*)("?\w+"?)\s+(\(\s+((("?\w+"?)*\s*(UNIQUE\s+(\(\w+\))|PRIMARY KEY\s+(\(\w+\))|FLOAT|DATETIME|INTEGER\s*(NOT NULL)*|VARCHAR\(\d*\)),?\s+))*\s*\))(\s*;?)'''
 #         pattern='''(\s*CREATE TABLE\s*)("?\w+"?)\s+(\(\s+((("?\w+"?)*\s*(UNIQUE\s+(\(\w+\))|PRIMARY KEY\s+(\(\w+\))|FLOAT|DATETIME|INTEGER\s*(NOT NULL)*|VARCHAR\(\d*\)),?\s+))*\s*\))(\s*;?)'''
 #         pattern='''(\s*CREATE TABLE\s*)("?\w+"?)\s+(\(\s+("?\w+"?)\s+((UNIQUE\s+(\(\w+\))|PRIMARY KEY\s+(\(\w+\))|FLOAT|DATETIME|INTEGER\s*(NOT NULL)*|VARCHAR\(\d*\))))'''
-        pattern='''\s*(CREATE TABLE)\s+("?\w+"?)\s+\(\s+(("?\w+"?\s+(INTEGER|FLOAT|DATETIME|VARCHAR\(\d*\))\s*(NOT NULL|PRIMARY KEY)?,?\s*)*)\s+(((\s*(PRIMARY KEY|UNIQUE)\s+\(\w+\)),?\s)*)(\)\s*;?)'''
-        matchObj = re.match( pattern, createSql, re.I)
+        pattern = '''\s*(CREATE TABLE)\s+("?\w+"?)\s+\(\s+(("?\w+"?\s+(INTEGER|FLOAT|DATETIME|VARCHAR\(\d*\))\s*(NOT NULL|PRIMARY KEY)?,?\s*)*)\s+(((\s*(PRIMARY KEY|UNIQUE)\s+\(\w+\)),?\s)*)(\)\s*;?)'''
+        matchObj = re.match(pattern, createSql, re.I)
         
         if matchObj:
-            print ("matchObj.groups() : ", matchObj.groups())
+            logger.debug ("matchObj.groups() : ", matchObj.groups())
 #             for g in matchObj.groups():
-#                 print(g)
-            print ("matchObj.group(0) : ", matchObj.group(0))
-            print ("matchObj.group(1) : ", matchObj.group(1))
-            print ("matchObj.group(2) : ", matchObj.group(2))
+#                 logger.debug(g)
+            logger.debug ("matchObj.group(0) : ", matchObj.group(0))
+            logger.debug ("matchObj.group(1) : ", matchObj.group(1))
+            logger.debug ("matchObj.group(2) : ", matchObj.group(2))
         else:
-            print ("No match!!")
+            logger.debug ("No match!!")
             
     def getColumn(self, createSql=None):
-        createTablePattern='''\s*(CREATE TABLE)\s+("?\w+"?)\s+\(\s+(("?\w+"?\s+(INTEGER|FLOAT|DATETIME|VARCHAR\(\d*\))\s*(NOT NULL|PRIMARY KEY)?,?\s*)*)\s+(((\s*(PRIMARY KEY|UNIQUE)\s+\(\w+\)),?\s)*)(\)\s*;?)'''
-        tableMatchObj = re.match( createTablePattern, createSql, re.I)
+        columnDict = dict()
+        if createSql:
+            h_0, t_0 = createSql.split("(", 1)
+            h_1, t_1 = t_0.rsplit(")", 1)
+            logger.debug (h_0)
+            logger.debug (t_0)
+            columnPattern = r'''((('|").+?\3)|(\w+))\s+(INTEGER|FLOAT|NUMERIC|REAL|BLOB|TEXT|DATETIME|VARCHAR\(\d*\))\s*(NOT NULL|PRIMARY KEY)?,?\s*(-{2}.*)?'''
+            columnDict[0] = ("Position #", "Name", "Datatype", "Nullable", "Auto increment", "Default data", "Description")
+            # this is column name
+            columnMatchObj=re.match(columnPattern, h_1, re.MULTILINE)
+            if columnMatchObj:
+                logger.info(columnMatchObj.groups())
+            logger.debug(columnMatchObj)
+            columnObj = re.findall(columnPattern, h_1, re.MULTILINE)
+            if columnObj:
+                for idx, columnName in enumerate(columnObj):
+                    columnNameInfo = [idx + 1, columnName[0], columnName[4], None, None, None, columnName[6]] 
+                    columnDict[idx + 1] = tuple(columnNameInfo)
+            else:
+                logger.debug ("columns : {}".format(h_1))      
         
-        columnPattern='''("?\w+"?)\s+(INTEGER|FLOAT|DATETIME|VARCHAR\(\d*\))\s*(NOT NULL|PRIMARY KEY)?,?\s*'''
-        columnDict=dict()
-        if tableMatchObj:
-#             print ("tableMatchObj.groups() : ", tableMatchObj.groups())
-            
-            for idx, matchValue in enumerate(tableMatchObj.groups()):
-                if idx==2:
-                    columnDict[0]=("Position #", "Name", "Datatype", "Nullable", "Auto increment", "Default data")
-                    # this is column name
-                    columnMatchObj = re.findall( columnPattern, matchValue, re.I)
-                    if columnMatchObj:
-                        for idx, columnName in enumerate(columnMatchObj):
-                            columnNameInfo=[idx+1]+list(columnName)+[None, None] 
-                            columnDict[idx+1]= tuple(columnNameInfo)
-                            
-        else:
-            print ("No match!!")
+#         createTablePattern='''\s*(CREATE TABLE)\s+((('|").*?\4)|("?\w+"?))\s+\(\s*((((('|").*?\10)|("?\w+"?))\s+(INTEGER|FLOAT|DATETIME|VARCHAR\(\d*\))\s*(NOT NULL|PRIMARY KEY)?,?\s*)*)\s+(((\s*(PRIMARY KEY|UNIQUE)\s+\(\w+\)),?\s)*)(\)\s*;?)'''
+#         tableMatchObj = re.match( createTablePattern, createSql, re.I)
+#         
+#         columnPattern='''(('|").+?\1)\s+(INTEGER|FLOAT|DATETIME|VARCHAR\(\d*\))\s*(NOT NULL|PRIMARY KEY)?,?\s*'''
+#         if tableMatchObj:
+# #             logger.debug ("tableMatchObj.groups() : ", tableMatchObj.groups())
+#             
+#             for idx, matchValue in enumerate(tableMatchObj.groups()):
+#                 if idx==6:
+#                     columnDict[0]=("Position #", "Name", "Datatype", "Nullable", "Auto increment", "Default data")
+#                     # this is column name
+#                     columnMatchObj = re.findall( columnPattern, matchValue, re.I)
+#                     if columnMatchObj:
+#                         for idx, columnName in enumerate(columnMatchObj):
+#                             columnNameInfo=[idx+1]+list(columnName)+[None, None] 
+#                             columnDict[idx+1]= tuple(columnNameInfo)
+#                     else:
+#                         logger.debug ("columns : {}".format(matchValue))
+#                             
+#         else:
+#             logger.debug ("No match!! : {}".format(createSql))
         return columnDict
+
+
 if __name__ == "__main__":
-    columns='''
+    columns = '''
     id INTEGER NOT NULL, 
     vc1_dept_descr VARCHAR(250), 
     work_location_country VARCHAR(250), 
@@ -149,9 +179,13 @@ if __name__ == "__main__":
     _lw_data_source_type_s VARCHAR(250), 
     _lw_data_source_collection_s VARCHAR(250), 
     _lw_data_source_s VARCHAR(250), 
+    PRIMARY KEY (id), 
+    UNIQUE (comit_id), 
+    UNIQUE (email_id)
     '''
     
-    createSql='create TABLE "ABC" ( "id" INTEGER PRIMARY KEY ) ;  '
+    createSql_2 = "CREATE TABLE 'Table 1' ( 'column 1' INTEGER PRIMARY KEY )"
+    createSql_1 = 'create TABLE "ABC" ( "id" INTEGER PRIMARY KEY ) ;  '
     createSql1 = '''
 CREATE TABLE employee (
     id INTEGER NOT NULL, 
@@ -257,8 +291,8 @@ CREATE TABLE employee (
     UNIQUE (email_id)
 )
         '''
-    sqlParser=SqlParser()
+    sqlParser = SqlParser()
 #     sqlParser.createSqlToDict(createSql=createSql)
-    columnDict=sqlParser.getColumn(createSql=createSql1)
-    print(columnDict)
-    print("Finish")
+    columnDict = sqlParser.getColumn(createSql=columns)
+    logger.debug(columnDict)
+    logger.debug("Finish")
