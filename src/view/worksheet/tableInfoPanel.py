@@ -10,6 +10,7 @@ from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter, \
     ManageSqliteDatabase
 from src.view.worksheet.ResultGrid import ResultDataGrid
 from src.view.SqlOutputPanel import SqlScriptOutputPanel
+from src.view.util.parsingUtil import SqlParser
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -71,8 +72,10 @@ class CreatingTableInfoPanel(wx.Panel):
 
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
+        self.tableName = 'Unknown'
         self.parent = parent
-        self.tableName = kw['tableName']
+        if kw and 'tableName' in kw.keys():
+            self.tableName = kw['tableName']
         vBox = wx.BoxSizer(wx.VERTICAL)
 
         ####################################################################
@@ -181,19 +184,24 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
             for row in result:
                 # selection of table and table name
                 if row[0] == 'table' and row[1] == tableName:
-                    tableData = None
+                    tableData = {
+                        0:("Position #", "Name", "Datatype", "Nullable", "Auto increment", "Default data"),
+                        1:(1, None, None, None, None, None, None,)
+                    }
                     indexData = None
                     sqlData = row[4]
         except Exception as e:
             logger.error(e, exc_info=True)
             
         if tabName == 'Columns':
-            data = {
-            0: ('ID', 'PICTURE', 'TYPE', 'FILE_NAME'),
-            1: (1, None, u'.jpg', u'IMG_20180918_115610'),
-            2: (1, None, u'.jpg', u'IMG_20180918_115610')
-            }
+            if not tableData:
+                tableData = {
+                            0:("Position #", "Name", "Datatype", "Nullable", "Auto increment", "Default data"),
+                            1:(1, None, None, None, None, None, None,)
+                        }
             resultPanel = ResultDataGrid(self, data=None)
+            sqlParser = SqlParser()
+            tableData = sqlParser.getColumn(createSql=sqlData)
             resultPanel.addData(tableData)
         elif tabName == 'Indexes':
             resultPanel = ResultDataGrid(self, data=None)
