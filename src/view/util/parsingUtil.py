@@ -40,7 +40,7 @@ class SqlParser():
             h_1, t_1 = t_0.rsplit(")", 1)
             logger.debug (h_0)
             logger.debug (t_0)
-            columnPattern = r'''((('|").+?\3)|(\w+))\s+(INTEGER|FLOAT|NUMERIC|REAL|BLOB|TEXT|DATETIME|VARCHAR\(\d*\))\s*(NOT NULL|PRIMARY KEY)?,?\s*(-{2}.*)?'''
+            columnPattern = r'''((('|"|`).+?\3)|(\w+))\s*(INTEGER|FLOAT|NUMERIC|REAL|BLOB|TEXT|DATETIME|VARCHAR\(\d*\))?\s*(NOT NULL|PRIMARY KEY)?(\s+AUTOINCREMENT|UNIQUE)?,?\s*(-{2}.*)?'''
             columnDict[0] = ("Position #", "Name", "Datatype", "Nullable", "Auto increment", "Default data", "Description")
             # this is column name
             columnMatchObj=re.match(columnPattern, h_1, re.MULTILINE)
@@ -50,7 +50,7 @@ class SqlParser():
             columnObj = re.findall(columnPattern, h_1, re.MULTILINE)
             if columnObj:
                 for idx, columnName in enumerate(columnObj):
-                    columnNameInfo = [idx + 1, columnName[0], columnName[4], None, None, None, columnName[6]] 
+                    columnNameInfo = [idx + 1, columnName[0], columnName[4], None, columnName[6], None, columnName[7]] 
                     columnDict[idx + 1] = tuple(columnNameInfo)
             else:
                 logger.debug ("columns : {}".format(h_1))      
