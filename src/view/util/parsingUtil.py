@@ -40,17 +40,35 @@ class SqlParser():
             h_1, t_1 = t_0.rsplit(")", 1)
             logger.debug (h_0)
             logger.debug (t_0)
-            columnPattern = r'''((('|"|`).+?\3)|(\w+))\s*(INTEGER|FLOAT|NUMERIC|REAL|BLOB|TEXT|DATETIME|VARCHAR\(\d*\))?\s*(NOT NULL|PRIMARY KEY)?(\s+AUTOINCREMENT|UNIQUE)?,?\s*(-{2}.*)?'''
-            columnDict[0] = ("Position #", "Name", "Datatype", "Nullable", "Auto increment", "Default data", "Description")
+            columnPattern = r'''((('|"|`).+?\3)|(\w+))\s*(INTEGER|FLOAT|NUMERIC|REAL|BLOB|TEXT|DATETIME|VARCHAR\(\d*\))?\s*(NOT NULL|PRIMARY KEY)?(DEFAULT \w+)?(\s+AUTOINCREMENT|UNIQUE)?,?\s*(-{2}.*)?'''
+            columnDict[0] = ("Position #", "Name", "Datatype", "PRIMARY KEY", "Nullable", "Unique", "Auto increment", "Default data", "Description")
             # this is column name
-            columnMatchObj=re.match(columnPattern, h_1, re.MULTILINE)
+            columnMatchObj = re.match(columnPattern, h_1, re.MULTILINE)
             if columnMatchObj:
                 logger.info(columnMatchObj.groups())
             logger.debug(columnMatchObj)
             columnObj = re.findall(columnPattern, h_1, re.MULTILINE)
             if columnObj:
                 for idx, columnName in enumerate(columnObj):
-                    columnNameInfo = [idx + 1, columnName[0], columnName[4], None, columnName[6], None, columnName[7]] 
+                    default_data = None
+                    if columnName[6] and 'default' in columnName[6].lower():
+                        default_data = columnName[6].lower().replace("default", "").strip()
+                    auto_increment = None
+                    if columnName[7] and 'AUTOINCREMENT' in columnName[7].upper():
+                        auto_increment = 'AUTOINCREMENT'
+                    nullable = None
+                    if columnName[7] and 'NOT NULL' in columnName[7].upper():
+                        nullable = 'NOT NULL'
+                    description = None
+                    if columnName[8] and '--' in columnName[8]:
+                        description = columnName[8]
+                    primaryKey = None
+                    if columnName[8] and 'PRIMARY KEY' in columnName[8].upper():
+                        primaryKey = columnName[8]
+                    unique = None
+                    if columnName[8] and 'PRIMARY KEY' in columnName[8].upper():
+                        unique = columnName[8]
+                    columnNameInfo = [idx + 1, columnName[0], columnName[4], primaryKey, nullable, unique, auto_increment, default_data, description] 
                     columnDict[idx + 1] = tuple(columnNameInfo)
             else:
                 logger.debug ("columns : {}".format(h_1))      
