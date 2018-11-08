@@ -32,16 +32,22 @@ class SqlParser():
             logger.debug ("matchObj.group(2) : ", matchObj.group(2))
         else:
             logger.debug ("No match!!")
-            
+    
+    
+    
     def getColumn(self, createSql=None):
         columnDict = dict()
         if createSql:
+            # picking bracket part of create sql
             h_0, t_0 = createSql.split("(", 1)
             h_1, t_1 = t_0.rsplit(")", 1)
             logger.debug (h_0)
             logger.debug (t_0)
-            columnPattern = r'''((('|"|`).+?\3)|(\w+))\s*((?i)\bINT\b|(?i)\bINTEGER\b|(?i)\bTINYINT\b|(?i)\bSMALLINT\b|(?i)\bMEDIUMINT\b|(?i)\bBIGINT\b|(?i)\bUNSIGNED BIG INT\b|(?i)\bINT2\b|(?i)\bINT8\b|(?i)\bCHARACTER\(d*\)\b|(?i)\bVARCHAR\(d+\)\b|(?i)\bVARYING CHARACTER\(d+\)\b|(?i)\bNCHAR\(d+\)\b|(?i)\bNATIVE CHARACTER\(d+\)\b|(?i)\bNVARCHAR\(d+\)\b|(?i)\bTEXT\b|(?i)\bCLOB\b|(?i)\bBLOB\b|(?i)\bREAL\b|(?i)\bDOUBLE\b|(?i)\bDOUBLE PRECISION\b|(?i)\bFLOAT\b|(?i)\bNUMERIC\b|(?i)\bDECIMAL\(d+\)\b|(?i)\bBOOLEAN\b|(?i)\bDATE\b|(?i)\bDATETIME\b|(?i)\[timestamp\])?\s*((?i)\bNOT NULL\b|(?i)\bPRIMARY KEY\b)?((?i)\bDEFAULT\b .*)?(\s+(?i)\bAUTOINCREMENT\b|(?i)\bUNIQUE\b)?,?\s*(-{2}.*)?'''
-            columnDict[0] = ("Position #", "Name", "Datatype", "PRIMARY KEY", "Nullable", "Unique", "Auto increment", "Default data", "Description")
+            
+            # removing constrinat as last line. primary key , unique key , foreign key
+            
+            columnPattern = r'''((('|"|`).+?\3)|(\w+))\s*((?i)\bINT\b|(?i)\bINTEGER\b|(?i)\bTINYINT\b|(?i)\bSMALLINT\b|(?i)\bMEDIUMINT\b|(?i)\bBIGINT\b|(?i)\bUNSIGNED BIG INT\b|(?i)\bINT2\b|(?i)\bINT8\b|(?i)CHARACTER\(d+\)|(?i)\bVARYING CHARACTER\(d+\)\b|(?i)\bNCHAR\(d+\)\b|(?i)\bNATIVE CHARACTER\(d+\)\b|(?i)\bNVARCHAR\(d+\)\b|(?i)\bFLOAT\b|(?i)\bNUMERIC\b|(?i)\bDECIMAL\(d+\)\b|(?i)\bBOOLEAN\b|(?i)\bDATE\b|(?i)\bDATETIME\b|(?i)\[timestamp\]|(?i)\bREAL\b|(?i)\bDOUBLE\b|(?i)\bDOUBLE PRECISION\b|(?i)\bCLOB\b|(?i)\bBLOB\b|(?i)\bTEXT\b|(?i)\bDATETIME\b|(?i)VARCHAR\(\d+\))?\s*((?i)\bNOT NULL\b|(?i)\bPRIMARY KEY\b)?((?i)\bDEFAULT\b .*)?(\s+(?i)\bAUTOINCREMENT\b|(?i)\bUNIQUE\b)?,?\s*(-{2}.*)?'''
+            columnDict[0] = ("#", "Name", "Datatype", "PRIMARY KEY", "Nullable", "Unique", "Auto increment", "Default data", "Description")
             # this is column name
             columnMatchObj = re.match(columnPattern, h_1, re.MULTILINE)
             if columnMatchObj:
@@ -63,8 +69,8 @@ class SqlParser():
                     if columnName[8] and '--' in columnName[8]:
                         description = columnName[8]
                     primaryKey = None
-                    if columnName[8] and columnName[8].upper().startwith('PRIMARY KEY'):
-                        primaryKey = columnName[8]
+                    if columnName[5] and columnName[5].upper().startswith('PRIMARY KEY'):
+                        primaryKey = columnName[5]
                     unique = None
                     if columnName[8] and 'PRIMARY KEY' in columnName[8].upper():
                         unique = columnName[8]

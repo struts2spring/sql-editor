@@ -6,6 +6,7 @@ Created on May 1, 2017
 import wx
 import wx.stc as stc
 import logging
+from src.view.worksheet.EditorPanel import SqlStyleTextCtrl
 
 logger = logging.getLogger('extensive')
 
@@ -16,7 +17,7 @@ class SqlScriptOutputPanel(wx.Panel):
         vBox = wx.BoxSizer(wx.VERTICAL)
 
         ####################################################################
-        self.text = stc.StyledTextCtrl(self, -1)
+        self.text = SqlStyleTextCtrl(self, -1)
 #         self.text.initKeyShortCut()
         self.text.SetText('')
         self.text.EmptyUndoBuffer()

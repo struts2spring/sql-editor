@@ -177,6 +177,7 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
         indexData = None
         referencesData = None
         triggersData = None
+        sqlData = None
         try:
             selectedItemText, dbFilePath = self.findingConnectionName()
             db = ManageSqliteDatabase(connectionName=selectedItemText, databaseAbsolutePath=dbFilePath)
@@ -185,8 +186,7 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
                 # selection of table and table name
                 if row[0] == 'table' and row[1] == tableName:
                     tableData = {
-                        0:("Position #", "Name", "Datatype", "Nullable", "Auto increment", "Default data"),
-                        1:(1, None, None, None, None, None, None,)
+                        0:("#", "Name", "Datatype", "PRIMARY KEY", "Nullable", "Unique", "Auto increment", "Default data", "Description")
                     }
                     indexData = None
                     sqlData = row[4]
@@ -196,8 +196,7 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
         if tabName == 'Columns':
             if not tableData:
                 tableData = {
-                            0:("Position #", "Name", "Datatype", "Nullable", "Auto increment", "Default data"),
-                            1:(1, None, None, None, None, None, None,)
+                            0:("#", "Name", "Datatype", "PRIMARY KEY", "Nullable", "Unique", "Auto increment", "Default data", "Description")
                         }
             resultPanel = ResultDataGrid(self, data=None)
             sqlParser = SqlParser()
