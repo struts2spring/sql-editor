@@ -16,6 +16,7 @@ import sys
 from src.view.preference.OpalPreferences import OpalPreference
 from src.view.AutoCompleteTextCtrl import TextCtrlAutoComplete
 from src.view.openConnection.OpenExistingConnection import OpenExistingConnectionFrame
+from src.view.util.FileOperationsUtil import FileOperations
 # from src.view.openConnection.OpenExistingConnection import OpenExistingConnectionFrame
 try:
     from agw import aui
@@ -35,17 +36,10 @@ class DatabaseMainFrame(wx.Frame):
         style = wx.DEFAULT_FRAME_STYLE | wx.MAXIMIZE
 #         wx.Frame.__init__(self, parent, wx.ID_ANY, title, pos, size, style)
         wx.Frame.__init__(self, parent, wx.ID_ANY, title=title, style=style)
-        logger.info('1----------------------->' + os.getcwd())
-        path = os.path.abspath(__file__)
-        tail = None
-        while tail != 'src':
-            path = os.path.abspath(os.path.join(path, '..'))
-            head, tail = os.path.split(path)
-            
-        imageLocation = os.path.join(path, "images")
-        image = wx.Image(os.path.join(imageLocation, "Opal_database.png"), wx.BITMAP_TYPE_PNG).ConvertToBitmap()
+
+        self.fileOperations = FileOperations()
         icon = wx.Icon()
-        icon.CopyFromBitmap(image)
+        icon.CopyFromBitmap(self.fileOperations.getImageBitmap(imageName="Opal_database.png"))
         
         self.SetIcon(icon)
         self.SetMinSize(wx.Size(400, 300))
@@ -68,28 +62,16 @@ class DatabaseMainFrame(wx.Frame):
     #---------------------------------------------    
          
     def constructToolBar(self):
-        path = os.path.abspath(__file__)
-        tail = None
-#         head, tail = os.path.split(path)
-#         print('createAuiManager',head, tail )
-        try:
-            while tail != 'src':
-                path = os.path.abspath(os.path.join(path, '..',))
-                head, tail = os.path.split(path)
-        except Exception as e:
-            logger.error(e, exc_info=True)
-        logger.debug(path)
-        path = os.path.abspath(os.path.join(path, "images"))
         # create some toolbars
         tb1 = aui.AuiToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize, agwStyle=aui.AUI_TB_DEFAULT_STYLE | aui.AUI_TB_OVERFLOW)
         
         tb1.SetToolBitmapSize(wx.Size(42, 42))
-        tb1.AddSimpleTool(tool_id=ID_newConnection, label="New Connection", bitmap=wx.Bitmap(os.path.join(path, "connect.png")), short_help_string='Create a new connection')
+        tb1.AddSimpleTool(tool_id=ID_newConnection, label="New Connection", bitmap=wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "connect.png")), short_help_string='Create a new connection')
         tb1.AddSeparator()
         
-        tb1.AddSimpleTool(ID_openConnection, "Open Connection", wx.Bitmap(os.path.join(path, "database_connect.png")), short_help_string='Open Connection')
-        tb1.AddSimpleTool(ID_newWorksheet, "Script", wx.Bitmap(os.path.join(path, "script.png")), short_help_string='Open a new script worksheet')
-        tb1.AddSimpleTool(wx.ID_PREFERENCES, "Preferences", wx.Bitmap(os.path.join(path, "preference.png")), short_help_string='Preference')
+        tb1.AddSimpleTool(ID_openConnection, "Open Connection", wx.Bitmap(self.fileOperations.getImageBitmap(imageName="database_connect.png")), short_help_string='Open Connection')
+        tb1.AddSimpleTool(ID_newWorksheet, "Script", wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "script.png")), short_help_string='Open a new script worksheet')
+        tb1.AddSimpleTool(wx.ID_PREFERENCES, "Preferences", wx.Bitmap(self.fileOperations.getImageBitmap(imageName="preference.png")), short_help_string='Preference')
 #         tb1.DoGetBestSize()
         ###################################################################################################
         args = {}
@@ -171,17 +153,6 @@ class DatabaseMainFrame(wx.Frame):
         # set up default notebook style
         self._notebook_style = aui.AUI_NB_DEFAULT_STYLE | aui.AUI_NB_TAB_EXTERNAL_MOVE | wx.NO_BORDER
         self._notebook_theme = 0      
-        path = os.path.abspath(__file__)
-        tail = None
-#         head, tail = os.path.split(path)
-#         print('createAuiManager',head, tail )
-        try:
-            while tail != 'src':
-                path = os.path.abspath(os.path.join(path, '..',))
-                head, tail = os.path.split(path)
-        except Exception as e:
-            logger.error(e, exc_info=True)
-        path = os.path.abspath(os.path.join(path, "images"))
         # min size for the frame itself isn't completely done.
         # see the end up AuiManager.Update() for the test
         # code. For now, just hard code a frame minimum size
@@ -197,11 +168,11 @@ class DatabaseMainFrame(wx.Frame):
                           ToolbarPane().Top().CloseButton(True).
                           LeftDockable(False).RightDockable(False).Gripper(True))    
         
-        self._mgr.AddPane(self.creatingTreeCtrl(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "folder_database.png"))).
+        self._mgr.AddPane(self.creatingTreeCtrl(), aui.AuiPaneInfo().Icon(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "folder_database.png"))).
                           Name("databaseNaviagor").Caption("Database Navigator").Dockable(True).Movable(True).MinSize(wx.Size(300, 100)).
                           Left().Layer(1).Position(1).CloseButton(False).MaximizeButton(True).MinimizeButton(True))
      
-        self._mgr.AddPane(self.constructSqlPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "script.png"))).
+        self._mgr.AddPane(self.constructSqlPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "script.png"))).
                           Name("sqlExecution").Caption("SQL execution").LeftDockable(True).
                           Center().CloseButton(True).MaximizeButton(True).MinimizeButton(True))
         
@@ -213,11 +184,11 @@ class DatabaseMainFrame(wx.Frame):
 #                           BestSize(wx.Size(200, 100)).MinSize(wx.Size(200, 100)).
 #                           Bottom().Layer(1).CloseButton(True).MaximizeButton(True))      
   
-        self._mgr.AddPane(self.sqlScriptOutputPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "sql_script_recent.png"))).
+        self._mgr.AddPane(self.sqlScriptOutputPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "sql_script_recent.png"))).
                           Name("scriptOutput").Caption("Script Output").Dockable(True).Movable(True).LeftDockable(True).
                           Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True).PinButton(visible=True).GripperTop())
             
-        self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "sql.png"))).
+        self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "sql.png"))).
                           Name("sqlLog").Caption("SQL Log").Dockable(True).BestSize(wx.Size(200, 200)).
                           Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True))
             
@@ -257,18 +228,6 @@ class DatabaseMainFrame(wx.Frame):
         self.statusbar.SetStatusText("Welcome to {}".format(TITLE), 1)
         
     def createMenuBar(self):
-        path = os.path.abspath(__file__)
-        tail = None
-#         head, tail = os.path.split(path)
-#         print('createAuiManager',head, tail )
-        try:
-            while tail != 'src':
-                path = os.path.abspath(os.path.join(path, '..',))
-                head, tail = os.path.split(path)
-        except Exception as e:
-            logger.error(e, exc_info=True)
-        path = os.path.abspath(os.path.join(path, "images"))
-        
         logger.debug('creating menu bar')
                 # create menu
         mb = wx.MenuBar()
@@ -313,7 +272,7 @@ class DatabaseMainFrame(wx.Frame):
         window_menu = wx.Menu()
                 
         preferenceBmp = wx.MenuItem(window_menu, wx.ID_PREFERENCES, "&Preferences")
-        preferenceBmp.SetBitmap(wx.Bitmap(os.path.join(path, "preference.png")))
+        preferenceBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "preference.png")))
                 
         window_menu.AppendSeparator()
         childViewMenu = wx.Menu()
@@ -322,12 +281,14 @@ class DatabaseMainFrame(wx.Frame):
         window_menu.Append(wx.ID_VIEW_LIST, "Show &View", childViewMenu)
         window_menu.Append(preferenceBmp)
         
+        
+        
         help_menu = wx.Menu()
         
         aboutBmp = wx.MenuItem(help_menu, wx.ID_HELP, "&About {}".format(TITLE))
         aboutBmp.SetBitmap(wx.ArtProvider.GetBitmap(wx.ART_HELP, wx.ART_TOOLBAR, (16, 16)))
         updateCheckBmp = wx.MenuItem(help_menu, ID_UPDATE_CHECK, "Check for &Updates")
-        updateCheckBmp.SetBitmap(wx.Bitmap(os.path.join(path, "object_refresh.png")))
+        updateCheckBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "object_refresh.png")))
         
         help_menu.Append(updateCheckBmp)
         help_menu.Append(aboutBmp)
@@ -367,8 +328,8 @@ class DatabaseMainFrame(wx.Frame):
 #         self.createNewDatabase( connectionName=connectionName,databaseAbsolutePath=databasefile)
 
     def openFrame(self):
-        dialog=OpenExistingConnectionFrame(None, 'Open Existing Connection')
-        result=  dialog.ShowModal()
+        dialog = OpenExistingConnectionFrame(None, 'Open Existing Connection')
+        result = dialog.ShowModal()
         self.refreshDatabaseNaviagtionTree()
 #         if  result==  wx.ID_OK:
 #             logger.info('ok')

@@ -3,7 +3,13 @@ import wx
 from wx.lib.expando import ExpandoTextCtrl
 from src.view.preference.ApplyResetBtnPanel import ApplyResetButtonPanel
 # from src.ui.view.preference.ApplyResetBtnPanel import ApplyResetButtonPanel
+import logging.config
+from src.view.constants import LOG_SETTINGS
 
+logger = logging.getLogger('extensive')
+
+
+logging.config.dictConfig(LOG_SETTINGS)
 
 class Window(wx.App):
     def __init__(self, book=None):
@@ -85,7 +91,7 @@ class GeneralPreferencePanel(wx.Panel):
         
 
     def EvtListBox(self, event):
-        print ('EvtListBox: %s\n' % event.GetString())
+        logger.debug('EvtListBox: %s\n' % event.GetString())
 
     def EvtCheckListBox(self, event):
         index = event.GetSelection()

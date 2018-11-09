@@ -338,7 +338,7 @@ class CommandKeyListCtrlPanel(wx.Panel, listmix.ColumnSorterMixin):
 
     def OnPopupFive(self, event):
         item = self.list.GetItem(self.currentItem)
-        print(item.m_text, item.m_itemId, self.list.GetItemData(self.currentItem))
+        logger.debug(item.m_text, item.m_itemId, self.list.GetItemData(self.currentItem))
 
     def OnPopupSix(self, event):
         self.list.EditLabel(self.currentItem)

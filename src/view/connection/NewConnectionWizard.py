@@ -182,7 +182,7 @@ class ConncectionSettings(WizardPageSimple):
 
         ####################################################################        
     def onConnectionName(self, event):
-        print('onConnectionName')   
+        logger.debug('onConnectionName')   
         if self.connectionNameTextCtrl.GetValue(): 
             self.GetParent().Children[1].Enable()
             dbFileName=self.connectionNameTextCtrl.GetValue().replace(" ","_")+".sqlite"
@@ -190,7 +190,7 @@ class ConncectionSettings(WizardPageSimple):
     def dbbCallback(self, evt):
         logger.debug('DirBrowseButton: {}\n'.format( evt.GetString()))
     def onMarkFile(self, event):
-        print('onMarkFile')     
+        logger.debug('onMarkFile')     
 
 
 class CreateNewConncetionWixard(wx.Panel):

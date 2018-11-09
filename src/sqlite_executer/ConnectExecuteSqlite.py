@@ -584,4 +584,4 @@ if __name__ == "__main__":
     databaseAbsolutePath=sqlExecuter.getDbFilePath(connectionName=connectionName)
     db=ManageSqliteDatabase(connectionName=connectionName ,databaseAbsolutePath=databaseAbsolutePath)
     result=db.sqlite_select(tableName="sqlite_master")
-    print(result)
+    logger.debug(result)

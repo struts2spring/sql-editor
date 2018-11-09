@@ -210,9 +210,9 @@ class CreateButtonPanel(wx.Panel):
 #         print(len(data))    
 #         print(data)
         createTableScript = fileOperations.createTableScript(tableName=tableName, columnHeader=data[0])
-        print(createTableScript)
+        logger.debug(createTableScript)
         sqlList = fileOperations.sqlScript(tableName=tableName, data=data)
-        print(sqlList)
+        logger.debug(sqlList)
         connectionName = self.GetTopLevelParent().connectionName
         importStatus = SQLUtils().importingData(connectionName=connectionName, sqlList=sqlList)
         dlg = wx.MessageDialog(self, importStatus,

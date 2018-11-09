@@ -132,7 +132,7 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
         self.tabName = kw['tabName']
         self.data = list()
         vBox = wx.BoxSizer(wx.VERTICAL)
-        print(kw)
+        logger.debug(kw)
         ####################################################################
         self.topResultToolbar = self.constructTopResultToolBar()
         self.bottomResultToolbar = wx.StatusBar(self)

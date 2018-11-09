@@ -920,6 +920,6 @@ if __name__ == '__main__':
     try: 
         panel = CreatingTreePanel(frame, preferenceName='asfd')
     except Exception as ex:
-        print(ex)
+        logger.error(ex)
     frame.Show()
     app.MainLoop()

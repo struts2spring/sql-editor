@@ -449,13 +449,13 @@ class CreateResultSheetTabPanel(wx.Panel):
                 res.append(page)
         return res                
     def onTabRightDown(self,event):
-        print('onTabRightDown')
+        logger.debug('onTabRightDown')
         
     def onBgDoubleClick(self,event):
-        print('onBgDoubleClick')
+        logger.debug('onBgDoubleClick')
         
     def onCloseClick(self,event):
-        print('onCloseClick')
+        logger.debug('onCloseClick')
         self.GetCurrentPage()
 
 #---------------------------------------------------------------------------

@@ -81,11 +81,11 @@ class UserPanel(wx.Panel):
         self.pageSizeText.SetValue(str(event.GetPosition()))
     
     def EvtCheckBox(self, event):
-        print(self.isPaginationCheckBox)
-        print ('EvtCheckBox: %d\n' % event.IsChecked())
+        logger.debug(self.isPaginationCheckBox)
+        logger.debug('EvtCheckBox: %d\n' % event.IsChecked())
         cb = event.GetEventObject()
         if cb.Is3State():
-            print ("\t3StateValue: %s\n" % cb.Get3StateValue())
+            logger.debug("\t3StateValue: %s\n" % cb.Get3StateValue())
 
 class SearchPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
@@ -175,11 +175,11 @@ class SearchPanel(wx.Panel):
         self.pageSizeText.SetValue(str(event.GetPosition()))
     
     def EvtCheckBox(self, event):
-        print(self.isPaginationCheckBox)
-        print('EvtCheckBox: %d\n' % event.IsChecked())
+        logger.debug(self.isPaginationCheckBox)
+        logger.debug('EvtCheckBox: %d\n' % event.IsChecked())
         cb = event.GetEventObject()
         if cb.Is3State():
-            print ("\t3StateValue: %s\n" % cb.Get3StateValue())
+            logger.debug("\t3StateValue: %s\n" % cb.Get3StateValue())
 
 class WorkspacePanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
@@ -358,10 +358,10 @@ class AppearancePanel(wx.Panel):
     def EvtComboBox(self, evt):
         cb = evt.GetEventObject()
         data = cb.GetClientData(evt.GetSelection())
-        print ('EvtComboBox: %s\nClientData: %s\n' % (evt.GetString(), data))
+        logger.debug('EvtComboBox: %s\nClientData: %s\n' % (evt.GetString(), data))
 
         if evt.GetString() == 'one':
-            print ("You follow directions well!\n\n")
+            logger.debug("You follow directions well!\n\n")
 
 class KeysPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
@@ -413,7 +413,7 @@ class KeysPanel(wx.Panel):
         print ('EvtComboBox: %s\nClientData: %s\n' % (evt.GetString(), data))
 
         if evt.GetString() == 'one':
-            print ("You follow directions well!\n\n")
+            logger.debug("You follow directions well!\n\n")
 
 class PreferencePanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):

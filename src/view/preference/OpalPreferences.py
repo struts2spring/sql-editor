@@ -358,7 +358,7 @@ class OpalPreference(wx.Frame):
 
         item = event.GetItem()
         itemText = self.tree.GetItemText(item)
-        print(itemText)
+        logger.debug(itemText)
         self.UpdateNotebook(preferenceName=itemText)
         
 #         self.StartDownload()

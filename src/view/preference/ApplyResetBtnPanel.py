@@ -20,6 +20,6 @@ class ApplyResetButtonPanel(wx.Panel):
         self.Bind(wx.EVT_BUTTON, self.onResetButton, id=wx.ID_ANY)
         self.Bind(wx.EVT_BUTTON, self.onApplyButton, id=wx.ID_ANY)
     def onResetButton(self, event):
-        print('reset button')
+        logger.debug('reset button')
     def onApplyButton(self, event):
-        print('apply button')
+        logger.debug('apply button')
