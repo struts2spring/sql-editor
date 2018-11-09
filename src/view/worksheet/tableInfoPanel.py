@@ -178,7 +178,7 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
         referencesData = None
         triggersData = None
         sqlData = None
-        db=None
+        db = None
         try:
             selectedItemText, dbFilePath = self.findingConnectionName()
             db = ManageSqliteDatabase(connectionName=selectedItemText, databaseAbsolutePath=dbFilePath)
@@ -209,14 +209,12 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
             resultPanel.addData(indexData)
         elif tabName == 'Data':
             resultPanel = ResultDataGrid(self, data=None)
-            data=None
+            data = None
             if tableName:
-                data = db.executeText(text="SELECT * FROM {} LIMIT 20;".format(tableName))
+                data = db.executeText(text="SELECT * FROM '{}' LIMIT 20;".format(tableName))
             if data:
                 logger.debug('setResultData count: %s', len(data.keys()))
 #                 self.bottomResultToolbar.SetStatusText("Count: {}".format(str(len(data.keys()))))
-#                 self.data = data
-    #             self.data = music
                 resultPanel.addData(data)
                 resultPanel.Layout()
         elif tabName == 'References':

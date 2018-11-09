@@ -29,7 +29,7 @@ class CreatingTreePanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
-        
+        self.fileOperations = FileOperations()
         self.connDict = dict()
         vBox = wx.BoxSizer(wx.VERTICAL)
         ####################################################################
@@ -308,18 +308,7 @@ class CreatingTreePanel(wx.Panel):
     #---------------------------------------------
     def OnTreeRightUp(self, event):
         event.Skip
-        path = os.path.abspath(__file__)
-        tail = None
-#         head, tail = os.path.split(path)
-#         print('createAuiManager',head, tail )
-        try:
-            while tail != 'src':
-                path = os.path.abspath(os.path.join(path, '..',))
-                head, tail = os.path.split(path)
-        except Exception as e:
-            logger.error(e, exc_info=True)
-        path = os.path.abspath(os.path.join(path, "images"))
-        
+       
         item = self.tree.item     
         
         if not item:
@@ -334,7 +323,7 @@ class CreatingTreePanel(wx.Panel):
             rootNewConnection = menu.Append(ID_ROOT_NEW_CONNECTION, "New connection ")
             
             refreshBmp = wx.MenuItem(menu, ID_ROOT_REFERESH, "&Refresh")
-            refreshBmp.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "database_refresh.png"))))
+            refreshBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="database_refresh.png")))
             rootRefresh = menu.Append(refreshBmp)
             
             self.Bind(wx.EVT_MENU, self.onRootRefresh, rootRefresh)
@@ -348,7 +337,7 @@ class CreatingTreePanel(wx.Panel):
                 self.Bind(wx.EVT_MENU, self.onConnectDb, item2)
             
             sqlEditorBmp = wx.MenuItem(menu, ID_newWorksheet, "SQL Editor in new Tab")
-            sqlEditorBmp.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "script.png"))))
+            sqlEditorBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "script.png")))
             item3 = menu.Append(sqlEditorBmp)
             
             infoMenuItem = wx.MenuItem(menu, wx.ID_ANY, "Properties")
@@ -357,11 +346,11 @@ class CreatingTreePanel(wx.Panel):
             item4 = menu.Append(infoMenuItem)    
             
             importBmp = wx.MenuItem(menu, ID_Import, "&Import CSV / Excel")
-            importBmp.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "import.png"))))
+            importBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "import.png")))
             importMenu = menu.Append(importBmp)  
             
             refreshBmp = wx.MenuItem(menu, wx.ID_REFRESH, "&Refresh")
-            refreshBmp.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "database_refresh.png"))))
+            refreshBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "database_refresh.png")))
             item5 = menu.Append(refreshBmp)
             
             item6 = menu.Append(wx.ID_ANY, "Properties")
@@ -780,6 +769,7 @@ class DatabaseNavigationTree(ExpansionState, TreeCtrl):
         TreeCtrl.__init__(self, parent, style=wx.TR_DEFAULT_STYLE | 
                                wx.TR_HAS_VARIABLE_ROW_HEIGHT)
         self.BuildTreeImageList()
+        
 #         if USE_CUSTOMTREECTRL:
 #             self.SetSpacing(10)
 #             self.SetWindowStyle(self.GetWindowStyle() & ~wx.TR_LINES_AT_ROOT)
@@ -810,7 +800,7 @@ class DatabaseNavigationTree(ExpansionState, TreeCtrl):
         keyname = keyMap.get(keycode, None)
                 
         if keycode == wx.WXK_BACK:
-            self.log.write("OnKeyDown: HAHAHAHA! I Vetoed Your Backspace! HAHAHAHA\n")
+            logger.debug("OnKeyDown: HAHAHAHA! I Vetoed Your Backspace! HAHAHAHA\n")
             return
 
         if keyname is None:
@@ -838,40 +828,32 @@ class DatabaseNavigationTree(ExpansionState, TreeCtrl):
 
     def BuildTreeImageList(self):
         logger.debug('BuildTreeImageList')
-        path = os.path.abspath(__file__)
-        tail = None
-#         head, tail = os.path.split(path)
-#         logger.debug('createAuiManager',head, tail )
-        try:
-            while tail != 'src':
-                path = os.path.abspath(os.path.join(path, '..',))
-                head, tail = os.path.split(path)
-        except Exception as e:
-            logger.error(e, exc_info=True)
-        path = os.path.abspath(os.path.join(path, "images"))
+        self.fileOperations = FileOperations()
         imgList = wx.ImageList(16, 16)
 
         # add the image for modified demos.
 
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "database.png"))))  # 0
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "database_category.png"))))  # 1
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "folder_view.png"))))  # 2
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "folder.png"))))  # 3
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "table.png"))))  # 4
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "view.png"))))  # 5
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "index.png"))))  # 6
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "column.png"))))  # 7 using to show integer column 
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "string.png"))))  # 8
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "key.png"))))  # 9
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "foreign_key_column.png"))))  # 10
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "columns.png"))))  # 11
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "unique_constraint.png"))))  # 12
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "reference.png"))))  # 13
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "datetime.png"))))  # 14
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "columns.png"))))  # 15
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "sqlite.png"))))  # 16
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "h2.png"))))  # 17 use to show h2 database icon
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join(path, "textfield.png"))))  # 18 use to show [varchar, char, text data] type icon 
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="database.png")))  # 0
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "database_category.png")))  # 1
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "folder_view.png")))  # 2
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "folder.png")))  # 3
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "table.png")))  # 4
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "view.png")))  # 5
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "index.png")))  # 6
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "column.png")))  # 7 using to show integer column 
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "string.png")))  # 8
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "key.png")))  # 9
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "foreign_key_column.png")))  # 10
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "columns.png")))  # 11
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "unique_constraint.png")))  # 12
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "reference.png")))  # 13
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "datetime.png")))  # 14
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "columns.png")))  # 15
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "sqlite.png")))  # 16
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "h2.png")))  # 17 use to show h2 database icon
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "textfield.png")))  # 18 use to show [varchar, char, text data] type icon 
+        
+        
 #         imgList.Add(wx.Bitmap(path2))
 #         for png in _demoPngs:
 #             imgList.Add(catalog[png].GetBitmap())

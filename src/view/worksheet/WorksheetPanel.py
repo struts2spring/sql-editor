@@ -368,6 +368,6 @@ if __name__ == '__main__':
     frame = wx.Frame(None)
     panel = CreateWorksheetTabPanel(frame)
     panel.addTab()
-    panel.addTab("123")
+#     panel.addTab("123")
     frame.Show()
     app.MainLoop()

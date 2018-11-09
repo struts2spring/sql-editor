@@ -33,27 +33,28 @@ class SqlParser():
         else:
             logger.debug ("No match!!")
     
-    
-    
     def getColumn(self, createSql=None):
         columnDict = dict()
         if createSql:
             # picking bracket part of create sql
             h_0, t_0 = createSql.split("(", 1)
             h_1, t_1 = t_0.rsplit(")", 1)
-            logger.debug (h_0)
+            logger.debug("columns: {}".format(h_1))
             logger.debug (t_0)
+            
+            
+            columnText=self.getAllConstrantInSeparteLine(columnText=h_1)
             
             # removing constrinat as last line. primary key , unique key , foreign key
             
-            columnPattern = r'''((('|"|`).+?\3)|(\w+))\s*((?i)\bINT\b|(?i)\bINTEGER\b|(?i)\bTINYINT\b|(?i)\bSMALLINT\b|(?i)\bMEDIUMINT\b|(?i)\bBIGINT\b|(?i)\bUNSIGNED BIG INT\b|(?i)\bINT2\b|(?i)\bINT8\b|(?i)CHARACTER\(d+\)|(?i)\bVARYING CHARACTER\(d+\)\b|(?i)\bNCHAR\(d+\)\b|(?i)\bNATIVE CHARACTER\(d+\)\b|(?i)\bNVARCHAR\(d+\)\b|(?i)\bFLOAT\b|(?i)\bNUMERIC\b|(?i)\bDECIMAL\(d+\)\b|(?i)\bBOOLEAN\b|(?i)\bDATE\b|(?i)\bDATETIME\b|(?i)\[timestamp\]|(?i)\bREAL\b|(?i)\bDOUBLE\b|(?i)\bDOUBLE PRECISION\b|(?i)\bCLOB\b|(?i)\bBLOB\b|(?i)\bTEXT\b|(?i)\bDATETIME\b|(?i)VARCHAR\(\d+\))?\s*((?i)\bNOT NULL\b|(?i)\bPRIMARY KEY\b)?((?i)\bDEFAULT\b .*)?(\s+(?i)\bAUTOINCREMENT\b|(?i)\bUNIQUE\b)?,?\s*(-{2}.*)?'''
+            columnPattern = r'''((('|"|`).+?\3)|(\[?\w+\]?))\s*((?i)\bINT\b|(?i)\bINTEGER\b|(?i)\bTINYINT\b|(?i)\bSMALLINT\b|(?i)\bMEDIUMINT\b|(?i)\bBIGINT\b|(?i)\bUNSIGNED BIG INT\b|(?i)\bINT2\b|(?i)\bINT8\b|(?i)CHARACTER\([0-9]{3}\)|(?i)\bVARYING CHARACTER\([0-9]{3}\)|(?i)\bNCHAR\([0-9]{3}\)\b|(?i)\bNATIVE CHARACTER\([0-9]{3}\)\b|(?i)\bNVARCHAR\([0-9]{3}\)|(?i)\bFLOAT\b|(?i)\bNUMERIC\b|(?i)\bDECIMAL\(d+\)\b|(?i)\bBOOLEAN\b|(?i)\bDATE\b|(?i)\bDATETIME\b|(?i)\[timestamp\]|(?i)\bREAL\b|(?i)\bDOUBLE\b|(?i)\bDOUBLE PRECISION\b|(?i)\bCLOB\b|(?i)\bBLOB\b|(?i)\bTEXT\b|(?i)\bDATETIME\b|(?i)VARCHAR\([0-9]*\))?\s*((?i)\bNULL\b|(?i)\bNOT NULL\b|(?i)\bPRIMARY KEY\b\s*(ASC|DSC)?)?((?i)\bDEFAULT\b .*)?(\s+(?i)\bAUTOINCREMENT\b|(?i)\bUNIQUE\b)?,?\s*(-{2}.*)?'''
             columnDict[0] = ("#", "Name", "Datatype", "PRIMARY KEY", "Nullable", "Unique", "Auto increment", "Default data", "Description")
             # this is column name
-            columnMatchObj = re.match(columnPattern, h_1, re.MULTILINE)
+            columnMatchObj = re.match(columnPattern, columnText, re.MULTILINE)
             if columnMatchObj:
                 logger.info(columnMatchObj.groups())
             logger.debug(columnMatchObj)
-            columnObj = re.findall(columnPattern, h_1, re.MULTILINE)
+            columnObj = re.findall(columnPattern, columnText, re.MULTILINE)
             if columnObj:
                 for idx, columnName in enumerate(columnObj):
                     default_data = None
@@ -102,6 +103,16 @@ class SqlParser():
 #             logger.debug ("No match!! : {}".format(createSql))
         return columnDict
 
+    def getAllConstrantInSeparteLine(self, columnText=None):
+            onlyColumns=[]
+            columnsList = columnText.split(",")
+            for column in columnsList:
+                logger.debug(column.strip())
+                
+                if re.match(column,'\s*(PRIMARY KEY|CONSTRAINT|FOREIGN KEY)'):
+                    onlyColumns.append(column)
+            logger.debug(onlyColumns)   
+            return ",".join(onlyColumns)    
 
 if __name__ == "__main__":
     columns = '''
