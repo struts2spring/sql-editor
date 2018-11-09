@@ -47,8 +47,8 @@ class SqlParser():
             
             # removing constrinat as last line. primary key , unique key , foreign key
             
-            columnPattern = r'''((('|"|`).+?\3)|(\[?\w+\]?))\s*((?i)\bINT\b|(?i)\bINTEGER\b|(?i)\bTINYINT\b|(?i)\bSMALLINT\b|(?i)\bMEDIUMINT\b|(?i)\bBIGINT\b|(?i)\bUNSIGNED BIG INT\b|(?i)\bINT2\b|(?i)\bINT8\b|(?i)CHARACTER\([0-9]{3}\)|(?i)\bVARYING CHARACTER\([0-9]{3}\)|(?i)\bNCHAR\([0-9]{3}\)\b|(?i)\bNATIVE CHARACTER\([0-9]{3}\)\b|(?i)\bNVARCHAR\([0-9]{3}\)|(?i)\bFLOAT\b|(?i)\bNUMERIC\b|(?i)\bDECIMAL\(d+\)\b|(?i)\bBOOLEAN\b|(?i)\bDATE\b|(?i)\bDATETIME\b|(?i)\[timestamp\]|(?i)\bREAL\b|(?i)\bDOUBLE\b|(?i)\bDOUBLE PRECISION\b|(?i)\bCLOB\b|(?i)\bBLOB\b|(?i)\bTEXT\b|(?i)\bDATETIME\b|(?i)VARCHAR\([0-9]*\))?\s*((?i)\bNULL\b|(?i)\bNOT NULL\b|(?i)\bPRIMARY KEY\b\s*(ASC|DSC)?)?((?i)\bDEFAULT\b .*)?(\s+(?i)\bAUTOINCREMENT\b|(?i)\bUNIQUE\b)?,?\s*(-{2}.*)?'''
-            columnDict[0] = ("#", "Name", "Datatype", "PRIMARY KEY", "Nullable", "Unique", "Auto increment", "Default data", "Description")
+            columnPattern = r'''((('|"|`).+?\3)|(\[?\w+\]?))\s*((?i)\bANY\b|(?i)\bJSON\b|(?i)\bINT\b|(?i)\bINTEGER\b|(?i)\bTINYINT\b|(?i)\bSMALLINT\b|(?i)\bMEDIUMINT\b|(?i)\bBIGINT\b|(?i)\bUNSIGNED BIG INT\b|(?i)\bINT2\b|(?i)\bINT8\b|(?i)CHARACTER\([0-9]{3}\)|(?i)\bVARYING CHARACTER\([0-9]{3}\)|(?i)\bNCHAR\([0-9]{3}\)\b|(?i)\bNATIVE CHARACTER\([0-9]{3}\)\b|(?i)\bNVARCHAR\([0-9]{3}\)|(?i)\bFLOAT\b|(?i)\bNUMERIC\b|(?i)\bDECIMAL\(d+\)\b|(?i)\bBOOLEAN\b|(?i)\bDATE\b|(?i)\bDATETIME\b|(?i)\[timestamp\]|(?i)\bREAL\b|(?i)\bDOUBLE\b|(?i)\bDOUBLE PRECISION\b|(?i)\bCLOB\b|(?i)\bBLOB\b|(?i)\bTEXT\b|(?i)\bDATETIME\b|(?i)VARCHAR\([0-9]*\))?\s*((?i)\bHIDDEN\b|(?i)\bNULL\b|(?i)\bNOT NULL\b|(?i)\bPRIMARY KEY\b\s*(ASC|DSC)?)?((?i)\bDEFAULT\b .*)?(\s+(?i)\bAUTOINCREMENT\b|(?i)\bUNIQUE\b)?,?\s*(-{2}.*)?'''
+            columnDict[0] = ("#", "Name", "Datatype", "PRIMARY KEY", "Nullable", "Unique", "Auto increment", "Hidden", "Default data","Description")
             # this is column name
             columnMatchObj = re.match(columnPattern, columnText, re.MULTILINE)
             if columnMatchObj:
@@ -67,15 +67,18 @@ class SqlParser():
                     if columnName[7] and 'NOT NULL' in columnName[7].upper():
                         nullable = 'NOT NULL'
                     description = None
-                    if columnName[8] and '--' in columnName[8]:
-                        description = columnName[8]
+                    if columnName[9] and '--' in columnName[9]:
+                        description = columnName[9]
                     primaryKey = None
                     if columnName[5] and columnName[5].upper().startswith('PRIMARY KEY'):
                         primaryKey = columnName[5]
                     unique = None
                     if columnName[8] and 'PRIMARY KEY' in columnName[8].upper():
                         unique = columnName[8]
-                    columnNameInfo = [idx + 1, columnName[0], columnName[4], primaryKey, nullable, unique, auto_increment, default_data, description] 
+                    hidden = None
+                    if columnName[5] and 'HIDDEN' in columnName[5].upper():
+                        hidden = columnName[5]
+                    columnNameInfo = [idx + 1, columnName[0], columnName[4], primaryKey, nullable, unique, auto_increment,hidden, default_data, description] 
                     columnDict[idx + 1] = tuple(columnNameInfo)
             else:
                 logger.debug ("columns : {}".format(h_1))      
@@ -104,15 +107,15 @@ class SqlParser():
         return columnDict
 
     def getAllConstrantInSeparteLine(self, columnText=None):
-            onlyColumns=[]
-            columnsList = columnText.split(",")
-            for column in columnsList:
-                logger.debug(column.strip())
-                
-                if re.match(column,'\s*(PRIMARY KEY|CONSTRAINT|FOREIGN KEY)'):
-                    onlyColumns.append(column)
-            logger.debug(onlyColumns)   
-            return ",".join(onlyColumns)    
+        onlyColumns=[]
+        columnsList = columnText.split(",")
+        for column in columnsList:
+            logger.debug(column.strip())
+            
+            if not re.match(column,'\s*(PRIMARY KEY|CONSTRAINT|FOREIGN KEY)'):
+                onlyColumns.append(column)
+        logger.debug(onlyColumns)   
+        return ",".join(onlyColumns)    
 
 if __name__ == "__main__":
     columns = '''
