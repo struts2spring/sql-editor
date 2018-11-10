@@ -111,8 +111,8 @@ class SqlParser():
         columnsList = columnText.split(",")
         for column in columnsList:
             logger.debug(column.strip())
-            
-            if not re.match(column,'\s*(PRIMARY KEY|CONSTRAINT|FOREIGN KEY)'):
+            column1=column.strip().lower()
+            if not column1.startswith(('primary key','unique','foreign key')):
                 onlyColumns.append(column)
         logger.debug(onlyColumns)   
         return ",".join(onlyColumns)    
@@ -331,6 +331,13 @@ CREATE TABLE employee (
         '''
     sqlParser = SqlParser()
 #     sqlParser.createSqlToDict(createSql=createSql)
-    columnDict = sqlParser.getColumn(createSql=columns)
-    logger.debug(columnDict)
+#     columnDict = sqlParser.getColumn(createSql=columns)
+    columnText="""   _lw_data_source_collection_s VARCHAR(250), 
+        _lw_data_source_s VARCHAR(250), 
+        PRIMARY KEY (id), 
+        UNIQUE (comit_id), 
+        UNIQUE (email_id)
+    """
+    sqlParser.getAllConstrantInSeparteLine(columnText)
+#     logger.debug(columnDict)
     logger.debug("Finish")
