@@ -16,6 +16,7 @@ parts:
     sql-editor:
         # See 'snapcraft plugins'
         plugin: python
-        source: https://github.com/struts2spring/sql-editor
+        python-version: python3
+        source: c
         source-tag: '0.0.4'
 
