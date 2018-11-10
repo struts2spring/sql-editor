@@ -18,5 +18,5 @@ parts:
         plugin: python
         python-version: python3
         source: https://github.com/struts2spring/sql-editor.git
-        requirements: ../requirements.txt
+        requirements: ./requirements.txt
 
