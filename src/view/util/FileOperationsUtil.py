@@ -19,7 +19,7 @@ class FileOperations():
 	
 	def removeFile(self, filename=None):
 		isFileRemoved = False
-		if os.path.exists(filename):
+		if filename and os.path.exists(filename):
 			try:
 				os.remove(filename)
 				isFileRemoved = True
