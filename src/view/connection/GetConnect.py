@@ -6,9 +6,9 @@ Created on 31-Dec-2016
 import wx
 from wx import TreeCtrl
 from wx.lib.mixins.treemixin import ExpansionState
-from src.view.Constant import keyMap
 import os
 import logging
+from src.view.constants import keyMap
 
 logger = logging.getLogger('extensive')
 
@@ -190,7 +190,7 @@ class databaseNavigationTree(ExpansionState, TreeCtrl):
                 keycode = event.GetUnicodeKey()
                 if keycode <= 127:
                     keycode = event.GetKeyCode()
-                keyname = "\"" + unichr(event.GetUnicodeKey()) + "\""
+                keyname = "\"" + event.GetUnicodeKey() + "\""
                 if keycode < 27:
                     keyname = "Ctrl-%s" % chr(ord('A') + keycode - 1)
                 

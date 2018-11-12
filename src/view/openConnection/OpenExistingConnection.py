@@ -87,11 +87,11 @@ class CreateOpenConnectionPanel(wx.Panel):
         logger.info('FileBrowseButton: %s\n' % evt.GetString())
         self.filePath = evt.GetString()
         self.setConnectionName(filePath=self.filePath)
-        sqlExecuter=SQLExecuter()
-        obj=sqlExecuter.getObject()
-        if len(obj[1])==0:
-            sqlExecuter.createOpalTables()
-        sqlExecuter.addNewConnectionRow(self.filePath, self.connectionNameText.GetValue())
+#         sqlExecuter=SQLExecuter()
+#         obj=sqlExecuter.getObject()
+#         if len(obj[1])==0:
+#             sqlExecuter.createOpalTables()
+#         sqlExecuter.addNewConnectionRow(self.filePath, self.connectionNameText.GetValue())
                        
     def onChangeConnectionName(self, event):
         logger.info('onChangeConnectionName')
@@ -143,6 +143,11 @@ class CreateButtonPanel(wx.Panel):
         
     def onOkClick(self, event):
         logger.debug('onOkClick')
+        sqlExecuter=SQLExecuter()
+        obj=sqlExecuter.getObject()
+        if len(obj[1])==0:
+            sqlExecuter.createOpalTables()
+        sqlExecuter.addNewConnectionRow(self.GetParent().CreateOpenConnectionPanel.filePath, self.GetParent().CreateOpenConnectionPanel.connectionNameText.GetValue())
 #         data = self.GetTopLevelParent().createImportingCsvPanel.data
 #         tableName = self.GetTopLevelParent().createImportingCsvPanel.tableNameText.GetValue()
 #         fileOperations = FileOperations()

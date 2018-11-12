@@ -20,6 +20,7 @@ import logging
 from src.view.table.CreateTable import CreatingTableFrame
 from src.view.util.FileOperationsUtil import FileOperations
 from src.view.importing.importCsvExcel import ImportingCsvExcelFrame
+import ntpath
 
 logger = logging.getLogger('extensive')
 
@@ -46,6 +47,9 @@ class CreatingTreePanel(wx.Panel):
         self.filter.Bind(wx.EVT_TEXT_ENTER, self.OnSearch)
         self.recreateTree()
         
+        
+        #add drop target
+        self.SetDropTarget(MyFileDropTarget(self))
 #         self.tree.SetExpansionState(self.expansionState)
         self.tree.Bind(wx.EVT_TREE_ITEM_EXPANDED, self.OnItemExpanded)
         self.tree.Bind(wx.EVT_TREE_ITEM_COLLAPSED, self.OnItemCollapsed)
@@ -282,7 +286,7 @@ class CreatingTreePanel(wx.Panel):
         # reset the overview text if the tree item is clicked on again
         pt = event.GetPosition();
         item, flags = self.tree.HitTest(pt)
-        if item == self.tree.GetSelection():
+        if item and item == self.tree.GetSelection():
             logger.debug(self.tree.GetItemText(item) + " Overview")
         event.Skip()
 
@@ -364,7 +368,7 @@ class CreatingTreePanel(wx.Panel):
             deleteMenuItem.SetBitmap(delBmp)
             delMenu = menu.Append(deleteMenuItem)
             
-            deleteWithDatabaseMenuItem = wx.MenuItem(menu, ID_deleteWithDatabase, "Delete with database \t Delete")
+            deleteWithDatabaseMenuItem = wx.MenuItem(menu, ID_deleteWithDatabase, "Delete with database \t Shift + Delete")
             delBmp = wx.ArtProvider.GetBitmap(wx.ART_DELETE, wx.ART_MENU, (16, 16))
             deleteWithDatabaseMenuItem.SetBitmap(delBmp)
             deleteWithDatabaseMenu = menu.Append(deleteWithDatabaseMenuItem)
@@ -887,6 +891,56 @@ class MainPanel(wx.Panel):
         if 'wxMSW' in wx.PlatformInfo:
             return super(MainPanel, self).Thaw()
 
+
+class MyFileDropTarget(wx.FileDropTarget):
+    def __init__(self, dirwin):
+        wx.FileDropTarget.__init__(self)
+        self.dirwin = dirwin
+
+    def OnDropFiles(self, x, y, fileNams):
+        logger.debug("dropFiles {}".format(fileNams))
+        
+        try:
+            for fileAbsoluteName in fileNams:
+                if os.path.isdir(fileAbsoluteName):
+                    continue
+                logger.debug(fileAbsoluteName)
+                if self.isSQLite3(fileAbsoluteName):
+                    self.getConnectionName(filePath=fileAbsoluteName)
+                    sqlExecuter=SQLExecuter()
+                    obj=sqlExecuter.getObject()
+                    if len(obj[1])==0:
+                        sqlExecuter.createOpalTables()
+                    sqlExecuter.addNewConnectionRow(fileAbsoluteName, self.getConnectionName(filePath=fileAbsoluteName))
+                    self.dirwin.recreateTree()           
+        except Exception as ex:
+            logger.error(ex)
+              
+        return True
+    def getConnectionName(self, filePath=None):
+        head, tail = ntpath.split(filePath)
+        connectionName = "_".join(tail.split(sep=".")[:-1])
+        return connectionName
+    
+    def isSQLite3(self,fileName):
+        ''' this is to check a valid SQLite file dropped.
+        '''
+        from os.path import isfile, getsize
+    
+        if not isfile(fileName):
+            return False
+        if getsize(fileName) < 100: # SQLite database file header is 100 bytes
+            return False
+    
+        with open(fileName, 'rb') as fd:
+            header = fd.read(100)
+    
+        return header[:16] == b'SQLite format 3\x00'
+#                 self.dirwin.addpath(filename)
+#                 if Globals.pref.open_project_setting_dlg:
+#                     wx.CallAfter(self.dirwin.OnSetProject)
+#             else:
+#                 Globals.mainframe.editctrl.new(filename)
 
 #---------------------------------------------------------------------------
 if __name__ == '__main__':

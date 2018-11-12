@@ -3,7 +3,8 @@ import wx
 import os
 from src.view.TreePanel import CreatingTreePanel
 from src.view.constants import ID_openConnection, ID_newWorksheet, ID_newConnection, \
-    ID_SQL_EXECUTION, ID_SQL_LOG, ID_UPDATE_CHECK, TITLE, VERSION
+    ID_SQL_EXECUTION, ID_SQL_LOG, ID_UPDATE_CHECK, TITLE, VERSION,\
+    ID_HIDE_TOOLBAR, ID_APPEARANCE, ID_SEARCH_FILE
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 # from src.view.AutoCompleteTextCtrl import TextCtrlAutoComplete
 from wx import  ID_PREFERENCES
@@ -269,8 +270,20 @@ class DatabaseMainFrame(wx.Frame):
 #         edit_menu.Append(wx.ID_COPY, "Copy \tCtrl+C")
 #         edit_menu.Append(wx.ID_PASTE, "Paste \tCtrl+V")
         
+        search_menu = wx.Menu()
+        searchBmp = wx.MenuItem(search_menu, ID_SEARCH_FILE, 'File') 
+        search_menu.Append(searchBmp) 
+        
         window_menu = wx.Menu()
                 
+#         appearanceBmp = wx.MenuItem(window_menu, wx.ID_PREFERENCES, "&Appearance")
+#         preferenceBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "preference.png")))
+        
+        appearanceChildMenu=wx.Menu()
+        appearanceChildMenu.Append(ID_HIDE_TOOLBAR, 'Hide Toolbar')
+        appearanceChildMenu.Append(ID_HIDE_TOOLBAR, 'Hide Status Bar')
+        window_menu.Append(ID_APPEARANCE, "Appearance", appearanceChildMenu)
+        
         preferenceBmp = wx.MenuItem(window_menu, wx.ID_PREFERENCES, "&Preferences")
         preferenceBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "preference.png")))
                 
@@ -295,6 +308,7 @@ class DatabaseMainFrame(wx.Frame):
         
         mb.Append(file_menu, "&File")
         mb.Append(edit_menu, "&Edit")
+        mb.Append(search_menu, "&Search")
         mb.Append(window_menu, "&Window")
         mb.Append(help_menu, "&Help")
         self.SetMenuBar(mb)

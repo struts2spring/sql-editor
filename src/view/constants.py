@@ -2,16 +2,15 @@ import wx
 import tempfile
 import os
 
-TITLE="SQL Editor"
-VERSION="0.0.1"
-
+TITLE = "SQL Editor"
+VERSION = "0.0.1"
 
 ID_UPDATE_CHECK = wx.NewIdRef()
 ID_newConnection = wx.NewIdRef()
 ID_openConnection = wx.NewIdRef()
 ID_newWorksheet = wx.NewIdRef()
 ID_deleteWithDatabase = wx.NewIdRef()
-ID_Import= wx.NewIdRef()
+ID_Import = wx.NewIdRef()
 
 ID_RUN = wx.NewIdRef()
 ID_EXECUTE_SCRIPT = wx.NewIdRef()
@@ -25,12 +24,19 @@ ID_RESULT_FIRST = wx.NewIdRef()
 ID_RESULT_LAST = wx.NewIdRef()
 ID_SQL_LOG = wx.NewIdRef()
 ID_SQL_EXECUTION = wx.NewIdRef()
-ID_COPY_COLUMN_HEADER= wx.NewIdRef()
-ID_CONNECT_DB= wx.NewIdRef()
-ID_DISCONNECT_DB= wx.NewIdRef()
-ID_ROOT_REFERESH= wx.NewIdRef()
-ID_ROOT_NEW_CONNECTION= wx.NewIdRef()
+ID_COPY_COLUMN_HEADER = wx.NewIdRef()
+ID_CONNECT_DB = wx.NewIdRef()
+ID_DISCONNECT_DB = wx.NewIdRef()
+ID_ROOT_REFERESH = wx.NewIdRef()
+ID_ROOT_NEW_CONNECTION = wx.NewIdRef()
 
+# Appearance toolbar menu
+ID_APPEARANCE = wx.NewIdRef()
+ID_HIDE_TOOLBAR = wx.NewIdRef()
+ID_HIDE_STATUSBAR = wx.NewIdRef()
+
+# search toolbar menu
+ID_SEARCH_FILE = wx.NewIdRef()
 
 keyMap = {
     wx.WXK_BACK : "WXK_BACK",
