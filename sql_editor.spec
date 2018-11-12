@@ -1,12 +1,14 @@
 # -*- mode: python -*-
+import os
 
 block_cipher = None
 
+filelist= [(os.path.join('src','images',file), "src\images") for file in os.listdir(os.path.join('src','images')) if file.endswith('.png')]
 
 a = Analysis(['src\\sql_editor.py'],
              pathex=['c:\\1\\sql_editor'],
              binaries=[],
-             datas=[],
+             datas=filelist,
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
@@ -19,18 +21,14 @@ pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
 exe = EXE(pyz,
           a.scripts,
+          a.binaries,
+          a.zipfiles,
+          a.datas,
           [],
-          exclude_binaries=True,
           name='sql_editor',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
-          console=True )
-coll = COLLECT(exe,
-               a.binaries,
-               a.zipfiles,
-               a.datas,
-               strip=False,
-               upx=True,
-               name='sql_editor')
+          runtime_tmpdir=None,
+          console=False , icon='C:\\1\\sql_editor\\src\\images\\Opal_database.ico')

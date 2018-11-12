@@ -12,4 +12,8 @@ sudo python3 setup.py install
 sudo python3 -m twine upload --skip-existing  dist/*
 
 # command to create windows executable
-pyinstaller src\sql_editor.py
+pyinstaller src\sql_editor.py -w -F -i "C:\1\sql_editor\Opal_database.ico"
+
+
+pyinstaller sql_editor.spec
+
