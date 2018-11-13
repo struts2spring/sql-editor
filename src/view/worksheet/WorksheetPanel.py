@@ -150,7 +150,9 @@ class CreateWorksheetTabPanel(wx.Panel):
     
     def onCloseAllTabs(self, event):
         logger.debug("onCloseAllTabs")
-        npages = self._nb.DeleteAllPages()
+#         npages = self._nb.DeleteAllPages()
+        while self._nb.GetPageCount()!=0:
+            self._nb.DeletePage(0)
 #         GetPageCount()
 #         for n in range(0, npages):
 #             page = self._nb.GetPage(n)

@@ -11,14 +11,15 @@
 | 7     | Edit connection should come with a popup window .                            | [ ]        |
 | 8     | Delete database should be working.                                           | [x]        |
 | 9     | Remember last 5 path in create new database.                                 | [ ]        |
-| 10    | Create new connection . Need to work on Refresh part.                        | [X]        |
+| 10    | Create new connection . Need to work on Refresh part.                        | [x]        |
 | 11    | Working find and replace. Need to work on Replace part.                      | [ ]        |
-| 12    | Drag and drop sqlite file to create connection                               | [ ]        |
+| 12    | Drag and drop sqlite file to create connection                               | [x ]        |
 | 13    | Open already open tree connection. As it is lost after recreate method call. | [ ]        |
-| 14    | Import csv file.                                                             | [X ]       |
+| 14    | Import csv file.                                                             | [x ]       |
 | 15    | Double click on table to open table info tab.                                | []         |
 | 16    | Import excel sheet with various tabs.                                        | []         |
-| 4     | Export the sql result in CSV.                              | []         |
+| 17     | Export the sql result in CSV.                              | []         |
+| 18    | Need to work on recreateTree() call. Right now it is not having expand memory.                              | []         |
 
 ### Available Features
 

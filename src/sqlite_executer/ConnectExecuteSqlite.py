@@ -461,7 +461,7 @@ class ManageSqliteDatabase():
                 listOfSqls = text.strip().lower().split(';')
                 if len(listOfSqls) > 1 and not text.strip().lower().startswith('select'):
                     cur.executescript(text)
-                elif text.strip().lower().startswith('update'):
+                elif text.strip().lower().startswith(('update','drop','alter')):
                     cur.execute(text)
                 else:
                     rows = cur.execute(text).fetchall()
@@ -476,7 +476,7 @@ class ManageSqliteDatabase():
             logger.error(e, exc_info=True)
             raise e
             self.conn.rollback()
-        return sqlOutput
+        return sqlOutput 
     
     def executeSelectQuery(self, text=None):
         rows = None

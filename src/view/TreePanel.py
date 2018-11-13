@@ -9,7 +9,7 @@ import os
 from wx import TreeCtrl
 from wx.lib.mixins.treemixin import ExpansionState
 from src.view.constants import ID_newWorksheet, ID_CONNECT_DB, ID_deleteWithDatabase, \
-    ID_DISCONNECT_DB, ID_ROOT_NEW_CONNECTION, ID_ROOT_REFERESH, keyMap,\
+    ID_DISCONNECT_DB, ID_ROOT_NEW_CONNECTION, ID_ROOT_REFERESH, keyMap, \
     ID_Import
 # from src.view.table.CreateTable import CreateTableFrame
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter, \
@@ -21,6 +21,7 @@ from src.view.table.CreateTable import CreatingTableFrame
 from src.view.util.FileOperationsUtil import FileOperations
 from src.view.importing.importCsvExcel import ImportingCsvExcelFrame
 import ntpath
+import datetime
 
 logger = logging.getLogger('extensive')
 
@@ -47,8 +48,7 @@ class CreatingTreePanel(wx.Panel):
         self.filter.Bind(wx.EVT_TEXT_ENTER, self.OnSearch)
         self.recreateTree()
         
-        
-        #add drop target
+        # add drop target
         self.SetDropTarget(MyFileDropTarget(self))
 #         self.tree.SetExpansionState(self.expansionState)
         self.tree.Bind(wx.EVT_TREE_ITEM_EXPANDED, self.OnItemExpanded)
@@ -216,6 +216,8 @@ class CreatingTreePanel(wx.Panel):
             self.onTreeCopy(event)
         elif keypress == 'WXK_F2':
             self.onF2KeyPress(event)
+        elif keypress == 'WXK_DELETE':
+            self.onDeleteKeyPress(event)
         event.Skip()
         
     def GetKeyPress(self, evt):
@@ -237,10 +239,25 @@ class CreatingTreePanel(wx.Panel):
         return modifiers + keyname
 
     #----------------------------------------------------------------------
+    def onDeleteKeyPress(self, event):
+        try:
+            logger.debug(self.tree.GetItemData(self.tree.GetSelection()))
+            depth = self.tree.GetItemData(self.tree.GetSelection())['depth']
+            if depth == 1:
+                self.onDeleteConnection(event)
+            elif depth == 3:
+                logger.debug("TODO delete table")
+                self.onDeleteTable(event)
+            elif depth == 5:
+                logger.debug("TODO delete column")
+        except Exception as e:
+            logger.error(e, exc_info=True)
+
+    #----------------------------------------------------------------------
     def onF2KeyPress(self, event):
         try:
-            logger.debug(self.tree.GetItemData(self.tree.GetSelection()).Data)
-            depth = self.tree.GetItemData(self.tree.GetSelection()).Data['depth']
+            logger.debug(self.tree.GetItemData(self.tree.GetSelection()))
+            depth = self.tree.GetItemData(self.tree.GetSelection())['depth']
             if depth == 3:
                 self.onRenameTable(event)
             elif depth == 5:
@@ -248,8 +265,7 @@ class CreatingTreePanel(wx.Panel):
                 
         except Exception as e:
             logger.error(e, exc_info=True)
-        pass
-
+    
     def onTreeCopy(self, event):
         """"""
         self.dataObj = wx.TextDataObject()
@@ -269,18 +285,17 @@ class CreatingTreePanel(wx.Panel):
         data = self.tree.GetItemData(item)
         rightClickDepth = data['depth']
         logger.info("Depth: {}".format(data['depth']))
-        if rightClickDepth==1:
+        if rightClickDepth == 1:
             self.onConnectDb(event)
-        if rightClickDepth==3:
+        if rightClickDepth == 3:
             # Open a new tab in SQL execution Pane. It is for table info.
             # TODO 
-            sheetName= "tableInfo_{}".format(self.tree.GetItemText(item))
+            sheetName = "tableInfo_{}".format(self.tree.GetItemText(item))
             self.openWorksheet(sheetName=sheetName)
         if self.tree.IsExpanded(item):
             self.tree.Collapse(item)
         else:
             self.tree.Expand(item)
-            
         
     def OnTreeLeftDown(self, event):
         # reset the overview text if the tree item is clicked on again
@@ -341,7 +356,7 @@ class CreatingTreePanel(wx.Panel):
                 self.Bind(wx.EVT_MENU, self.onConnectDb, item2)
             
             sqlEditorBmp = wx.MenuItem(menu, ID_newWorksheet, "SQL Editor in new Tab")
-            sqlEditorBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "script.png")))
+            sqlEditorBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="script.png")))
             item3 = menu.Append(sqlEditorBmp)
             
             infoMenuItem = wx.MenuItem(menu, wx.ID_ANY, "Properties")
@@ -350,11 +365,11 @@ class CreatingTreePanel(wx.Panel):
             item4 = menu.Append(infoMenuItem)    
             
             importBmp = wx.MenuItem(menu, ID_Import, "&Import CSV / Excel")
-            importBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "import.png")))
+            importBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="import.png")))
             importMenu = menu.Append(importBmp)  
             
             refreshBmp = wx.MenuItem(menu, wx.ID_REFRESH, "&Refresh")
-            refreshBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "database_refresh.png")))
+            refreshBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="database_refresh.png")))
             item5 = menu.Append(refreshBmp)
             
             item6 = menu.Append(wx.ID_ANY, "Properties")
@@ -483,7 +498,7 @@ class CreatingTreePanel(wx.Panel):
             logger.info('You entered: %s\n', dlg.GetValue())
             if dlg.GetValue() != self.tree.GetItemText(self.tree.GetSelection()):
                 logger.info('update table execute')
-                data = self.tree.GetPyData(self.tree.GetSelection())
+                data = self.tree.GetItemData(self.tree.GetSelection())
                 connectionName = data['connection_name']
                 databaseAbsolutePath = data['db_file_path']
                 if os.path.isfile(databaseAbsolutePath):     
@@ -495,31 +510,54 @@ class CreatingTreePanel(wx.Panel):
                     
 
                     '''
-                    pass
+                    logger.debug("TODO logic for rename column goes here.")
 #                     dbObjects = ManageSqliteDatabase(connectionName=connectionName , databaseAbsolutePath=databaseAbsolutePath).executeText(text) 
         dlg.Destroy()
 
+#     def onDeleteConnection(self, event):
+#         logger.debug('onDeleteConnection')
+#         logger.debug("TODO delete connection name")
+#         data = self.tree.GetItemData(self.tree.GetSelection())
+#         connectionName = data['connection_name']
+#         databaseAbsolutePath = data['db_file_path']
+#         if os.path.isfile(databaseAbsolutePath):
+#             sqlExecuter = SQLExecuter()
+#             text="DELETE FROM conns WHERE {} "
+#             sqlExecuter.executeText(text)
+        
     def onRenameTable(self, event):
         logger.debug('onRenameTable')
-        initialTableName = self.tree.GetItemText(self.tree.GetSelection())
-        dlg = wx.TextEntryDialog(self, 'Rename table ' + initialTableName, 'Rename table ' + initialTableName, 'Python')
+        oldTableName = initialTableName = self.tree.GetItemText(self.tree.GetSelection())
+        dlg = wx.TextEntryDialog(self, 'Rename table {} to'.format(initialTableName), 'Rename table {} '.format(initialTableName), 'Python')
         dlg.SetValue(self.tree.GetItemText(self.tree.GetSelection()))
 
         if dlg.ShowModal() == wx.ID_OK:
             logger.info('You entered: %s\n', dlg.GetValue())
             if dlg.GetValue() != self.tree.GetItemText(self.tree.GetSelection()):
                 logger.info('update table execute')
-                data = self.tree.GetPyData(self.tree.GetSelection())
+                newTableName = dlg.GetValue()
+                data = self.tree.GetItemData(self.tree.GetSelection())
                 connectionName = data['connection_name']
                 databaseAbsolutePath = data['db_file_path']
                 if os.path.isfile(databaseAbsolutePath):     
                     '''
                     First you rename the old table:
                     '''
-                    pass
-                
-#                     dbObjects = ManageSqliteDatabase(connectionName=connectionName , databaseAbsolutePath=databaseAbsolutePath).executeText(text) 
+                    logger.debug("TODO logic to rename table should go here.")
+#                     dropTableSql="DROP TABLE '{}'".format()
+                    alterTableSql = "ALTER TABLE '{}' RENAME TO {}".format(oldTableName, newTableName)
+                    db = ManageSqliteDatabase(connectionName=connectionName , databaseAbsolutePath=databaseAbsolutePath)
+                    try:
+                        db.executeText(alterTableSql)
+                    except Exception as e:
+                        now = datetime.datetime.now()
+                        strftime = now.strftime("%Y-%m-%d %H:%M")
+                        newline = "\n"
+                        if self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window.text.Value.strip() == "":
+                            newline = ""
+                        self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window.text.AppendText("{}{} {}".format(newline, strftime, e))
         dlg.Destroy()
+        self.recreateTree(event)
         
     def onEditTable(self, event):
         logger.debug('onEditTable')
@@ -697,6 +735,8 @@ class CreatingTreePanel(wx.Panel):
                     logger.debug("k0 : %s, v0: %s", k0, v0)
                     data = dict()
                     data['depth'] = 2
+                    data['connection_name'] = connectionName
+                    data['db_file_path'] = databaseAbsolutePath
                     image = 2
                     nodeLabel = k0 + ' (' + str(len(v0)) + ')'
                     child0 = self.addNode(targetNode=selectedItemId, nodeLabel=nodeLabel, pydata=data, image=image) 
@@ -715,6 +755,8 @@ class CreatingTreePanel(wx.Panel):
                             # Listing tables
                             data = dict()
                             data['depth'] = 3
+                            data['connection_name'] = connectionName
+                            data['db_file_path'] = databaseAbsolutePath
                             nodeLabel = k1 
                             if k0 == 'table':
                                 image = 4
@@ -724,6 +766,8 @@ class CreatingTreePanel(wx.Panel):
                             if k0 == 'table':
                                 data = dict()
                                 data['depth'] = 4
+                                data['connection_name'] = connectionName
+                                data['db_file_path'] = databaseAbsolutePath
                                 # setting  image for 'Columns', 'Unique Keys', 'Foreign Keys', 'References'
                                 image = 11
                                 
@@ -735,6 +779,8 @@ class CreatingTreePanel(wx.Panel):
                                 if k0 == 'table':
                                     data = dict()
                                     data['depth'] = 5
+                                    data['connection_name'] = connectionName
+                                    data['db_file_path'] = databaseAbsolutePath
     #                                  (cid integer, name text, type text, nn bit, dflt_value, pk bit)
                                     nodeLabel = v2[1]
                                     image = 18
@@ -838,25 +884,24 @@ class DatabaseNavigationTree(ExpansionState, TreeCtrl):
         # add the image for modified demos.
 
         imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="database.png")))  # 0
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "database_category.png")))  # 1
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "folder_view.png")))  # 2
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "folder.png")))  # 3
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "table.png")))  # 4
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "view.png")))  # 5
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "index.png")))  # 6
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "column.png")))  # 7 using to show integer column 
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "string.png")))  # 8
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "key.png")))  # 9
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "foreign_key_column.png")))  # 10
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "columns.png")))  # 11
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "unique_constraint.png")))  # 12
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "reference.png")))  # 13
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "datetime.png")))  # 14
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "columns.png")))  # 15
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "sqlite.png")))  # 16
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "h2.png")))  # 17 use to show h2 database icon
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "textfield.png")))  # 18 use to show [varchar, char, text data] type icon 
-        
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="database_category.png")))  # 1
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="folder_view.png")))  # 2
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="folder.png")))  # 3
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="table.png")))  # 4
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="view.png")))  # 5
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="index.png")))  # 6
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="column.png")))  # 7 using to show integer column 
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="string.png")))  # 8
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="key.png")))  # 9
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="foreign_key_column.png")))  # 10
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="columns.png")))  # 11
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="unique_constraint.png")))  # 12
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="reference.png")))  # 13
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="datetime.png")))  # 14
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="columns.png")))  # 15
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="sqlite.png")))  # 16
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="h2.png")))  # 17 use to show h2 database icon
+        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="textfield.png")))  # 18 use to show [varchar, char, text data] type icon 
         
 #         imgList.Add(wx.Bitmap(path2))
 #         for png in _demoPngs:
@@ -893,6 +938,7 @@ class MainPanel(wx.Panel):
 
 
 class MyFileDropTarget(wx.FileDropTarget):
+
     def __init__(self, dirwin):
         wx.FileDropTarget.__init__(self)
         self.dirwin = dirwin
@@ -907,9 +953,9 @@ class MyFileDropTarget(wx.FileDropTarget):
                 logger.debug(fileAbsoluteName)
                 if self.isSQLite3(fileAbsoluteName):
                     self.getConnectionName(filePath=fileAbsoluteName)
-                    sqlExecuter=SQLExecuter()
-                    obj=sqlExecuter.getObject()
-                    if len(obj[1])==0:
+                    sqlExecuter = SQLExecuter()
+                    obj = sqlExecuter.getObject()
+                    if len(obj[1]) == 0:
                         sqlExecuter.createOpalTables()
                     sqlExecuter.addNewConnectionRow(fileAbsoluteName, self.getConnectionName(filePath=fileAbsoluteName))
                     self.dirwin.recreateTree()           
@@ -917,19 +963,20 @@ class MyFileDropTarget(wx.FileDropTarget):
             logger.error(ex)
               
         return True
+
     def getConnectionName(self, filePath=None):
         head, tail = ntpath.split(filePath)
         connectionName = "_".join(tail.split(sep=".")[:-1])
         return connectionName
     
-    def isSQLite3(self,fileName):
+    def isSQLite3(self, fileName):
         ''' this is to check a valid SQLite file dropped.
         '''
         from os.path import isfile, getsize
     
         if not isfile(fileName):
             return False
-        if getsize(fileName) < 100: # SQLite database file header is 100 bytes
+        if getsize(fileName) < 100:  # SQLite database file header is 100 bytes
             return False
     
         with open(fileName, 'rb') as fd:
@@ -941,6 +988,7 @@ class MyFileDropTarget(wx.FileDropTarget):
 #                     wx.CallAfter(self.dirwin.OnSetProject)
 #             else:
 #                 Globals.mainframe.editctrl.new(filename)
+
 
 #---------------------------------------------------------------------------
 if __name__ == '__main__':
