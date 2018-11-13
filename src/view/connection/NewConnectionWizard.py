@@ -195,7 +195,8 @@ class ConncectionSettings(WizardPageSimple):
 
 class CreateNewConncetionWixard(wx.Panel):
     
-    def __init__(self):
+    def __init__(self, parent=None, *args, **kw):
+        wx.Panel.__init__(self, parent, id=-1)
         self.wizard = None
         self.pages = []
 
@@ -235,6 +236,7 @@ class CreateNewConncetionWixard(wx.Panel):
             databaseFileName=connectionName.replace(" ","_")+".sqlite"
             databasefile=os.path.join(page2.dbb.GetValue(), databaseFileName)
             self.createNewDatabase(connectionName=connectionName, databaseAbsolutePath=databasefile)
+            self.GetTopLevelParent()._mgr.GetPane("databaseNaviagor").window.recreateTree()
         else:
             wx.MessageBox("Create new connection was cancelled", "Create new connection")
     

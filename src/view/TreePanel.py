@@ -399,7 +399,11 @@ class CreatingTreePanel(wx.Panel):
 
         elif rightClickDepth == 2:
             if 'table' in self.tree.GetItemText(item):
-                newTableItem = menu.Append(wx.ID_ANY, "Create new table")
+                newTableBmp = wx.MenuItem(menu, wx.ID_ANY, "Create new table")
+                newTableBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="table_add.png")))
+                newTableItem = menu.Append(newTableBmp)                 
+                
+#                 newTableItem = menu.Append(wx.ID_ANY, "Create new table")
                 erDiagramItem = menu.Append(wx.ID_ANY, "Create ER diagram")
                 refreshTableItem = menu.Append(wx.ID_ANY, "Refresh  \tF5")
                 
@@ -419,20 +423,28 @@ class CreatingTreePanel(wx.Panel):
                 self.Bind(wx.EVT_MENU, self.onNewIndex, newIndexItem)
                 
         elif 'Columns' in self.tree.GetItemText(item) :
-            item1 = menu.Append(wx.ID_ANY, "Create new column")
+            newColumnItem = menu.Append(wx.ID_ANY, "Add new column")
+            self.Bind(wx.EVT_MENU, self.onNewColumn, newColumnItem)
             
         elif 'table' in self.tree.GetItemText(self.tree.GetItemParent(self.tree.item)) : 
             logger.debug(self.tree.GetItemText(item))
-            editTableItem = menu.Append(wx.ID_ANY, "Edit table ")
+
+            editTableBmp = wx.MenuItem(menu, wx.ID_ANY, "Edit table")
+            editTableBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="table_edit.png")))
+            editTableItem = menu.Append(editTableBmp) 
+            
+            
+            
+#             editTableItem = menu.Append(wx.ID_ANY, "Edit table ")
             renameTableItem = menu.Append(wx.ID_ANY, "Rename Table ")
             copyCreateTableItem = menu.Append(wx.ID_ANY, "Copy create table statement")
-                            
-            deleteTableItem = wx.MenuItem(menu, wx.ID_DELETE, "Delete \t Delete")
-            delBmp = wx.ArtProvider.GetBitmap(wx.ART_DELETE, wx.ART_MENU, (16, 16))
-            deleteTableItem.SetBitmap(delBmp)
-            delTableMenu = menu.Append(deleteTableItem)
-            
-            self.Bind(wx.EVT_MENU, self.onDeleteTable, delTableMenu)
+                          
+
+            deleteTableBmp = wx.MenuItem(menu, wx.ID_ANY, "&Delete table ")
+            deleteTableBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="table_delete.png")))
+            deleteTableItem = menu.Append(deleteTableBmp)
+
+            self.Bind(wx.EVT_MENU, self.onDeleteTable, deleteTableItem)
             
             self.Bind(wx.EVT_MENU, self.onEditTable, editTableItem)
             self.Bind(wx.EVT_MENU, self.onRenameTable, renameTableItem)
@@ -480,10 +492,10 @@ class CreatingTreePanel(wx.Panel):
 
     def onRootNewConnection(self, event):
         logger.debug('onRootNewConnection')
-        CreateNewConncetionWixard().createWizard()
+        CreateNewConncetionWixard(self).createWizard()
         
         # Refresh tree.
-        self.onRootRefresh(event)
+        
         
     def onCopyCreateTableStatement(self, event):
         logger.debug('onCopyCreateTableStatement')
@@ -556,8 +568,8 @@ class CreatingTreePanel(wx.Panel):
                         if self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window.text.Value.strip() == "":
                             newline = ""
                         self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window.text.AppendText("{}{} {}".format(newline, strftime, e))
+            self.recreateTree(event)
         dlg.Destroy()
-        self.recreateTree(event)
         
     def onEditTable(self, event):
         logger.debug('onEditTable')
@@ -714,8 +726,12 @@ class CreatingTreePanel(wx.Panel):
         logger.debug('onNewView')
 
 #         tableFrame = CreateTableFrame(None, 'Table creation')
+    def onNewColumn(self, event):
+        logger.debug('onNewColumn')
+        logger.debug("TODO add a new column")
     def onNewIndex(self, event):
         logger.debug('onNewIndex')
+        logger.debug("TODO add a new Index")
 #         tableFrame = CreateTableFrame(None, 'Table creation')
         
     def getNodeOnOpenConnection(self, selectedItemId):

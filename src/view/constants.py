@@ -38,6 +38,13 @@ ID_HIDE_STATUSBAR = wx.NewIdRef()
 # search toolbar menu
 ID_SEARCH_FILE = wx.NewIdRef()
 
+# Data tableinfo toolbar menu
+ID_ADD_ROW = wx.NewIdRef()
+ID_DUPLICATE_ROW = wx.NewIdRef()
+ID_DELETE_ROW = wx.NewIdRef()
+ID_SAVE_ROW = wx.NewIdRef()
+ID_REFRESH_ROW = wx.NewIdRef()
+
 keyMap = {
     wx.WXK_BACK : "WXK_BACK",
     wx.WXK_TAB : "WXK_TAB",

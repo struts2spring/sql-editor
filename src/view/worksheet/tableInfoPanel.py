@@ -2,7 +2,8 @@ import wx
 
 import wx.lib.agw.aui.auibook as aui
 import os
-from src.view.constants import ID_RUN, ID_EXECUTE_SCRIPT, LOG_SETTINGS
+from src.view.constants import ID_RUN, ID_EXECUTE_SCRIPT, LOG_SETTINGS,\
+    ID_ADD_ROW, ID_DUPLICATE_ROW, ID_DELETE_ROW, ID_SAVE_ROW, ID_REFRESH_ROW
 from src.view.worksheet.ResultListPanel import ResultPanel
 import logging.config
 from src.view.util.FileOperationsUtil import FileOperations
@@ -11,6 +12,13 @@ from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter, \
 from src.view.worksheet.ResultGrid import ResultDataGrid
 from src.view.SqlOutputPanel import SqlScriptOutputPanel
 from src.view.util.parsingUtil import SqlParser
+try:
+    from agw import aui
+    from agw.aui import aui_switcherdialog as ASD
+except ImportError:  # if it's not there locally, try the wxPython lib.
+    import wx.lib.agw.aui as aui
+    from wx.lib.agw.aui import aui_switcherdialog as ASD
+
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -134,9 +142,9 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
         vBox = wx.BoxSizer(wx.VERTICAL)
         logger.debug(kw)
         ####################################################################
-        self.topResultToolbar = self.constructTopResultToolBar()
+#         self.topResultToolbar = self.constructTopResultToolBar()
         self.bottomResultToolbar = wx.StatusBar(self)
-        resultPanel = self.getPanelByTabName(tableName=kw['tableName'], tabName=kw['tabName'])
+        resultPanel, toolbar = self.getPanelByTabName(tableName=kw['tableName'], tabName=kw['tabName'])
 #         self.resultPanel = ResultPanel(self, data=None)
         self.bottomResultToolbar.SetStatusText("some text")
 #         self.bottomResultToolbar = self.constructBottomResultToolBar()
@@ -144,7 +152,7 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
 #         bottomResultToolbar = self.constructBottomResultToolBar()
         
         ####################################################################
-        vBox.Add(self.topResultToolbar , 0, wx.EXPAND | wx.ALL, 0)
+        vBox.Add(toolbar , 0, wx.EXPAND | wx.ALL, 0)
 #         vBox.Add(self.resultPanel , 1, wx.EXPAND | wx.ALL, 0)
         vBox.Add(resultPanel , 1, wx.EXPAND | wx.ALL)
         vBox.Add(self.bottomResultToolbar , 0, wx.EXPAND | wx.ALL, 0)
@@ -154,23 +162,33 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
         sizer.Add(vBox, 1, wx.EXPAND , 0)
         self.SetSizer(sizer)    
         
-    def constructTopResultToolBar(self):
+    def constructTopResultToolBar(self, tabName=None):
         
         fileOperations = FileOperations()
         # create some toolbars
-        tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
-                         wx.TB_FLAT | wx.TB_NODIVIDER)
-        tb1.SetToolBitmapSize(wx.Size(16, 16))
+        tb1 = aui.AuiToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize, agwStyle=aui.AUI_TB_DEFAULT_STYLE | aui.AUI_TB_OVERFLOW)
+        
+        tb1.SetToolBitmapSize(wx.Size(42, 42))
 
-        tb1.AddTool(ID_RUN, "Pin", fileOperations.getImageBitmap(imageName="pin2_green.png"))
-        tb1.AddTool(ID_EXECUTE_SCRIPT, "Result refresh", fileOperations.getImageBitmap(imageName="resultset_refresh.png"))
-        tb1.AddSeparator()
+        if tabName=='Data':
+            tb1.AddSimpleTool(ID_SAVE_ROW, "Save", fileOperations.getImageBitmap(imageName="save_to_database.png"), short_help_string='Save to database')
+            tb1.AddSeparator()
+            
+            tb1.AddSimpleTool(ID_REFRESH_ROW, "Result refresh", fileOperations.getImageBitmap(imageName="resultset_refresh.png"), short_help_string='Refresh data')
+            tb1.AddSimpleTool(ID_ADD_ROW, "Add a new row", fileOperations.getImageBitmap(imageName="row_add.png"), short_help_string='Add new row')
+            tb1.AddSimpleTool(ID_DUPLICATE_ROW, "Duplicate current row", fileOperations.getImageBitmap(imageName="row_copy.png"), short_help_string='Duplicate current row')
+            tb1.AddSimpleTool(ID_DELETE_ROW, "Delete current row", fileOperations.getImageBitmap(imageName="row_delete.png"), short_help_string='Delete current row')
+            tb1.AddSeparator()
+            
+            
+#         tb1.AddTool(ID_RUN, "Pin", fileOperations.getImageBitmap(imageName="pin2_green.png"))
 
         tb1.Realize()
         
         return tb1     
 
     def getPanelByTabName(self, tableName=None, tabName=None):
+        toolbar = self.constructTopResultToolBar()
         resultPanel = wx.Panel()
         tableData = None
         sampleData = None
@@ -208,6 +226,7 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
             
             resultPanel.addData(indexData)
         elif tabName == 'Data':
+            toolbar = self.constructTopResultToolBar(tabName=tabName)
             resultPanel = ResultDataGrid(self, data=None)
             data = None
             if tableName:
@@ -236,7 +255,7 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
         elif tabName == 'ER diagram':
             resultPanel = wx.Panel()
         
-        return resultPanel
+        return resultPanel, toolbar
 
     def findingConnectionName(self):
         '''

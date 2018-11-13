@@ -47,7 +47,7 @@ class SqlParser():
             
             # removing constrinat as last line. primary key , unique key , foreign key
             
-            columnPattern = r'''((('|"|`).+?\3)|(\[?\w+\]?))\s*((?i)\bANY\b|(?i)\bJSON\b|(?i)\bINT\b|(?i)\bINTEGER\b|(?i)\bTINYINT\b|(?i)\bSMALLINT\b|(?i)\bMEDIUMINT\b|(?i)\bBIGINT\b|(?i)\bUNSIGNED BIG INT\b|(?i)\bINT2\b|(?i)\bINT8\b|(?i)CHARACTER\([0-9]{3}\)|(?i)\bVARYING CHARACTER\([0-9]{3}\)|(?i)\bNCHAR\([0-9]{3}\)\b|(?i)\bNATIVE CHARACTER\([0-9]{3}\)\b|(?i)\bNVARCHAR\([0-9]{3}\)|(?i)\bFLOAT\b|(?i)\bNUMERIC\b|(?i)\bDECIMAL\(d+\)\b|(?i)\bBOOLEAN\b|(?i)\bDATE\b|(?i)\bDATETIME\b|(?i)\[timestamp\]|(?i)\bREAL\b|(?i)\bDOUBLE\b|(?i)\bDOUBLE PRECISION\b|(?i)\bCLOB\b|(?i)\bBLOB\b|(?i)\bTEXT\b|(?i)\bDATETIME\b|(?i)VARCHAR\([0-9]*\))?\s*((?i)\bHIDDEN\b|(?i)\bNULL\b|(?i)\bNOT NULL\b|(?i)\bPRIMARY KEY\b\s*(ASC|DSC)?)?((?i)\bDEFAULT\b .*)?(\s+(?i)\bAUTOINCREMENT\b|(?i)\bUNIQUE\b)?,?\s*(-{2}.*)?'''
+            columnPattern = r'''((('|"|`).+?\3)|(\[?\w+\]?))\s*((?i)\bANY\b|(?i)\bJSON\b|(?i)\bINT\b|(?i)\bINTEGER\b|(?i)\bTINYINT\b|(?i)\bSMALLINT\b|(?i)\bMEDIUMINT\b|(?i)\bBIGINT\b|(?i)\bUNSIGNED BIG INT\b|(?i)\bINT2\b|(?i)\bINT8\b|(?i)CHARACTER\([0-9]{3}\)|(?i)\bVARYING CHARACTER\([0-9]{3}\)|(?i)\bNCHAR\([0-9]{3}\)\b|(?i)\bNATIVE CHARACTER\([0-9]{3}\)\b|(?i)\bNVARCHAR\([0-9]+\)|(?i)\bFLOAT\b|(?i)\bNUMERIC\b(\([0-9]+,[0-9]+\))?|(?i)\bDECIMAL\(d+\)\b|(?i)\bBOOLEAN\b|(?i)\bDATE\b|(?i)\bDATETIME\b|(?i)\[timestamp\]|(?i)\bREAL\b|(?i)\bDOUBLE\b|(?i)\bDOUBLE PRECISION\b|(?i)\bCLOB\b|(?i)\bBLOB\b|(?i)\bTEXT\b|(?i)\bDATETIME\b|(?i)VARCHAR\([0-9]*\))?\s*((?i)\bHIDDEN\b|(?i)\bNULL\b|(?i)\bNOT NULL\b|(?i)\bPRIMARY KEY\b\s*(ASC|DSC)?)?((?i)\bDEFAULT\b .*)?(\s+(?i)\bAUTOINCREMENT\b|(?i)\bUNIQUE\b)?,?\s*(-{2}.*)?'''
             columnDict[0] = ("#", "Name", "Datatype", "PRIMARY KEY", "Nullable", "Unique", "Auto increment", "Hidden", "Default data","Description")
             # this is column name
             columnMatchObj = re.match(columnPattern, columnText, re.MULTILINE)
@@ -112,7 +112,7 @@ class SqlParser():
         for column in columnsList:
             logger.debug(column.strip())
             column1=column.strip().lower()
-            if not column1.startswith(('primary key','unique','foreign key')):
+            if not column1.startswith(('constraint','primary key','unique','foreign key')):
                 onlyColumns.append(column)
         logger.debug(onlyColumns)   
         return ",".join(onlyColumns)    
