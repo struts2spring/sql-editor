@@ -565,9 +565,9 @@ class CreatingTreePanel(wx.Panel):
                         now = datetime.datetime.now()
                         strftime = now.strftime("%Y-%m-%d %H:%M")
                         newline = "\n"
-                        if self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window.text.Value.strip() == "":
+                        if self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.Value.strip() == "":
                             newline = ""
-                        self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window.text.AppendText("{}{} {}".format(newline, strftime, e))
+                        self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.AppendText("{}{} {}".format(newline, strftime, e))
             self.recreateTree(event)
         dlg.Destroy()
         
@@ -816,7 +816,7 @@ class CreatingTreePanel(wx.Panel):
 #                                     logger.debug(v2)
         else:
             updateStatus = "Unable to connect '" + databaseAbsolutePath + ".' No such file. "
-            self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window.text.AppendText("\n" + updateStatus)
+            self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.AppendText("\n" + updateStatus)
             font = self.GetTopLevelParent().statusbar.GetFont() 
             font.SetWeight(wx.BOLD) 
             self.GetTopLevelParent().statusbar.SetFont(font) 

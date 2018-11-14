@@ -4,12 +4,12 @@ import os
 from src.view.TreePanel import CreatingTreePanel
 from src.view.constants import ID_openConnection, ID_newWorksheet, ID_newConnection, \
     ID_SQL_EXECUTION, ID_SQL_LOG, ID_UPDATE_CHECK, TITLE, VERSION,\
-    ID_HIDE_TOOLBAR, ID_APPEARANCE, ID_SEARCH_FILE
+    ID_HIDE_TOOLBAR, ID_APPEARANCE, ID_SEARCH_FILE, ID_CONSOLE_LOG
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 # from src.view.AutoCompleteTextCtrl import TextCtrlAutoComplete
 from wx import  ID_PREFERENCES
 from src.view.worksheet.WorksheetPanel import CreateWorksheetTabPanel
-from src.view.SqlOutputPanel import SqlScriptOutputPanel
+from src.view.SqlOutputPanel import SqlConsoleOutputPanel
 from src.view.history.HistoryListPanel import HistoryGrid
 from src.view.connection.NewConnectionWizard import CreateNewConncetionWixard
 import platform
@@ -185,8 +185,8 @@ class DatabaseMainFrame(wx.Frame):
 #                           BestSize(wx.Size(200, 100)).MinSize(wx.Size(200, 100)).
 #                           Bottom().Layer(1).CloseButton(True).MaximizeButton(True))      
   
-        self._mgr.AddPane(self.sqlScriptOutputPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "sql_script_recent.png"))).
-                          Name("scriptOutput").Caption("Script Output").Dockable(True).Movable(True).LeftDockable(True).
+        self._mgr.AddPane(self.sqlConsoleOutputPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "sql_script_recent.png"))).
+                          Name("consoleOutput").Caption("Console").Dockable(True).Movable(True).LeftDockable(True).
                           Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True).PinButton(visible=True).GripperTop())
             
         self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "sql.png"))).
@@ -207,9 +207,9 @@ class DatabaseMainFrame(wx.Frame):
 #     def constructSchemaViewerPane(self):
 #         svgViewer = SVGViewerPanel(self)
 #         return svgViewer
-    def sqlScriptOutputPane(self):
-        sqlScriptOutputPanel = SqlScriptOutputPanel(self)
-        return sqlScriptOutputPanel
+    def sqlConsoleOutputPane(self):
+        sqlConsoleOutputPanel = SqlConsoleOutputPanel(self)
+        return sqlConsoleOutputPanel
 
     def constructSqlPane(self):
         worksheet = CreateWorksheetTabPanel(self)      
@@ -291,6 +291,7 @@ class DatabaseMainFrame(wx.Frame):
         childViewMenu = wx.Menu()
         childViewMenu.Append(ID_SQL_EXECUTION, 'SQL Execution')
         childViewMenu.Append(ID_SQL_LOG, 'SQL Log')
+        childViewMenu.Append(ID_CONSOLE_LOG, 'Console')
         window_menu.Append(wx.ID_VIEW_LIST, "Show &View", childViewMenu)
         window_menu.Append(preferenceBmp)
         
@@ -324,6 +325,7 @@ class DatabaseMainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.onNewWorksheet, id=ID_newWorksheet)
         self.Bind(wx.EVT_MENU, self.onPreferences, id=ID_PREFERENCES)
         self.Bind(wx.EVT_MENU, self.onSqlLog, id=ID_SQL_LOG)
+        self.Bind(wx.EVT_MENU, self.onConsole, id=ID_CONSOLE_LOG)
         self.Bind(wx.EVT_MENU, self.onSqlExecution, id=ID_SQL_EXECUTION)
     
     def OnClose(self, event):
@@ -356,7 +358,7 @@ class DatabaseMainFrame(wx.Frame):
 
     def onNewConnection(self, event):
         logger.debug('onNewConnection')
-        CreateNewConncetionWixard().createWizard()
+        CreateNewConncetionWixard(self).createWizard()
         self.refreshDatabaseNaviagtionTree()
 
     def refreshDatabaseNaviagtionTree(self):
@@ -377,6 +379,10 @@ class DatabaseMainFrame(wx.Frame):
     def onSqlLog(self, event):
         logger.debug('onSqlLog')
         sqlLogTab = self.GetTopLevelParent()._mgr.GetPane("sqlLog").Show()
+        self.GetTopLevelParent()._mgr.Update()
+    def onConsole(self, event):
+        logger.debug('onConsole')
+        consoleTab = self.GetTopLevelParent()._mgr.GetPane("consoleOutput").Show()
         self.GetTopLevelParent()._mgr.Update()
         
     def onSqlExecution(self, event):

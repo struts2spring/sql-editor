@@ -10,7 +10,7 @@ from src.view.util.FileOperationsUtil import FileOperations
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter, \
     ManageSqliteDatabase
 from src.view.worksheet.ResultGrid import ResultDataGrid
-from src.view.SqlOutputPanel import SqlScriptOutputPanel
+from src.view.SqlOutputPanel import SqlConsoleOutputPanel
 from src.view.util.parsingUtil import SqlParser
 try:
     from agw import aui
@@ -246,7 +246,7 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
             resultPanel = ResultDataGrid(self, data=None)
             resultPanel.addData(triggersData)
         elif tabName == 'SQL':
-            resultPanel = SqlScriptOutputPanel(self, data=None)
+            resultPanel = SqlConsoleOutputPanel(self, data=None)
             try:
                 resultPanel.text.SetText(sqlData)
             except Exception as e:

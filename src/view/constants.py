@@ -23,6 +23,8 @@ ID_APPLY_CHANGE = wx.NewIdRef()
 ID_RESULT_FIRST = wx.NewIdRef()
 ID_RESULT_LAST = wx.NewIdRef()
 ID_SQL_LOG = wx.NewIdRef()
+ID_CONSOLE_LOG = wx.NewIdRef()
+
 ID_SQL_EXECUTION = wx.NewIdRef()
 ID_COPY_COLUMN_HEADER = wx.NewIdRef()
 ID_CONNECT_DB = wx.NewIdRef()

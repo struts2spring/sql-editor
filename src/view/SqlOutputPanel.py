@@ -10,7 +10,7 @@ from src.view.worksheet.EditorPanel import SqlStyleTextCtrl
 
 logger = logging.getLogger('extensive')
 
-class SqlScriptOutputPanel(wx.Panel):
+class SqlConsoleOutputPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         
@@ -41,6 +41,6 @@ class SqlScriptOutputPanel(wx.Panel):
 if __name__ == '__main__':
     app = wx.App(False)
     frame = wx.Frame(None)
-    panel = SqlScriptOutputPanel(frame)
+    panel = SqlConsoleOutputPanel(frame)
     frame.Show()
     app.MainLoop()

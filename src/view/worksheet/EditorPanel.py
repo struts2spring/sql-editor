@@ -925,7 +925,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                     manageSqliteDatabase = ManageSqliteDatabase(connectionName=selectedItemText, databaseAbsolutePath=dbFilePath)
                     sqlOutput = manageSqliteDatabase.executeText(sqlText)
                 except OperationalError as oe:
-                    self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window.text.AppendText("\n" + str(oe))
+                    self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.AppendText("\n" + str(oe))
                 except Exception as e:
                     logger.error(e, exc_info=True)
                 endTime = time.time()
@@ -938,24 +938,24 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 creatingWorksheetPanel.setResultData(data=sqlOutput)
                 resultListPanel = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].GetCurrentPage().Children[1].splitter.Children[1]
         #         if sqlOutput:
-                if resultListPanel._nb.GetCurrentPage():
+                if sqlOutput and resultListPanel._nb.GetCurrentPage():
                     resultListPanel._nb.GetCurrentPage().bottomResultToolbar.SetStatusText('Count: {}'.format(len(sqlOutput)-1))
                     resultListPanel._nb.GetCurrentPage().resultPanel.addData(data=sqlOutput)
         except TypeError as te:
             logger.error(te, exc_info=True)
             if not dbFilePath:
                 error = 'Unable to connect. Please choose a database to execute Script.'
-                self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window.text.AppendText("\n" + error)
+                self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.AppendText("\n" + error)
         except Exception as e:
             logger.error(e, exc_info=True)
-            self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window.text.AppendText("\n" + str(e))
+            self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.AppendText("\n" + str(e))
 #             print(e)
             error = str(e)
             
         self.refreshSqlLogUi()
 #         updateStatus="Unable to connect '"+dbFilePath +". "+error
-#         scriptOutputPanel = self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window
-#         scriptOutputPanel.text.AppendText(error)
+#         consoleOutputPanel = self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window
+#         consoleOutputPanel.text.AppendText(error)
 #             font = self.GetTopLevelParent().statusbar.GetFont() 
 #             font.SetWeight(wx.BOLD) 
 #             self.GetTopLevelParent().statusbar.SetFont(font) 

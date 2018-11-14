@@ -957,10 +957,10 @@ class CreateButtonPanel(wx.Panel):
             logger.error(te, exc_info=True)
             if not dbFilePath:
                 error = 'Unable to connect. Please choose a database to execute Script.'
-#                 self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window.text.AppendText("\n" + error)
+#                 self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.AppendText("\n" + error)
         except Exception as e:
             logger.error(e, exc_info=True)
-#             self.GetTopLevelParent()._mgr.GetPane("scriptOutput").window.text.AppendText("\n" + str(e))
+#             self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.AppendText("\n" + str(e))
 #             print(e)
             error = str(e)
         self.GetTopLevelParent().Destroy()
