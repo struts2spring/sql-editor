@@ -16,12 +16,12 @@ import os, re
 from src.view.findAndReplace.GoToLinePanel import CreatingGoToLinePanel
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter, \
     ManageSqliteDatabase
-from datetime import datetime
 import time
 import logging
 from sqlite3 import OperationalError
 import sqlparse
 from src.view import SqliteKeywords
+import datetime
 
 logger = logging.getLogger('extensive')
 
@@ -925,9 +925,22 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                     manageSqliteDatabase = ManageSqliteDatabase(connectionName=selectedItemText, databaseAbsolutePath=dbFilePath)
                     sqlOutput = manageSqliteDatabase.executeText(sqlText)
                 except OperationalError as oe:
-                    self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.AppendText("\n" + str(oe))
+                    now = datetime.datetime.now()
+                    strftime = now.strftime("%Y-%m-%d %H:%M:%S")
+                    newline = "\n"
+                    if self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.Value.strip() == "":
+                        newline = ""
+                    self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.AppendText("{}{} {}".format(newline, strftime, oe))
+#                     self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.AppendText("\n" + str(oe))
                 except Exception as e:
                     logger.error(e, exc_info=True)
+                    now = datetime.datetime.now()
+                    strftime = now.strftime("%Y-%m-%d %H:%M:%S")
+                    newline = "\n"
+                    if self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.Value.strip() == "":
+                        newline = ""
+                    self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.AppendText("{}{} {}".format(newline, strftime, e))
+
                 endTime = time.time()
                 logger.debug('duration: %s', endTime - startTime)
                 duration = endTime - startTime
@@ -945,10 +958,21 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             logger.error(te, exc_info=True)
             if not dbFilePath:
                 error = 'Unable to connect. Please choose a database to execute Script.'
-                self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.AppendText("\n" + error)
+                now = datetime.datetime.now()
+                strftime = now.strftime("%Y-%m-%d %H:%M:%S")
+                newline = "\n"
+                if self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.Value.strip() == "":
+                    newline = ""
+                self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.AppendText("{}{} {}".format(newline, strftime, error))
         except Exception as e:
             logger.error(e, exc_info=True)
-            self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.AppendText("\n" + str(e))
+            now = datetime.datetime.now()
+            strftime = now.strftime("%Y-%m-%d %H:%M:%S")
+            newline = "\n"
+            if self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.Value.strip() == "":
+                newline = ""
+            self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.AppendText("{}{} {}".format(newline, strftime, e))
+
 #             print(e)
             error = str(e)
             
@@ -982,7 +1006,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         logger.debug('updateSqlLog : %s', sqlText)
         sqlExecuter = SQLExecuter(database='_opal.sqlite')
         table = 'sql_log'
-        rows = [{'id':None, 'sql':str(sqlText), 'connection_name':connectionName, 'created_time':datetime.now(), 'executed':'1', 'duration':duration}]
+        rows = [{'id':None, 'sql':str(sqlText), 'connection_name':connectionName, 'created_time':datetime.datetime.now(), 'executed':'1', 'duration':duration}]
         sqlExecuter.sqlite_insert(table, rows)
         
     def refreshSqlLogUi(self):

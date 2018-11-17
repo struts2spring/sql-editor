@@ -563,7 +563,7 @@ class CreatingTreePanel(wx.Panel):
                         db.executeText(alterTableSql)
                     except Exception as e:
                         now = datetime.datetime.now()
-                        strftime = now.strftime("%Y-%m-%d %H:%M")
+                        strftime = now.strftime("%Y-%m-%d %H:%M:%S")
                         newline = "\n"
                         if self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.Value.strip() == "":
                             newline = ""
