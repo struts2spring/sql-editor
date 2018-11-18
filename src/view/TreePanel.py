@@ -104,7 +104,7 @@ class CreatingTreePanel(wx.Panel):
                     
         self.createDefaultNode()
                     
-        self.tree.Expand(self.root)
+#         self.tree.Expand(self.root)
         
         self.tree.Thaw()
         self.searchItems = {}
@@ -114,7 +114,8 @@ class CreatingTreePanel(wx.Panel):
         logger.debug("TreePanel.createDefaultNode")
         sqlExecuter = SQLExecuter()
         dbList = sqlExecuter.getListDatabase()
-        
+
+            
         fullSearch = False
         expansionState = self.tree.GetExpansionState()
 
@@ -123,8 +124,7 @@ class CreatingTreePanel(wx.Panel):
         if item:
             prnt = self.tree.GetItemParent(item)
             if prnt:
-                current = (self.tree.GetItemText(item),
-                           self.tree.GetItemText(prnt))
+                current = (self.tree.GetItemText(item), self.tree.GetItemText(prnt))
         self.tree.Freeze()
         self.tree.DeleteAllItems()
         self.root = self.tree.AddRoot("Connections")
@@ -163,13 +163,19 @@ class CreatingTreePanel(wx.Panel):
 #                 image=16
             
             # Appending connections
-            self.addNode(targetNode=self.root, nodeLabel=db[1], pydata=data, image=image)
-
+            item=self.addNode(targetNode=self.root, nodeLabel=db[1], pydata=data, image=image)
+#             self.connDict[db[1]]['itemId']=item
+            if db[1] in self.connDict.keys():
+                self.getNodeOnOpenConnection(selectedItemId=item)
+#         for key, value in self.connDict.items():
+#             if value['isConnected']:
+#                 logger.debug("{}:{}".format(key, value))
+        self.tree.Expand(self.root)
         if firstChild:
             self.tree.Expand(firstChild)
-        if filter:
-            self.tree.ExpandAll()
-        elif expansionState:
+#         if filter:
+#             self.tree.ExpandAll()
+        if expansionState:
             self.tree.SetExpansionState(expansionState)
         if selectItem:
             self.skipLoad = True
@@ -433,12 +439,9 @@ class CreatingTreePanel(wx.Panel):
             editTableBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="table_edit.png")))
             editTableItem = menu.Append(editTableBmp) 
             
-            
-            
 #             editTableItem = menu.Append(wx.ID_ANY, "Edit table ")
             renameTableItem = menu.Append(wx.ID_ANY, "Rename Table ")
             copyCreateTableItem = menu.Append(wx.ID_ANY, "Copy create table statement")
-                          
 
             deleteTableBmp = wx.MenuItem(menu, wx.ID_ANY, "&Delete table ")
             deleteTableBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="table_delete.png")))
@@ -495,7 +498,6 @@ class CreatingTreePanel(wx.Panel):
         CreateNewConncetionWixard(self).createWizard()
         
         # Refresh tree.
-        
         
     def onCopyCreateTableStatement(self, event):
         logger.debug('onCopyCreateTableStatement')
@@ -587,10 +589,13 @@ class CreatingTreePanel(wx.Panel):
         logger.debug('onConnectDb')
 #         item = self.tree.GetSelection() 
         try:
-            if self.tree.GetItemText(self.tree.GetSelection()) not in self.connDict:
-                self.connDict[self.tree.GetItemText(self.tree.GetSelection())] = True
+            if self.tree.GetItemText(self.tree.GetSelection()) not in self.connDict.keys():
+                self.connDict[self.tree.GetItemText(self.tree.GetSelection())] = {
+                    'isConnected':True,
+                    'data':self.tree.GetItemData(self.tree.GetSelection())
+                    }
                 selectedItemId = self.tree.GetSelection()
-                if self.getNodeOnOpenConnection(selectedItemId):
+                if self.getNodeOnOpenConnection(selectedItemId=selectedItemId):
         #         self.addNode(targetNode=, nodeLabel='got conncted',pydata=data, image=16)
                 # Todo change icon to enable
                         selectedItemText = self.tree.GetItemText(self.tree.GetSelection())
@@ -729,18 +734,20 @@ class CreatingTreePanel(wx.Panel):
     def onNewColumn(self, event):
         logger.debug('onNewColumn')
         logger.debug("TODO add a new column")
+
     def onNewIndex(self, event):
         logger.debug('onNewIndex')
         logger.debug("TODO add a new Index")
 #         tableFrame = CreateTableFrame(None, 'Table creation')
         
-    def getNodeOnOpenConnection(self, selectedItemId):
+    def getNodeOnOpenConnection(self, selectedItemId=None, data=None):
         '''
         This method will return database node on open connection
         '''
         isSuccessfullyConnected = False
         logger.debug('getNodeOnOpenConnection')
-        data = self.tree.GetItemData(selectedItemId)
+        if selectedItemId:
+            data = self.tree.GetItemData(selectedItemId)
         connectionName = data['connection_name']
         databaseAbsolutePath = data['db_file_path']
         if os.path.isfile(databaseAbsolutePath):     
@@ -755,6 +762,7 @@ class CreatingTreePanel(wx.Panel):
                     data['db_file_path'] = databaseAbsolutePath
                     image = 2
                     nodeLabel = k0 + ' (' + str(len(v0)) + ')'
+                    
                     child0 = self.addNode(targetNode=selectedItemId, nodeLabel=nodeLabel, pydata=data, image=image) 
                     if 'table' == k0 :
                         # setting image for 'table'
