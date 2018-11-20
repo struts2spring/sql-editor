@@ -24,9 +24,9 @@ class MySplashScreen(SplashScreen):
         bmp = self.fileOperations.getImageBitmap("splash.png")
         SplashScreen.__init__(self, bmp,
                                  wx.adv.SPLASH_CENTRE_ON_SCREEN | wx.adv.SPLASH_TIMEOUT,
-                                 4000, None, -1)
+                                 2000, None, -1)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
-        self.fc = wx.CallLater(2000, self.ShowMain)
+        self.fc = wx.CallLater(10, self.ShowMain)
 
 
     def OnClose(self, evt):
