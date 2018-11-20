@@ -134,9 +134,9 @@ class FileOperations():
 		
 		# Don't try to create it directly because wx throws up
 		# an annoying messasge dialog if the type isn't supported.
-		if wx.Image.CanRead(path):
-			image = wx.Image(path, wx.BITMAP_TYPE_ANY)
-			return image
+# 		if wx.Image.CanRead(path):
+# 			image = wx.Image(path, wx.BITMAP_TYPE_ANY)
+# 			return image
 		
 		# BAD_IMAGE means a bad image, None just means no image (i.e. directory)
 		return BAD_IMAGE

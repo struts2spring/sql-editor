@@ -11,7 +11,7 @@
 <img style="float: left;" src="./src/images/Opal_database.png">     
 
 ## What is SQL editor?
-=======================
+
 SQL editor is free, open source,  Integrated Development Environment(IDE) for working with SQL in SQLite databases. 
 
 
