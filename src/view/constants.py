@@ -32,8 +32,15 @@ ID_DISCONNECT_DB = wx.NewIdRef()
 ID_ROOT_REFERESH = wx.NewIdRef()
 ID_ROOT_NEW_CONNECTION = wx.NewIdRef()
 
+
+# Prospective menu menu
+ID_PROSPECTIVE_NAVIGATION=wx.NewIdRef()
+ID_PROSPECTIVE_OTHER=wx.NewIdRef()
+ID_OPEN_PROSPECTIVE=wx.NewIdRef()
 # Appearance toolbar menu
 ID_APPEARANCE = wx.NewIdRef()
+# show view menu
+ID_SHOW_VIEW=wx.NewIdRef()
 ID_HIDE_TOOLBAR = wx.NewIdRef()
 ID_HIDE_STATUSBAR = wx.NewIdRef()
 

@@ -1,23 +1,28 @@
 import logging
-import wx
 import os
-from src.view.TreePanel import CreatingTreePanel
-from src.view.constants import ID_openConnection, ID_newWorksheet, ID_newConnection, \
-    ID_SQL_EXECUTION, ID_SQL_LOG, ID_UPDATE_CHECK, TITLE, VERSION,\
-    ID_HIDE_TOOLBAR, ID_APPEARANCE, ID_SEARCH_FILE, ID_CONSOLE_LOG
-from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
-# from src.view.AutoCompleteTextCtrl import TextCtrlAutoComplete
-from wx import  ID_PREFERENCES
-from src.view.worksheet.WorksheetPanel import CreateWorksheetTabPanel
-from src.view.SqlOutputPanel import SqlConsoleOutputPanel
-from src.view.history.HistoryListPanel import HistoryGrid
-from src.view.connection.NewConnectionWizard import CreateNewConncetionWixard
 import platform
 import sys
-from src.view.preference.OpalPreferences import OpalPreference
+
+from wx import  ID_PREFERENCES
+import wx
+
+from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 from src.view.AutoCompleteTextCtrl import TextCtrlAutoComplete
+from src.view.SqlOutputPanel import SqlConsoleOutputPanel
+from src.view.TreePanel import CreatingTreePanel
+from src.view.connection.NewConnectionWizard import CreateNewConncetionWixard
+from src.view.constants import ID_openConnection, ID_newWorksheet, ID_newConnection, \
+    ID_SQL_EXECUTION, ID_SQL_LOG, ID_UPDATE_CHECK, TITLE, VERSION, \
+    ID_HIDE_TOOLBAR, ID_APPEARANCE, ID_SEARCH_FILE, ID_CONSOLE_LOG, ID_SHOW_VIEW, \
+    ID_PROSPECTIVE_NAVIGATION
+from src.view.history.HistoryListPanel import HistoryGrid
 from src.view.openConnection.OpenExistingConnection import OpenExistingConnectionFrame
+from src.view.preference.OpalPreferences import OpalPreference
 from src.view.util.FileOperationsUtil import FileOperations
+from src.view.worksheet.WorksheetPanel import CreateWorksheetTabPanel
+
+
+# from src.view.AutoCompleteTextCtrl import TextCtrlAutoComplete
 # from src.view.openConnection.OpenExistingConnection import OpenExistingConnectionFrame
 try:
     from agw import aui
@@ -67,11 +72,11 @@ class DatabaseMainFrame(wx.Frame):
         tb1 = aui.AuiToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize, agwStyle=aui.AUI_TB_DEFAULT_STYLE | aui.AUI_TB_OVERFLOW)
         
         tb1.SetToolBitmapSize(wx.Size(42, 42))
-        tb1.AddSimpleTool(tool_id=ID_newConnection, label="New Connection", bitmap=wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "connect.png")), short_help_string='Create a new connection')
+        tb1.AddSimpleTool(tool_id=ID_newConnection, label="New Connection", bitmap=wx.Bitmap(self.fileOperations.getImageBitmap(imageName="connect.png")), short_help_string='Create a new connection')
         tb1.AddSeparator()
         
         tb1.AddSimpleTool(ID_openConnection, "Open Connection", wx.Bitmap(self.fileOperations.getImageBitmap(imageName="database_connect.png")), short_help_string='Open Connection')
-        tb1.AddSimpleTool(ID_newWorksheet, "Script", wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "script.png")), short_help_string='Open a new script worksheet')
+        tb1.AddSimpleTool(ID_newWorksheet, "Script", wx.Bitmap(self.fileOperations.getImageBitmap(imageName="script.png")), short_help_string='Open a new script worksheet')
         tb1.AddSimpleTool(wx.ID_PREFERENCES, "Preferences", wx.Bitmap(self.fileOperations.getImageBitmap(imageName="preference.png")), short_help_string='Preference')
 #         tb1.DoGetBestSize()
         ###################################################################################################
@@ -169,11 +174,11 @@ class DatabaseMainFrame(wx.Frame):
                           ToolbarPane().Top().CloseButton(True).
                           LeftDockable(False).RightDockable(False).Gripper(True))    
         
-        self._mgr.AddPane(self.creatingTreeCtrl(), aui.AuiPaneInfo().Icon(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "folder_database.png"))).
+        self._mgr.AddPane(self.creatingTreeCtrl(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="folder_database.png")).
                           Name("databaseNaviagor").Caption("Database Navigator").Dockable(True).Movable(True).MinSize(wx.Size(300, 100)).
                           Left().Layer(1).Position(1).CloseButton(False).MaximizeButton(True).MinimizeButton(True))
      
-        self._mgr.AddPane(self.constructSqlPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "script.png"))).
+        self._mgr.AddPane(self.constructSqlPane(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="script.png")).
                           Name("sqlExecution").Caption("SQL execution").LeftDockable(True).
                           Center().CloseButton(True).MaximizeButton(True).MinimizeButton(True))
         
@@ -185,11 +190,11 @@ class DatabaseMainFrame(wx.Frame):
 #                           BestSize(wx.Size(200, 100)).MinSize(wx.Size(200, 100)).
 #                           Bottom().Layer(1).CloseButton(True).MaximizeButton(True))      
   
-        self._mgr.AddPane(self.sqlConsoleOutputPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "sql_script_recent.png"))).
+        self._mgr.AddPane(self.sqlConsoleOutputPane(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="console_view.png")).
                           Name("consoleOutput").Caption("Console").Dockable(True).Movable(True).LeftDockable(True).
                           Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True).PinButton(visible=True).GripperTop())
             
-        self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "sql.png"))).
+        self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="sql.png")).
                           Name("sqlLog").Caption("SQL Log").Dockable(True).BestSize(wx.Size(200, 200)).
                           Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True))
             
@@ -233,87 +238,133 @@ class DatabaseMainFrame(wx.Frame):
                 # create menu
         mb = wx.MenuBar()
 
-        file_menu = wx.Menu()
-        fileOpenItem = wx.MenuItem(file_menu, wx.ID_OPEN, 'Open Database connection \tCtrl+O')
-        openbmp = wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN, wx.ART_TOOLBAR, (16, 16))
-        fileOpenItem.SetBitmap(openbmp)
-        file_menu.Append(fileOpenItem)        
+        menuItemList = [
+            ("&File", [
+                    [wx.ID_OPEN, 'Open Database connection \tCtrl+O', None, None],
+                    [],
+                    [wx.NewIdRef(), 'Import', None, "import_prj.png"],
+                    [wx.NewIdRef(), 'Export', None, "export.png"],
+                    [ wx.ID_EXIT, '&Quit \tCtrl+Q', None, None],
+                ]) ,
+            ("&Edit", [
+                    [ wx.ID_UNDO, "Undo \tCtrl+Z",None, "undo_edit.png"],
+                    [ wx.ID_REDO, "Redo \tShift+Ctrl+Z", None,"redo_edit.png"],
+                    [],
+                    [ wx.ID_CUT, "Cut \tCtrl+X", None, "cut_edit.png"],
+                    [ wx.ID_COPY, "Copy \tCtrl+C", None, "copy_edit.png"],
+                    [ wx.ID_PASTE, "Paste \tCtrl+V", None,  "paste_edit.png"],
+                    [],
+                    [ wx.NewIdRef(), "Delete", None,  "delete_obj.png"],
+                    [ wx.NewIdRef(), "Set encoding...", None,  None],
+                ]),
+            ("&Search", [
+                    [wx.NewIdRef(), 'Search \tCtrl+H', None, 'searchres.png'],
+                    [ID_SEARCH_FILE, 'File', None, 'search_history.png']
+                ]),
+            ("&Navigate", [
+                    [wx.NewIdRef(), 'Open Type', None, None],
+                    [wx.NewIdRef(), 'Open Task', None, None]
+                ]),
+            ("&Project", [
+                    [wx.NewIdRef(), 'Open Project', None, None],
+                    [wx.NewIdRef(), 'Close Project', None, None]
+                ]),
+            ("&Run", [
+                    [wx.NewIdRef(), 'Run \tCtrl+F11', None, "runlast_co.png"],
+                    [wx.NewIdRef(), 'Debug \tF11', None, "debuglast_co.png"],
+                    [],
+                    [wx.NewIdRef(), 'Run As', None, 'run_exc.png'],
+                    
+                ]),
+            ("&Window", [
+                    [ID_APPEARANCE, 'Appearance', [
+                                                [ID_HIDE_TOOLBAR, 'Hide Toolbar', None, None],
+                                                [ID_HIDE_TOOLBAR, 'Hide Status Bar', None, None]
+                                            ], None
+                    ],
+                    [],
+                    [ID_SHOW_VIEW, "Show &View", [
+                                                [ID_SQL_EXECUTION, 'SQL Execution', "script.png", None ],
+                                                [ID_SQL_LOG, 'SQL Log', "sql.png" , None],
+                                                [ID_CONSOLE_LOG, 'Console', "console_view.png", None ]
+                                            ], None
+                    ],
+                    [ID_PROSPECTIVE_NAVIGATION, "Prospective", [
+                                                [ wx.NewIdRef(), 'Open Prospective', None, [
+                                                        [ wx.NewIdRef(), 'Python', "python_16x16.png", None],
+                                                        [ wx.NewIdRef(), 'Java', "java_workingset_wiz.png", None],
+                                                        [ wx.NewIdRef(), 'Java EE', "java_workingset_wiz.png", None],
+                                                        [ wx.NewIdRef(), 'Resources', "resource_persp.png", None],
+                                                        [ wx.NewIdRef(), 'Git', "gitrepository.png", None],
+                                                        [],
+                                                        [wx.NewIdRef(),"Other",None],
+                                                    ]],
+                                                [ wx.NewIdRef(), 'SQL Log', "sql.png", None ],
+                                                [ wx.NewIdRef(), 'Console', "console_view.png", None ]
+                                            ], None
+                    ],
+                    [],
+                    [wx.ID_PREFERENCES, "&Preferences", None, "preference.png" ]
+                ]),
+            ("&Help", [
+                    [ ID_UPDATE_CHECK, "Check for &Updates", None, "object_refresh.png"],
+                    [ wx.NewIdRef(), "Tip of the day", None, "smartmode_co.png"],
+                    [],
+                    [ wx.ID_HELP, "&About {}".format(TITLE), None, None],
+                    [ wx.NewIdRef(), "Contribute", None, "star.png"],
+                ])
+            ]
         
-        qmi = wx.MenuItem(file_menu, wx.ID_EXIT, '&Quit \tCtrl+Q')
-        bmp = wx.ArtProvider.GetBitmap(wx.ART_QUIT, wx.ART_TOOLBAR, (16, 16))
-        qmi.SetBitmap(bmp)
-        file_menu.Append(qmi)
+        for menuItem in menuItemList:
+            topLevelMenu = wx.Menu()
+            if menuItem[1]:
+                for windowMenu in menuItem[1]:
+                    if len(windowMenu) == 0:
+                        topLevelMenu.AppendSeparator()
+                    elif windowMenu[2]:
+                        firstLevelMenu = wx.Menu()
+                        try:
+                            for showViewMenu in windowMenu[2]:
+                                if len(showViewMenu) == 0:
+                                    firstLevelMenu.AppendSeparator()
+                                elif showViewMenu[3]:
+                                    menuaItem = wx.MenuItem()
+                                    secondLevelMenuItem = wx.Menu()
+                                    for secondLevelMenu in showViewMenu[3]:
+                                        if len(secondLevelMenu) == 0:
+                                            secondLevelMenuItem.AppendSeparator()
+                                        else:
+                                            self.appendLeafToMenu(secondLevelMenu[0], attacheTo=secondLevelMenuItem, menuName=secondLevelMenu[1], imageName=secondLevelMenu[2])
+                                    firstLevelMenu.Append(-1, showViewMenu[1], secondLevelMenuItem)
+                                else:
+                                    self.appendLeafToMenu(showViewMenu[0], attacheTo=firstLevelMenu, menuName=showViewMenu[1], imageName=showViewMenu[2])
+                                    
+                            topLevelMenu.Append(windowMenu[0], windowMenu[1], firstLevelMenu)
+                        except Exception as e:
+                            logger.error(e, exc_info=True)
+                    else:
+                        firstLevelMenu = wx.MenuItem(topLevelMenu, windowMenu[0], windowMenu[1])
+                        if windowMenu[3]:
+                            firstLevelMenu.SetBitmap(self.fileOperations.getImageBitmap(imageName=windowMenu[3]))
+                        topLevelMenu.Append(firstLevelMenu)
         
-        edit_menu = wx.Menu()
-        
-        undoBmp = wx.MenuItem(file_menu, wx.ID_UNDO, "Undo \tCtrl+Z")
-        undoBmp.SetBitmap(wx.ArtProvider.GetBitmap(wx.ART_UNDO, wx.ART_TOOLBAR, (16, 16)))
-        
-        redoBmp = wx.MenuItem(file_menu, wx.ID_REDO, "Redo \tShift+Ctrl+Z")
-        redoBmp.SetBitmap(wx.ArtProvider.GetBitmap(wx.ART_REDO, wx.ART_TOOLBAR, (16, 16)))
-        
-        cutBmp = wx.MenuItem(file_menu, wx.ID_CUT, "Cut \tCtrl+X")
-        cutBmp.SetBitmap(wx.ArtProvider.GetBitmap(wx.ART_CUT, wx.ART_TOOLBAR, (16, 16)))
-        
-        copyBmp = wx.MenuItem(file_menu, wx.ID_COPY, "Copy \tCtrl+C")
-        copyBmp.SetBitmap(wx.ArtProvider.GetBitmap(wx.ART_COPY, wx.ART_TOOLBAR, (16, 16)))
-        
-        pasteBmp = wx.MenuItem(file_menu, wx.ID_PASTE, "Paste \tCtrl+V")
-        pasteBmp.SetBitmap(wx.ArtProvider.GetBitmap(wx.ART_PASTE, wx.ART_TOOLBAR, (16, 16)))
-        
-        edit_menu.Append(undoBmp)
-        edit_menu.Append(redoBmp)
-        edit_menu.Append(cutBmp)
-        edit_menu.Append(copyBmp)
-        edit_menu.Append(pasteBmp)
-        
-#         edit_menu.Append(wx.ID_COPY, "Copy \tCtrl+C")
-#         edit_menu.Append(wx.ID_PASTE, "Paste \tCtrl+V")
-        
-        search_menu = wx.Menu()
-        searchBmp = wx.MenuItem(search_menu, ID_SEARCH_FILE, 'File') 
-        search_menu.Append(searchBmp) 
-        
-        window_menu = wx.Menu()
-                
-#         appearanceBmp = wx.MenuItem(window_menu, wx.ID_PREFERENCES, "&Appearance")
-#         preferenceBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "preference.png")))
-        
-        appearanceChildMenu=wx.Menu()
-        appearanceChildMenu.Append(ID_HIDE_TOOLBAR, 'Hide Toolbar')
-        appearanceChildMenu.Append(ID_HIDE_TOOLBAR, 'Hide Status Bar')
-        window_menu.Append(ID_APPEARANCE, "Appearance", appearanceChildMenu)
-        
-        preferenceBmp = wx.MenuItem(window_menu, wx.ID_PREFERENCES, "&Preferences")
-        preferenceBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "preference.png")))
-                
-        window_menu.AppendSeparator()
-        childViewMenu = wx.Menu()
-        childViewMenu.Append(ID_SQL_EXECUTION, 'SQL Execution')
-        childViewMenu.Append(ID_SQL_LOG, 'SQL Log')
-        childViewMenu.Append(ID_CONSOLE_LOG, 'Console')
-        window_menu.Append(wx.ID_VIEW_LIST, "Show &View", childViewMenu)
-        window_menu.Append(preferenceBmp)
-        
-        
-        
-        help_menu = wx.Menu()
-        
-        aboutBmp = wx.MenuItem(help_menu, wx.ID_HELP, "&About {}".format(TITLE))
-        aboutBmp.SetBitmap(wx.ArtProvider.GetBitmap(wx.ART_HELP, wx.ART_TOOLBAR, (16, 16)))
-        updateCheckBmp = wx.MenuItem(help_menu, ID_UPDATE_CHECK, "Check for &Updates")
-        updateCheckBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName= "object_refresh.png")))
-        
-        help_menu.Append(updateCheckBmp)
-        help_menu.Append(aboutBmp)
-        
-        mb.Append(file_menu, "&File")
-        mb.Append(edit_menu, "&Edit")
-        mb.Append(search_menu, "&Search")
-        mb.Append(window_menu, "&Window")
-        mb.Append(help_menu, "&Help")
+            mb.Append(topLevelMenu, menuItem[0])
+
         self.SetMenuBar(mb)
-        
+    
+    def appendLeafToMenu(self, menuId, attacheTo=None, menuName=None, imageName=None):
+        '''
+        Append menuItem to menu
+        '''
+        try:
+            menuItem = wx.MenuItem(attacheTo, menuId, menuName)
+            if imageName:
+                menuItem.SetBitmap(self.fileOperations.getImageBitmap(imageName=imageName))
+            attacheTo.Append(menuItem)
+        except Exception as e:
+            logger.error(e, exc_info=True)
+        return attacheTo
+    
     def bindingEvent(self):
         self.Bind(wx.EVT_MENU, self.OnExit, id=wx.ID_EXIT)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
@@ -380,6 +431,7 @@ class DatabaseMainFrame(wx.Frame):
         logger.debug('onSqlLog')
         sqlLogTab = self.GetTopLevelParent()._mgr.GetPane("sqlLog").Show()
         self.GetTopLevelParent()._mgr.Update()
+
     def onConsole(self, event):
         logger.debug('onConsole')
         consoleTab = self.GetTopLevelParent()._mgr.GetPane("consoleOutput").Show()
