@@ -9,6 +9,7 @@ from wx.lib.mixins.treemixin import ExpansionState
 from src.view.constants import keyMap
 import os
 import logging
+from src.view.util.FileOperationsUtil import FileOperations
 
 logger = logging.getLogger('extensive')
 
@@ -111,15 +112,15 @@ class CreatingNewConnectionPanel(wx.Panel):
         item = self.tree.GetSelection()
         if item:
             prnt = self.tree.GetItemParent(item)
-            if prnt:
-                current = (self.tree.GetItemText(item),
-                           self.tree.GetItemText(prnt))
+#             if prnt:
+#                 current = (self.tree.GetItemText(item),
+#                            self.tree.GetItemText(prnt))
                     
         self.tree.Freeze()
         self.tree.DeleteAllItems()
         self.root = self.tree.AddRoot("Connections")
         self.tree.SetItemImage(self.root, 0)
-        self.tree.SetItemPyData(self.root, 0)
+        self.tree.SetItemData(self.root, 0)
 
         treeFont = self.tree.GetFont()
         catFont = self.tree.GetFont()
@@ -133,7 +134,7 @@ class CreatingNewConnectionPanel(wx.Panel):
             
         treeFont.SetWeight(wx.BOLD)
         catFont.SetWeight(wx.BOLD)
-        self.tree.SetItemFont(self.root, treeFont)
+#         self.tree.SetItemFont(self.root, treeFont)
         
         firstChild = None
         selectItem = None
@@ -210,25 +211,28 @@ class DatabaseNavigationTree(ExpansionState, TreeCtrl):
         event.Skip()            
     def BuildTreeImageList(self):
         imgList = wx.ImageList(16, 16)
-
+        self.fileOperations = FileOperations()
         # add the image for modified demos.
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "database.png"))))
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "database_category.png"))))
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "folder_view.png"))))
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "folder.png"))))
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "table.png"))))
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "view.png"))))
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "index.png"))))
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "column.png"))))
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "string.png"))))  # 8
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "key.png"))))  # 9
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "foreign_key_column.png"))))  # 10
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "columns.png"))))  # 11
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "unique_constraint.png"))))  # 12
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "reference.png"))))  # 13
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "datetime.png"))))  # 14
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "columns.png"))))  # 15
-        imgList.Add(wx.Bitmap(os.path.abspath(os.path.join("..", "images", "sqlite.png"))))  # 16
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="database.png"))  # 0
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="database_category.png"))  # 1
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="folder_view.png"))  # 2
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="folder.png"))  # 3
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="table.png"))  # 4
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="view.png"))  # 5
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="index.png"))  # 6
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="column.png"))  # 7 using to show integer column 
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="string.png"))  # 8
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="key.png"))  # 9
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="foreign_key_column.png"))  # 10
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="columns.png"))  # 11
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="unique_constraint.png"))  # 12
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="reference.png"))  # 13
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="datetime.png"))  # 14
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="columns.png"))  # 15
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="sqlite.png"))  # 16
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="h2.png"))  # 17 use to show h2 database icon
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="textfield.png"))  # 18 use to show [varchar, char, text data] type icon 
+        
 #         imgList.Add(wx.Bitmap(path2))
 #         for png in _demoPngs:
 #             imgList.Add(catalog[png].GetBitmap())

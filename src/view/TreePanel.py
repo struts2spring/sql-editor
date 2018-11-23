@@ -856,7 +856,7 @@ class DatabaseNavigationTree(ExpansionState, TreeCtrl):
 #                           'EVT_TREE_ITEM_COLLAPSING': self.OnItemCollapsing, 'EVT_TREE_ITEM_EXPANDED': self.OnItemExpanded,
 #                           'EVT_TREE_ITEM_EXPANDING': self.OnItemExpanding, 'EVT_TREE_ITEM_GETTOOLTIP': self.OnToolTip,
 #                           'EVT_TREE_ITEM_MENU': self.OnItemMenu, 'EVT_TREE_ITEM_RIGHT_CLICK': self.OnRightDown,
-                          'EVT_TREE_KEY_DOWN': self.OnKey,
+                            'EVT_TREE_KEY_DOWN': self.OnKey,
 #                           'EVT_TREE_SEL_CHANGED': self.OnSelChanged,
 #                           'EVT_TREE_SEL_CHANGING': self.OnSelChanging, "EVT_TREE_ITEM_HYPERLINK": self.OnHyperLink
                           }
@@ -907,25 +907,25 @@ class DatabaseNavigationTree(ExpansionState, TreeCtrl):
 
         # add the image for modified demos.
 
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="database.png")))  # 0
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="database_category.png")))  # 1
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="folder_view.png")))  # 2
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="folder.png")))  # 3
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="table.png")))  # 4
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="view.png")))  # 5
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="index.png")))  # 6
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="column.png")))  # 7 using to show integer column 
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="string.png")))  # 8
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="key.png")))  # 9
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="foreign_key_column.png")))  # 10
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="columns.png")))  # 11
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="unique_constraint.png")))  # 12
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="reference.png")))  # 13
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="datetime.png")))  # 14
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="columns.png")))  # 15
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="sqlite.png")))  # 16
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="h2.png")))  # 17 use to show h2 database icon
-        imgList.Add(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="textfield.png")))  # 18 use to show [varchar, char, text data] type icon 
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="database.png"))  # 0
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="database_category.png"))  # 1
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="folder_view.png"))  # 2
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="folder.png"))  # 3
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="table.png"))  # 4
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="view.png"))  # 5
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="index.png"))  # 6
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="column.png"))  # 7 using to show integer column 
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="string.png"))  # 8
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="key.png"))  # 9
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="foreign_key_column.png"))  # 10
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="columns.png"))  # 11
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="unique_constraint.png"))  # 12
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="reference.png"))  # 13
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="datetime.png"))  # 14
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="columns.png"))  # 15
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="sqlite.png"))  # 16
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="h2.png"))  # 17 use to show h2 database icon
+        imgList.Add(self.fileOperations.getImageBitmap(imageName="textfield.png"))  # 18 use to show [varchar, char, text data] type icon 
         
 #         imgList.Add(wx.Bitmap(path2))
 #         for png in _demoPngs:

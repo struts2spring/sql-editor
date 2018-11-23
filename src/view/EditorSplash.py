@@ -5,6 +5,7 @@ Created on Nov 20, 2018
 '''
 import wx.adv
 import os
+import wx.lib.eventStack as events
 from src.view.sql_editor_view import DatabaseMainFrame
 from wx._adv import SplashScreen
 from src.view.util.FileOperationsUtil import FileOperations
@@ -26,7 +27,7 @@ class MySplashScreen(SplashScreen):
                                  wx.adv.SPLASH_CENTRE_ON_SCREEN | wx.adv.SPLASH_TIMEOUT,
                                  2000, None, -1)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
-        self.fc = wx.CallLater(10, self.ShowMain)
+        self.fc = wx.CallLater(1, self.ShowMain)
 
 
     def OnClose(self, evt):
@@ -49,8 +50,18 @@ class MySplashScreen(SplashScreen):
             self.Raise()
 #         wx.CallAfter(frame.ShowTip)
 
-class MyApp(wx.App):
+class MyApp(wx.App, events.AppEventHandlerMixin):
+    def __init__(self, *args, **kargs):
+        wx.App.__init__(self, *args, **kargs)
+        events.AppEventHandlerMixin.__init__(self)
+        
     def OnInit(self):
+        """Initialize the Editor
+        
+        @note: this gets called before __init__
+        @postcondition: custom artprovider and plugins are loaded
+
+        """
         splash = MySplashScreen()
         splash.Show()
 
