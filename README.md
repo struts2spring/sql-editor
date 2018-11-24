@@ -15,7 +15,7 @@
 SQL editor is free, open source,  Integrated Development Environment(IDE) for working with SQL in SQLite databases. 
 
 
-![Screen 1](./docs/images/screen_1.PNG)
+![Screen 1](https://raw.githubusercontent.com/wiki/struts2spring/sql-editor/images/dashboard.PNG)
 
 # Description: 
 
