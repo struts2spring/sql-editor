@@ -1,32 +1,21 @@
-###############################################################################
-# Name: _dirtree.py                                                           #
-# Purpose: Directory Tree                                                     #
-# Author: Cody Precord <cprecord@editra.org>                                  #
-# Copyright: (c) 2011-2013 Cody Precord <staff@editra.org>                    #
-# Licence: wxWindows Licence                                                  #
-###############################################################################
 
 """
-Editra Control Library: FileTree
 
 Base class control for displaying a file system in a hierarchical manor.
 
 """
 
-__author__ = "Cody Precord <cprecord@editra.org>"
-__svnid__ = "$Id: _filetree.py 73347 2013-01-05 19:58:31Z CJP $"
-__revision__ = "$Revision: 73347 $"
-
-__all__ = ['FileTree',]
-
-#-----------------------------------------------------------------------------#
 # Imports
-import sys
 import os
-import types
 import wx
 
-#-----------------------------------------------------------------------------#
+import logging.config
+from src.view.constants import LOG_SETTINGS
+from src.view.util.FileOperationsUtil import FileOperations
+from src.view.util.osutil import GetWindowsDrives
+logging.config.dictConfig(LOG_SETTINGS)
+logger = logging.getLogger('extensive')
+
 
 class FileTree(wx.TreeCtrl):
     """Simple base control for displaying directories and files in a
@@ -62,6 +51,7 @@ class FileTree(wx.TreeCtrl):
         self.Bind(wx.EVT_TREE_END_LABEL_EDIT, self._OnEndEdit)
 
     def _OnBeginEdit(self, evt):
+        logger.debug('_OnBeginEdit')
         if not self._editlabels:
             evt.Veto()
         else:
@@ -72,6 +62,7 @@ class FileTree(wx.TreeCtrl):
                 evt.Veto()
 
     def _OnEndEdit(self, evt):
+        logger.debug('_OnEndEdit')
         if self._editlabels:
             item = evt.GetItem()
             newlabel = evt.GetLabel()
@@ -81,6 +72,7 @@ class FileTree(wx.TreeCtrl):
         evt.Veto()
 
     def _OnGetToolTip(self, evt):
+#         logger.debug('_OnGetToolTip')
         item = evt.GetItem()
         tt = self.DoGetToolTip(item)
         if tt:
@@ -89,21 +81,25 @@ class FileTree(wx.TreeCtrl):
             evt.Skip()
 
     def _OnItemActivated(self, evt):
+        logger.debug('_OnItemActivated')
         item = evt.GetItem()
         self.DoItemActivated(item)
         evt.Skip()
 
     def _OnItemCollapsed(self, evt):
+        logger.debug('_OnItemCollapsed')
         item = evt.GetItem()
         self.DoItemCollapsed(item)
         evt.Skip()
 
     def _OnItemExpanding(self, evt):
+        logger.debug('_OnItemExpanding')
         item = evt.GetItem()
         self.DoItemExpanding(item)
         evt.Skip()
 
     def _OnMenu(self, evt):
+        logger.debug('_OnMenu')
         try:
             item = evt.GetItem()
             self.DoShowMenu(item)
@@ -117,6 +113,7 @@ class FileTree(wx.TreeCtrl):
     #---- Overridable methods ----#
 
     def DoBeginEdit(self, item):
+        logger.debug('DoBeginEdit')
         """Overridable method that will be called when
         a user has started to edit an item.
         @param item: TreeItem
@@ -126,6 +123,7 @@ class FileTree(wx.TreeCtrl):
         return False
 
     def DoEndEdit(self, item, newlabel):
+        logger.debug('DoEndEdit')
         """Overridable method that will be called when
         a user has finished editing an item.
         @param item: TreeItem
@@ -140,6 +138,7 @@ class FileTree(wx.TreeCtrl):
         @return: string or None
 
         """
+#         logger.debug('DoGetToolTip')
         data = self.GetItemData(item)
         return data
 
@@ -148,6 +147,7 @@ class FileTree(wx.TreeCtrl):
         @param item: TreeItem
 
         """
+        logger.debug('DoItemActivated')
         pass
 
     def DoItemCollapsed(self, item):
@@ -155,6 +155,8 @@ class FileTree(wx.TreeCtrl):
         @param item: TreeItem
 
         """
+        logger.debug('DoItemCollapsed')
+        
         self.DeleteChildren(item)
 
     def DoItemExpanding(self, item):
@@ -162,6 +164,7 @@ class FileTree(wx.TreeCtrl):
         @param item: TreeItem
 
         """
+        logger.debug('DoItemExpanding')
         d = self.GetPyData(item)
         if d and os.path.exists(d):
             contents = FileTree.GetDirContents(d)
@@ -173,6 +176,7 @@ class FileTree(wx.TreeCtrl):
         @param item: wx.TreeItem
 
         """
+        logger.debug('DoShowMenu')
         pass
 
     def DoSetupImageList(self):
@@ -180,12 +184,27 @@ class FileTree(wx.TreeCtrl):
         that self.ImageList is valid and empty when this is called.
 
         """
+        logger.debug('DoSetupImageList')
+        self.fileOperations = FileOperations()
         bmp = wx.ArtProvider.GetBitmap(wx.ART_FOLDER, wx.ART_MENU, (16,16))
         self.ImageList.Add(bmp)
         bmp = wx.ArtProvider.GetBitmap(wx.ART_NORMAL_FILE, wx.ART_MENU, (16,16))
         self.ImageList.Add(bmp)
         bmp = wx.ArtProvider.GetBitmap(wx.ART_ERROR, wx.ART_MENU, (16,16))
         self.ImageList.Add(bmp)
+        
+        iconsPresent=self.getExtensionWithBmp()
+        logger.debug(iconsPresent)
+        count=3
+        self.iconsDictByIndex={}
+        self.iconsDictByExtension={}
+        for iconInfo in iconsPresent:
+            self.ImageList.Add(iconInfo[1])
+            iconInfo.append(count)
+            self.iconsDictByExtension[iconInfo[0][0]]=iconInfo
+            self.iconsDictByIndex[count]=iconInfo
+            count =count+1
+        logger.debug(self.iconsDictByIndex)
 
     def DoGetFileImage(self, path):
         """Get the index of the image from the image list to use
@@ -195,15 +214,72 @@ class FileTree(wx.TreeCtrl):
 
         """
         # TODO: image handling
+        logger.debug('DoGetFileImage')
         if not os.access(path, os.R_OK):
             img = 2
         else:
             if os.path.isdir(path):
                 img = 0 # Directory image
             else:
-                img = 1 # Normal file image
+                filename, file_extension = os.path.splitext(path)
+                if file_extension in self.iconsDictByExtension.keys():
+                    iconInfo=self.iconsDictByExtension[file_extension]
+                    if iconInfo:
+                        img =iconInfo[3]
+                else:
+                    img = 1 # Normal file image
+#                 self.getMimeType()
         return img
 
+    def getIconByExtension(self, file_extension=".txt"):
+        fileType = wx.TheMimeTypesManager.GetFileTypeFromExtension(file_extension)
+        bmp = wx.Bitmap(16,16) 
+        if fileType is None:
+            logger.debug("File extension not found.")
+        else:
+            icon, file, idx = fileType.GetIconInfo()
+            if icon.IsOk():
+                bmp.CopyFromIcon(icon) 
+                bmp = bmp.ConvertToImage() 
+                # Rescale it, usually it's not 16x16 
+                bmp.Rescale(16,16) 
+                bmp = wx.BitmapFromImage(bmp) 
+        return bmp
+    
+    def getExtensionWithBmp(self):
+        # Locate all file types 
+        mtypes = wx.TheMimeTypesManager.EnumAllFileTypes() 
+        
+        iconsPresent=[]
+        iconsNotPresent=[]
+        for mt in mtypes: 
+        
+            # Loop over all file types 
+            fileType = wx.TheMimeTypesManager.GetFileTypeFromMimeType(mt) 
+            
+            if fileType is not None: 
+                # Get the icon information for that file extension 
+                nntype = fileType.GetIconInfo() 
+        
+                if nntype is not None: 
+                    # Get the icon for that file extension 
+                    icon, file, idx = nntype 
+        
+                    if icon.IsOk():
+                        bmp = wx.Bitmap(16,16) 
+                        bmp.CopyFromIcon(icon) 
+                        bmp = bmp.ConvertToImage() 
+                        # Rescale it, usually it's not 16x16 
+                        bmp.Rescale(16,16) 
+                        bmp = wx.Bitmap(bmp) 
+                        iconsPresent.append([fileType.GetExtensions(), bmp, file])
+                    else:
+                        iconsNotPresent.append(nntype)
+                else:
+                    iconsNotPresent.append(fileType)
+            else:
+                iconsNotPresent.append(mt)
+        return iconsPresent
     #---- End Overrides ----#
 
     #---- Properties ----#
@@ -220,6 +296,7 @@ class FileTree(wx.TreeCtrl):
                on path.
 
         """
+        logger.debug('AddWatchDirectory')
         assert os.path.exists(dname), "Path(%s) doesn't exist!" % dname
         if dname not in self._watch:
             self._watch.append(dname)
@@ -230,6 +307,7 @@ class FileTree(wx.TreeCtrl):
         @param dname: directory path
 
         """
+        logger.debug('RemoveWatchDirectory')
         if dname in self._watch:
             self._watch.remove(dname)
             nodes = self.GetChildNodes(self.RootItem)
@@ -244,6 +322,7 @@ class FileTree(wx.TreeCtrl):
         Override DoSetupImageList to customize the behavior of this method.
 
         """
+        logger.debug('SetupImageList')
         if self._il:
             self._il.Destroy()
             self._il = None
@@ -258,6 +337,7 @@ class FileTree(wx.TreeCtrl):
         @return: new node
 
         """
+        logger.debug('AppendFileNode')
         img = self.DoGetFileImage(path)
         name = os.path.basename(path)
         if not name:
@@ -277,6 +357,7 @@ class FileTree(wx.TreeCtrl):
         @return: None
 
         """
+        logger.debug('AppendFileNodes')
         getBaseName = os.path.basename
         isDir = os.path.isdir
         getImg = self.DoGetFileImage
@@ -298,6 +379,7 @@ class FileTree(wx.TreeCtrl):
         @return: list of TreeItems
 
         """
+        logger.debug('GetChildNodes')
         rlist = list()
         child, cookie = self.GetFirstChild(parent)
         if not child or not child.IsOk():
@@ -318,7 +400,7 @@ class FileTree(wx.TreeCtrl):
         @return: list of TreeItems
 
         """
-
+        logger.debug('GetExpandedNodes')
         def NodeWalker(parent, rlist):
             """Recursively find expanded nodes
             @param parent: parent node
@@ -340,6 +422,7 @@ class FileTree(wx.TreeCtrl):
         @return: list of strings
 
         """
+        logger.debug('GetSelectedFiles')
         nodes = self.GetSelections()
         files = [ self.GetPyData(node) for node in nodes ]
         return files
@@ -350,6 +433,7 @@ class FileTree(wx.TreeCtrl):
         @keyword enable: bool
 
         """
+        logger.debug('EnableLabelEditing')
         self._editlabels = enable
 
     def SelectFile(self, filename):
@@ -393,16 +477,17 @@ class FileTree(wx.TreeCtrl):
     @staticmethod
     def GetDirContents(directory):
         """Get the list of files contained in the given directory"""
+        logger.debug('GetDirContents')
         assert os.path.isdir(directory)
         files = list()
         try:
             joinPath = os.path.join
             fappend = files.append
-            fs_encoding = sys.getfilesystemencoding()
+            #fs_encoding = sys.getfilesystemencoding()
             for p in os.listdir(directory):
                 fullpath = joinPath(directory, p)
-                if type(fullpath) != types.UnicodeType:
-                    fullpath = fullpath.decode(fs_encoding)
+#                 if type(fullpath) != types:
+#                     fullpath = fullpath.decode(fs_encoding)
                 fappend(fullpath)
         except OSError:
             pass
@@ -415,6 +500,7 @@ class FileTree(wx.TreeCtrl):
         @return: list of paths
 
         """
+        logger.debug('GetNodePaths')
         paths = list()
         if self.ItemHasChildren(dirNode):
             append = paths.append
@@ -431,28 +517,37 @@ class FileTree(wx.TreeCtrl):
         @param item: TreeItemId
 
         """
+        logger.debug('GetPyData')
         data = None
         # avoid assertions in base class when retrieving data...
         if item and item.IsOk():
             try:
-                data = super(FileTree, self).GetPyData(item)
+                data = super(FileTree, self).GetItemData(item)
             except wx.PyAssertionError:
                 pass
         return data
 
     def SortParentDirectory(self, item):
         """Sort the parent directory of the given item"""
+        logger.debug('SortParentDirectory')
         parent = self.GetItemParent(item)
         if parent.IsOk():
             self.SortChildren(parent)
 
-#-----------------------------------------------------------------------------#
+    #-----------------------------------------------------------------------------#
 # Test
 if __name__ == '__main__':
     app = wx.App(False)
     f = wx.Frame(None)
     ft = FileTree(f)
-    d = wx.GetUserHome()
-    ft.AddWatchDirectory(d)
+    drives=GetWindowsDrives()
+#     d = wx.GetUserHome()
+    for drive in drives:
+        try:
+            logger.debug(drive)
+            ft.AddWatchDirectory(drive.Name)
+        except:
+            pass
+#         break
     f.Show()
     app.MainLoop()

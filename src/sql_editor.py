@@ -1,9 +1,9 @@
 
 import wx
-import logging.config
 from src.view.sql_editor_view import DatabaseMainFrame
-from src.view.constants import LOG_SETTINGS
 from src.view.EditorSplash import MyApp
+import logging.config
+from src.view.constants import LOG_SETTINGS
 
 logger = logging.getLogger('extensive')
 
