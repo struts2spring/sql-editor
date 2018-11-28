@@ -13,7 +13,7 @@ from src.view.constants import ID_openConnection, ID_newWorksheet, ID_newConnect
     ID_PROSPECTIVE_NAVIGATION
 
 from src.view.openConnection.OpenExistingConnection import OpenExistingConnectionFrame
-from src.view.preference.OpalPreferences import OpalPreference
+from src.view.preference.Preferences import OpalPreference
 from src.view.util.FileOperationsUtil import FileOperations
 
 from src.view.perspective import PerspectiveManager

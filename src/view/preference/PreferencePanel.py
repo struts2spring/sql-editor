@@ -2,11 +2,15 @@ import wx
 from src.view.preference.CommandList import CommandKeyListCtrlPanel
 from src.view.preference.ApplyResetBtnPanel import ApplyResetButtonPanel
 
-from sys import exc_info
-import logging
 
+import logging.config
+from src.view.constants import LOG_SETTINGS
+
+
+logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
+####################################################################
 
 class UserPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):

@@ -7,6 +7,8 @@ from wx import TreeCtrl
 from src.view.preference.General import GeneralPreferencePanel
 from src.view.preference.PreferencePanel import PreferencePanel, AppearancePanel,\
     SearchPanel, WorkspacePanel, KeysPanel
+    
+from src.view.preference.PreferencesTree import PrefrencesTreePanel
 from src.view.preference.images import catalog
 # from src.view.images import WXPdemo
 import logging
@@ -68,33 +70,33 @@ class PrefrencesTree(ExpansionState, TreeCtrl):
 #         if USE_CUSTOMTREECTRL:
 #             self.SetSpacing(10)
 #             self.SetWindowStyle(self.GetWindowStyle() & ~wx.TR_LINES_AT_ROOT)
-
+ 
         self.SetInitialSize((100, 80))
-        
-            
+         
+             
     def AppendItem(self, parent, text, image=-1, wnd=None):
-
+ 
         item = TreeCtrl.AppendItem(self, parent, text, image=image)
         return item
-            
+             
     def BuildTreeImageList(self):
         imgList = wx.ImageList(16, 16)
-
+ 
         for png in _demoPngs:
             imgList.Add(catalog[png].GetBitmap())
-            
+             
         # add the image for modified demos.
         imgList.Add(catalog["custom"].GetBitmap())
-
+ 
         self.AssignImageList(imgList)
-
+ 
     def GetItemIdentity(self, item):
         return self.GetPyData(item)
-
+ 
     def Freeze(self):
         if 'wxMSW' in wx.PlatformInfo:
             return super(PrefrencesTree, self).Freeze()
-                         
+                          
     def Thaw(self):
         if 'wxMSW' in wx.PlatformInfo:
             return super(PrefrencesTree, self).Thaw()
@@ -152,34 +154,35 @@ class OpalPreference(wx.Frame):
         self.nb.AddPage(self.panel, "Preferences", imageId=0)
         # Create a TreeCtrl
         leftPanel = wx.Panel(pnl, style=wx.TAB_TRAVERSAL | wx.CLIP_CHILDREN)
-        self.treeMap = {}
+#         self.treeMap = {}
         self.searchItems = {}
-        self.tree = PrefrencesTree(leftPanel)
+#         PrefrencesTreePanel.__init__(self, leftPanel)
+        prefrencesTreePanel = PrefrencesTreePanel(leftPanel)
         
-        self.filter = wx.SearchCtrl(leftPanel, style=wx.TE_PROCESS_ENTER)
-        self.filter.SetDescriptiveText("Type filter search text")
-        self.filter.ShowCancelButton(True)
-        self.filter.Bind(wx.EVT_TEXT, self.RecreateTree)
-        self.filter.Bind(wx.EVT_SEARCHCTRL_CANCEL_BTN, lambda e: self.filter.SetValue(''))
-        self.filter.Bind(wx.EVT_TEXT_ENTER, self.OnSearch)
-        
-        searchMenu = wx.Menu()
-        item = searchMenu.AppendRadioItem(-1, "Sample Name")
-        self.Bind(wx.EVT_MENU, self.OnSearchMenu, item)
-        item = searchMenu.AppendRadioItem(-1, "Sample Content")
-        self.Bind(wx.EVT_MENU, self.OnSearchMenu, item)
-        self.filter.SetMenu(searchMenu)
-        self.RecreateTree()
-        
-#         self.tree.SetExpansionState(self.expansionState)
-        self.tree.Bind(wx.EVT_TREE_ITEM_EXPANDED, self.OnItemExpanded)
-        self.tree.Bind(wx.EVT_TREE_ITEM_COLLAPSED, self.OnItemCollapsed)
-        self.tree.Bind(wx.EVT_TREE_SEL_CHANGED, self.OnSelChanged)
-        self.tree.Bind(wx.EVT_LEFT_DOWN, self.OnTreeLeftDown)
+#         self.filter = wx.SearchCtrl(leftPanel, style=wx.TE_PROCESS_ENTER)
+#         self.filter.SetDescriptiveText("Type filter search text")
+#         self.filter.ShowCancelButton(True)
+#         self.filter.Bind(wx.EVT_TEXT, self.RecreateTree)
+#         self.filter.Bind(wx.EVT_SEARCHCTRL_CANCEL_BTN, lambda e: self.filter.SetValue(''))
+#         self.filter.Bind(wx.EVT_TEXT_ENTER, self.OnSearch)
+#         
+#         searchMenu = wx.Menu()
+#         item = searchMenu.AppendRadioItem(-1, "Sample Name")
+#         self.Bind(wx.EVT_MENU, self.OnSearchMenu, item)
+#         item = searchMenu.AppendRadioItem(-1, "Sample Content")
+#         self.Bind(wx.EVT_MENU, self.OnSearchMenu, item)
+#         self.filter.SetMenu(searchMenu)
+#         self.RecreateTree()
+#         
+# #         self.tree.SetExpansionState(self.expansionState)
+#         self.tree.Bind(wx.EVT_TREE_ITEM_EXPANDED, self.OnItemExpanded)
+#         self.tree.Bind(wx.EVT_TREE_ITEM_COLLAPSED, self.OnItemCollapsed)
+#         self.tree.Bind(wx.EVT_TREE_SEL_CHANGED, self.OnSelChanged)
+#         self.tree.Bind(wx.EVT_LEFT_DOWN, self.OnTreeLeftDown)
         # add the windows to the splitter and split it.
         leftBox = wx.BoxSizer(wx.VERTICAL)
-        leftBox.Add(self.filter, 0, wx.EXPAND | wx.ALL, 5)
-        leftBox.Add(self.tree, 1, wx.EXPAND)
+#         leftBox.Add(self.filter, 0, wx.EXPAND | wx.ALL, 5)
+        leftBox.Add(prefrencesTreePanel, 1, wx.EXPAND)
 #         leftBox.Add(wx.StaticText(leftPanel, label="Type filter search text:"), 0, wx.TOP | wx.LEFT, 5)
         if 'wxMac' in wx.PlatformInfo:
             leftBox.Add((5, 5))  # Make sure there is room for the focus ring
@@ -191,7 +194,7 @@ class OpalPreference(wx.Frame):
         rightBox.Add(self.buttonBar,  flag=wx.EXPAND | wx.ALIGN_RIGHT)
         rightPanel.SetSizer(rightBox)
         
-        self.tree.SelectItem(self.root)
+#         self.tree.SelectItem(self.root)
         # Use the aui manager to set up everything
         self.mgr.AddPane(rightPanel, aui.AuiPaneInfo().CenterPane().Name("Notebook"))
         self.mgr.AddPane(leftPanel,
