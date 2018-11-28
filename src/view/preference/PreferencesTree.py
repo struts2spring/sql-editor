@@ -6,10 +6,53 @@ from src.view.util.FileOperationsUtil import FileOperations
 import logging.config
 from src.view.constants import LOG_SETTINGS
 
-
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 ##################################################
+_treeList1 = [
+    ("General", [
+        "Appearance", [
+                ["Colors and Fonts"],
+                ["Label Decorations"]
+            ]
+        ],
+        ["Capabilities"],
+        ["Compare/Patch"],
+        ["Content Types"],
+        ["Editors", [
+            ["Autosave"],
+            ["File Associations"],
+            ["Structured Text Editors"],
+            ]
+        ],
+        ["Error Reporting"],
+        ["Globalization"],
+        ["Keys"],
+        ["Network Connections", [
+            ["Cache"],
+            ["SSH2"]
+            ]
+         ]
+    ),
+    ("Ant", [
+        "Editor", [
+                ["Colors and Fonts"],
+                ["Label Decorations"]
+            ]
+        ],
+        ["Runtime"],
+        
+    ),
+    ("Help", ["Content"]
+    ),
+    (
+     "Install/Update", [
+            ['Automatic Updates'],
+            ['Available plugins']
+        ]
+     )
+]
+
 _treeList = [
     # new stuff
     (
@@ -34,14 +77,6 @@ _treeList = [
         'Configure device',
         ]
      ),
-    (
-     'Install/Update', [
-        'Automatic Updates',
-        'Available plugins',
-        ]
-     ),
-
- 
 
 
     ('Check out the samples dir too', []),
@@ -50,6 +85,7 @@ _treeList = [
 
 
 class PrefrencesTreePanel(wx.Panel):
+
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
@@ -67,16 +103,14 @@ class PrefrencesTreePanel(wx.Panel):
         self.filter.Bind(wx.EVT_SEARCHCTRL_CANCEL_BTN, lambda e: self.filter.SetValue(''))
         self.filter.Bind(wx.EVT_TEXT_ENTER, self.OnSearch)
         
-        
         self.tree.Bind(wx.EVT_TREE_ITEM_EXPANDED, self.OnItemExpanded)
         self.tree.Bind(wx.EVT_TREE_ITEM_COLLAPSED, self.OnItemCollapsed)
         self.tree.Bind(wx.EVT_TREE_SEL_CHANGED, self.OnSelChanged)
         self.tree.Bind(wx.EVT_LEFT_DOWN, self.OnTreeLeftDown)
 #         self.tree.SelectItem(self.root)
         
-        
         searchMenu = wx.Menu()
-        item = searchMenu.AppendRadioItem(-1, "Sample Name")
+        item = searchMenu.AppendRadioItem(-1, "Full search")
         self.Bind(wx.EVT_MENU, self.OnSearchMenu, item)
         item = searchMenu.AppendRadioItem(-1, "Sample Content")
         self.Bind(wx.EVT_MENU, self.OnSearchMenu, item)
@@ -88,6 +122,7 @@ class PrefrencesTreePanel(wx.Panel):
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(vBox, 1, wx.EXPAND , 0)
         self.SetSizer(sizer)
+
     def OnSearchMenu(self, event):
 
         # Catch the search type (name or content)
@@ -98,6 +133,7 @@ class PrefrencesTreePanel(wx.Panel):
             self.OnSearch()
         else:
             self.RecreateTree()        
+
     def OnSearch(self, event=None):
 
         value = self.filter.GetValue()
@@ -115,6 +151,7 @@ class PrefrencesTreePanel(wx.Panel):
 
         wx.EndBusyCursor()
         self.RecreateTree()   
+
     #---------------------------------------------    
     def RecreateTree(self, evt=None):
         # Catch the search type (name or content)
@@ -163,6 +200,7 @@ class PrefrencesTreePanel(wx.Panel):
         count = 0
         
         for category, items in _treeList:
+            category, items
             count += 1
             if filter:
                 if fullSearch:
@@ -183,7 +221,6 @@ class PrefrencesTreePanel(wx.Panel):
                     self.treeMap[childItem] = theDemo
                     if current and (childItem, category) == current:
                         selectItem = theDemo
-                        
                     
         self.tree.Expand(self.root)
         if firstChild:
@@ -209,7 +246,7 @@ class PrefrencesTreePanel(wx.Panel):
     #---------------------------------------------
     def OnItemCollapsed(self, event):
         item = event.GetItem()
-        logger.debug("OnItemCollapsed: %s",self.tree.GetItemText(item))
+        logger.debug("OnItemCollapsed: %s", self.tree.GetItemText(item))
         event.Skip()
 
     #---------------------------------------------
@@ -231,17 +268,18 @@ class PrefrencesTreePanel(wx.Panel):
         item = event.GetItem()
         itemText = self.tree.GetItemText(item)
         logger.debug(itemText)
+
+
 #         self.UpdateNotebook(preferenceName=itemText)
 class PrefrencesBaseTreePanel(ExpansionState, TreeCtrl):
     '''
     Left navigation tree in preferences page
     '''
+
     def __init__(self, parent):
          
         TreeCtrl.__init__(self, parent, style=wx.TR_DEFAULT_STYLE | 
-                               wx.TR_HAS_VARIABLE_ROW_HEIGHT|wx.BORDER_NONE)
-
-        
+                               wx.TR_HAS_VARIABLE_ROW_HEIGHT | wx.BORDER_NONE)
         
         self._il = None
         self.BuildTreeImageList()
@@ -251,9 +289,6 @@ class PrefrencesBaseTreePanel(ExpansionState, TreeCtrl):
 #             self.SetWindowStyle(self.GetWindowStyle() & ~wx.TR_LINES_AT_ROOT)
 
         self.SetInitialSize((100, 80))
-        
-        
-
             
     def AppendItem(self, parent, text, image=-1, wnd=None):
 
@@ -279,7 +314,7 @@ class PrefrencesBaseTreePanel(ExpansionState, TreeCtrl):
         self.ImageList.RemoveAll()
         self.iconsDictIndex = {}
         count = 0
-        self.fileOperations=FileOperations()
+        self.fileOperations = FileOperations()
         for imageName in ['fileType_filter.png', 'folder.png', 'folder_view.png', 'harddisk.png', 'usb.png', 'stop.png',
                           'java.png', 'python_module.png', 'xml.png']:
             self.ImageList.Add(self.fileOperations.getImageBitmap(imageName=imageName))
@@ -287,7 +322,7 @@ class PrefrencesBaseTreePanel(ExpansionState, TreeCtrl):
             count += 1
 
     def GetItemIdentity(self, item):
-        return self.GetPyData(item)
+        return self.GetItemData(item)
 
     def Freeze(self):
         if 'wxMSW' in wx.PlatformInfo:
