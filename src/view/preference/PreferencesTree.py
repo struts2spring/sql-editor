@@ -44,14 +44,58 @@ _treeList1 = [
         ("Runtime")
         ]
     ),
-    ("Help", [("Content")]
+    ("Cloud Foundry",[
+        ("HTTP Tracing")
+        ]
+    ),("Code Recommenders",[
+        ("Advisors"),
+        ("Completions",[
+            ("Calls"),
+            ("Chains"),
+            ("Constructors"),
+            ("Overrides"),
+            ("Statics"),
+            ("Subwords"),
+            ]),
+        ("Models"),
+        ]
     ),
+    ("Data Management",[
+        ("Connectivity",[
+            ("Database Connection Profile"),
+            ("Driver Definitions"),
+            ("Open Data Access",[
+                ("XML Data Set")
+                ]),
+            ]),
+        ("Label Decorations"),
+        ("SQL Development",[
+            ("Execution Plan View Options"),
+            ("General"),
+            ("Schema Object Editor Configuration"),
+            ("SQL Editor",[
+                ("Code Assist"),
+                ("SQL Files/Scrapbooks"),
+                ("Syntax Coloring"),
+                ("Templates"),
+                ]),
+            ]),
+        ]
+    ),
+    ("Gradle"),
+    ("Help", [("Content")]),
     (
      "Install/Update", [
             ('Automatic Updates'),
             ('Available plugins')
         ]
-     )
+     ),
+    ("Java"),
+    ("Java EE"),
+    ("Java Persistence"),
+    ("JavaScript"),
+    ("JSON"),
+    ("Maven"),
 ]
 
 _treeList = [
@@ -176,7 +220,7 @@ class PrefrencesTreePanel(wx.Panel):
         self.tree.Freeze()
         self.tree.DeleteAllItems()
         self.root = self.tree.AddRoot("Preferences")
-        self.tree.SetItemImage(self.root, 0)
+        self.tree.SetItemImage(self.root, self.tree.iconsDictIndex['preference.png'])
         self.tree.SetItemData(self.root, 0)
 
         treeFont = self.tree.GetFont()
@@ -206,10 +250,10 @@ class PrefrencesTreePanel(wx.Panel):
                 image = 1
                 if isinstance(items, tuple):
                     itemText = items[0]
-                    image = 1
+                    image = self.tree.iconsDictIndex['folder.png']
                 else:
                     itemText = items
-                    image = 0
+                    image = self.tree.iconsDictIndex['fileType_filter.png']
                 
                 child = self.tree.AppendItem(parent, itemText, image=image)
 #                 self.tree.SetItemFont(child, catFont)
@@ -345,12 +389,16 @@ class PrefrencesTreePanel(wx.Panel):
     def OnItemExpanded(self, event):
         item = event.GetItem()
         logger.debug("OnItemExpanded: %s" , self.tree.GetItemText(item))
+        if self.tree.GetItemParent(item):
+            self.tree.SetItemImage(item, self.tree.iconsDictIndex['folder_view.png'])
         event.Skip()
 
     #---------------------------------------------
     def OnItemCollapsed(self, event):
         item = event.GetItem()
         logger.debug("OnItemCollapsed: %s", self.tree.GetItemText(item))
+        if self.tree.GetItemParent(item):
+            self.tree.SetItemImage(item, self.tree.iconsDictIndex['folder.png'])
         event.Skip()
 
     #---------------------------------------------
@@ -419,7 +467,7 @@ class PrefrencesBaseTreePanel(ExpansionState, TreeCtrl):
         self.iconsDictIndex = {}
         count = 0
         self.fileOperations = FileOperations()
-        for imageName in ['fileType_filter.png', 'folder.png', 'folder_view.png', 'harddisk.png', 'usb.png', 'stop.png',
+        for imageName in ['preference.png', 'folder.png', 'folder_view.png', 'fileType_filter.png', 'usb.png', 'stop.png',
                           'java.png', 'python_module.png', 'xml.png']:
             self.ImageList.Add(self.fileOperations.getImageBitmap(imageName=imageName))
             self.iconsDictIndex[imageName] = count
