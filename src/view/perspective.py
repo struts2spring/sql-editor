@@ -57,11 +57,20 @@ class PerspectiveManager(object):
         # add a bunch of panes
 #         self._mgr.AddPane(self.CreateSizeReportCtrl(), wx.aui.AuiPaneInfo().Name("test1").Caption("Pane Caption").Top().CloseButton(True).MaximizeButton(True))
                 # add the toolbars to the manager
-
+        
+#         topToolBar = wx.BoxSizer(wx.HORIZONTAL)
+#         topToolBar.Add(self.constructToolBar(),1,wx.ALIGN_LEFT,4) # note the 2nd param 'proportion' is 1
+#         #topToolBar.AddStretchSpacer()
+#         topToolBar.Add(self.constructToolBar(),0,wx.ALIGN_RIGHT,4)
+        
         self._mgr.AddPane(self.constructToolBar(), aui.AuiPaneInfo().
                           Name("tb1").Caption("Big Toolbar").
                           ToolbarPane().Top().CloseButton(True).
                           LeftDockable(False).RightDockable(False).Gripper(True))    
+        self._mgr.AddPane(self.constructToolBar(), aui.AuiPaneInfo().
+                          Name("tb2").Caption("Big Toolbar").
+                          ToolbarPane().Top().CloseButton(True).
+                          LeftDockable(False).RightDockable(False).Gripper(True), arg2=wx.Point(1500,0))    
         
         self._mgr.AddPane(self.creatingTreeCtrl(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="folder_database.png")).
                           Name("databaseNaviagor").Caption("Database Navigator").Dockable(True).Movable(True).MinSize(wx.Size(300, 100)).
@@ -88,6 +97,7 @@ class PerspectiveManager(object):
                           Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True))
             
         self._mgr.GetPane("tb1").Show()
+        self._mgr.GetPane("tb2").Show()
         self.perspective_default = self._mgr.SavePerspective()
         perspective_all = self._mgr.SavePerspective()
         all_panes = self._mgr.GetAllPanes()
@@ -96,15 +106,24 @@ class PerspectiveManager(object):
         
     def constructToolBar(self):
         # create some toolbars
-        tb1 = aui.AuiToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize, agwStyle=aui.AUI_TB_DEFAULT_STYLE | aui.AUI_TB_OVERFLOW)
+        tb1 = aui.AuiToolBar(self, -1, wx.Point(500,0), wx.DefaultSize, agwStyle=aui.AUI_TB_DEFAULT_STYLE | aui.AUI_TB_OVERFLOW)
         
         tb1.SetToolBitmapSize(wx.Size(42, 42))
         tb1.AddSimpleTool(tool_id=ID_newConnection, label="New Connection", bitmap=wx.Bitmap(self.fileOperations.getImageBitmap(imageName="connect.png")), short_help_string='Create a new connection')
         tb1.AddSeparator()
         
-        tb1.AddSimpleTool(ID_openConnection, "Open Connection", wx.Bitmap(self.fileOperations.getImageBitmap(imageName="database_connect.png")), short_help_string='Open Connection')
-        tb1.AddSimpleTool(ID_newWorksheet, "Script", wx.Bitmap(self.fileOperations.getImageBitmap(imageName="script.png")), short_help_string='Open a new script worksheet')
-        tb1.AddSimpleTool(wx.ID_PREFERENCES, "Preferences", wx.Bitmap(self.fileOperations.getImageBitmap(imageName="preference.png")), short_help_string='Preference')
+#         :TODO:FIX
+        tools=[
+            (ID_openConnection, "Open Connection", "database_connect.png", 'Open Connection'),
+            (ID_newWorksheet, "Script", "script.png", 'Open a new script worksheet'),
+            (wx.ID_PREFERENCES, "Preferences", "preference.png", 'Preference'),
+            ]
+        for tool in tools:
+            tb1.AddSimpleTool(tool[0], tool[1],self.fileOperations.getImageBitmap(imageName=tool[2]), short_help_string=tool[3])
+            
+#         tb1.AddSimpleTool(ID_openConnection, "Open Connection", wx.Bitmap(self.fileOperations.getImageBitmap(imageName="database_connect.png")), short_help_string='Open Connection')
+#         tb1.AddSimpleTool(ID_newWorksheet, "Script", wx.Bitmap(self.fileOperations.getImageBitmap(imageName="script.png")), short_help_string='Open a new script worksheet')
+#         tb1.AddSimpleTool(wx.ID_PREFERENCES, "Preferences", wx.Bitmap(self.fileOperations.getImageBitmap(imageName="preference.png")), short_help_string='Preference')
 #         tb1.DoGetBestSize()
         ###################################################################################################
         args = {}
