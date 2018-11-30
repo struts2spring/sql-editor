@@ -47,7 +47,7 @@ class PerspectiveManager(object):
         self._mgr.SetManagedWindow(self)
         # set up default notebook style
         self._notebook_style = aui.AUI_NB_DEFAULT_STYLE | aui.AUI_NB_TAB_EXTERNAL_MOVE | wx.NO_BORDER
-        self._notebook_theme = 0      
+        self._notebook_theme = 1      
         # min size for the frame itself isn't completely done.
         # see the end up AuiManager.Update() for the test
         # code. For now, just hard code a frame minimum size

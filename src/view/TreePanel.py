@@ -354,7 +354,8 @@ class CreatingTreePanel(wx.Panel):
             self.Bind(wx.EVT_MENU, self.onRootRefresh, rootRefresh)
             self.Bind(wx.EVT_MENU, self.onRootNewConnection, rootNewConnection)
         elif rightClickDepth == 1:
-            if self.tree.GetItemText(self.tree.GetSelection()) in self.connDict:
+            if data['connection_name'] in self.connDict and \
+                self.connDict[data['connection_name']]['isConnected']:
                 item1 = menu.Append(ID_DISCONNECT_DB, "Disconnect")
                 self.Bind(wx.EVT_MENU, self.onDisconnectDb, item1)
             else:
@@ -590,10 +591,6 @@ class CreatingTreePanel(wx.Panel):
 #         item = self.tree.GetSelection() 
         try:
             if self.tree.GetItemText(self.tree.GetSelection()) not in self.connDict.keys():
-                self.connDict[self.tree.GetItemText(self.tree.GetSelection())] = {
-                    'isConnected':True,
-                    'data':self.tree.GetItemData(self.tree.GetSelection())
-                    }
                 selectedItemId = self.tree.GetSelection()
                 if self.getNodeOnOpenConnection(selectedItemId=selectedItemId):
         #         self.addNode(targetNode=, nodeLabel='got conncted',pydata=data, image=16)
@@ -601,6 +598,10 @@ class CreatingTreePanel(wx.Panel):
                         selectedItemText = self.tree.GetItemText(self.tree.GetSelection())
                         self.setAutoCompleteText(selectedItemText)
                         self.openWorksheet(sheetName="Worksheet")
+                self.connDict[self.tree.GetItemText(self.tree.GetSelection())] = {
+                    'isConnected':True,
+                    'data':self.tree.GetItemData(self.tree.GetSelection())
+                    }
         except Exception as e:
             logger.error(e, exc_info=True)
     
@@ -830,6 +831,7 @@ class CreatingTreePanel(wx.Panel):
             self.GetTopLevelParent().statusbar.SetFont(font) 
             self.GetTopLevelParent().statusbar.SetForegroundColour(wx.RED) 
             self.GetTopLevelParent().statusbar.SetStatusText(updateStatus, 1)
+            logger.error(updateStatus)
             
         return isSuccessfullyConnected
 
