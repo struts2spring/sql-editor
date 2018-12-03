@@ -39,9 +39,9 @@ class CreatingGoToLinePanel(wx.Dialog):
 #         label.SetHelpText("This is the help text for the label")
 #         box.Add(label, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
 
-        text = wx.TextCtrl(self, -1, "", size=(80,-1))
-        text.SetHelpText("Here's some help text for field #1")
-        box.Add(text, 1, wx.ALIGN_CENTRE|wx.ALL, 10)
+        self.lineNumberText = wx.TextCtrl(self, -1, "", size=(80,-1))
+        self.lineNumberText.SetHelpText("Here's some help text for field #1")
+        box.Add(self.lineNumberText, 1, wx.ALIGN_CENTRE|wx.ALL, 10)
 
         sizer.Add(box, 0, wx.EXPAND|wx.ALL, 5)
 

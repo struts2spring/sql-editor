@@ -6,9 +6,9 @@ with open("README.md", "r") as fh:
 
 
 def get_version():
-    with open(os.path.join('src', '__init__.py')) as f:
+    with open(os.path.join('src','view', 'constants.py')) as f:
         for line in f:
-            if line.strip().startswith('__version__'):
+            if line.strip().startswith('VERSION'):
                 return eval(line.split('=')[-1])
 
 

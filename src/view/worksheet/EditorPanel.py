@@ -335,7 +335,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 lineNumber = dlg.lineNumberText.GetValue()
                 logger.debug("You pressed OK %s", lineNumber)
                 if lineNumber != '':
-                    self.GotoLine(int(lineNumber))
+                    self.GotoLine(int(lineNumber)-1)
                 
             else:
                 logger.debug("You pressed Cancel\n")
