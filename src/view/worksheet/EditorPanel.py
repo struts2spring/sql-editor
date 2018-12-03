@@ -323,8 +323,8 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 
         elif event.ControlDown() and  key == 76:
             logger.debug('ctrl+L %s', self.GetSelectedText())
-            dlg = CreatingGoToLinePanel(self, -1, "Go to Line", size=(350, 200),
-                 style=wx.DEFAULT_DIALOG_STYLE,
+            dlg = CreatingGoToLinePanel(self, -1, title="Go to Line", size=(485, 192),
+                 style=wx.DEFAULT_DIALOG_STYLE, numberOfLines=self.LineCount
                  )
             dlg.CenterOnScreen()
             

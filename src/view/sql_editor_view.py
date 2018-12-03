@@ -115,9 +115,22 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
         menuItemList = [
             ("&File", [
                     [wx.ID_OPEN, 'Open Database connection \tCtrl+O', None, None],
+                    [wx.NewIdRef(), 'Recent Files', None, None],
+                    [wx.NewIdRef(), 'Refresh \tF5', None, "refresh.png"],
                     [],
+                    [wx.NewIdRef(), 'Close \tCtrl+W', None, None],
+                    [wx.NewIdRef(), 'Close All \tCtrl+Shift+W', None, None],
+                    [],
+                    [wx.NewIdRef(), 'Save \tCtrl+S', None, None],
+                    [wx.NewIdRef(), 'Save As...', None, None],
+                    [wx.NewIdRef(), 'Save All \tCtrl+Shift+S', None, None],
+                    [],
+                    [wx.NewIdRef(), 'Recent Files', None, None],
                     [wx.NewIdRef(), 'Import', None, "import_prj.png"],
                     [wx.NewIdRef(), 'Export', None, "export.png"],
+                    [],
+                    [wx.NewIdRef(), 'Print', None, "print.png"],
+                    [],
                     [ wx.ID_EXIT, '&Quit \tCtrl+Q', None, None],
                 ]) ,
             ("&Edit", [
@@ -137,11 +150,19 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
                 ]),
             ("&Navigate", [
                     [wx.NewIdRef(), 'Open Type', None, None],
-                    [wx.NewIdRef(), 'Open Task', None, None]
+                    [wx.NewIdRef(), 'Open Task', None, None],
+                    [wx.NewIdRef(), 'Go to Line... \tCtrl+L', None, None]
                 ]),
             ("&Project", [
                     [wx.NewIdRef(), 'Open Project', None, None],
-                    [wx.NewIdRef(), 'Close Project', None, None]
+                    [wx.NewIdRef(), 'Close Project', None, None],
+                    [],
+                    [wx.NewIdRef(), 'Build All \tCtrl+B', None, None],
+                    [wx.NewIdRef(), 'Build Project', None, None],
+                    [wx.NewIdRef(), 'Clean', None, None],
+                    [wx.NewIdRef(), 'Build Automatically', None, None],
+                    [],
+                    [wx.NewIdRef(), 'Properties', None, None],
                 ]),
             ("&Run", [
                     [wx.NewIdRef(), 'Run \tCtrl+F11', None, "runlast_co.png"],
@@ -184,7 +205,7 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
                     [wx.ID_PREFERENCES, "&Preferences", None, "preference.png" ]
                 ]),
             ("&Help", [
-                    [ ID_UPDATE_CHECK, "Check for &Updates", None, "object_refresh.png"],
+                    [ ID_UPDATE_CHECK, "Check for &Updates", None, "iu_update_obj.png"],
                     [ wx.NewIdRef(), "Tip of the day", None, "smartmode_co.png"],
                     [],
                     [ wx.ID_HELP, "&About {}".format(TITLE), None, None],
