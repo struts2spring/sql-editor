@@ -114,7 +114,7 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
 
         menuItemList = [
             ("&File", [
-                    [wx.ID_OPEN, 'Open Database connection \tCtrl+O', None, None],
+                    [ID_openConnection, 'Open Database connection \tCtrl+O', None, None],
                     [wx.NewIdRef(), 'Recent Files', None, None],
                     [wx.NewIdRef(), 'Refresh \tF5', None, "refresh.png"],
                     [],
@@ -173,18 +173,20 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
                 ]),
             ("&Window", [
                     [ID_APPEARANCE, 'Appearance', [
-                                                [ID_HIDE_TOOLBAR, 'Hide Toolbar', None, None],
+                                                [ID_HIDE_TOOLBAR, 'Hide Toolbar', "toolbar.png", None],
                                                 [ID_HIDE_STATUSBAR, 'Hide Status Bar', None, None]
                                             ], None
                     ],
                     [],
                     [ID_SHOW_VIEW, "Show &View", [
-                                                [ID_SHOW_VIEW_TOOLBAR, 'View Toolbar', "script.png", None ],
-                                                [ID_PERSPECTIVE_TOOLBAR, 'Perspective Toolbar', "script.png", None ],
+                                                [ID_SHOW_VIEW_TOOLBAR, 'View Toolbar', "toolbar.png", None ],
+                                                [ID_PERSPECTIVE_TOOLBAR, 'Perspective Toolbar', "toolbar.png", None ],
                                                 [],
                                                 [ID_SQL_EXECUTION, 'SQL Execution', "script.png", None ],
                                                 [ID_SQL_LOG, 'SQL Log', "sql.png" , None],
-                                                [ID_CONSOLE_LOG, 'Console', "console_view.png", None ]
+                                                [ID_CONSOLE_LOG, 'Console', "console_view.png", None ],
+                                                [],
+                                                [wx.NewIdRef(), 'Other', None, None ]
                                             ], None
                     ],
                     [ID_PROSPECTIVE_NAVIGATION, "Perspective", [

@@ -48,7 +48,7 @@ class OpenExistingConnectionFrame(wx.Dialog):
 class CreateOpenConnectionPanel(wx.Panel):
     
     def __init__(self, parent, *args, **kw):
-        wx.Panel.__init__(self, parent, -1, style=wx.WANTS_CHARS | wx.SUNKEN_BORDER)
+        wx.Panel.__init__(self, parent, -1, style=wx.WANTS_CHARS |  wx.BORDER_NONE)
         self.parent = parent
         vBox = wx.BoxSizer(wx.VERTICAL)  
         
@@ -136,7 +136,7 @@ class CreateButtonPanel(wx.Panel):
         hbox.Add(okButton)    
         hbox.Add(cancelButton)    
 #         sizer.Add(cancelButton, 0, wx.ALIGN_RIGHT | wx.RIGHT | wx.BOTTOM)
-        sizer.Add(hbox, 0, wx.ALIGN_RIGHT | wx.RIGHT | wx.BOTTOM)
+        sizer.Add(hbox, 0, wx.ALIGN_RIGHT | wx.RIGHT | wx.BOTTOM, 5)
 #         sizer.Add(vBox, 1, wx.EXPAND , 0)
         self.SetAutoLayout(True)
         self.SetSizer(sizer)
