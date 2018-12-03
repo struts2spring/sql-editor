@@ -64,11 +64,11 @@ class PerspectiveManager(object):
 #         topToolBar.Add(self.constructToolBar(),0,wx.ALIGN_RIGHT,4)
         
         self._mgr.AddPane(self.constructToolBar(), aui.AuiPaneInfo().
-                          Name("tb1").Caption("Big Toolbar").
+                          Name("viewToolbar").Caption("View Toolbar").
                           ToolbarPane().Top().CloseButton(True).
                           LeftDockable(False).RightDockable(False).Gripper(True))    
         self._mgr.AddPane(self.constructToolBar(), aui.AuiPaneInfo().
-                          Name("tb2").Caption("Big Toolbar").
+                          Name("perspectiveToolbar").Caption("Perspective Toolbar").
                           ToolbarPane().Top().CloseButton(True).
                           LeftDockable(False).RightDockable(False).Gripper(True), arg2=wx.Point(1500,0))    
         
@@ -96,8 +96,8 @@ class PerspectiveManager(object):
                           Name("sqlLog").Caption("SQL Log").Dockable(True).BestSize(wx.Size(200, 200)).
                           Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True))
             
-        self._mgr.GetPane("tb1").Show()
-        self._mgr.GetPane("tb2").Show()
+        self._mgr.GetPane("viewToolbar").Show()
+        self._mgr.GetPane("perspectiveToolbar").Show()
         self.perspective_default = self._mgr.SavePerspective()
         perspective_all = self._mgr.SavePerspective()
         all_panes = self._mgr.GetAllPanes()

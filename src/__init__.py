@@ -1,1 +1,2 @@
-__version__='0.0.4'
+from src.view.constants import VERSION
+__version__= VERSION

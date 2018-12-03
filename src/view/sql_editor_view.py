@@ -10,7 +10,7 @@ from src.view.connection.NewConnectionWizard import CreateNewConncetionWixard
 from src.view.constants import ID_openConnection, ID_newWorksheet, ID_newConnection, \
     ID_SQL_EXECUTION, ID_SQL_LOG, ID_UPDATE_CHECK, TITLE, VERSION, \
     ID_HIDE_TOOLBAR, ID_APPEARANCE, ID_SEARCH_FILE, ID_CONSOLE_LOG, ID_SHOW_VIEW, \
-    ID_PROSPECTIVE_NAVIGATION
+    ID_PROSPECTIVE_NAVIGATION, ID_SHOW_VIEW_TOOLBAR, ID_PERSPECTIVE_TOOLBAR
 
 from src.view.openConnection.OpenExistingConnection import OpenExistingConnectionFrame
 from src.view.preference.Preferences import OpalPreference
@@ -157,6 +157,9 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
                     ],
                     [],
                     [ID_SHOW_VIEW, "Show &View", [
+                                                [ID_SHOW_VIEW_TOOLBAR, 'View Toolbar', "script.png", None ],
+                                                [ID_PERSPECTIVE_TOOLBAR, 'Perspective Toolbar', "script.png", None ],
+                                                [],
                                                 [ID_SQL_EXECUTION, 'SQL Execution', "script.png", None ],
                                                 [ID_SQL_LOG, 'SQL Log', "sql.png" , None],
                                                 [ID_CONSOLE_LOG, 'Console', "console_view.png", None ]
@@ -251,6 +254,8 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
         self.Bind(wx.EVT_MENU, self.onSqlLog, id=ID_SQL_LOG)
         self.Bind(wx.EVT_MENU, self.onConsole, id=ID_CONSOLE_LOG)
         self.Bind(wx.EVT_MENU, self.onSqlExecution, id=ID_SQL_EXECUTION)
+        self.Bind(wx.EVT_MENU, self.onShowViewToolbar, id=ID_SHOW_VIEW_TOOLBAR)
+        self.Bind(wx.EVT_MENU, self.onPerspectiveToolbar, id=ID_PERSPECTIVE_TOOLBAR)
     
     def OnClose(self, event):
 #         self._mgr.UnInit()
@@ -300,6 +305,14 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
         logger.debug('onPreferences')
         frame1 = OpalPreference(None, "Preferences")
         
+    def onShowViewToolbar(self, event):
+        logger.debug('onShowViewToolbar')
+        sqlLogTab = self.GetTopLevelParent()._mgr.GetPane("viewToolbar").Show()
+        self.GetTopLevelParent()._mgr.Update()
+    def onPerspectiveToolbar(self, event):
+        logger.debug('onPerspectiveToolbar')
+        sqlLogTab = self.GetTopLevelParent()._mgr.GetPane("perspectiveToolbar").Show()
+        self.GetTopLevelParent()._mgr.Update()
     def onSqlLog(self, event):
         logger.debug('onSqlLog')
         sqlLogTab = self.GetTopLevelParent()._mgr.GetPane("sqlLog").Show()
@@ -320,8 +333,10 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
         plate = platform.platform()
 #         msg=u"\u00A9"
         msg = u"""{} 
+        
 Version : {} Release 
 Build : 0.1 Release 
+
 An advanced Database tool for developers, DBAs and analysts.
 This product includes software developed by other open source projects.
 \u00A9 BSD

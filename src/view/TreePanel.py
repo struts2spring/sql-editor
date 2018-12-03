@@ -565,15 +565,17 @@ class CreatingTreePanel(wx.Panel):
                     try:
                         db.executeText(alterTableSql)
                     except Exception as e:
-                        now = datetime.datetime.now()
-                        strftime = now.strftime("%Y-%m-%d %H:%M:%S")
-                        newline = "\n"
-                        if self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.Value.strip() == "":
-                            newline = ""
-                        self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.AppendText("{}{} {}".format(newline, strftime, e))
+                        self.consoleOutputLog(e)
             self.recreateTree(event)
         dlg.Destroy()
         
+    def consoleOutputLog(self, exception=None):
+        now = datetime.datetime.now()
+        strftime = now.strftime("%Y-%m-%d %H:%M:%S")
+        newline = "\n"
+        if self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.Value.strip() == "":
+            newline = ""
+        self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.AppendText("{}{} {}".format(newline, strftime, exception))
     def onEditTable(self, event):
         logger.debug('onEditTable')
 
@@ -611,7 +613,7 @@ class CreatingTreePanel(wx.Panel):
         '''
         logger.debug(selectedItemText)
         if hasattr(self.GetTopLevelParent(), '_mgr'):
-            tb1 = self.GetTopLevelParent()._mgr.GetPane("tb1").window
+            tb1 = self.GetTopLevelParent()._mgr.GetPane("viewToolbar").window
             choice = self.GetTopLevelParent()._ctrl.GetChoices()
             textCtrl = self.GetTopLevelParent()._ctrl
             textCtrl.SetValue(selectedItemText)
@@ -822,10 +824,9 @@ class CreatingTreePanel(wx.Panel):
                                                 image = 18
                                                 break
                                     child2 = self.addNode(targetNode=child1_1, nodeLabel=nodeLabel, pydata=data, image=image) 
-#                                     logger.debug(v2)
         else:
             updateStatus = "Unable to connect '" + databaseAbsolutePath + ".' No such file. "
-            self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.AppendText("\n" + updateStatus)
+            self.consoleOutputLog(updateStatus)
             font = self.GetTopLevelParent().statusbar.GetFont() 
             font.SetWeight(wx.BOLD) 
             self.GetTopLevelParent().statusbar.SetFont(font) 

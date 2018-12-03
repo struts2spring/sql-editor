@@ -3,7 +3,7 @@ import tempfile
 import os
 
 TITLE = "SQL Editor"
-VERSION = "0.0.1"
+VERSION = "0.0.5"
 
 ID_UPDATE_CHECK = wx.NewIdRef()
 ID_newConnection = wx.NewIdRef()
@@ -31,7 +31,8 @@ ID_CONNECT_DB = wx.NewIdRef()
 ID_DISCONNECT_DB = wx.NewIdRef()
 ID_ROOT_REFERESH = wx.NewIdRef()
 ID_ROOT_NEW_CONNECTION = wx.NewIdRef()
-
+ID_SHOW_VIEW_TOOLBAR = wx.NewIdRef()
+ID_PERSPECTIVE_TOOLBAR = wx.NewIdRef()
 
 # Prospective menu menu
 ID_PROSPECTIVE_NAVIGATION=wx.NewIdRef()
