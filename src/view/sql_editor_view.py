@@ -310,7 +310,20 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
         
     def onHideToolbar(self, event):
         logger.debug('onHideStatusbar')
-        sqlLogTab = self.GetTopLevelParent()._mgr.GetPane("viewToolbar").Show()
+        if self.GetTopLevelParent()._mgr.GetPane("viewToolbar").IsShown():
+            for menuItem in event.GetEventObject().GetMenuItems():
+                if menuItem.GetItemLabel()=='Hide Toolbar':
+                    menuItem.SetItemLabel('Show Toolbar')
+                    menuItem.SetText('Show Toolbar')
+            self.GetTopLevelParent()._mgr.GetPane("viewToolbar").Hide()
+            self.GetTopLevelParent()._mgr.GetPane("perspectiveToolbar").Hide()
+        else:
+            for menuItem in event.GetEventObject().GetMenuItems():
+                if menuItem.GetItemLabel()=='Show Toolbar':
+                    menuItem.SetItemLabel('Hide Toolbar')
+                    menuItem.SetText('Hide Toolbar')
+            sqlLogTab = self.GetTopLevelParent()._mgr.GetPane("viewToolbar").Show()
+            sqlLogTab = self.GetTopLevelParent()._mgr.GetPane("perspectiveToolbar").Show()
         self.GetTopLevelParent()._mgr.Update()
     def onHideStatusbar(self, event):
         logger.debug('onHideStatusbar')
