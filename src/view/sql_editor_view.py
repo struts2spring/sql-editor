@@ -10,7 +10,8 @@ from src.view.connection.NewConnectionWizard import CreateNewConncetionWixard
 from src.view.constants import ID_openConnection, ID_newWorksheet, ID_newConnection, \
     ID_SQL_EXECUTION, ID_SQL_LOG, ID_UPDATE_CHECK, TITLE, VERSION, \
     ID_HIDE_TOOLBAR, ID_APPEARANCE, ID_SEARCH_FILE, ID_CONSOLE_LOG, ID_SHOW_VIEW, \
-    ID_PROSPECTIVE_NAVIGATION, ID_SHOW_VIEW_TOOLBAR, ID_PERSPECTIVE_TOOLBAR
+    ID_PROSPECTIVE_NAVIGATION, ID_SHOW_VIEW_TOOLBAR, ID_PERSPECTIVE_TOOLBAR,\
+    ID_HIDE_STATUSBAR
 
 from src.view.openConnection.OpenExistingConnection import OpenExistingConnectionFrame
 from src.view.preference.Preferences import OpalPreference
@@ -152,7 +153,7 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
             ("&Window", [
                     [ID_APPEARANCE, 'Appearance', [
                                                 [ID_HIDE_TOOLBAR, 'Hide Toolbar', None, None],
-                                                [ID_HIDE_TOOLBAR, 'Hide Status Bar', None, None]
+                                                [ID_HIDE_STATUSBAR, 'Hide Status Bar', None, None]
                                             ], None
                     ],
                     [],
@@ -256,6 +257,8 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
         self.Bind(wx.EVT_MENU, self.onSqlExecution, id=ID_SQL_EXECUTION)
         self.Bind(wx.EVT_MENU, self.onShowViewToolbar, id=ID_SHOW_VIEW_TOOLBAR)
         self.Bind(wx.EVT_MENU, self.onPerspectiveToolbar, id=ID_PERSPECTIVE_TOOLBAR)
+        self.Bind(wx.EVT_MENU, self.onHideToolbar, id=ID_HIDE_TOOLBAR)
+        self.Bind(wx.EVT_MENU, self.onHideStatusbar, id=ID_HIDE_STATUSBAR)
     
     def OnClose(self, event):
 #         self._mgr.UnInit()
@@ -305,6 +308,27 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
         logger.debug('onPreferences')
         frame1 = OpalPreference(None, "Preferences")
         
+    def onHideToolbar(self, event):
+        logger.debug('onHideStatusbar')
+        sqlLogTab = self.GetTopLevelParent()._mgr.GetPane("viewToolbar").Show()
+        self.GetTopLevelParent()._mgr.Update()
+    def onHideStatusbar(self, event):
+        logger.debug('onHideStatusbar')
+        frameSize=self.GetSize()
+        if self.statusbar.IsShown():
+            for menuItem in event.GetEventObject().GetMenuItems():
+                if menuItem.GetItemLabel()=='Hide Status Bar':
+                    menuItem.SetItemLabel('Show Status Bar')
+                    menuItem.SetText('Show Status Bar')
+            self.statusbar.Hide()
+        else:
+            for menuItem in event.GetEventObject().GetMenuItems():
+                if menuItem.GetItemLabel()=='Show Status Bar':
+                    menuItem.SetItemLabel('Hide Status Bar')
+                    menuItem.SetText('Hide Status Bar')
+            self.statusbar.Show()
+        self.SetSize(frameSize)
+        self._mgr.Update()
     def onShowViewToolbar(self, event):
         logger.debug('onShowViewToolbar')
         sqlLogTab = self.GetTopLevelParent()._mgr.GetPane("viewToolbar").Show()
