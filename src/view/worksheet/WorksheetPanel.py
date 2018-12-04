@@ -60,9 +60,9 @@ class CreateWorksheetTabPanel(wx.Panel):
             worksheetPanel=WelcomePanel(self._nb)
         elif name.startswith('tableInfo_'):
             name=name.replace('tableInfo_','',1)
-            worksheetPanel= CreatingTableInfoPanel(self._nb, -1, style=wx.CLIP_CHILDREN, tableName=name)
+            worksheetPanel= CreatingTableInfoPanel(self._nb, -1, style=wx.CLIP_CHILDREN |wx.BORDER_NONE, tableName=name)
         elif name.startswith('Worksheet'):
-            worksheetPanel = CreatingWorksheetWithToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN)
+            worksheetPanel = CreatingWorksheetWithToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN|wx.BORDER_NONE)
 #             worksheetPanel.worksheetPanel.editorPanel
             name = 'Worksheet ' + str(len(self.GetPages(type(worksheetPanel))))
         self._nb.AddPage(worksheetPanel, name)

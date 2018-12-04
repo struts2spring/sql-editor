@@ -16,7 +16,8 @@ logger = logging.getLogger('extensive')
 
 class WelcomePanel(wx.Panel):
     def __init__(self, parent):
-        wx.Panel.__init__(self, parent)
+        wx.Panel.__init__(self, parent, style=wx.TR_DEFAULT_STYLE | 
+                               wx.TR_HAS_VARIABLE_ROW_HEIGHT | wx.BORDER_NONE)
         fileOperations=FileOperations()
         self.current = ""
         self.frame = self.GetTopLevelParent()

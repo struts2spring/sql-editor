@@ -844,7 +844,7 @@ class DatabaseNavigationTree(ExpansionState, TreeCtrl):
 
     def __init__(self, parent):
         TreeCtrl.__init__(self, parent, style=wx.TR_DEFAULT_STYLE | 
-                               wx.TR_HAS_VARIABLE_ROW_HEIGHT)
+                               wx.TR_HAS_VARIABLE_ROW_HEIGHT | wx.BORDER_NONE)
         self.BuildTreeImageList()
         
 #         if USE_CUSTOMTREECTRL:
