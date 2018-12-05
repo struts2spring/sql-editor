@@ -117,8 +117,8 @@ class MainPanel(wx.Panel):
 #---------------------------------------------------------------------------
 class OpalPreference(wx.Frame):
 
-    def __init__(self, parent, title):
-        wx.Frame.__init__(self, parent, -1, title, size=(970, 720),
+    def __init__(self, parent, title, size=(970, 720)):
+        wx.Frame.__init__(self, parent, -1, title, size=size,
                           style=wx.DEFAULT_FRAME_STYLE | wx.NO_FULL_REPAINT_ON_RESIZE)
         self.Center()
         self.Bind(wx.EVT_CLOSE, self.OnCloseFrame)
@@ -199,8 +199,8 @@ class OpalPreference(wx.Frame):
         self.mgr.AddPane(rightPanel, aui.AuiPaneInfo().CenterPane().Name("Notebook"))
         self.mgr.AddPane(leftPanel,
                          aui.AuiPaneInfo().
-                         Left().Layer(2).BestSize((240, -1)).MinSize((240, -1)).
-                         Floatable(self.allowAuiFloating).FloatingSize((240, 700)).
+                         Left().Layer(2).BestSize((180, -1)).MinSize((100, -1)).
+                         Floatable(self.allowAuiFloating).FloatingSize((100, 700)).
                          Caption("Preferences").
                          CloseButton(False).
                          Name("preferencesTree"))
@@ -426,5 +426,5 @@ class ButtonPanel(wx.Panel):
 
 if __name__ == '__main__':
     app = wx.App(0)
-    frame = OpalPreference(None, "Preferences")
+    frame = OpalPreference(None, "Preferences",  size=(600, 560))
     app.MainLoop()
