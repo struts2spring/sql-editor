@@ -188,7 +188,7 @@ class MyCellEditor(gridlib.PyGridCellEditor):
 class ResultDataGrid(gridlib.Grid):
 
     def __init__(self, parent, model=None, data=None):
-        gridlib.Grid.__init__(self, parent, -1)
+        gridlib.Grid.__init__(self, parent, -1,style=wx.BORDER_NONE)
 
         self.CreateGrid(0, 0)
         self.Bind(gridlib.EVT_GRID_CELL_RIGHT_CLICK, self.showGridCellPopupMenu)

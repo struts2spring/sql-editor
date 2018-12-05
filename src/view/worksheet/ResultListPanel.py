@@ -288,7 +288,7 @@ class ResultPanel(wx.Panel):
 #         sizer.Fit(self)
 class CreatingResultWithToolbarPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
-        wx.Panel.__init__(self, parent, id=-1)
+        wx.Panel.__init__(self, parent, id=-1, style=wx.CLIP_CHILDREN|wx.BORDER_NONE)
         self.parent = parent
         self.data=list()
         vBox = wx.BoxSizer(wx.VERTICAL)
@@ -401,7 +401,7 @@ class CreateResultSheetTabPanel(wx.Panel):
         self.__DoLayout()
         
     def addTab(self, name='Start Page'):
-        resultSheetPanel = CreatingResultWithToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN)
+        resultSheetPanel = CreatingResultWithToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN|wx.BORDER_NONE)
 #             worksheetPanel.worksheetPanel.editorPanel
         name='ResultSheet '
         self._nb.AddPage(resultSheetPanel, name)      

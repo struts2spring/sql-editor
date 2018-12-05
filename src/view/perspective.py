@@ -46,7 +46,7 @@ class PerspectiveManager(object):
         self._mgr = aui.AuiManager()
         self._mgr.SetManagedWindow(self)
         # set up default notebook style
-        self._notebook_style = aui.AUI_NB_DEFAULT_STYLE | aui.AUI_NB_TAB_EXTERNAL_MOVE | wx.NO_BORDER
+        self._notebook_style = aui.AUI_NB_DEFAULT_STYLE | aui.AUI_NB_TAB_EXTERNAL_MOVE | wx.NO_BORDER| wx.BORDER_NONE
         self._notebook_theme = 1      
         # min size for the frame itself isn't completely done.
         # see the end up AuiManager.Update() for the test
@@ -100,13 +100,26 @@ class PerspectiveManager(object):
         self._mgr.GetPane("perspectiveToolbar").Show()
         self.perspective_default = self._mgr.SavePerspective()
         perspective_all = self._mgr.SavePerspective()
+        self.setStyleToPanes()
         all_panes = self._mgr.GetAllPanes()
         # "commit" all changes made to FrameManager
         self._mgr.Update()  
         
+    
+    def setStyleToPanes(self):
+        all_panes = self._mgr.GetAllPanes()
+
+        for pane in all_panes:
+
+            if isinstance(pane.window, aui.AuiNotebook):
+                nb = pane.window       
+                nb.SetAGWWindowStyleFlag(self._notebook_style) 
+                nb.SetArtProvider(aui.ChromeTabArt())
+                nb.Refresh()
+                nb.Update()
     def constructToolBar(self):
         # create some toolbars
-        tb1 = aui.AuiToolBar(self, -1, wx.Point(500,0), wx.DefaultSize, agwStyle=aui.AUI_TB_DEFAULT_STYLE | aui.AUI_TB_OVERFLOW)
+        tb1 = aui.AuiToolBar(self, -1, wx.Point(500,0), wx.DefaultSize, agwStyle=aui.AUI_TB_DEFAULT_STYLE | aui.AUI_TB_OVERFLOW|wx.NO_BORDER)
         
         tb1.SetToolBitmapSize(wx.Size(42, 42))
         tb1.AddSimpleTool(tool_id=ID_newConnection, label="New Connection", bitmap=wx.Bitmap(self.fileOperations.getImageBitmap(imageName="connect.png")), short_help_string='Create a new connection')

@@ -5,12 +5,11 @@ import sys
 from wx import  ID_PREFERENCES
 import wx
 
-
 from src.view.connection.NewConnectionWizard import CreateNewConncetionWixard
 from src.view.constants import ID_openConnection, ID_newWorksheet, ID_newConnection, \
     ID_SQL_EXECUTION, ID_SQL_LOG, ID_UPDATE_CHECK, TITLE, VERSION, \
     ID_HIDE_TOOLBAR, ID_APPEARANCE, ID_SEARCH_FILE, ID_CONSOLE_LOG, ID_SHOW_VIEW, \
-    ID_PROSPECTIVE_NAVIGATION, ID_SHOW_VIEW_TOOLBAR, ID_PERSPECTIVE_TOOLBAR,\
+    ID_PROSPECTIVE_NAVIGATION, ID_SHOW_VIEW_TOOLBAR, ID_PERSPECTIVE_TOOLBAR, \
     ID_HIDE_STATUSBAR
 
 from src.view.openConnection.OpenExistingConnection import OpenExistingConnectionFrame
@@ -18,18 +17,15 @@ from src.view.preference.Preferences import OpalPreference
 from src.view.util.FileOperationsUtil import FileOperations
 
 from src.view.perspective import PerspectiveManager
-
-
     
 logger = logging.getLogger('extensive')
 
 
 class DatabaseMainFrame(wx.Frame, PerspectiveManager):
 
-    def __init__(self, parent):
+    def __init__(self, parent, style=wx.DEFAULT_FRAME_STYLE | wx.MAXIMIZE | wx.BORDER_NONE, title=TITLE):
         logger.info("This is from Runner ")
-        title = TITLE
-        style = wx.DEFAULT_FRAME_STYLE | wx.MAXIMIZE
+        
 #         wx.Frame.__init__(self, parent, wx.ID_ANY, title, pos, size, style)
         wx.Frame.__init__(self, parent, wx.ID_ANY, title=title, style=style)
 
@@ -52,10 +48,7 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
         self.bindingEvent()
         self._mgr.Update()  
 
-
     #---------------------------------------------    
-         
-
 
     def selectCallback(self, values):
         """ Simply function that receive the row values when the
@@ -83,17 +76,10 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
         if c.startswith(t): return True
         if c.startswith('www.'): c = c[4:]
         return c.startswith(t)    
-
-     
-
-
     
 #     def constructSchemaViewerPane(self):
 #         svgViewer = SVGViewerPanel(self)
 #         return svgViewer
-
-
-
     
     def getCurrentCursorPosition(self):
         lineNo = 1
@@ -134,15 +120,15 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
                     [ wx.ID_EXIT, '&Quit \tCtrl+Q', None, None],
                 ]) ,
             ("&Edit", [
-                    [ wx.ID_UNDO, "Undo \tCtrl+Z",None, "undo_edit.png"],
-                    [ wx.ID_REDO, "Redo \tShift+Ctrl+Z", None,"redo_edit.png"],
+                    [ wx.ID_UNDO, "Undo \tCtrl+Z", None, "undo_edit.png"],
+                    [ wx.ID_REDO, "Redo \tShift+Ctrl+Z", None, "redo_edit.png"],
                     [],
                     [ wx.ID_CUT, "Cut \tCtrl+X", None, "cut_edit.png"],
                     [ wx.ID_COPY, "Copy \tCtrl+C", None, "copy_edit.png"],
-                    [ wx.ID_PASTE, "Paste \tCtrl+V", None,  "paste_edit.png"],
+                    [ wx.ID_PASTE, "Paste \tCtrl+V", None, "paste_edit.png"],
                     [],
-                    [ wx.NewIdRef(), "Delete", None,  "delete_obj.png"],
-                    [ wx.NewIdRef(), "Set encoding...", None,  None],
+                    [ wx.NewIdRef(), "Delete", None, "delete_obj.png"],
+                    [ wx.NewIdRef(), "Set encoding...", None, None],
                 ]),
             ("&Search", [
                     [wx.NewIdRef(), 'Search \tCtrl+H', None, 'searchres.png'],
@@ -197,7 +183,7 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
                                                         [ wx.NewIdRef(), 'Resources', "resource_persp.png", None],
                                                         [ wx.NewIdRef(), 'Git', "gitrepository.png", None],
                                                         [],
-                                                        [wx.NewIdRef(),"Other",None],
+                                                        [wx.NewIdRef(), "Other", None],
                                                     ]],
                                                 [ wx.NewIdRef(), 'SQL Log', "sql.png", None ],
                                                 [ wx.NewIdRef(), 'Console', "console_view.png", None ]
@@ -335,44 +321,48 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
         logger.debug('onHideStatusbar')
         if self.GetTopLevelParent()._mgr.GetPane("viewToolbar").IsShown():
             for menuItem in event.GetEventObject().GetMenuItems():
-                if menuItem.GetItemLabel()=='Hide Toolbar':
+                if menuItem.GetItemLabel() == 'Hide Toolbar':
                     menuItem.SetItemLabel('Show Toolbar')
                     menuItem.SetText('Show Toolbar')
             self.GetTopLevelParent()._mgr.GetPane("viewToolbar").Hide()
             self.GetTopLevelParent()._mgr.GetPane("perspectiveToolbar").Hide()
         else:
             for menuItem in event.GetEventObject().GetMenuItems():
-                if menuItem.GetItemLabel()=='Show Toolbar':
+                if menuItem.GetItemLabel() == 'Show Toolbar':
                     menuItem.SetItemLabel('Hide Toolbar')
                     menuItem.SetText('Hide Toolbar')
             sqlLogTab = self.GetTopLevelParent()._mgr.GetPane("viewToolbar").Show()
             sqlLogTab = self.GetTopLevelParent()._mgr.GetPane("perspectiveToolbar").Show()
         self.GetTopLevelParent()._mgr.Update()
+
     def onHideStatusbar(self, event):
         logger.debug('onHideStatusbar')
-        frameSize=self.GetSize()
+        frameSize = self.GetSize()
         if self.statusbar.IsShown():
             for menuItem in event.GetEventObject().GetMenuItems():
-                if menuItem.GetItemLabel()=='Hide Status Bar':
+                if menuItem.GetItemLabel() == 'Hide Status Bar':
                     menuItem.SetItemLabel('Show Status Bar')
                     menuItem.SetText('Show Status Bar')
             self.statusbar.Hide()
         else:
             for menuItem in event.GetEventObject().GetMenuItems():
-                if menuItem.GetItemLabel()=='Show Status Bar':
+                if menuItem.GetItemLabel() == 'Show Status Bar':
                     menuItem.SetItemLabel('Hide Status Bar')
                     menuItem.SetText('Hide Status Bar')
             self.statusbar.Show()
         self.SetSize(frameSize)
         self._mgr.Update()
+
     def onShowViewToolbar(self, event):
         logger.debug('onShowViewToolbar')
         sqlLogTab = self.GetTopLevelParent()._mgr.GetPane("viewToolbar").Show()
         self.GetTopLevelParent()._mgr.Update()
+
     def onPerspectiveToolbar(self, event):
         logger.debug('onPerspectiveToolbar')
         sqlLogTab = self.GetTopLevelParent()._mgr.GetPane("perspectiveToolbar").Show()
         self.GetTopLevelParent()._mgr.Update()
+
     def onSqlLog(self, event):
         logger.debug('onSqlLog')
         sqlLogTab = self.GetTopLevelParent()._mgr.GetPane("sqlLog").Show()
@@ -408,8 +398,6 @@ Python :{}""".format(TITLE, VERSION, plate, sys.version)
                                wx.OK | wx.ICON_INFORMATION)
         dlg.ShowModal()
         dlg.Destroy()
-        
-
 
 
 if __name__ == "__main__":
