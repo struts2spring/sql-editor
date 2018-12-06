@@ -13,19 +13,30 @@ class ApplyResetButtonPanel(wx.Panel):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
         
-        vBox = wx.BoxSizer(wx.HORIZONTAL)
+        hBox = wx.BoxSizer(wx.HORIZONTAL)
         self.resetButton=wx.Button(self, 1, 'Restore defaults', (50, 130))
         self.applyButton=wx.Button(self, 1, 'Apply', (50, 130))
-        vBox.Add(self.resetButton, 0,flag=wx.RIGHT)
-        vBox.Add(self.applyButton, 0, flag=wx.RIGHT)
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(vBox , 0, flag=wx.EXPAND | wx.ALIGN_RIGHT)
-        self.SetSizer(sizer)
-        
+        hBox.Add(self.resetButton, 0,flag=wx.RIGHT)
+        hBox.Add(self.applyButton, 0, flag=wx.RIGHT)
         vBox = wx.BoxSizer(wx.VERTICAL)
+        vBox.Add(hBox , 0, wx.EXPAND | wx.ALIGN_RIGHT,0)
+#         self.SetSizer(sizer)
+        
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(vBox, 0, wx.EXPAND | wx.ALIGN_RIGHT  , 0)
+        self.SetSizer(sizer)
         self.Bind(wx.EVT_BUTTON, self.onResetButton, id=wx.ID_ANY)
         self.Bind(wx.EVT_BUTTON, self.onApplyButton, id=wx.ID_ANY)
     def onResetButton(self, event):
         logger.debug('reset button')
     def onApplyButton(self, event):
         logger.debug('apply button')
+        
+        
+if __name__=='__main__':
+    app = wx.App(False)
+    frame = wx.Frame(None)
+    ApplyResetButtonPanel(frame)
+    frame.Show(show=True)
+    app.MainLoop()
+    

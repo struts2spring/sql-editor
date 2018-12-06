@@ -420,8 +420,34 @@ class PrefrencesTreePanel(wx.Panel):
         item = event.GetItem()
         itemText = self.tree.GetItemText(item)
         logger.debug(itemText)
-
-
+        opalPreference=self.GetTopLevelParent()
+        if opalPreference:
+    #         rightPanel=opalPreference.rightPanelItem.GetParent()
+    #         opalPreference.rightPanelItem.Hide()
+    #         opalPreference.rightPanelItem.Hide()
+    #         opalPreference.rightPanelItem=opalPreference.getPreferencePanelObj(rightPanel,preferenceName=itemText)
+    #         opalPreference.rightPanelItem.Show(True)
+    #         opalPreference.rightPanelItem.Layout()
+            for pnl in opalPreference.pnl.GetChildren():
+    #             print(pnl)
+                if pnl.GetName()=='rightPanel':
+                    opalPreference=self.GetTopLevelParent()
+                    for child in pnl.GetChildren():
+                        if 'preference' in child.name.lower():
+                            child.Hide()
+    #                     break
+    #                     child.opalPreference.getPreferencePanelObj(pnl,preferenceName=itemText)
+                    rightPanelItem= opalPreference.getPreferencePanelObj(pnl,preferenceName=itemText)
+                    opalPreference.addPanel(rightPanelItem)
+                    pnl.Layout()
+                    pnl.Refresh()
+                    pnl.Fit()
+            opalPreference.Layout()
+    #         print(opalPreference.GetChildrenCount())
+    #         opalPreference.GetChildrenCount().rightpanel.Refresh()
+    
+    
+            opalPreference.mgr.Update()
 #         self.UpdateNotebook(preferenceName=itemText)
 class PrefrencesBaseTreePanel(ExpansionState, TreeCtrl):
     '''

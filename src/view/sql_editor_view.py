@@ -315,7 +315,7 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
         
     def onPreferences(self, event):
         logger.debug('onPreferences')
-        frame1 = OpalPreference(None, "Preferences")
+        frame1 = OpalPreference(None, "Preferences",size=(600, 560))
         
     def onHideToolbar(self, event):
         logger.debug('onHideStatusbar')

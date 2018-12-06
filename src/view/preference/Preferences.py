@@ -146,12 +146,12 @@ class OpalPreference(wx.Frame):
             bmp = catalog[png].GetBitmap()
             imgList.Add(bmp)
             
-        rightPanel = wx.Panel(pnl, style=wx.TAB_TRAVERSAL | wx.CLIP_CHILDREN)
-        self.nb = wx.Notebook(rightPanel, -1, style=wx.CLIP_CHILDREN)
-        self.nb.AssignImageList(imgList)
+        rightPanel = wx.Panel(pnl, style=wx.TAB_TRAVERSAL | wx.CLIP_CHILDREN, name='rightPanel')
+#         self.nb = wx.Notebook(rightPanel, -1, style=wx.CLIP_CHILDREN)
+#         self.nb.AssignImageList(imgList)
 #         self.panel = PreferencePanel(self.nb, -1, style=wx.CLIP_CHILDREN, preferenceName="Preferences")
-        self.panel = self.getPreferencePanelObj(preferenceName="Preferences")
-        self.nb.AddPage(self.panel, "Preferences", imageId=0)
+        self.rightPanelItem = self.getPreferencePanelObj(rightPanel,preferenceName="Preferences")
+#         self.nb.AddPage(self.panel, "Preferences", imageId=0)
         # Create a TreeCtrl
         leftPanel = wx.Panel(pnl, style=wx.TAB_TRAVERSAL | wx.CLIP_CHILDREN)
 #         self.treeMap = {}
@@ -188,11 +188,7 @@ class OpalPreference(wx.Frame):
             leftBox.Add((5, 5))  # Make sure there is room for the focus ring
         leftPanel.SetSizer(leftBox)
 
-        rightBox=wx.BoxSizer(wx.VERTICAL)
-        rightBox.Add(self.nb, 1, wx.EXPAND)
-        self.buttonBar=ButtonPanel(rightPanel)
-        rightBox.Add(self.buttonBar,  flag=wx.EXPAND | wx.ALIGN_RIGHT)
-        rightPanel.SetSizer(rightBox)
+        self.addPanel(rightPanel)
         
 #         self.tree.SelectItem(self.root)
         # Use the aui manager to set up everything
@@ -210,6 +206,13 @@ class OpalPreference(wx.Frame):
 #         self.mgr.SetFlags(self.mgr.GetFlags() ^ AUI_MGR_TRANSPARENT_DRAG)
         
         self.Show()
+        
+    def addPanel(self,rightPanel):
+        self.rightBox=wx.BoxSizer(wx.VERTICAL)
+        self.rightBox.Add(self.rightPanelItem, 1, wx.EXPAND)
+#         self.buttonBar=ButtonPanel(rightPanel)
+#         self.rightBox.Add(self.buttonBar,  0,flag=wx.EXPAND | wx.ALIGN_RIGHT)
+        rightPanel.SetSizer(self.rightBox)
     # Makes sure the user was intending to quit the application
     def OnCloseFrame(self, event):
         logger.debug('OnCloseFrame')
@@ -366,39 +369,43 @@ class OpalPreference(wx.Frame):
         
 #         self.StartDownload()
     #---------------------------------------------
-    def UpdateNotebook(self, select=-1, preferenceName=None):
-        logger.debug("UpdateNotebook: %s",preferenceName)
-        self.pnl.Freeze()
-        self.nb.DeletePage(0)
-        self.nb.InsertPage(0, self.getPreferencePanelObj(preferenceName), preferenceName, imageId=0)
-        self.pnl.Thaw()
+#     def UpdateNotebook(self, select=-1, preferenceName=None):
+#         logger.debug("UpdateNotebook: %s",preferenceName)
+#         self.pnl.Freeze()
+#         self.nb.DeletePage(0)
+#         self.nb.InsertPage(0, self.getPreferencePanelObj(preferenceName), preferenceName, imageId=0)
+#         self.pnl.Thaw()
     
-    def getPreferencePanelObj(self, preferenceName='Preferences'):
+    def getPreferencePanelObj(self,rightPanel=None, preferenceName='Preferences'):
         preferencePanelObj = None
         if preferenceName == 'General':
-            preferencePanelObj = GeneralPreferencePanel(self.nb,preferenceName=preferenceName)
+            preferencePanelObj = GeneralPreferencePanel(rightPanel,preferenceName=preferenceName)
         elif preferenceName == 'Preferences':
-            preferencePanelObj = PreferencePanel(self.nb,preferenceName=preferenceName)
+            preferencePanelObj = PreferencePanel(rightPanel,preferenceName=preferenceName)
         elif preferenceName == 'Appearance':
-            preferencePanelObj = AppearancePanel(self.nb,preferenceName=preferenceName)
+            preferencePanelObj = AppearancePanel(rightPanel,preferenceName=preferenceName)
         elif preferenceName == 'Search':
-            preferencePanelObj = SearchPanel(self.nb,preferenceName=preferenceName)
+            preferencePanelObj = SearchPanel(rightPanel,preferenceName=preferenceName)
         elif preferenceName == 'Workspace':
-            preferencePanelObj = WorkspacePanel(self.nb,preferenceName=preferenceName)
+            preferencePanelObj = WorkspacePanel(rightPanel,preferenceName=preferenceName)
         elif preferenceName == 'Keys':
-            preferencePanelObj = KeysPanel(self.nb,preferenceName=preferenceName)
+            preferencePanelObj = KeysPanel(rightPanel,preferenceName=preferenceName)
         elif preferenceName == 'Sharing':
-            preferencePanelObj = PreferencePanel(self.nb,preferenceName=preferenceName)
+            preferencePanelObj = PreferencePanel(rightPanel,preferenceName=preferenceName)
         else :
-            preferencePanelObj = GeneralPreferencePanel(self.nb, preferenceName=preferenceName)
+            preferencePanelObj = GeneralPreferencePanel(rightPanel, preferenceName=preferenceName)
         
+        if preferencePanelObj:
+            preferencePanelObj.name=preferenceName
+            preferencePanelObj.Show(show=True)
         return preferencePanelObj
 
 class ButtonPanel(wx.Panel):
     
-    def __init__(self, parent=None, *args, **kw):
-        wx.Panel.__init__(self, parent, id=-1)
+    def __init__(self, parent=None, name='ok_cancel',*args, **kw):
+        wx.Panel.__init__(self, parent, id=-1,name=name)
         self.parent = parent
+        self.name=name
         
         vBox = wx.BoxSizer(wx.HORIZONTAL)
         self.cancelButton=wx.Button(self, 1, 'Cancel', (50, 130))

@@ -107,7 +107,7 @@ class SearchPanel(wx.Panel):
         self.st = wx.StaticLine(self, wx.ID_ANY)
         # Make and layout the controls
         fs = self.GetFont().GetPointSize()
-        bf = wx.Font(fs + 4, wx.SWISS, wx.NORMAL, wx.BOLD)
+        bf = wx.Font(fs + 1, wx.SWISS, wx.NORMAL, wx.BOLD)
         nf = wx.Font(fs + 2, wx.SWISS, wx.NORMAL, wx.NORMAL)
 
         self.header = wx.StaticText(self, -1, kw['preferenceName'])
@@ -499,6 +499,6 @@ class PreferencePanel(wx.Panel):
 if __name__ == '__main__':
     app = wx.App(False)
     frame = wx.Frame(None)
-    panel = SearchPanel(frame, preferenceName='asfd')
+    panel = SearchPanel(frame, preferenceName='General')
     frame.Show()
     app.MainLoop()
