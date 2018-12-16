@@ -2,7 +2,7 @@ import logging
 import platform
 import sys
 
-from wx import  ID_PREFERENCES
+from wx import ID_PREFERENCES
 import wx
 
 from src.view.connection.NewConnectionWizard import CreateNewConncetionWixard

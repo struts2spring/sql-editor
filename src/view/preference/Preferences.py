@@ -1,5 +1,10 @@
 import wx
-from wx.lib.agw import aui
+try:
+    from agw import aui
+    from agw.aui import aui_switcherdialog as ASD
+except ImportError:  # if it's not there locally, try the wxPython lib.
+    import wx.lib.agw.aui as aui
+    from wx.lib.agw.aui import aui_switcherdialog as ASD
 # from wx.aui import AuiManager, AuiPaneInfo, AUI_MGR_TRANSPARENT_DRAG
 # from src.ui.view.preference.images import catalog, WXPdemo
 from wx.lib.mixins.treemixin import ExpansionState
@@ -146,11 +151,11 @@ class OpalPreference(wx.Frame):
             bmp = catalog[png].GetBitmap()
             imgList.Add(bmp)
             
-        rightPanel = wx.Panel(pnl, style=wx.TAB_TRAVERSAL | wx.CLIP_CHILDREN, name='rightPanel')
+        self.rightPanel = wx.Panel(pnl, style=wx.TAB_TRAVERSAL | wx.CLIP_CHILDREN, name='rightPanel')
 #         self.nb = wx.Notebook(rightPanel, -1, style=wx.CLIP_CHILDREN)
 #         self.nb.AssignImageList(imgList)
 #         self.panel = PreferencePanel(self.nb, -1, style=wx.CLIP_CHILDREN, preferenceName="Preferences")
-        self.rightPanelItem = self.getPreferencePanelObj(rightPanel,preferenceName="Preferences")
+        rightPanelItem = self.getPreferencePanelObj(self.rightPanel,preferenceName="Preferences")
 #         self.nb.AddPage(self.panel, "Preferences", imageId=0)
         # Create a TreeCtrl
         leftPanel = wx.Panel(pnl, style=wx.TAB_TRAVERSAL | wx.CLIP_CHILDREN)
@@ -181,6 +186,7 @@ class OpalPreference(wx.Frame):
 #         self.tree.Bind(wx.EVT_LEFT_DOWN, self.OnTreeLeftDown)
         # add the windows to the splitter and split it.
         leftBox = wx.BoxSizer(wx.VERTICAL)
+        self.rightBox=wx.BoxSizer(wx.VERTICAL)
 #         leftBox.Add(self.filter, 0, wx.EXPAND | wx.ALL, 5)
         leftBox.Add(prefrencesTreePanel, 1, wx.EXPAND)
 #         leftBox.Add(wx.StaticText(leftPanel, label="Type filter search text:"), 0, wx.TOP | wx.LEFT, 5)
@@ -188,11 +194,11 @@ class OpalPreference(wx.Frame):
             leftBox.Add((5, 5))  # Make sure there is room for the focus ring
         leftPanel.SetSizer(leftBox)
 
-        self.addPanel(rightPanel)
-        
+        self.addPanel(rightPanelItem)
+        self.rightPanel.SetSizer(self.rightBox)
 #         self.tree.SelectItem(self.root)
         # Use the aui manager to set up everything
-        self.mgr.AddPane(rightPanel, aui.AuiPaneInfo().CenterPane().Name("Notebook"))
+        self.mgr.AddPane(self.rightPanel, aui.AuiPaneInfo().CenterPane().Name("Notebook"))
         self.mgr.AddPane(leftPanel,
                          aui.AuiPaneInfo().
                          Left().Layer(2).BestSize((180, -1)).MinSize((100, -1)).
@@ -207,12 +213,12 @@ class OpalPreference(wx.Frame):
         
         self.Show()
         
-    def addPanel(self,rightPanel):
-        self.rightBox=wx.BoxSizer(wx.VERTICAL)
-        self.rightBox.Add(self.rightPanelItem, 1, wx.EXPAND)
+    def addPanel(self,rightPanelItem=None):
+        
+        self.rightBox.Add(rightPanelItem, 1, wx.EXPAND)
 #         self.buttonBar=ButtonPanel(rightPanel)
 #         self.rightBox.Add(self.buttonBar,  0,flag=wx.EXPAND | wx.ALIGN_RIGHT)
-        rightPanel.SetSizer(self.rightBox)
+#         rightPanel.SetSizer(self.rightBox)
     # Makes sure the user was intending to quit the application
     def OnCloseFrame(self, event):
         logger.debug('OnCloseFrame')
