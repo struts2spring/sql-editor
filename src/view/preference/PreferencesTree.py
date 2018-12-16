@@ -433,8 +433,8 @@ class PrefrencesTreePanel(wx.Panel):
                 if pnl.GetName()=='rightPanel':
                     opalPreference=self.GetTopLevelParent()
                     for child in pnl.GetChildren():
-                        if 'preference' in child.name.lower():
-                            child.Hide()
+#                         if 'preference' in child.name.lower():
+                        child.Hide()
     #                     break
     #                     child.opalPreference.getPreferencePanelObj(pnl,preferenceName=itemText)
                     rightPanelItem= opalPreference.getPreferencePanelObj(pnl,preferenceName=itemText)

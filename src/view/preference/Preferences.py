@@ -1,4 +1,6 @@
 import wx
+from src.view.preference.general.GeneralPanel import GeneralPreferencePanel
+from src.view.preference.general.AppearancePanel import AppearancePreferencePanel
 try:
     from agw import aui
     from agw.aui import aui_switcherdialog as ASD
@@ -9,8 +11,7 @@ except ImportError:  # if it's not there locally, try the wxPython lib.
 # from src.ui.view.preference.images import catalog, WXPdemo
 from wx.lib.mixins.treemixin import ExpansionState
 from wx import TreeCtrl
-from src.view.preference.General import GeneralPreferencePanel
-from src.view.preference.PreferencePanel import PreferencePanel, AppearancePanel,\
+from src.view.preference.PreferencePanel import PreferencePanel, \
     SearchPanel, WorkspacePanel, KeysPanel
     
 from src.view.preference.PreferencesTree import PrefrencesTreePanel
@@ -214,8 +215,8 @@ class OpalPreference(wx.Frame):
         self.Show()
         
     def addPanel(self,rightPanelItem=None):
-        
-        self.rightBox.Add(rightPanelItem, 1, wx.EXPAND)
+        if rightPanelItem:
+            self.rightBox.Add(rightPanelItem, 1, wx.EXPAND)
 #         self.buttonBar=ButtonPanel(rightPanel)
 #         self.rightBox.Add(self.buttonBar,  0,flag=wx.EXPAND | wx.ALIGN_RIGHT)
 #         rightPanel.SetSizer(self.rightBox)
@@ -389,7 +390,7 @@ class OpalPreference(wx.Frame):
         elif preferenceName == 'Preferences':
             preferencePanelObj = PreferencePanel(rightPanel,preferenceName=preferenceName)
         elif preferenceName == 'Appearance':
-            preferencePanelObj = AppearancePanel(rightPanel,preferenceName=preferenceName)
+            preferencePanelObj = AppearancePreferencePanel(rightPanel,preferenceName=preferenceName)
         elif preferenceName == 'Search':
             preferencePanelObj = SearchPanel(rightPanel,preferenceName=preferenceName)
         elif preferenceName == 'Workspace':
@@ -398,8 +399,8 @@ class OpalPreference(wx.Frame):
             preferencePanelObj = KeysPanel(rightPanel,preferenceName=preferenceName)
         elif preferenceName == 'Sharing':
             preferencePanelObj = PreferencePanel(rightPanel,preferenceName=preferenceName)
-        else :
-            preferencePanelObj = GeneralPreferencePanel(rightPanel, preferenceName=preferenceName)
+#         else :
+#             preferencePanelObj = GeneralPreferencePanel(rightPanel, preferenceName=preferenceName)
         
         if preferencePanelObj:
             preferencePanelObj.name=preferenceName
