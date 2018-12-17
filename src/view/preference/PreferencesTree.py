@@ -44,12 +44,12 @@ _treeList1 = [
         ("Runtime")
         ]
     ),
-    ("Cloud Foundry",[
+    ("Cloud Foundry", [
         ("HTTP Tracing")
         ]
-    ),("Code Recommenders",[
+    ), ("Code Recommenders", [
         ("Advisors"),
-        ("Completions",[
+        ("Completions", [
             ("Calls"),
             ("Chains"),
             ("Constructors"),
@@ -60,20 +60,20 @@ _treeList1 = [
         ("Models"),
         ]
     ),
-    ("Data Management",[
-        ("Connectivity",[
+    ("Data Management", [
+        ("Connectivity", [
             ("Database Connection Profile"),
             ("Driver Definitions"),
-            ("Open Data Access",[
+            ("Open Data Access", [
                 ("XML Data Set")
                 ]),
             ]),
         ("Label Decorations"),
-        ("SQL Development",[
+        ("SQL Development", [
             ("Execution Plan View Options"),
             ("General"),
             ("Schema Object Editor Configuration"),
-            ("SQL Editor",[
+            ("SQL Editor", [
                 ("Code Assist"),
                 ("SQL Files/Scrapbooks"),
                 ("Syntax Coloring"),
@@ -90,12 +90,50 @@ _treeList1 = [
             ('Available plugins')
         ]
      ),
-    ("Java"),
+    ("Java",[("Appearance",[("Members Sort Order"),("Type Filters")]),
+             ("Build Path",[("Classpath Variables"),("User Liberaries")]),
+             ("Code Coverage"),
+             ("Code Style",[("Clean Up"),("Code Templates"),("Formatter"),("Organize Imports")]),
+             ("Compiler",[("Building"),("Errors/Warning"),("Javadoc"),("Task Tags")]),
+             ("Debug",[("Detail Formatters"),("Heap Walking"),("Logical Structures"),("Premitive Display Options"),("Step Filtering")]),
+             ("Editor",[("Content Assist"),("Folding"),("Hovers"),("Mark Occurrences"),("Save Actions"),("Syntax Coloring"),("Templates"),("Typing")]),
+             ("Installed JREs",[("Execution Environments")]),
+             ("JUnit"),
+             ("Properties Files Editor"),
+             
+             ]),
     ("Java EE"),
     ("Java Persistence"),
     ("JavaScript"),
-    ("JSON"),
-    ("Maven"),
+    ("JSON",[("JSON Catalog"),("JSON Files",[("Editor",[("Content Assist"),("Syntax Coloring"),("Templates")]),("Validation")])]),
+    ("Maven", [("Archetypes"), ("Discovery"), ("Errors/Warning"), ("Installations"), ("Java EE Integration"),("Lifecycle Mappings"),("Source Lookup"),("Templates"),("User Interface"),("User Settings")]),
+    ("Python",[("Builders"),
+               ("Debug",[("Source Locator")]),
+               ("Editor",[("Auto Imports")]),
+               ("Code Analysis", [("PyLint")]),
+               ("Code Completion (ctx insensitive and common tokens)"),
+               ("Code Folding"),("Code Style",[("Block Comments"),("Code Formatter"),("Docstrings"),("File types"),("Imports")]),
+               ("Editor caption/icon"),("Hover"),("Mark Occurrences"),("Overview Ruler Minimap")
+               ]),
+    ("Remote Systems"),
+    ("Run/Debug"),
+    ("Server"),
+    ("Team",[("File Content"),("Git",[
+        ("Committing"),("Configuration"),("Confirmation and Warning"),("Date Format"),("History"), ("Label Decorations"),("Projects"),("Staging View"),("Synchronize"),("Window Cache"),
+        ]),
+        ("Ignored Resources"),("Models")
+    ]),
+    ("Terminal",[("Local Terminal")]),
+    ("Validation"),
+    ("Web",[
+        ("CSS Files",[("Editor",[("Content Assist"),("Syntax Coloring"),("Templates")])]),
+        ("HTML Files",[("Editor",[("Content Assist"),("Syntax Coloring"),("Templates"),("Typing")]),("Validation")]),
+        ("JavaServer Faces Tools",[("FacesConfig Editor"),("Validation"),("Views",[("JSP Tag Registry")])]),
+        ("JSP Files",[("Editor",[("Content Assist"),("Syntax Coloring"),("Templates")])]),
+        
+    ]),
+    ("Web Services",[("Axis Emitter"),("Axis2 Preferences")]),
+    ("XML"),
 ]
 
 _treeList = [
@@ -420,7 +458,7 @@ class PrefrencesTreePanel(wx.Panel):
         item = event.GetItem()
         itemText = self.tree.GetItemText(item)
         logger.debug(itemText)
-        opalPreference=self.GetTopLevelParent()
+        opalPreference = self.GetTopLevelParent()
         if opalPreference:
     #         rightPanel=opalPreference.rightPanelItem.GetParent()
     #         opalPreference.rightPanelItem.Hide()
@@ -430,14 +468,14 @@ class PrefrencesTreePanel(wx.Panel):
     #         opalPreference.rightPanelItem.Layout()
             for pnl in opalPreference.pnl.GetChildren():
     #             print(pnl)
-                if pnl.GetName()=='rightPanel':
-                    opalPreference=self.GetTopLevelParent()
+                if pnl.GetName() == 'rightPanel':
+                    opalPreference = self.GetTopLevelParent()
                     for child in pnl.GetChildren():
 #                         if 'preference' in child.name.lower():
                         child.Hide()
     #                     break
     #                     child.opalPreference.getPreferencePanelObj(pnl,preferenceName=itemText)
-                    rightPanelItem= opalPreference.getPreferencePanelObj(pnl,preferenceName=itemText)
+                    rightPanelItem = opalPreference.getPreferencePanelObj(pnl, preferenceName=itemText)
                     opalPreference.addPanel(rightPanelItem)
                     pnl.Layout()
                     pnl.Refresh()
@@ -446,8 +484,9 @@ class PrefrencesTreePanel(wx.Panel):
     #         print(opalPreference.GetChildrenCount())
     #         opalPreference.GetChildrenCount().rightpanel.Refresh()
     
-    
             opalPreference.mgr.Update()
+
+
 #         self.UpdateNotebook(preferenceName=itemText)
 class PrefrencesBaseTreePanel(ExpansionState, TreeCtrl):
     '''
