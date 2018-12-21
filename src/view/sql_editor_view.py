@@ -10,13 +10,15 @@ from src.view.constants import ID_openConnection, ID_newWorksheet, ID_newConnect
     ID_SQL_EXECUTION, ID_SQL_LOG, ID_UPDATE_CHECK, TITLE, VERSION, \
     ID_HIDE_TOOLBAR, ID_APPEARANCE, ID_SEARCH_FILE, ID_CONSOLE_LOG, ID_SHOW_VIEW, \
     ID_PROSPECTIVE_NAVIGATION, ID_SHOW_VIEW_TOOLBAR, ID_PERSPECTIVE_TOOLBAR, \
-    ID_HIDE_STATUSBAR
+    ID_HIDE_STATUSBAR, ID_CREATE_NEW_WINDOW, ID_WELCOME, ID_FILE_EXPLORER,\
+    ID_PROJECT_EXPLORER, ID_NAVIGATOR, ID_TERMINAL
 
 from src.view.openConnection.OpenExistingConnection import OpenExistingConnectionFrame
 from src.view.preference.Preferences import OpalPreference
 from src.view.util.FileOperationsUtil import FileOperations
 
 from src.view.perspective import PerspectiveManager
+from src.view.file.explorer.ed_glob import ID_NEW_WINDOW
     
 logger = logging.getLogger('extensive')
 
@@ -158,6 +160,7 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
                     
                 ]),
             ("&Window", [
+                    [ID_CREATE_NEW_WINDOW, 'New Window', None, None ],
                     [ID_APPEARANCE, 'Appearance', [
                                                 [ID_HIDE_TOOLBAR, 'Hide Toolbar', "toolbar.png", None],
                                                 [ID_HIDE_STATUSBAR, 'Hide Status Bar', None, None]
@@ -171,6 +174,10 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
                                                 [ID_SQL_EXECUTION, 'SQL Execution', "script.png", None ],
                                                 [ID_SQL_LOG, 'SQL Log', "sql.png" , None],
                                                 [ID_CONSOLE_LOG, 'Console', "console_view.png", None ],
+                                                [ID_FILE_EXPLORER, 'File Explorer', None, None ], # TODO : need to set image icon
+                                                [ID_PROJECT_EXPLORER, 'Project Explorer', None, None ], # TODO : need to set image icon
+                                                [ID_NAVIGATOR, 'Navigator', None, None ], # TODO : need to set image icon
+                                                [ID_TERMINAL, 'Terminal', None, None ], # TODO : need to set image icon
                                                 [],
                                                 [wx.NewIdRef(), 'Other', None, None ]
                                             ], None
@@ -193,8 +200,12 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
                     [wx.ID_PREFERENCES, "&Preferences", None, "preference.png" ]
                 ]),
             ("&Help", [
+                    [ ID_WELCOME, "Welcome", None, "welcome16.png"],
                     [ ID_UPDATE_CHECK, "Check for &Updates", None, "iu_update_obj.png"],
                     [ wx.NewIdRef(), "Tip of the day", None, "smartmode_co.png"],
+                    [ wx.NewIdRef(), "Tips and Tricks...", None, "tricks.png"],
+                    [],
+                    [ wx.NewIdRef(), "Install New Software...", None, "iu_obj.png"],# TODO: need to set icon
                     [],
                     [ wx.ID_HELP, "&About {}".format(TITLE), None, None],
                     [ wx.NewIdRef(), "Contribute", None, "star.png"],

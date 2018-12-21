@@ -5,6 +5,7 @@ import os
 TITLE = "SQL Editor"
 VERSION = "0.0.5"
 
+ID_WELCOME = wx.NewIdRef()
 ID_UPDATE_CHECK = wx.NewIdRef()
 ID_newConnection = wx.NewIdRef()
 ID_openConnection = wx.NewIdRef()
@@ -24,6 +25,10 @@ ID_RESULT_FIRST = wx.NewIdRef()
 ID_RESULT_LAST = wx.NewIdRef()
 ID_SQL_LOG = wx.NewIdRef()
 ID_CONSOLE_LOG = wx.NewIdRef()
+ID_FILE_EXPLORER = wx.NewIdRef()
+ID_PROJECT_EXPLORER = wx.NewIdRef()
+ID_NAVIGATOR = wx.NewIdRef()
+ID_TERMINAL = wx.NewIdRef()
 
 ID_SQL_EXECUTION = wx.NewIdRef()
 ID_COPY_COLUMN_HEADER = wx.NewIdRef()
@@ -39,6 +44,7 @@ ID_PROSPECTIVE_NAVIGATION=wx.NewIdRef()
 ID_PROSPECTIVE_OTHER=wx.NewIdRef()
 ID_OPEN_PROSPECTIVE=wx.NewIdRef()
 # Appearance toolbar menu
+ID_CREATE_NEW_WINDOW = wx.NewIdRef()
 ID_APPEARANCE = wx.NewIdRef()
 # show view menu
 ID_SHOW_VIEW=wx.NewIdRef()
