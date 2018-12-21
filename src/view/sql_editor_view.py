@@ -25,7 +25,7 @@ logger = logging.getLogger('extensive')
 
 class DatabaseMainFrame(wx.Frame, PerspectiveManager):
 
-    def __init__(self, parent, style=wx.DEFAULT_FRAME_STYLE | wx.MAXIMIZE | wx.BORDER_NONE, title=TITLE):
+    def __init__(self, parent, style=wx.DEFAULT_FRAME_STYLE | wx.MAXIMIZE , title=TITLE):
         logger.info("This is from Runner ")
         
 #         wx.Frame.__init__(self, parent, wx.ID_ANY, title, pos, size, style)
