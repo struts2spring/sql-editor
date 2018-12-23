@@ -1,14 +1,17 @@
+import logging.config
 import wx
 
-import logging.config
-from src.view.constants import LOG_SETTINGS, ID_newConnection, ID_openConnection,\
-    ID_newWorksheet
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 from src.view.AutoCompleteTextCtrl import TextCtrlAutoComplete
-from src.view.TreePanel import CreatingTreePanel
-from src.view.worksheet.WorksheetPanel import CreateWorksheetTabPanel
 from src.view.SqlOutputPanel import SqlConsoleOutputPanel
+from src.view.TreePanel import CreatingTreePanel
+from src.view.constants import LOG_SETTINGS, ID_newConnection, ID_openConnection, \
+    ID_newWorksheet
+
+from src.view.file.explorer.FileBrowserPanel import FileBrowser
 from src.view.history.HistoryListPanel import HistoryGrid
+from src.view.worksheet.WorksheetPanel import CreateWorksheetTabPanel
+
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -65,17 +68,21 @@ class PerspectiveManager(object):
         
         self._mgr.AddPane(self.constructToolBar(), aui.AuiPaneInfo().
                           Name("viewToolbar").Caption("View Toolbar").
-                          ToolbarPane().Top().CloseButton(True).
+                          ToolbarPane().Top().Row(1).Position(1).CloseButton(True).
                           LeftDockable(False).RightDockable(False).Gripper(True))    
         self._mgr.AddPane(self.constructToolBar(), aui.AuiPaneInfo().
                           Name("perspectiveToolbar").Caption("Perspective Toolbar").
-                          ToolbarPane().Top().CloseButton(True).
-                          LeftDockable(False).RightDockable(False).Gripper(True), arg2=wx.Point(1500,0))    
+                          ToolbarPane().Top().Row(1).Position(2).CloseButton(True).
+                          LeftDockable(False).RightDockable(False).Gripper(True))    
         
-        self._mgr.AddPane(self.creatingTreeCtrl(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="folder_database.png")).
-                          Name("databaseNaviagor").Caption("Database Navigator").Dockable(True).Movable(True).MinSize(wx.Size(300, 100)).
-                          Left().Layer(1).Position(1).CloseButton(False).MaximizeButton(True).MinimizeButton(True))
-     
+        self._mgr.AddPane(self.creatingFileExplorer(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="folder_database.png")).BestSize(500,-1).
+                          Name("fileExplorer").Caption("File Explorer").Dockable(True).Movable(True).MinSize(500,-1).Resizable(True).
+                          Left().Layer(1).Position(2).CloseButton(True).MaximizeButton(True).MinimizeButton(True))
+        
+        self._mgr.AddPane(self.creatingTreeCtrl(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="folder_database.png")).BestSize(500,-1).
+                          Name("databaseNaviagor").Caption("Database Navigator").Dockable(True).Movable(True).MinSize(500,-1).
+                          Left().Layer(1).Position(1).CloseButton(True).MaximizeButton(True).MinimizeButton(True), target=self._mgr.GetPane("fileExplorer"))
+        
         self._mgr.AddPane(self.constructSqlPane(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="script.png")).
                           Name("sqlExecution").Caption("SQL execution").LeftDockable(True).
                           Center().CloseButton(True).MaximizeButton(True).MinimizeButton(True))
@@ -89,12 +96,12 @@ class PerspectiveManager(object):
 #                           Bottom().Layer(1).CloseButton(True).MaximizeButton(True))      
   
         self._mgr.AddPane(self.sqlConsoleOutputPane(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="console_view.png")).
-                          Name("consoleOutput").Caption("Console").Dockable(True).Movable(True).LeftDockable(True).
+                          Name("consoleOutput").Caption("Console").Dockable(True).Movable(True).LeftDockable(True).BestSize(wx.Size(500, 400)).MinSize(wx.Size(500, 400)).
                           Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True).PinButton(visible=True).GripperTop())
             
         self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="sql.png")).
-                          Name("sqlLog").Caption("SQL Log").Dockable(True).BestSize(wx.Size(200, 200)).
-                          Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True))
+                          Name("sqlLog").Caption("SQL Log").Dockable(True).BestSize(wx.Size(500, 400)).MinSize(wx.Size(500, 400)).
+                          Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True), target=self._mgr.GetPane("consoleOutput"))
             
         self._mgr.GetPane("viewToolbar").Show()
         self._mgr.GetPane("perspectiveToolbar").Show()
@@ -182,6 +189,12 @@ class PerspectiveManager(object):
         tb1.Realize()
         
         return tb1
+    
+    def creatingFileExplorer(self):
+        
+        fileBrowserPanel=FileBrowser(self, size=(500,300))
+        return fileBrowserPanel
+    
     
     def creatingTreeCtrl(self):
         # Create a TreeCtrl

@@ -25,6 +25,7 @@ ID_RESULT_FIRST = wx.NewIdRef()
 ID_RESULT_LAST = wx.NewIdRef()
 ID_SQL_LOG = wx.NewIdRef()
 ID_CONSOLE_LOG = wx.NewIdRef()
+ID_DATABASE_NAVIGATOR = wx.NewIdRef()
 ID_FILE_EXPLORER = wx.NewIdRef()
 ID_PROJECT_EXPLORER = wx.NewIdRef()
 ID_NAVIGATOR = wx.NewIdRef()
@@ -40,14 +41,14 @@ ID_SHOW_VIEW_TOOLBAR = wx.NewIdRef()
 ID_PERSPECTIVE_TOOLBAR = wx.NewIdRef()
 
 # Prospective menu menu
-ID_PROSPECTIVE_NAVIGATION=wx.NewIdRef()
-ID_PROSPECTIVE_OTHER=wx.NewIdRef()
-ID_OPEN_PROSPECTIVE=wx.NewIdRef()
+ID_PROSPECTIVE_NAVIGATION = wx.NewIdRef()
+ID_PROSPECTIVE_OTHER = wx.NewIdRef()
+ID_OPEN_PROSPECTIVE = wx.NewIdRef()
 # Appearance toolbar menu
 ID_CREATE_NEW_WINDOW = wx.NewIdRef()
 ID_APPEARANCE = wx.NewIdRef()
 # show view menu
-ID_SHOW_VIEW=wx.NewIdRef()
+ID_SHOW_VIEW = wx.NewIdRef()
 ID_HIDE_TOOLBAR = wx.NewIdRef()
 ID_HIDE_STATUSBAR = wx.NewIdRef()
 

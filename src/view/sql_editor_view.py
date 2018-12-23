@@ -11,7 +11,7 @@ from src.view.constants import ID_openConnection, ID_newWorksheet, ID_newConnect
     ID_HIDE_TOOLBAR, ID_APPEARANCE, ID_SEARCH_FILE, ID_CONSOLE_LOG, ID_SHOW_VIEW, \
     ID_PROSPECTIVE_NAVIGATION, ID_SHOW_VIEW_TOOLBAR, ID_PERSPECTIVE_TOOLBAR, \
     ID_HIDE_STATUSBAR, ID_CREATE_NEW_WINDOW, ID_WELCOME, ID_FILE_EXPLORER,\
-    ID_PROJECT_EXPLORER, ID_NAVIGATOR, ID_TERMINAL
+    ID_PROJECT_EXPLORER, ID_NAVIGATOR, ID_TERMINAL, ID_DATABASE_NAVIGATOR
 
 from src.view.openConnection.OpenExistingConnection import OpenExistingConnectionFrame
 from src.view.preference.Preferences import OpalPreference
@@ -174,6 +174,7 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
                                                 [ID_SQL_EXECUTION, 'SQL Execution', "script.png", None ],
                                                 [ID_SQL_LOG, 'SQL Log', "sql.png" , None],
                                                 [ID_CONSOLE_LOG, 'Console', "console_view.png", None ],
+                                                [ID_DATABASE_NAVIGATOR, "Database Navigator", None, None ],
                                                 [ID_FILE_EXPLORER, 'File Explorer', None, None ], # TODO : need to set image icon
                                                 [ID_PROJECT_EXPLORER, 'Project Explorer', None, None ], # TODO : need to set image icon
                                                 [ID_NAVIGATOR, 'Navigator', None, None ], # TODO : need to set image icon
@@ -267,6 +268,7 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
         self.Bind(wx.EVT_CLOSE, self.OnClose)
         self.Bind(wx.EVT_MENU, self.OnExit, id=wx.ID_EXIT)
         self.Bind(wx.EVT_MENU, self.OnAbout, id=wx.ID_HELP)
+        self.Bind(wx.EVT_MENU, self.OnWelcome, id=ID_WELCOME)
         
         self.Bind(wx.EVT_MENU, self.onOpenConnection, id=ID_openConnection)
         self.Bind(wx.EVT_MENU, self.onNewConnection, id=ID_newConnection)
@@ -274,6 +276,8 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
         self.Bind(wx.EVT_MENU, self.onPreferences, id=ID_PREFERENCES)
         self.Bind(wx.EVT_MENU, self.onSqlLog, id=ID_SQL_LOG)
         self.Bind(wx.EVT_MENU, self.onConsole, id=ID_CONSOLE_LOG)
+        self.Bind(wx.EVT_MENU, self.onDatabaseNavigator, id=ID_DATABASE_NAVIGATOR)
+        
         self.Bind(wx.EVT_MENU, self.onSqlExecution, id=ID_SQL_EXECUTION)
         self.Bind(wx.EVT_MENU, self.onShowViewToolbar, id=ID_SHOW_VIEW_TOOLBAR)
         self.Bind(wx.EVT_MENU, self.onPerspectiveToolbar, id=ID_PERSPECTIVE_TOOLBAR)
@@ -379,6 +383,11 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
         sqlLogTab = self.GetTopLevelParent()._mgr.GetPane("sqlLog").Show()
         self.GetTopLevelParent()._mgr.Update()
 
+    def onDatabaseNavigator(self, event):
+        logger.debug("onDatabaseNavigator")
+        databaseNaviagorTab = self.GetTopLevelParent()._mgr.GetPane("databaseNaviagor").Show()
+        self.GetTopLevelParent()._mgr.Update()
+            
     def onConsole(self, event):
         logger.debug('onConsole')
         consoleTab = self.GetTopLevelParent()._mgr.GetPane("consoleOutput").Show()
@@ -388,7 +397,12 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
         logger.debug('onSqlExecution')
         sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").Show()
         self.GetTopLevelParent()._mgr.Update()
-        
+    
+    def OnWelcome(self, event):
+        logger.debug("OnWelcome")
+        name='Start Page'
+        sqlExecutionTab=self.GetTopLevelParent()._mgr.GetPane("sqlExecution")
+        sqlExecutionTab.window.addTab(name)    
     def OnAbout(self, event):
         logger.debug('OnAbout')
         plate = platform.platform()
