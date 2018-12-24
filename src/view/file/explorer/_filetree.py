@@ -22,17 +22,18 @@ class FileTree(wx.TreeCtrl):
     hierarchical view.
 
     """
-    def __init__(self, parent):
+
+    def __init__(self, parent, style=wx.TR_HIDE_ROOT | 
+                                             wx.TR_FULL_ROW_HIGHLIGHT | 
+                                             wx.TR_LINES_AT_ROOT | 
+                                             wx.TR_HAS_BUTTONS | 
+                                             wx.TR_MULTIPLE | 
+                                             wx.TR_EDIT_LABELS | wx.BORDER_NONE):
         super(FileTree, self).__init__(parent,
-                                       style=wx.TR_HIDE_ROOT|
-                                             wx.TR_FULL_ROW_HIGHLIGHT|
-                                             wx.TR_LINES_AT_ROOT|
-                                             wx.TR_HAS_BUTTONS|
-                                             wx.TR_MULTIPLE|
-                                             wx.TR_EDIT_LABELS)
+                                       style=style)
 
         # Attributes
-        self._watch = list() # Root directories to watch
+        self._watch = list()  # Root directories to watch
         self._il = None
         self._editlabels = True
 
@@ -186,24 +187,24 @@ class FileTree(wx.TreeCtrl):
         """
         logger.debug('DoSetupImageList')
         self.fileOperations = FileOperations()
-        bmp = wx.ArtProvider.GetBitmap(wx.ART_FOLDER, wx.ART_MENU, (16,16))
+        bmp = wx.ArtProvider.GetBitmap(wx.ART_FOLDER, wx.ART_MENU, (16, 16))
         self.ImageList.Add(bmp)
-        bmp = wx.ArtProvider.GetBitmap(wx.ART_NORMAL_FILE, wx.ART_MENU, (16,16))
+        bmp = wx.ArtProvider.GetBitmap(wx.ART_NORMAL_FILE, wx.ART_MENU, (16, 16))
         self.ImageList.Add(bmp)
-        bmp = wx.ArtProvider.GetBitmap(wx.ART_ERROR, wx.ART_MENU, (16,16))
+        bmp = wx.ArtProvider.GetBitmap(wx.ART_ERROR, wx.ART_MENU, (16, 16))
         self.ImageList.Add(bmp)
         
-        iconsPresent=self.getExtensionWithBmp()
+        iconsPresent = self.getExtensionWithBmp()
         logger.debug(iconsPresent)
-        count=3
-        self.iconsDictByIndex={}
-        self.iconsDictByExtension={}
+        count = 3
+        self.iconsDictByIndex = {}
+        self.iconsDictByExtension = {}
         for iconInfo in iconsPresent:
             self.ImageList.Add(iconInfo[1])
             iconInfo.append(count)
-            self.iconsDictByExtension[iconInfo[0][0]]=iconInfo
-            self.iconsDictByIndex[count]=iconInfo
-            count =count+1
+            self.iconsDictByExtension[iconInfo[0][0]] = iconInfo
+            self.iconsDictByIndex[count] = iconInfo
+            count = count + 1
         logger.debug(self.iconsDictByIndex)
 
     def DoGetFileImage(self, path):
@@ -219,21 +220,21 @@ class FileTree(wx.TreeCtrl):
             img = 2
         else:
             if os.path.isdir(path):
-                img = 0 # Directory image
+                img = 0  # Directory image
             else:
                 filename, file_extension = os.path.splitext(path)
                 if file_extension in self.iconsDictByExtension.keys():
-                    iconInfo=self.iconsDictByExtension[file_extension]
+                    iconInfo = self.iconsDictByExtension[file_extension]
                     if iconInfo:
-                        img =iconInfo[3]
+                        img = iconInfo[3]
                 else:
-                    img = 1 # Normal file image
+                    img = 1  # Normal file image
 #                 self.getMimeType()
         return img
 
     def getIconByExtension(self, file_extension=".txt"):
         fileType = wx.TheMimeTypesManager.GetFileTypeFromExtension(file_extension)
-        bmp = wx.Bitmap(16,16) 
+        bmp = wx.Bitmap(16, 16) 
         if fileType is None:
             logger.debug("File extension not found.")
         else:
@@ -242,7 +243,7 @@ class FileTree(wx.TreeCtrl):
                 bmp.CopyFromIcon(icon) 
                 bmp = bmp.ConvertToImage() 
                 # Rescale it, usually it's not 16x16 
-                bmp.Rescale(16,16) 
+                bmp.Rescale(16, 16) 
                 bmp = wx.BitmapFromImage(bmp) 
         return bmp
     
@@ -250,8 +251,8 @@ class FileTree(wx.TreeCtrl):
         # Locate all file types 
         mtypes = wx.TheMimeTypesManager.EnumAllFileTypes() 
         
-        iconsPresent=[]
-        iconsNotPresent=[]
+        iconsPresent = []
+        iconsNotPresent = []
         for mt in mtypes: 
         
             # Loop over all file types 
@@ -266,11 +267,11 @@ class FileTree(wx.TreeCtrl):
                     icon, file, idx = nntype 
         
                     if icon.IsOk():
-                        bmp = wx.Bitmap(16,16) 
+                        bmp = wx.Bitmap(16, 16) 
                         bmp.CopyFromIcon(icon) 
                         bmp = bmp.ConvertToImage() 
                         # Rescale it, usually it's not 16x16 
-                        bmp.Rescale(16,16) 
+                        bmp.Rescale(16, 16) 
                         bmp = wx.Bitmap(bmp) 
                         iconsPresent.append([fileType.GetExtensions(), bmp, file])
                     else:
@@ -401,6 +402,7 @@ class FileTree(wx.TreeCtrl):
 
         """
         logger.debug('GetExpandedNodes')
+
         def NodeWalker(parent, rlist):
             """Recursively find expanded nodes
             @param parent: parent node
@@ -483,7 +485,7 @@ class FileTree(wx.TreeCtrl):
         try:
             joinPath = os.path.join
             fappend = files.append
-            #fs_encoding = sys.getfilesystemencoding()
+            # fs_encoding = sys.getfilesystemencoding()
             for p in os.listdir(directory):
                 fullpath = joinPath(directory, p)
 #                 if type(fullpath) != types:
@@ -534,13 +536,14 @@ class FileTree(wx.TreeCtrl):
         if parent.IsOk():
             self.SortChildren(parent)
 
+
     #-----------------------------------------------------------------------------#
 # Test
 if __name__ == '__main__':
     app = wx.App(False)
     f = wx.Frame(None)
     ft = FileTree(f)
-    drives=GetWindowsDrives()
+    drives = GetWindowsDrives()
 #     d = wx.GetUserHome()
     for drive in drives:
         try:

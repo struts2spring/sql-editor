@@ -23,7 +23,7 @@ class FileBrowser(FileTree):
     
     """FileExplorer Tree"""
 
-    def __init__(self, parent,  size=wx.DefaultSize):
+    def __init__(self, parent, size=wx.DefaultSize):
         self._mime = FileBrowserMimeManager()
 
         super(FileBrowser, self).__init__(parent)

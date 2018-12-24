@@ -11,7 +11,7 @@ from src.view.constants import ID_openConnection, ID_newWorksheet, ID_newConnect
     ID_HIDE_TOOLBAR, ID_APPEARANCE, ID_SEARCH_FILE, ID_CONSOLE_LOG, ID_SHOW_VIEW, \
     ID_PROSPECTIVE_NAVIGATION, ID_SHOW_VIEW_TOOLBAR, ID_PERSPECTIVE_TOOLBAR, \
     ID_HIDE_STATUSBAR, ID_CREATE_NEW_WINDOW, ID_WELCOME, ID_FILE_EXPLORER, \
-    ID_PROJECT_EXPLORER, ID_NAVIGATOR, ID_TERMINAL, ID_DATABASE_NAVIGATOR,\
+    ID_PROJECT_EXPLORER, ID_NAVIGATOR, ID_TERMINAL, ID_DATABASE_NAVIGATOR, \
     ID_PYTHON_PACKAGE_EXPLORER, ID_OUTLINE
 
 from src.view.openConnection.OpenExistingConnection import OpenExistingConnectionFrame
@@ -19,6 +19,7 @@ from src.view.preference.Preferences import OpalPreference
 from src.view.util.FileOperationsUtil import FileOperations
 
 from src.view.perspective import PerspectiveManager
+from wx.lib.agw.aui.aui_constants import AUI_DOCK_LEFT
     
 logger = logging.getLogger('extensive')
 
@@ -279,6 +280,7 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
         self.Bind(wx.EVT_MENU, self.onSqlLog, id=ID_SQL_LOG)
         self.Bind(wx.EVT_MENU, self.onConsole, id=ID_CONSOLE_LOG)
         self.Bind(wx.EVT_MENU, self.onDatabaseNavigator, id=ID_DATABASE_NAVIGATOR)
+        self.Bind(wx.EVT_MENU, self.onFileExplorer, id=ID_FILE_EXPLORER)
         
         self.Bind(wx.EVT_MENU, self.onSqlExecution, id=ID_SQL_EXECUTION)
         self.Bind(wx.EVT_MENU, self.onShowViewToolbar, id=ID_SHOW_VIEW_TOOLBAR)
@@ -383,6 +385,8 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
     def onSqlLog(self, event):
         logger.debug('onSqlLog')
         sqlLogTab = self.GetTopLevelParent()._mgr.GetPane("sqlLog").Show()
+        sqlLogTab.Bottom().Layer(0).Row(1)
+        self.GetTopLevelParent()._mgr.AddPane(sqlLogTab.window,sqlLogTab)
         self.GetTopLevelParent()._mgr.Update()
 
     def onDatabaseNavigator(self, event):
@@ -393,6 +397,27 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
     def onConsole(self, event):
         logger.debug('onConsole')
         consoleTab = self.GetTopLevelParent()._mgr.GetPane("consoleOutput").Show()
+        consoleTab.Bottom().Layer(0).Row(1)
+        self.GetTopLevelParent()._mgr.AddPane(consoleTab.window,consoleTab)
+        self.GetTopLevelParent()._mgr.Update()
+        
+    def onFileExplorer(self, event):
+        logger.debug('onFileExplorer')
+        for pane in self.GetTopLevelParent()._mgr.GetAllPanes():
+            logger.debug(pane.dock_direction)
+            fileExplorerTab = self.GetTopLevelParent()._mgr.GetPane("fileExplorer")
+            fileExplorerTab.Show()
+            self.GetTopLevelParent()._mgr.AddPane(fileExplorerTab.window,fileExplorerTab.Icon(self.fileOperations.getImageBitmap(imageName="file_explorer.png")).BestSize(500,-1).
+                      Name("fileExplorer").Caption("File Explorer").Dockable(True).Movable(True).MinSize(500,-1).Resizable(True).
+                      Left().Layer(1).Position(2).CloseButton(True).MaximizeButton(True).MinimizeButton(True), target=self.GetTopLevelParent()._mgr.GetPane("databaseNaviagor"))
+#             if pane.dock_direction == AUI_DOCK_LEFT:
+#                 fileExplorerTab.dock_direction_set(4)
+#                 fileExplorerTab.dock_layer=pane.dock_layer
+#                 self.GetTopLevelParent()._mgr.CreateNotebookBase(self.GetTopLevelParent()._mgr._panes, pane)
+#                 fileExplorerTab.NotebookPage(pane.notebook_id)
+#                 fileExplorerTab.NotebookPage(pane.notebook_id)
+#                 fileExplorerTab.Show()
+#                 break
         self.GetTopLevelParent()._mgr.Update()
         
     def onSqlExecution(self, event):
@@ -403,8 +428,8 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
     def OnWelcome(self, event):
         logger.debug("OnWelcome")
         name = 'Start Page'
-        sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("centerPane")
-        sqlExecutionTab.window.addTab(name)    
+        centerPaneTab = self.GetTopLevelParent()._mgr.GetPane("centerPane")
+        centerPaneTab.window.addTab(name)    
 
     def OnAbout(self, event):
         logger.debug('OnAbout')

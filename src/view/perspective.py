@@ -173,7 +173,105 @@ class PerspectiveManager(object):
         # "commit" all changes made to FrameManager
         self._mgr.Update()  
         
-    
+        # some more event
+        self.Bind(aui.EVT_AUI_PANE_CLOSE, self.OnPaneClose)
+        self.Bind(aui.EVT_AUINOTEBOOK_ALLOW_DND, self.OnAllowNotebookDnD)
+        self.Bind(aui.EVT_AUINOTEBOOK_PAGE_CLOSE, self.OnNotebookPageClose)
+
+        self.Bind(aui.EVT_AUI_PANE_FLOATING, self.OnFloatDock)
+        self.Bind(aui.EVT_AUI_PANE_FLOATED, self.OnFloatDock)
+        self.Bind(aui.EVT_AUI_PANE_DOCKING, self.OnFloatDock)
+        self.Bind(aui.EVT_AUI_PANE_DOCKED, self.OnFloatDock)
+
+        self.Bind(wx.EVT_CLOSE, self.OnClose)
+
+        self.Bind(wx.EVT_TIMER, self.TimerHandler)
+        self.timer = wx.Timer(self)
+        self.timer.Start(100)
+
+
+
+#######################################################################################    
+
+    def OnPaneClose(self, event):
+        logger.debug("OnPaneClose")
+#         if event.pane.name == "test10":
+
+        msg = "Are you sure you want to "
+        if event.GetEventType() == aui.wxEVT_AUI_PANE_MINIMIZE:
+            msg += "minimize "
+        else:
+            msg += "close/hide "
+
+        res = wx.MessageBox(msg + "this pane?", "AUI", wx.YES_NO, self)
+        if res != wx.YES:
+            event.Veto()
+    def OnAllowNotebookDnD(self, event):
+
+        # for the purpose of this test application, explicitly
+        # allow all noteboko drag and drop events
+        event.Allow()
+    def OnNotebookPageClose(self, event):
+        logger.debug("OnNotebookPageClose")
+        ctrl = event.GetEventObject()
+        if isinstance(ctrl.GetPage(event.GetSelection()), wx.html.HtmlWindow):
+
+            res = wx.MessageBox("Are you sure you want to close/hide this notebook page?",
+                                "AUI", wx.YES_NO, self)
+            if res != wx.YES:
+                event.Veto()
+    def OnFloatDock(self, event):
+
+        paneLabel = event.pane.caption
+        etype = event.GetEventType()
+
+        strs = "Pane %s "%paneLabel
+        if etype == aui.wxEVT_AUI_PANE_FLOATING:
+            strs += "is about to be floated"
+
+            if event.pane.name == "test8" and self._veto_tree:
+                event.Veto()
+                strs += "... Event vetoed by user selection!"
+                logger.debug(strs )
+                return
+
+        elif etype == aui.wxEVT_AUI_PANE_FLOATED:
+            strs += "has been floated"
+        elif etype == aui.wxEVT_AUI_PANE_DOCKING:
+            strs += "is about to be docked"
+
+            if event.pane.name == "test11" and self._veto_text:
+                event.Veto()
+                strs += "... Event vetoed by user selection!"
+                logger.debug(strs )
+                return
+
+        elif etype == aui.wxEVT_AUI_PANE_DOCKED:
+            strs += "has been docked"
+
+        logger.debug(strs )
+
+
+    def __del__(self):
+
+        self.timer.Stop()
+
+
+    def OnClose(self, event):
+
+        self.timer.Stop()
+        self._mgr.UnInit()
+        event.Skip()
+
+
+    def TimerHandler(self, event):
+
+        try:
+            self.gauge.Pulse()
+        except:
+            self.timer.Stop()
+
+#######################################################################################    
     def setStyleToPanes(self):
         all_panes = self._mgr.GetAllPanes()
 
