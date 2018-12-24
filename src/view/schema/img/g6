@@ -1,0 +1,10 @@
+digraph {
+	graph [label="A Fancy Graph" rankdir=LR]
+	node [fillcolor="#006699" fontcolor=black fontsize=16 shape=record]
+	edge [arrowhead=open fontcolor=black fontname=Courier fontsize=12 style=dashed]
+	node0 [label="<f0> 0x10ba8| <f1> "]
+	node1 [label="<f0> 0xf7fc4380| <f1> | <f2> |-1"]
+	node2 [label="<f0> 0xf7fc44b8| | |2"]
+	node0:f0 -> node1:f0 [id=0]
+	node0:f1 -> node2:f0 [id=1]
+}

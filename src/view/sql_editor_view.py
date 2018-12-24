@@ -10,15 +10,15 @@ from src.view.constants import ID_openConnection, ID_newWorksheet, ID_newConnect
     ID_SQL_EXECUTION, ID_SQL_LOG, ID_UPDATE_CHECK, TITLE, VERSION, \
     ID_HIDE_TOOLBAR, ID_APPEARANCE, ID_SEARCH_FILE, ID_CONSOLE_LOG, ID_SHOW_VIEW, \
     ID_PROSPECTIVE_NAVIGATION, ID_SHOW_VIEW_TOOLBAR, ID_PERSPECTIVE_TOOLBAR, \
-    ID_HIDE_STATUSBAR, ID_CREATE_NEW_WINDOW, ID_WELCOME, ID_FILE_EXPLORER,\
-    ID_PROJECT_EXPLORER, ID_NAVIGATOR, ID_TERMINAL, ID_DATABASE_NAVIGATOR
+    ID_HIDE_STATUSBAR, ID_CREATE_NEW_WINDOW, ID_WELCOME, ID_FILE_EXPLORER, \
+    ID_PROJECT_EXPLORER, ID_NAVIGATOR, ID_TERMINAL, ID_DATABASE_NAVIGATOR,\
+    ID_PYTHON_PACKAGE_EXPLORER, ID_OUTLINE
 
 from src.view.openConnection.OpenExistingConnection import OpenExistingConnectionFrame
 from src.view.preference.Preferences import OpalPreference
 from src.view.util.FileOperationsUtil import FileOperations
 
 from src.view.perspective import PerspectiveManager
-from src.view.file.explorer.ed_glob import ID_NEW_WINDOW
     
 logger = logging.getLogger('extensive')
 
@@ -33,7 +33,7 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
 
         self.fileOperations = FileOperations()
         icon = wx.Icon()
-        icon.CopyFromBitmap(self.fileOperations.getImageBitmap(imageName="Opal_database.png"))
+        icon.CopyFromBitmap(self.fileOperations.getImageBitmap(imageName="eclipse16.png"))
         
         self.SetIcon(icon)
         self.SetMinSize(wx.Size(400, 300))
@@ -171,14 +171,16 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
                                                 [ID_SHOW_VIEW_TOOLBAR, 'View Toolbar', "toolbar.png", None ],
                                                 [ID_PERSPECTIVE_TOOLBAR, 'Perspective Toolbar', "toolbar.png", None ],
                                                 [],
-                                                [ID_SQL_EXECUTION, 'SQL Execution', "script.png", None ],
+                                                [ID_SQL_EXECUTION, 'Center Pane', "script.png", None ],
                                                 [ID_SQL_LOG, 'SQL Log', "sql.png" , None],
                                                 [ID_CONSOLE_LOG, 'Console', "console_view.png", None ],
-                                                [ID_DATABASE_NAVIGATOR, "Database Navigator", None, None ],
-                                                [ID_FILE_EXPLORER, 'File Explorer', None, None ], # TODO : need to set image icon
-                                                [ID_PROJECT_EXPLORER, 'Project Explorer', None, None ], # TODO : need to set image icon
-                                                [ID_NAVIGATOR, 'Navigator', None, None ], # TODO : need to set image icon
-                                                [ID_TERMINAL, 'Terminal', None, None ], # TODO : need to set image icon
+                                                [ID_DATABASE_NAVIGATOR, "Database Navigator", "folder_database.png", None ],
+                                                [ID_FILE_EXPLORER, 'File Explorer', "file_explorer.png" , None],  # TODO : need to set image icon
+                                                [ID_PROJECT_EXPLORER, 'Project Explorer', "resource_persp.png", None ],  # TODO : need to set image icon
+                                                [ID_NAVIGATOR, 'Navigator', "filenav_nav.png", None ],  # TODO : need to set image icon
+                                                [ID_TERMINAL, 'Terminal', None, None ],  # TODO : need to set image icon
+                                                [ID_OUTLINE, 'Outline', "outline_co.png", None ],  # TODO : need to set image icon
+                                                [ID_PYTHON_PACKAGE_EXPLORER, 'Python Package Explorer', None, None ],  # TODO : need to set image icon
                                                 [],
                                                 [wx.NewIdRef(), 'Other', None, None ]
                                             ], None
@@ -206,7 +208,7 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
                     [ wx.NewIdRef(), "Tip of the day", None, "smartmode_co.png"],
                     [ wx.NewIdRef(), "Tips and Tricks...", None, "tricks.png"],
                     [],
-                    [ wx.NewIdRef(), "Install New Software...", None, "iu_obj.png"],# TODO: need to set icon
+                    [ wx.NewIdRef(), "Install New Software...", None, "iu_obj.png"],  # TODO: need to set icon
                     [],
                     [ wx.ID_HELP, "&About {}".format(TITLE), None, None],
                     [ wx.NewIdRef(), "Contribute", None, "star.png"],
@@ -325,12 +327,12 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
     def onNewWorksheet(self, event):
         logger.debug('onNewWorksheet')
 #         all_panes = self._mgr.GetAllPanes()
-        sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("sqlExecution")
+        sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("centerPane")
         sqlExecutionTab.window.addTab("Worksheet")
         
     def onPreferences(self, event):
         logger.debug('onPreferences')
-        frame1 = OpalPreference(None, "Preferences",size=(600, 560))
+        frame1 = OpalPreference(None, "Preferences", size=(600, 560))
         
     def onHideToolbar(self, event):
         logger.debug('onHideStatusbar')
@@ -395,14 +397,15 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
         
     def onSqlExecution(self, event):
         logger.debug('onSqlExecution')
-        sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").Show()
+        sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("centerPane").Show()
         self.GetTopLevelParent()._mgr.Update()
     
     def OnWelcome(self, event):
         logger.debug("OnWelcome")
-        name='Start Page'
-        sqlExecutionTab=self.GetTopLevelParent()._mgr.GetPane("sqlExecution")
+        name = 'Start Page'
+        sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("centerPane")
         sqlExecutionTab.window.addTab(name)    
+
     def OnAbout(self, event):
         logger.debug('OnAbout')
         plate = platform.platform()

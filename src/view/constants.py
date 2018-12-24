@@ -2,7 +2,7 @@ import wx
 import tempfile
 import os
 
-TITLE = "SQL Editor"
+TITLE = "Eclipse"
 VERSION = "0.0.5"
 
 ID_WELCOME = wx.NewIdRef()
@@ -30,6 +30,8 @@ ID_FILE_EXPLORER = wx.NewIdRef()
 ID_PROJECT_EXPLORER = wx.NewIdRef()
 ID_NAVIGATOR = wx.NewIdRef()
 ID_TERMINAL = wx.NewIdRef()
+ID_OUTLINE = wx.NewIdRef()
+ID_PYTHON_PACKAGE_EXPLORER = wx.NewIdRef()
 
 ID_SQL_EXECUTION = wx.NewIdRef()
 ID_COPY_COLUMN_HEADER = wx.NewIdRef()

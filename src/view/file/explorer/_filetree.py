@@ -362,7 +362,7 @@ class FileTree(wx.TreeCtrl):
         isDir = os.path.isdir
         getImg = self.DoGetFileImage
         appendNode = self.AppendItem
-        setData = self.SetPyData
+        setData = self.SetItemData
         for path in paths:
             img = getImg(path)
             name = getBaseName(path)
@@ -517,7 +517,7 @@ class FileTree(wx.TreeCtrl):
         @param item: TreeItemId
 
         """
-        logger.debug('GetPyData')
+#         logger.debug('GetPyData')
         data = None
         # avoid assertions in base class when retrieving data...
         if item and item.IsOk():

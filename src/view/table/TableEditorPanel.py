@@ -562,9 +562,9 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         logger.debug('executeSQL: %s' ,self.GetSelectedText()  )
         sqlExecuter = SQLExecuter(database='_opal.sqlite')
         sqlOutput=sqlExecuter.executeText(self.GetSelectedText())
-        creatingWorksheetPanel=self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1]
+        creatingWorksheetPanel=self.GetTopLevelParent()._mgr.GetPane("centerPane").window.GetChildren()[0].CurrentPage.Children[1]
         creatingWorksheetPanel.setResultData(data=sqlOutput)
-        resultListPanel=self.GetTopLevelParent()._mgr.GetPane("sqlExecution").window.GetChildren()[0].CurrentPage.Children[1].splitter.Children[1]
+        resultListPanel=self.GetTopLevelParent()._mgr.GetPane("centerPane").window.GetChildren()[0].CurrentPage.Children[1].splitter.Children[1]
         resultListPanel.createDataViewCtrl(data=sqlOutput,headerList=["Artist","Title","Genre"])
 #         resultListPanel.setResultData()
         

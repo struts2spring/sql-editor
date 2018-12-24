@@ -231,7 +231,7 @@ class ConnPropertyFrame(wx.Frame):
                           Left().Layer(1).Position(1).CloseButton(False).MaximizeButton(True).MinimizeButton(True))
      
         self._mgr.AddPane(self.constructSqlPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "script.png"))).
-                          Name("sqlExecution").Caption("SQL execution").LeftDockable(True).
+                          Name("centerPane").Caption("Center Pane").LeftDockable(True).
                           Center().CloseButton(True).MaximizeButton(True).MinimizeButton(True))
         
 #         self._mgr.AddPane(self.constructSchemaViewerPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "script.png"))).
@@ -411,7 +411,7 @@ class ConnPropertyFrame(wx.Frame):
     def onNewWorksheet(self, event):
         logger.debug('onNewWorksheet')
 #         all_panes = self._mgr.GetAllPanes()
-        sqlExecutionTab=self.GetTopLevelParent()._mgr.GetPane("sqlExecution")
+        sqlExecutionTab=self.GetTopLevelParent()._mgr.GetPane("centerPane")
         sqlExecutionTab.window.addTab("Worksheet")
         
     def onPreferences(self, event):
@@ -425,7 +425,7 @@ class ConnPropertyFrame(wx.Frame):
         
     def onSqlExecution(self, event):
         logger.debug('onSqlExecution')
-        sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("sqlExecution").Show()
+        sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("centerPane").Show()
         self.GetTopLevelParent()._mgr.Update()
         
     def OnAbout(self, event):

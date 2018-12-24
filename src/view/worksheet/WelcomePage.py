@@ -80,7 +80,7 @@ class WelcomePanel(wx.Panel):
         tb1.AddControl(self.location, label="Location: ")
         
 #         tb1_open = wx.ArtProvider.GetBitmap(wx.ART_TICK_MARK, wx.ART_OTHER, wx.Size(16, 16))
-        tb1.AddSimpleTool(openButtonId, "Open", bitmap=fileOperations.getImageBitmap(imageName="triangle_green.png"), short_help_string="Open")
+        tb1.AddSimpleTool(openButtonId, "Open", bitmap=fileOperations.getImageBitmap(imageName="webinar.png"), short_help_string="Open")
         self.Bind(wx.EVT_MENU, self.OnOpenButton, id=openButtonId)
 
         tb1.Realize()

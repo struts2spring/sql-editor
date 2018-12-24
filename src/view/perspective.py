@@ -11,6 +11,7 @@ from src.view.constants import LOG_SETTINGS, ID_newConnection, ID_openConnection
 from src.view.file.explorer.FileBrowserPanel import FileBrowser
 from src.view.history.HistoryListPanel import HistoryGrid
 from src.view.worksheet.WorksheetPanel import CreateWorksheetTabPanel
+from wx.lib.agw.aui.aui_constants import actionDragFloatingPane, AUI_DOCK_NONE
 
 
 logging.config.dictConfig(LOG_SETTINGS)
@@ -25,6 +26,66 @@ except ImportError:  # if it's not there locally, try the wxPython lib.
     from wx.lib.agw.aui import aui_switcherdialog as ASD
 ############################################################
 
+
+class MyAuiManager(aui.AuiManager):
+    
+    def OnTabBeginDrag(self, event):
+        """
+        Handles the ``EVT_AUINOTEBOOK_BEGIN_DRAG`` event.
+
+        :param `event`: a :class:`~wx.lib.agw.aui.auibook.AuiNotebookEvent` event to be processed.
+        """
+
+        if self._masterManager:
+            self._masterManager.OnTabBeginDrag(event)
+
+        else:
+            paneInfo = self.PaneFromTabEvent(event)
+
+            if paneInfo.IsOk():
+
+                # It's one of ours!
+                self._action = actionDragFloatingPane
+                mouse = wx.GetMousePosition()
+
+                # set initial float position - may have to think about this
+                # offset a bit more later ...
+                self._action_offset = wx.Point(20, 10)
+                self._toolbar_action_offset = wx.Point(20, 10)
+
+                paneInfo.floating_pos = mouse - self._action_offset
+                paneInfo.dock_pos = AUI_DOCK_NONE
+                paneInfo.notebook_id = -1
+
+                tab = event.GetEventObject()
+
+                try:
+                    if tab.HasCapture():
+                        
+                        tab.ReleaseMouse()
+                except:
+                    pass
+
+                # float the window
+                if paneInfo.IsMaximized():
+                    self.RestorePane(paneInfo)
+                paneInfo.Float()
+
+                # The call to Update may result in
+                # the notebook that generated this
+                # event being deleted, so we have
+                # to do the call asynchronously.
+                wx.CallAfter(self.Update)
+
+                self._action_window = paneInfo.window
+
+                self._frame.CaptureMouse()
+                event.SetDispatched(True)
+
+            else:
+
+                # not our window
+                event.Skip()
 
 class PerspectiveManager(object):
     """Creates a perspective manager for the given aui managed window.
@@ -46,7 +107,7 @@ class PerspectiveManager(object):
     def createAuiManager(self):
         logger.debug('createAuiManager')
         # tell FrameManager to manage this frame
-        self._mgr = aui.AuiManager()
+        self._mgr = MyAuiManager()
         self._mgr.SetManagedWindow(self)
         # set up default notebook style
         self._notebook_style = aui.AUI_NB_DEFAULT_STYLE | aui.AUI_NB_TAB_EXTERNAL_MOVE | wx.NO_BORDER| wx.BORDER_NONE
@@ -75,7 +136,7 @@ class PerspectiveManager(object):
                           ToolbarPane().Top().Row(1).Position(2).CloseButton(True).
                           LeftDockable(False).RightDockable(False).Gripper(True))    
         
-        self._mgr.AddPane(self.creatingFileExplorer(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="folder_database.png")).BestSize(500,-1).
+        self._mgr.AddPane(self.creatingFileExplorer(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="file_explorer.png")).BestSize(500,-1).
                           Name("fileExplorer").Caption("File Explorer").Dockable(True).Movable(True).MinSize(500,-1).Resizable(True).
                           Left().Layer(1).Position(2).CloseButton(True).MaximizeButton(True).MinimizeButton(True))
         
@@ -84,7 +145,7 @@ class PerspectiveManager(object):
                           Left().Layer(1).Position(1).CloseButton(True).MaximizeButton(True).MinimizeButton(True), target=self._mgr.GetPane("fileExplorer"))
         
         self._mgr.AddPane(self.constructSqlPane(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="script.png")).
-                          Name("sqlExecution").Caption("SQL execution").LeftDockable(True).
+                          Name("centerPane").Caption("Center Pane").LeftDockable(True).
                           Center().CloseButton(True).MaximizeButton(True).MinimizeButton(True))
         
 #         self._mgr.AddPane(self.constructSchemaViewerPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "script.png"))).

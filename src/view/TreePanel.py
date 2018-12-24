@@ -636,7 +636,7 @@ class CreatingTreePanel(wx.Panel):
 
     def openWorksheet(self, sheetName="Worksheet"):
         if hasattr(self.GetTopLevelParent(), '_mgr'):
-            sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("sqlExecution")
+            sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("centerPane")
             if sqlExecutionTab.window:
                 sqlExecutionTab.window.addTab(name=sheetName)
     
