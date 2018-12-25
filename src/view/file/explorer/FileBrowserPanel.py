@@ -555,7 +555,7 @@ class FileBrowserMimeManager():
         self.iconsDictIndex = {}
         count = 0
         for imageName in ['fileType_filter.png', 'folder.png', 'folder_view.png', 'harddisk.png', 'usb.png', 'stop.png',
-                          'java.png', 'python_module.png', 'xml.png']:
+                          'java.png', 'python_module.png', 'xml.png','python.png']:
             imglist.Add(self.fileOperations.getImageBitmap(imageName=imageName))
             self.iconsDictIndex[imageName] = count
             count += 1
