@@ -365,12 +365,15 @@ class FileTree(wx.TreeCtrl):
         appendNode = self.AppendItem
         setData = self.SetItemData
         for path in paths:
-            img = getImg(path)
-            name = getBaseName(path)
-            if not name:
-                name = path
-            child = appendNode(item, name, img)
-            setData(child, path)
+            try:
+                img = getImg(path)
+                name = getBaseName(path)
+                if not name:
+                    name = path
+                child = appendNode(item, name, img)
+                setData(child, path)
+            except Exception as e:
+                logger.error(e, exc_info=True)
             if isDir(path):
                 self.SetItemHasChildren(child, True)
 

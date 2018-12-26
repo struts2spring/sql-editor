@@ -214,12 +214,12 @@ class PerspectiveManager(object):
     def OnNotebookPageClose(self, event):
         logger.debug("OnNotebookPageClose")
         ctrl = event.GetEventObject()
-        if isinstance(ctrl.GetPage(event.GetSelection()), wx.html.HtmlWindow):
-
-            res = wx.MessageBox("Are you sure you want to close/hide this notebook page?",
-                                "AUI", wx.YES_NO, self)
-            if res != wx.YES:
-                event.Veto()
+#         if isinstance(ctrl.GetPage(event.GetSelection()), wx.html.HtmlWindow):
+# 
+#             res = wx.MessageBox("Are you sure you want to close/hide this notebook page?",
+#                                 "AUI", wx.YES_NO, self)
+#             if res != wx.YES:
+#                 event.Veto()
     def OnFloatDock(self, event):
 
         paneLabel = event.pane.caption

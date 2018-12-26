@@ -138,8 +138,8 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
                     [ID_SEARCH_FILE, 'File', None, 'search_history.png']
                 ]),
             ("&Navigate", [
-                    [wx.NewIdRef(), 'Open Type', None, None],
-                    [wx.NewIdRef(), 'Open Task', None, None],
+                    [wx.NewIdRef(), 'Open Type', None, 'opentype.png'],
+                    [wx.NewIdRef(), 'Open Task', None, 'open_task.png'],
                     [wx.NewIdRef(), 'Go to Line... \tCtrl+L', None, None]
                 ]),
             ("&Project", [
@@ -176,12 +176,12 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
                                                 [ID_SQL_LOG, 'SQL Log', "sql.png" , None],
                                                 [ID_CONSOLE_LOG, 'Console', "console_view.png", None ],
                                                 [ID_DATABASE_NAVIGATOR, "Database Navigator", "folder_database.png", None ],
-                                                [ID_FILE_EXPLORER, 'File Explorer', "file_explorer.png" , None],  # TODO : need to set image icon
-                                                [ID_PROJECT_EXPLORER, 'Project Explorer', "resource_persp.png", None ],  # TODO : need to set image icon
-                                                [ID_NAVIGATOR, 'Navigator', "filenav_nav.png", None ],  # TODO : need to set image icon
-                                                [ID_TERMINAL, 'Terminal', None, None ],  # TODO : need to set image icon
-                                                [ID_OUTLINE, 'Outline', "outline_co.png", None ],  # TODO : need to set image icon
-                                                [ID_PYTHON_PACKAGE_EXPLORER, 'Python Package Explorer', None, None ],  # TODO : need to set image icon
+                                                [ID_FILE_EXPLORER, 'File Explorer', "file_explorer.png" , None],
+                                                [ID_PROJECT_EXPLORER, 'Project Explorer', "resource_persp.png", None ], 
+                                                [ID_NAVIGATOR, 'Navigator', "filenav_nav.png", None ],  
+                                                [ID_TERMINAL, 'Terminal', 'terminal.png', None ], 
+                                                [ID_OUTLINE, 'Outline', "outline_co.png", None ], 
+                                                [ID_PYTHON_PACKAGE_EXPLORER, 'Python Package Explorer', "package_explorer.png", None ],  # TODO : need to set image icon
                                                 [],
                                                 [wx.NewIdRef(), 'Other', None, None ]
                                             ], None
@@ -189,8 +189,8 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
                     [ID_PROSPECTIVE_NAVIGATION, "Perspective", [
                                                 [ wx.NewIdRef(), 'Open Perspective', None, [
                                                         [ wx.NewIdRef(), 'Python', "python_16x16.png", None],
-                                                        [ wx.NewIdRef(), 'Java', "java_workingset_wiz.png", None],
-                                                        [ wx.NewIdRef(), 'Java EE', "java_workingset_wiz.png", None],
+                                                        [ wx.NewIdRef(), 'Java', "jperspective.png", None],
+                                                        [ wx.NewIdRef(), 'Java EE', "javaee_perspective.png", None],
                                                         [ wx.NewIdRef(), 'Resources', "resource_persp.png", None],
                                                         [ wx.NewIdRef(), 'Git', "gitrepository.png", None],
                                                         [],
@@ -422,7 +422,7 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
         
     def onSqlExecution(self, event):
         logger.debug('onSqlExecution')
-        sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("centerPane").Show()
+        centerPaneTab = self.GetTopLevelParent()._mgr.GetPane("centerPane").Show()
         self.GetTopLevelParent()._mgr.Update()
     
     def OnWelcome(self, event):

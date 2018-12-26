@@ -31,15 +31,15 @@ class FileOperations():
 		return isFileRemoved
 	
 	def readFile(self, filePath=None):
-		htmlDoc = ''
+		fileContent = ''
 		if os.path.exists(filePath):
 			try:
 				with open(filePath, 'r') as htmlFile:
 					for line in htmlFile:
-						htmlDoc += line
+						fileContent += line
 			except Exception as ex:
 				logger.error(ex, exc_info=True)
-		return htmlDoc	
+		return fileContent	
 	
 	def readCsvFile(self, filePath=None, columnNameFirstRow=False, delimiter=',', quotechar='|'):
 		data = {}

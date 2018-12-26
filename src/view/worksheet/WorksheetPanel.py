@@ -55,7 +55,7 @@ class CreateWorksheetTabPanel(wx.Panel):
         
         self.__DoLayout()
 
-    def addTab(self, name='Start Page'):
+    def addTab(self, name='Start Page', worksheetPanel=None):
         if name == 'Start Page':
             worksheetPanel=WelcomePanel(self._nb)
         elif name.startswith('tableInfo_'):
@@ -65,6 +65,8 @@ class CreateWorksheetTabPanel(wx.Panel):
             worksheetPanel = CreatingWorksheetWithToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN|wx.BORDER_NONE)
 #             worksheetPanel.worksheetPanel.editorPanel
             name = 'Worksheet ' + str(len(self.GetPages(type(worksheetPanel))))
+        elif name.startswith('openFileLoad'):
+            name=name.replace('openFileLoad','',1)
         self._nb.AddPage(worksheetPanel, name)
         self.SetCurrentPage(worksheetPanel)
         self.Bind(aui.EVT_AUINOTEBOOK_TAB_RIGHT_DOWN, self.onTabRightDown, self._nb)
