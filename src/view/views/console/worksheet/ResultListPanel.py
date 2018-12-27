@@ -1,6 +1,7 @@
 
 import wx
 import wx.dataview as dv
+from src.view.views.console.worksheet.ResultGrid import ResultDataGrid
 try:
     from agw import aui
     from agw.aui import aui_switcherdialog as ASD
@@ -11,9 +12,7 @@ import os
 from src.view.constants import ID_RUN,ID_EXECUTE_SCRIPT, ID_RESULT_REFRESH,\
     ID_ROW_ADD, ID_ROW_DELETE, ID_RESULT_NEXT, ID_RESULT_PREVIOUS,\
     ID_APPLY_CHANGE, ID_RESULT_FIRST, ID_RESULT_LAST
-from src.view.worksheet.ResultGrid import ResultDataGrid
 import logging
-from wx import StaticText
 
 logger = logging.getLogger('extensive')
 #----------------------------------------------------------------------

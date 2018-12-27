@@ -9,7 +9,7 @@ import re
 from os.path import expanduser
 import sys
 import logging
-from datetime import date, datetime
+from datetime import datetime
 
 logger = logging.getLogger('extensive')
 

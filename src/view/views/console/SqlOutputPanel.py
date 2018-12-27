@@ -6,7 +6,7 @@ Created on May 1, 2017
 import wx
 import wx.stc as stc
 import logging
-from src.view.worksheet.EditorPanel import SqlStyleTextCtrl
+from src.view.views.console.worksheet.EditorPanel import SqlStyleTextCtrl
 
 logger = logging.getLogger('extensive')
 

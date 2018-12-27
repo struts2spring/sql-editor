@@ -5,7 +5,7 @@ Created on 05-Feb-2017
 '''
 import wx
 
-import logging, logging.config
+import logging.config
 from src.view.constants import LOG_SETTINGS
 
 logger = logging.getLogger('extensive')

@@ -4,8 +4,6 @@ Created on 15-Dec-2016
 @author: vijay
 '''
 import wx
-from src.view.worksheet.EditorPanel import CreatingEditorPanel
-from src.view.worksheet.ResultListPanel import CreateResultSheetTabPanel
 import os
 
 import wx.lib.agw.aui.auibook as aui
@@ -13,8 +11,10 @@ import wx.lib.agw.aui.auibook as aui
 from src.view.constants import ID_RUN
 from wx import ID_SPELL_CHECK
 import logging
-from src.view.worksheet.WelcomePage import WelcomePanel
-from src.view.worksheet.tableInfoPanel import CreatingTableInfoPanel
+from src.view.views.console.worksheet.EditorPanel import CreatingEditorPanel
+from src.view.views.console.worksheet.ResultListPanel import CreateResultSheetTabPanel
+from src.view.views.console.worksheet.WelcomePage import WelcomePanel
+from src.view.views.console.worksheet.tableInfoPanel import CreatingTableInfoPanel
 
 logger = logging.getLogger('extensive')
 

@@ -1,24 +1,18 @@
 import wx
 
-import wx.lib.agw.aui.auibook as aui
-import os
-from src.view.constants import ID_RUN, ID_EXECUTE_SCRIPT, LOG_SETTINGS,\
-    ID_ADD_ROW, ID_DUPLICATE_ROW, ID_DELETE_ROW, ID_SAVE_ROW, ID_REFRESH_ROW
-from src.view.worksheet.ResultListPanel import ResultPanel
 import logging.config
+from src.view.constants import  LOG_SETTINGS, ID_ADD_ROW, ID_DUPLICATE_ROW, ID_DELETE_ROW, ID_SAVE_ROW, ID_REFRESH_ROW
 from src.view.util.FileOperationsUtil import FileOperations
-from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter, \
-    ManageSqliteDatabase
-from src.view.worksheet.ResultGrid import ResultDataGrid
-from src.view.SqlOutputPanel import SqlConsoleOutputPanel
+from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter, ManageSqliteDatabase
 from src.view.util.parsingUtil import SqlParser
+from src.view.views.console.worksheet.ResultGrid import ResultDataGrid
+from src.view.views.console.SqlOutputPanel import SqlConsoleOutputPanel
 try:
     from agw import aui
     from agw.aui import aui_switcherdialog as ASD
 except ImportError:  # if it's not there locally, try the wxPython lib.
     import wx.lib.agw.aui as aui
     from wx.lib.agw.aui import aui_switcherdialog as ASD
-
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -170,7 +164,7 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
         
         tb1.SetToolBitmapSize(wx.Size(42, 42))
 
-        if tabName=='Data':
+        if tabName == 'Data':
             tb1.AddSimpleTool(ID_SAVE_ROW, "Save", fileOperations.getImageBitmap(imageName="save_to_database.png"), short_help_string='Save to database')
             tb1.AddSeparator()
             
@@ -179,7 +173,6 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
             tb1.AddSimpleTool(ID_DUPLICATE_ROW, "Duplicate current row", fileOperations.getImageBitmap(imageName="row_copy.png"), short_help_string='Duplicate current row')
             tb1.AddSimpleTool(ID_DELETE_ROW, "Delete current row", fileOperations.getImageBitmap(imageName="row_delete.png"), short_help_string='Delete current row')
             tb1.AddSeparator()
-            
             
 #         tb1.AddTool(ID_RUN, "Pin", fileOperations.getImageBitmap(imageName="pin2_green.png"))
 

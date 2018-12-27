@@ -7,13 +7,13 @@ import time
 import wx
 
 from src.view.constants import LOG_SETTINGS
-from src.view.file.explorer._filetree import FileTree
-from src.view.file.explorer.eclutil import Freezer
 
 from src.view.util.FileOperationsUtil import FileOperations
 from src.view.util.osutil import GetWindowsDrives, GetWindowsDriveType, \
     RemovableDrive, CDROMDrive
-from src.view.file.BaseStcPanel import BaseStc
+from src.view.views.file.explorer._filetree import FileTree
+from src.view.views.file.explorer.eclutil import Freezer
+from src.view.views.file.BaseStcPanel import BaseStc
 
 # from src.view.syntax.syntax import GetIdFromExt
 logging.config.dictConfig(LOG_SETTINGS)
@@ -295,13 +295,15 @@ class FileBrowser(FileTree):
             except (IOError, OSError) as msg:
                 logger.debug("[filebrowser][err] %s" % str(msg))
         
-                
+        # TODO : Need to work on it.
         if hasattr(self.GetTopLevelParent(), '_mgr'):
             centerPaneTab = self.GetTopLevelParent()._mgr.GetPane("centerPane")
             if centerPaneTab.window:
                 for path in to_open:
                     stc=BaseStc(self)
                     fileName=os.path.split(path)[-1]
+                    
+                    
                     stc.SetText(FileOperations().readFile(filePath=fname))
                     centerPaneTab.window.addTab(name='openFileLoad'+fileName, worksheetPanel=stc)
                 
