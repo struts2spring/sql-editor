@@ -1,21 +1,4 @@
-###############################################################################
-# Name: fileutil.py                                                           #
-# Purpose: File Management Utilities.                                         #
-# Author: Cody Precord <cprecord@editra.org>                                  #
-# Copyright: (c) 2009 Cody Precord <staff@editra.org>                         #
-# Licence: wxWindows Licence                                                  #
-###############################################################################
 
-"""
-Editra Business Model Library: File Utilities
-
-Utility functions for managing and working with files.
-
-"""
-
-__author__ = "Cody Precord <cprecord@editra.org>"
-__svnid__ = "$Id: fileutil.py 71689 2012-06-07 18:55:45Z CJP $"
-__revision__ = "$Revision: 71689 $"
 
 __all__ = [ 'GetAbsPath', 'GetFileExtension', 'GetFileModTime', 'GetFileName',
             'GetFileSize', 'GetPathName', 'GetPathFromURI', 'GetUniqueName', 

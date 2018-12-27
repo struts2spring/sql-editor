@@ -4,16 +4,17 @@ import os
 import stat
 import time
 
+from src.view.constants import LOG_SETTINGS
+from src.view.util.FileOperationsUtil import FileOperations
 import wx
 
-from src.view.constants import LOG_SETTINGS
-
-from src.view.util.FileOperationsUtil import FileOperations
+from src.view.util.common.eclutil import Freezer
 from src.view.util.osutil import GetWindowsDrives, GetWindowsDriveType, \
     RemovableDrive, CDROMDrive
+
+from src.view.views.file.MainStcPanel import MainStc
 from src.view.views.file.explorer._filetree import FileTree
-from src.view.views.file.explorer.eclutil import Freezer
-from src.view.views.file.BaseStcPanel import BaseStc
+
 
 # from src.view.syntax.syntax import GetIdFromExt
 logging.config.dictConfig(LOG_SETTINGS)
@@ -181,7 +182,7 @@ class FileBrowser(FileTree):
             with Freezer(self) as _tmp:
                 self.AppendFileNodes(item, contents)
                 self.SortChildren(item)
-            logger.debug("[FileBrowser][info] Tree expand time: %f" % (time.time() - t1))
+            logger.info("Tree expand time: %f" % (time.time() - t1))
  
 #             if not self._monitor.AddDirectory(d):
 #                 self.SetItemImage(item, self._mime.IMG_NO_ACCESS)
@@ -300,7 +301,7 @@ class FileBrowser(FileTree):
             centerPaneTab = self.GetTopLevelParent()._mgr.GetPane("centerPane")
             if centerPaneTab.window:
                 for path in to_open:
-                    stc=BaseStc(self)
+                    stc=MainStc(self)
                     fileName=os.path.split(path)[-1]
                     
                     

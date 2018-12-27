@@ -41,9 +41,9 @@ class MyListCtrl(wx.ListCtrl):
 
         self.il = wx.ImageList(16, 16)
 
-        for i in images:
-
-            self.il.Add(wx.Bitmap(i))
+#         for i in images:
+# 
+#             self.il.Add(wx.Bitmap(i))
 
         self.SetImageList(self.il, wx.IMAGE_LIST_SMALL)
 

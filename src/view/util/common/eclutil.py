@@ -1,21 +1,3 @@
-###############################################################################
-# Name: eclutil.py                                                            #
-# Purpose: Common library utilities.                                          #
-# Author: Cody Precord <cprecord@editra.org>                                  #
-# Copyright: (c) 2009 Cody Precord <staff@editra.org>                         #
-# Licence: wxWindows Licence                                                  #
-###############################################################################
-
-"""
-Editra Control Library: Editra Control Library Utility
-
-Miscellaneous utility functions and gui helpers
-
-"""
-
-__author__ = "Cody Precord <cprecord@editra.org>"
-__svnid__ = "$Id: eclutil.py 71178 2012-04-11 22:42:28Z CJP $"
-__revision__ = "$Revision: 71178 $"
 
 __all__ = ['AdjustAlpha', 'AdjustColour', 'BestLabelColour', 'HexToRGB',
            'GetHighlightColour', 'EmptyBitmapRGBA', 'Freezer',

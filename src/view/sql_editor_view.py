@@ -19,7 +19,6 @@ from src.view.preference.Preferences import OpalPreference
 from src.view.util.FileOperationsUtil import FileOperations
 
 from src.view.perspective import PerspectiveManager
-from wx.lib.agw.aui.aui_constants import AUI_DOCK_LEFT
     
 logger = logging.getLogger('extensive')
 
