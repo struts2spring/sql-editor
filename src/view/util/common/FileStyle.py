@@ -21,7 +21,8 @@ class StyleManager():
     FONT_SIZE3 = u"size3"    
 
     def __init__(self, custom=wx.EmptyString):
-        super()
+        super(StyleManager, self).__init__()
+        
         
         self.fonts = self.GetFontDictionary()
         self.style_set = custom
@@ -165,13 +166,14 @@ class StyleManager():
         scheme = self.GetStyleSet()
         if name in scheme:
             item = scheme[name]
-
+            item.face="Arial"
+            item.size=10
             # Set font value if need be
-            ival = item
-            if u"%" in ival:
-                val = ival % self.fonts
-                item = StyleItem()
-                item.SetAttrFromStr(val)
+#             ival = item
+#             if u"%" in ival:
+#                 val = ival % self.fonts
+#                 item = StyleItem()
+#                 item.SetAttrFromStr(val)
 
             return item
         else:
@@ -599,19 +601,19 @@ class StyleManager():
         self.SetMargins(4, 0)
 
         # Global default styles for all languages
-        self.StyleSetSpec(0, self.GetStyleByName('default_style'))
-        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, \
-                          self.GetStyleByName('default_style'))
-        self.StyleSetSpec(stc.STC_STYLE_LINENUMBER, \
-                          self.GetStyleByName('line_num'))
-        self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, \
-                          self.GetStyleByName('ctrl_char'))
-        self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT, \
-                          self.GetStyleByName('brace_good'))
-        self.StyleSetSpec(stc.STC_STYLE_BRACEBAD, \
-                          self.GetStyleByName('brace_bad'))
-        self.StyleSetSpec(stc.STC_STYLE_INDENTGUIDE, \
-                          self.GetStyleByName('guide_style'))
+#         self.StyleSetSpec(0, self.GetStyleByName('default_style'))
+#         self.StyleSetSpec(stc.STC_STYLE_DEFAULT, \
+#                           self.GetStyleByName('default_style'))
+#         self.StyleSetSpec(stc.STC_STYLE_LINENUMBER, \
+#                           self.GetStyleByName('line_num'))
+#         self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, \
+#                           self.GetStyleByName('ctrl_char'))
+#         self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT, \
+#                           self.GetStyleByName('brace_good'))
+#         self.StyleSetSpec(stc.STC_STYLE_BRACEBAD, \
+#                           self.GetStyleByName('brace_bad'))
+#         self.StyleSetSpec(stc.STC_STYLE_INDENTGUIDE, \
+#                           self.GetStyleByName('guide_style'))
 
         # stc.STC_STYLE_CALLTIP doesn't seem to do anything
         calltip = self.GetItemByName('calltip')
@@ -643,7 +645,7 @@ class StyleManager():
         edge_colour = self.GetItemByName('edge_style')
         self.SetEdgeColour(edge_colour.GetFore())
         self.SetCaretForeground(default_fore)
-        self.SetCaretLineBack(self.GetItemByName('caret_line').GetBack())
+#         self.SetCaretLineBack(self.GetItemByName('caret_line').GetBack())
         self.Colourise(0, -1)
 
 

@@ -4,8 +4,8 @@ import wx.stc as stc
 from src.view.util.common.FileObjectWrapper import FileObject
 from src.view.util.common.FileStyle import StyleManager
 from src.view.util.syntax.syntax import SyntaxMgr
-from src.view.util.common.ed_marker import NewMarkerId, Marker, Breakpoint,\
-    BreakpointDisabled, BreakpointStep, LintMarker, LintMarkerWarning,\
+from src.view.util.common.ed_marker import NewMarkerId, Marker, Breakpoint, \
+    BreakpointDisabled, BreakpointStep, LintMarker, LintMarkerWarning, \
     LintMarkerError, ErrorMarker, StackMarker, Bookmark, FoldMarker
 from src.view.util.common.eclutil import Freezer, HexToRGB
 from src.view.util.syntax.synglob import FEATURE_STYLETEXT, FEATURE_AUTOINDENT
@@ -18,29 +18,29 @@ from src.view.constants import LOG_SETTINGS
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
-
-
 #-----------------------------------------------------------------------------#
 
 # Margins
 MARK_MARGIN = 0
-NUM_MARGIN  = 1
+NUM_MARGIN = 1
 FOLD_MARGIN = 2
 
 # Markers (3rd party)
 MARKER_VERT_EDIT = NewMarkerId()
 
 # Key code additions
-ALT_SHIFT = stc.STC_SCMOD_ALT|stc.STC_SCMOD_SHIFT
-CTRL_SHIFT = stc.STC_SCMOD_CTRL|stc.STC_SCMOD_SHIFT
+ALT_SHIFT = stc.STC_SCMOD_ALT | stc.STC_SCMOD_SHIFT
+CTRL_SHIFT = stc.STC_SCMOD_CTRL | stc.STC_SCMOD_SHIFT
 
 #-----------------------------------------------------------------------------#
+
 
 class BaseStc(stc.StyledTextCtrl, StyleManager):
     """Base StyledTextCtrl that provides all the base code editing functionality.
 
     """    
     ED_STC_MASK_MARKERS = ~stc.STC_MASK_FOLDERS
+
     def __init__(self, parent, id_=wx.ID_ANY, pos=wx.DefaultPosition, size=wx.DefaultSize, style=0):
         
         stc.StyledTextCtrl.__init__(self, parent, id_, pos, size, style)
@@ -49,25 +49,25 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
         self._code = dict(synmgr=SyntaxMgr(),
                           keywords=[ ' ' ],
                           comment=list(),
-                          clexer=None,      # Container lexer method
-                          indenter=None,    # Auto indenter
-                          lang_id=0)        # Language ID from syntax module
+                          clexer=None,  # Container lexer method
+                          indenter=None,  # Auto indenter
+                          lang_id=0)  # Language ID from syntax module
         self.vert_edit = VertEdit(self, markerNumber=MARKER_VERT_EDIT)
-        self._line_num = True # Show line numbers
-        self._last_cwidth = 1 # one pixel
+        self._line_num = True  # Show line numbers
+        self._last_cwidth = 1  # one pixel
 
         # Set Up Margins
-        ## Outer Left Margin Bookmarks
+        # # Outer Left Margin Bookmarks
         self.SetMarginType(MARK_MARGIN, stc.STC_MARGIN_SYMBOL)
         self.SetMarginMask(MARK_MARGIN, BaseStc.ED_STC_MASK_MARKERS)
         self.SetMarginSensitive(MARK_MARGIN, True)
         self.SetMarginWidth(MARK_MARGIN, 16)
 
-        ## Middle Left Margin Line Number Indication
+        # # Middle Left Margin Line Number Indication
         self.SetMarginType(NUM_MARGIN, stc.STC_MARGIN_NUMBER)
         self.SetMarginMask(NUM_MARGIN, 0)
 
-        ## Inner Left Margin Setup Folders
+        # # Inner Left Margin Setup Folders
         self.SetMarginType(FOLD_MARGIN, stc.STC_MARGIN_SYMBOL)
         self.SetMarginMask(FOLD_MARGIN, stc.STC_MASK_FOLDERS)
         self.SetMarginSensitive(FOLD_MARGIN, True)
@@ -130,7 +130,7 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
         assert isinstance(marker, Marker)
         marker.DeleteAll(self)
 
-    #-- Breakpoint marker api --#
+    # -- Breakpoint marker api --#
     def DeleteAllBreakpoints(self):
         """Delete all the breakpoints in the buffer"""
         Breakpoint().DeleteAll(self)
@@ -284,7 +284,7 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
 
     def SetBlockCaret(self):
         """Change caret style to block"""
-        if hasattr(self, 'SetCaretStyle'): # wxPython 2.9 or greater
+        if hasattr(self, 'SetCaretStyle'):  # wxPython 2.9 or greater
             self.SetCaretStyle(stc.STC_CARETSTYLE_BLOCK)
         else:
             # Alternatively, just make the caret a bit thicker!
@@ -345,7 +345,7 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
             self.BeginUndoAction()
             try:
                 nchars = 0
-                lines = range(start, end+1)
+                lines = range(start, end + 1)
                 lines.reverse()
                 for line_num in lines:
                     lstart = self.PositionFromLine(line_num)
@@ -446,8 +446,11 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
         # Get the colours for the various markers
         style = self.GetItemByName('foldmargin_style')
         back = style.GetFore()
-        rgb = HexToRGB(back[1:])
-        back = wx.Colour(red=rgb[0], green=rgb[1], blue=rgb[2])
+        if back and back != '':
+            rgb = HexToRGB(back[1:])
+            back = wx.Colour(red=rgb[0], green=rgb[1], blue=rgb[2])
+        else:
+            back=wx.BG_STYLE_COLOUR
 
         fore = style.GetBack()
         rgb = HexToRGB(fore[1:])
@@ -532,7 +535,7 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
         if not reverse:
             # search forward
             for i in range(repeat):
-                pos = text.find(char, pos+1)
+                pos = text.find(char, pos + 1)
                 if pos == -1:
                     return
         else:
@@ -656,7 +659,7 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
         @return: full path name of document
 
         """
-        return self.file.GetPath()
+        return self.file.getPath()
 
     def GetIndentChar(self):
         """Gets the indentation char used in document
@@ -719,7 +722,7 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
         @return: bool
 
         """
-        pos = max(0, pos-1)
+        pos = max(0, pos - 1)
         return 'comment' in self.FindTagById(self.GetStyleAt(pos))
 
     def IsString(self, pos):
@@ -746,7 +749,7 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
 
         """
         mask = self.MarkerGet(line)
-        return bool(1<<marker & mask)
+        return bool(1 << marker & mask)
 
     def HasSelection(self):
         """Check if there is a selection in the buffer
@@ -821,7 +824,7 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
         if txt is not None:
             if self.file.IsRawBytes() :
                 self.AddStyledText(txt)
-                self.SetReadOnly(True) # Don't allow editing of raw bytes
+                self.SetReadOnly(True)  # Don't allow editing of raw bytes
             else:
                 self.SetText(txt)
         else:
@@ -947,7 +950,7 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
                 self.DocumentEnd()
                 self.SearchAnchor()
                 res = self.SearchPrev(flags, text)
-        return res # returns -1 if nothing found even after wrapping around
+        return res  # returns -1 if nothing found even after wrapping around
 
     def SetDocument(self, doc):
         """Change the document object used.
@@ -1000,9 +1003,9 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
         if '?' in kwlist:
             kwlist.replace('?', '')
 
-        kwlist = kwlist.split()         # Split into a list of words
-        kwlist = list(set(kwlist))      # Remove duplicates from the list
-        kwlist.sort()                   # Sort into alphabetical order
+        kwlist = kwlist.split()  # Split into a list of words
+        kwlist = list(set(kwlist))  # Remove duplicates from the list
+        kwlist.sort()  # Sort into alphabetical order
 
         self._code['keywords'] = kwlist
 
@@ -1075,11 +1078,7 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
         # STC HELL
         # Translate the UTF8 byte offsets to unicode
         start, end = super().GetSelection()
-        utf8_txt = self.GetTextUTF8()
-#         if start != 0:
-#             start = len(ed_txt.DecodeString(utf8_txt[0:start], 'utf-8'))
-#         if end != 0:
-#             end = len(ed_txt.DecodeString(utf8_txt[0:end], 'utf-8'))
+        utf8_txt = self.GetText()
         del utf8_txt
         return start, end
 
@@ -1177,7 +1176,7 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
 
             # Analyze the selected line(s)
             comment = 0
-            for line in range(start, end+1):
+            for line in range(start, end + 1):
                 txt = self.GetLine(line)
                 if txt.lstrip().startswith(c_start):
                     comment += 1
@@ -1237,6 +1236,7 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
         self.DefineMarkers()
 #-----------------------------------------------------------------------------#
 
+
 def _GetMacKeyBindings():
     """Returns a list of 3-element tuples defining the standard key
     bindings for Mac text editors -- i.e., the behavior of option-arrow,
@@ -1285,7 +1285,7 @@ def _GetMacKeyBindings():
             # doesn't have a forward-delete action.  So here we just cancel any
             # tip our auto-completion display, and then implement forward
             # delete in OnKeyDown.
-            #(stc.STC_KEY_DELETE, 0, stc.STC_CMD_CANCEL),
+            # (stc.STC_KEY_DELETE, 0, stc.STC_CMD_CANCEL),
             (stc.STC_KEY_BACK, stc.STC_SCMOD_SHIFT,
              stc.STC_CMD_CANCEL),
             ]

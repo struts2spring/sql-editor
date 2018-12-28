@@ -100,15 +100,18 @@ def HexToRGB(hex_str):
     @param hex_str: hex string to convert to rgb
 
     """
-    hexval = hex_str
-    if hexval[0] == u"#":
-        hexval = hexval[1:]
-    ldiff = 6 - len(hexval)
-    hexval += ldiff * u"0"
-    # Convert hex values to integer
-    red = int(hexval[0:2], 16)
-    green = int(hexval[2:4], 16)
-    blue = int(hexval[4:], 16)
+    if hex_str:
+        hexval = hex_str
+        if hexval[0] == u"#":
+            hexval = hexval[1:]
+        ldiff = 6 - len(hexval)
+        hexval += ldiff * u"0"
+        # Convert hex values to integer
+        red = int(hexval[0:2], 16)
+        green = int(hexval[2:4], 16)
+        blue = int(hexval[4:], 16)
+    else:
+        red=green=blue=0
     return [red, green, blue]
 
 #-----------------------------------------------------------------------------#

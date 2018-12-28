@@ -206,18 +206,19 @@ class Marker(object):
 
     def RegisterWithStc(self, stc):
         """Setup the STC to use this marker"""
-        ids = self.GetIds()
-        if self.Bitmap.IsNull():
-            symbols = self.GetSymbols()
-            if len(ids) == len(symbols):
-                markers = zip(ids, symbols)
-                for marker, symbol in markers:
-                    stc.MarkerDefine(marker, symbol,
-                                     self.Foreground, self.Background)
-        elif len(ids) == 1 and not self.Bitmap.IsNull():
-            stc.MarkerDefineBitmap(ids[0], self.Bitmap)
-        else:
-            assert False, "Invalid Marker!"
+#         ids = self.GetIds()
+#         if self.Bitmap.IsNull():
+#             symbols = self.GetSymbols()
+#             if len(ids) == len(symbols):
+#                 markers = zip(ids, symbols)
+#                 for marker, symbol in markers:
+#                     stc.MarkerDefine(marker, symbol,
+#                                      self.Foreground, self.Background)
+#         elif len(ids) == 1 and not self.Bitmap.IsNull():
+#             stc.MarkerDefineBitmap(ids[0], self.Bitmap)
+#         else:
+#             assert False, "Invalid Marker!"
+        pass
 
 #-----------------------------------------------------------------------------#
 

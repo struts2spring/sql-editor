@@ -374,8 +374,15 @@ class MainStc(BaseStc):
             char_before = self.GetCharAt(caret_pos - 1)
 
         # check before
-        if char_before and char_before in "[]{}()<>":
-            brace_at_caret = caret_pos - 1
+        try:
+            if isinstance(char_before,int):
+                char_before=chr(char_before) 
+            if char_before and char_before in "[]{}()<>":
+                brace_at_caret = caret_pos - 1
+        except Exception as e:
+            logger.debug(e)
+            logger.debug('error: {}'.format(char_before))
+            logger.debug('error: {}'.format(caret_pos))
 
         # check after
         if brace_at_caret < 0:
