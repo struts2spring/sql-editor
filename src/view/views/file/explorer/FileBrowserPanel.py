@@ -305,7 +305,7 @@ class FileBrowser(FileTree):
                     fileName=os.path.split(path)[-1]
                     
                     
-                    stc.SetText(FileOperations().readFile(filePath=fname))
+                    stc.SetText(FileOperations().readFile(filePath=path))
                     centerPaneTab.window.addTab(name='openFileLoad'+fileName, worksheetPanel=stc)
                 
 #         win = wx.GetApp().GetActiveWindow()

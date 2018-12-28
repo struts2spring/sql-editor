@@ -8,6 +8,8 @@ from src.view.util.common.util import GetFileReader
 
 import logging.config
 from src.view.constants import LOG_SETTINGS
+import json
+import unicodedata
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
@@ -166,14 +168,14 @@ class StyleManager():
         scheme = self.GetStyleSet()
         if name in scheme:
             item = scheme[name]
-            item.face="Arial"
-            item.size=10
+#             item.face="Arial"
+#             item.size=10
             # Set font value if need be
-#             ival = item
-#             if u"%" in ival:
-#                 val = ival % self.fonts
-#                 item = StyleItem()
-#                 item.SetAttrFromStr(val)
+            ival = item.toUnicode()
+            if u"%" in ival:
+                val = ival % self.fonts
+                item = StyleItem()
+                item.SetAttrFromStr(val)
 
             return item
         else:
@@ -200,7 +202,7 @@ class StyleManager():
 
         """
         if self.HasNamedStyle(name):
-            stystr = self.GetItemByName(name)
+            stystr = self.GetItemByName(name).toUnicode()
             return stystr.replace("modifiers:", "")
         else:
             return u""
@@ -244,7 +246,7 @@ class StyleManager():
 #         elif os.path.exists(sysp):
 #             return sysp
 #         else:
-        return None
+        return r"C:\Users\xbbntni\AppData\Roaming\Editra\styles\Default.ess"
 
     def GetSyntaxParams(self):
         """Get the set of syntax parameters
@@ -601,19 +603,19 @@ class StyleManager():
         self.SetMargins(4, 0)
 
         # Global default styles for all languages
-#         self.StyleSetSpec(0, self.GetStyleByName('default_style'))
-#         self.StyleSetSpec(stc.STC_STYLE_DEFAULT, \
-#                           self.GetStyleByName('default_style'))
-#         self.StyleSetSpec(stc.STC_STYLE_LINENUMBER, \
-#                           self.GetStyleByName('line_num'))
-#         self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, \
-#                           self.GetStyleByName('ctrl_char'))
-#         self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT, \
-#                           self.GetStyleByName('brace_good'))
-#         self.StyleSetSpec(stc.STC_STYLE_BRACEBAD, \
-#                           self.GetStyleByName('brace_bad'))
-#         self.StyleSetSpec(stc.STC_STYLE_INDENTGUIDE, \
-#                           self.GetStyleByName('guide_style'))
+        self.StyleSetSpec(0, self.GetStyleByName('default_style'))
+        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, \
+                          self.GetStyleByName('default_style'))
+        self.StyleSetSpec(stc.STC_STYLE_LINENUMBER, \
+                          self.GetStyleByName('line_num'))
+        self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, \
+                          self.GetStyleByName('ctrl_char'))
+        self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT, \
+                          self.GetStyleByName('brace_good'))
+        self.StyleSetSpec(stc.STC_STYLE_BRACEBAD, \
+                          self.GetStyleByName('brace_bad'))
+        self.StyleSetSpec(stc.STC_STYLE_INDENTGUIDE, \
+                          self.GetStyleByName('guide_style'))
 
         # stc.STC_STYLE_CALLTIP doesn't seem to do anything
         calltip = self.GetItemByName('calltip')
@@ -662,7 +664,7 @@ RE_HEX_STR = re.compile("#[0-9a-fA-F]{3,6}")
 #--------------------------------------------------------------------------#
 class StyleItem():
     """A storage class for holding styling information """
-    __slots__ = ('null', 'fore', 'face', 'back', 'size', '_exattr')
+#     __slots__ = ('null', 'fore', 'face', 'back', 'size', '_exattr')
 
     def __init__(self, fore=u"", back=u"", face=u"", size=u"", ex=None):
         """Initializes the Style Object.
@@ -713,7 +715,7 @@ class StyleItem():
         uni = self
         return uni.encode('utf-8')
 
-    def __unicode__(self):
+    def toUnicode(self):
         """Converts StyleItem to Unicode
         @note: This return string is in a format that can be accepted by
                Scintilla. No spaces may be in the string after the ':'.

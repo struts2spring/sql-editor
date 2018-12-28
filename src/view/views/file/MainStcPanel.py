@@ -37,11 +37,11 @@ logger = logging.getLogger('extensive')
 _ = wx.GetTranslation
 
 # EOL Constants
-EOL_MODE_CR   = 0
-EOL_MODE_LF   = 1
+EOL_MODE_CR = 0
+EOL_MODE_LF = 1
 EOL_MODE_CRLF = 2
-EDSTC_EOL_CR   = EOL_MODE_CR
-EDSTC_EOL_LF   = EOL_MODE_LF
+EDSTC_EOL_CR = EOL_MODE_CR
+EDSTC_EOL_LF = EOL_MODE_LF
 EDSTC_EOL_CRLF = EOL_MODE_CRLF
 
 # Character sets
@@ -51,8 +51,10 @@ OPERATORS = "./\?[]{}<>!@#$%^&*():=-+\"';,"
 
 #-------------------------------------------------------------------------#
 
+
 def jumpaction(func):
     """Decorator method to notify clients about jump actions"""
+
     def WrapJump(*args, **kwargs):
         """Wrapper for capturing before/after pos of a jump action"""
 #         try:
@@ -76,19 +78,15 @@ def jumpaction(func):
     WrapJump.__doc__ = func.__doc__
     return WrapJump
 
-
 #-------------------------------------------------------------------------#
+
 
 class MainStc(BaseStc):
     """Defines a styled text control for editing text
-    @summary: Subclass of wx.stc.StyledTextCtrl and L{ed_style.StyleMgr}.
-              Manages the documents display and input.
-
+    @summary: Subclass of wx.stc.StyledTextCtrl and L{StyleManager}. Manages the documents display and input.
     """
 
-    def __init__(self, parent, id_=wx.ID_ANY,
-                 pos=wx.DefaultPosition, size=wx.DefaultSize,
-                 style=0, use_dt=True):
+    def __init__(self, parent, id_=wx.ID_ANY, pos=wx.DefaultPosition, size=wx.DefaultSize, style=0, use_dt=True):
         """Initializes a control and sets the default objects for
         Tracking events that occur in the control.
         @param parent: Parent Window
@@ -101,10 +99,8 @@ class MainStc(BaseStc):
         """
         super().__init__(parent, id_, pos, size, style)
 
-        self.SetModEventMask(wx.stc.STC_PERFORMED_UNDO | \
-                             wx.stc.STC_PERFORMED_REDO | \
-                             wx.stc.STC_MOD_DELETETEXT | \
-                             wx.stc.STC_MOD_INSERTTEXT)
+        self.SetModEventMask(wx.stc.STC_PERFORMED_UNDO | wx.stc.STC_PERFORMED_REDO | 
+                             wx.stc.STC_MOD_DELETETEXT | wx.stc.STC_MOD_INSERTTEXT)
 
         self.CmdKeyAssign(ord('-'), wx.stc.STC_SCMOD_CTRL, \
                           wx.stc.STC_CMD_ZOOMOUT)
@@ -142,7 +138,7 @@ class MainStc(BaseStc):
         self.SetMouseDwellTime(900)
         self.UsePopUp(False)
 
-        #self.Bind(wx.stc.EVT_STC_MACRORECORD, self.OnRecordMacro)
+        # self.Bind(wx.stc.EVT_STC_MACRORECORD, self.OnRecordMacro)
         self.Bind(wx.stc.EVT_STC_MARGINCLICK, self.OnMarginClick)
         self.Bind(wx.stc.EVT_STC_UPDATEUI, self.OnUpdateUI)
         self.Bind(wx.stc.EVT_STC_USERLISTSELECTION, self.OnUserListSel)
@@ -197,7 +193,7 @@ class MainStc(BaseStc):
         code_txt = u''
         for fun in code:
             code_txt += "    ctrl.%s()\n" % fun
-        code_txt += "    print \"Executed\""    #TEST
+        code_txt += "    print \"Executed\""  # TEST
         code_txt = "def macro(ctrl):\n" + code_txt
         self.Parent.NewPage()
         self.Parent.GetCurrentPage().SetText(code_txt)
@@ -375,8 +371,8 @@ class MainStc(BaseStc):
 
         # check before
         try:
-            if isinstance(char_before,int):
-                char_before=chr(char_before) 
+            if isinstance(char_before, int):
+                char_before = chr(char_before) 
             if char_before and char_before in "[]{}()<>":
                 brace_at_caret = caret_pos - 1
         except Exception as e:
@@ -446,7 +442,7 @@ class MainStc(BaseStc):
         if enable:
             # TODO: make backup interval configurable
             if not self._bktimer.IsRunning():
-                self._bktimer.Start(30000) # every 30 seconds
+                self._bktimer.Start(30000)  # every 30 seconds
         else:
             if self._bktimer.IsRunning():
                 self._bktimer.Stop()
@@ -476,7 +472,7 @@ class MainStc(BaseStc):
 
         """
         if line > 0:
-            spos = self.GetLineEndPosition(line-1)
+            spos = self.GetLineEndPosition(line - 1)
             if self.GetLine(line).endswith("\r\n"):
                 spos += 2
             else:
@@ -696,8 +692,7 @@ class MainStc(BaseStc):
             evt.Skip()
 
     def OnChar(self, evt):
-        """Handles Char events that aren't caught by the
-        KEY_DOWN event.
+        """Handles Char events that aren't caught by the KEY_DOWN event.
         @param evt: event that called this handler
         @todo: autocomp/calltip lookup can be very cpu intensive it may
                be better to try and process it on a separate thread to
@@ -791,7 +786,7 @@ class MainStc(BaseStc):
         if self.IsRecording():
             msg = evt.GetMessage()
             if msg == 2170:
-                lparm = self.GetTextRange(self.GetCurrentPos()-1, \
+                lparm = self.GetTextRange(self.GetCurrentPos() - 1, \
                                           self.GetCurrentPos())
             else:
                 lparm = evt.GetLParam()
@@ -802,7 +797,7 @@ class MainStc(BaseStc):
         else:
             evt.Skip()
 
-    def ParaDown(self): # pylint: disable-msg=W0221
+    def ParaDown(self):  # pylint: disable-msg=W0221
         """Move the caret one paragraph down
         @note: overrides the default function to set caret at end
                of paragraph instead of jumping to start of next
@@ -814,7 +809,7 @@ class MainStc(BaseStc):
             self.WordPartLeft()
             self.GotoPos(self.GetCurrentPos() + len(self.GetEOLChar()))
 
-    def ParaDownExtend(self): # pylint: disable-msg=W0221
+    def ParaDownExtend(self):  # pylint: disable-msg=W0221
         """Extend the selection a paragraph down
         @note: overrides the default function to set selection at end
                of paragraph instead of jumping to start of next so that
@@ -931,7 +926,7 @@ class MainStc(BaseStc):
                 if not self.IsNonCode(position):
                     endpos = self.WordEndPosition(position, True)
                     col = self.GetColumn(endpos)
-                    line = self.GetLine(line_num-1)
+                    line = self.GetLine(line_num - 1)
                     command = self.GetCommandStr(line, col)
                     tip = self._code['compsvc'].GetCallTip(command)
                     if len(tip):
@@ -1370,7 +1365,7 @@ class MainStc(BaseStc):
 
         return (max(tstart, 0), min(tend, self.GetLength()))
 
-    def LineCut(self): # pylint: disable-msg=W0221
+    def LineCut(self):  # pylint: disable-msg=W0221
         """Cut the selected lines into the clipboard"""
         start, end = self.GetSelectionLineStartEnd()
         self.BeginUndoAction()
@@ -1378,7 +1373,7 @@ class MainStc(BaseStc):
         self.Cut()
         self.EndUndoAction()
 
-    def LineDelete(self): # pylint: disable-msg=W0221
+    def LineDelete(self):  # pylint: disable-msg=W0221
         """Delete the selected lines without modifying the clipboard"""
         start, end = self.GetSelectionLineStartEnd()
         self.BeginUndoAction()
@@ -1387,7 +1382,7 @@ class MainStc(BaseStc):
         self.ReplaceTarget(u'')
         self.EndUndoAction()
 
-    def LinesJoin(self): # pylint: disable-msg=W0221
+    def LinesJoin(self):  # pylint: disable-msg=W0221
         """Join lines in target and compress whitespace
         @note: overrides default function to allow for leading
                whitespace in joined lines to be compressed to 1 space
@@ -1442,7 +1437,7 @@ class MainStc(BaseStc):
             self.GotoColumn(col)
             self.EndUndoAction()
 
-    def LineTranspose(self): # pylint: disable-msg=W0221
+    def LineTranspose(self):  # pylint: disable-msg=W0221
         """Switch the current line with the previous one
         @note: overrides base stc method to do transpose in single undo action
 
@@ -1498,7 +1493,7 @@ class MainStc(BaseStc):
         else:
             self.SetEdgeMode(wx.stc.STC_EDGE_NONE)
 
-    def StartRecord(self): # pylint: disable-msg=W0221
+    def StartRecord(self):  # pylint: disable-msg=W0221
         """Starts recording all events
         @return: None
 
@@ -1510,7 +1505,7 @@ class MainStc(BaseStc):
 #         wx.PostEvent(self.TopLevelParent, evt)
         super().StartRecord()
 
-    def StopRecord(self): # pylint: disable-msg=W0221
+    def StopRecord(self):  # pylint: disable-msg=W0221
         """Stops the recording and builds the macro script
         @postcondition: macro recording is stopped
 
@@ -1620,7 +1615,7 @@ class MainStc(BaseStc):
             self.UpdateBaseStyles()
         return 0
 
-    def Tab(self): # pylint: disable-msg=W0221
+    def Tab(self):  # pylint: disable-msg=W0221
         """Override base method to ensure that folded blocks get unfolded
         prior to changing the indentation.
 
@@ -1679,7 +1674,7 @@ class MainStc(BaseStc):
         super().ToggleFold(lineNum)
 
     @jumpaction
-    def WordLeft(self): # pylint: disable-msg=W0221
+    def WordLeft(self):  # pylint: disable-msg=W0221
         """Move caret to beginning of previous word
         @note: override builtin to include extra characters in word
 
@@ -1691,7 +1686,7 @@ class MainStc(BaseStc):
             super().WordLeft()
         self.SetWordChars('')
 
-    def WordLeftExtend(self): # pylint: disable-msg=W0221
+    def WordLeftExtend(self):  # pylint: disable-msg=W0221
         """Extend selection to beginning of previous word
         @note: override builtin to include extra characters in word
 
@@ -1704,7 +1699,7 @@ class MainStc(BaseStc):
         self.SetWordChars('')
 
     @jumpaction
-    def WordPartLeft(self): # pylint: disable-msg=W0221
+    def WordPartLeft(self):  # pylint: disable-msg=W0221
         """Move the caret left to the next change in capitalization/punctuation
         @note: overrides default function to not count whitespace as words
 
@@ -1714,7 +1709,7 @@ class MainStc(BaseStc):
         if self.GetTextRange(cpos, cpos + 1) in SPACECHARS:
             super().WordPartLeft()
 
-    def WordPartLeftExtend(self): # pylint: disable-msg=W0221
+    def WordPartLeftExtend(self):  # pylint: disable-msg=W0221
         """Extend selection left to the next change in c
         apitalization/punctuation.
         @note: overrides default function to not count whitespace as words
@@ -1726,7 +1721,7 @@ class MainStc(BaseStc):
             super().WordPartLeftExtend()
 
     @jumpaction
-    def WordPartRight(self): # pylint: disable-msg=W0221
+    def WordPartRight(self):  # pylint: disable-msg=W0221
         """Move the caret to the start of the next word part to the right
         @note: overrides default function to exclude white space
 
@@ -1737,7 +1732,7 @@ class MainStc(BaseStc):
             super().WordPartRight()
 
     @jumpaction
-    def WordPartRightEnd(self): # pylint: disable-msg=W0221
+    def WordPartRightEnd(self):  # pylint: disable-msg=W0221
         """Move caret to end of next change in capitalization/punctuation
         @postcondition: caret is moved
 
@@ -1748,7 +1743,7 @@ class MainStc(BaseStc):
         if self.GetTextRange(cpos, cpos - 1) in SPACECHARS:
             self.CharLeft()
 
-    def WordPartRightEndExtend(self): # pylint: disable-msg=W0221
+    def WordPartRightEndExtend(self):  # pylint: disable-msg=W0221
         """Extend selection to end of next change in capitalization/punctuation
         @postcondition: selection is extended
 
@@ -1759,7 +1754,7 @@ class MainStc(BaseStc):
         if self.GetTextRange(cpos, cpos - 1) in SPACECHARS:
             self.CharLeftExtend()
 
-    def WordPartRightExtend(self): # pylint: disable-msg=W0221
+    def WordPartRightExtend(self):  # pylint: disable-msg=W0221
         """Extend selection to start of next change in 
         capitalization/punctuation
         @postcondition: selection is extended
@@ -1771,7 +1766,7 @@ class MainStc(BaseStc):
             super().WordPartRightExtend()
 
     @jumpaction
-    def WordRight(self): # pylint: disable-msg=W0221
+    def WordRight(self):  # pylint: disable-msg=W0221
         """Move caret to beginning of next word
         @note: override builtin to include extra characters in word
 
@@ -1784,7 +1779,7 @@ class MainStc(BaseStc):
         self.SetWordChars('')
 
     @jumpaction
-    def WordRightEnd(self): # pylint: disable-msg=W0221
+    def WordRightEnd(self):  # pylint: disable-msg=W0221
         """Move caret to end of next change in word
         @note: override builtin to include extra characters in word
 
@@ -1796,7 +1791,7 @@ class MainStc(BaseStc):
             super().WordRightEnd()
         self.SetWordChars('')
 
-    def WordRightExtend(self): # pylint: disable-msg=W0221
+    def WordRightExtend(self):  # pylint: disable-msg=W0221
         """Extend selection to beginning of next word
         @note: override builtin to include extra characters in word
 
@@ -1817,7 +1812,7 @@ class MainStc(BaseStc):
 
         """
         fsize = GetFileSize(path)
-        if fsize < 1048576: # 1MB
+        if fsize < 1048576:  # 1MB
             return super().LoadFile(path)
         else:
 #             ed_msg.PostMessage(ed_msg.EDMSG_FILE_OPENING, path)
@@ -1844,7 +1839,7 @@ class MainStc(BaseStc):
                 if txt is not None:
                     if self.File.IsRawBytes() :
                         self.AddStyledText(txt)
-                        self.SetReadOnly(True) # Don't allow editing of raw bytes
+                        self.SetReadOnly(True)  # Don't allow editing of raw bytes
                     else:
                         self.SetText(txt)
                 else:
@@ -1910,14 +1905,14 @@ class MainStc(BaseStc):
             if self.File.IsReadOnly():
                 wx.MessageBox(_("File is Read Only and cannot be saved"),
                               _("Read Only"),
-                              style=wx.OK|wx.CENTER|wx.ICON_WARNING)
+                              style=wx.OK | wx.CENTER | wx.ICON_WARNING)
                 return True
             else:
                 if not self.File.IsRawBytes():
                     self.File.Write(self.GetText())
                 else:
                     nchars = self.GetTextLength()
-                    txt = self.GetStyledText(0, nchars)[0:nchars*2:2]
+                    txt = self.GetStyledText(0, nchars)[0:nchars * 2:2]
                     self.File.Write(txt)
         except Exception as msg:
             result = False
@@ -1965,3 +1960,17 @@ class MainStc(BaseStc):
             self.SetBlockCaret()
         else:
             self.SetLineCaret()
+
+
+
+if __name__ == "__main__":
+    app = wx.App()
+    frame = wx.Frame(None)
+    mainstc=MainStc(frame)
+    from src.view.util.FileOperationsUtil import FileOperations
+    text=FileOperations().readFile(filePath='C:\\1\\sql_editor\\src\\html\\welcome.html')
+    mainstc.SetText(text)
+    mainstc._config['highlight'] = True
+    mainstc.FindLexer(set_ext='html')
+    frame.Show()
+    app.MainLoop()

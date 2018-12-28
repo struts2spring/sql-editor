@@ -506,7 +506,7 @@ class ExtensionRegister(dict):
 
         """
         ext = ext.lower()
-        for key, val in self.iteritems():
+        for key, val in self.items():
             if ext in [ext2.lower() for ext2 in val]:
                 return key
         return LANG_TXT

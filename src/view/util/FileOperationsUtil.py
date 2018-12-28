@@ -92,6 +92,20 @@ class FileOperations():
 			sqlList.append(partialSql)
 		return sqlList
 	
+	def getStylePath(self):
+		path = os.path.abspath(__file__)
+		tail = None
+# 		 head, tail = os.path.split(path)
+# 		 logger.info('createAuiManager',head, tail )
+		try:
+			while tail != 'src':
+				path = os.path.abspath(os.path.join(path, '..',))
+				head, tail = os.path.split(path)
+		except Exception as e:
+			logger.error(e, exc_info=True)
+# 		logger.info('path {}'.format(path))
+		path = os.path.abspath(os.path.join(path, "images")) 
+		return path
 	def getImagePath(self):
 		"""
 		this method return impagePath

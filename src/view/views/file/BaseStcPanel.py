@@ -46,12 +46,14 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
         stc.StyledTextCtrl.__init__(self, parent, id_, pos, size, style)
         StyleManager.__init__(self, self.GetStyleSheet())
         self.file = FileObject()
-        self._code = dict(synmgr=SyntaxMgr(),
-                          keywords=[ ' ' ],
-                          comment=list(),
-                          clexer=None,  # Container lexer method
-                          indenter=None,  # Auto indenter
-                          lang_id=0)  # Language ID from syntax module
+        self._code = dict(
+            compsvc=None, #autocomp.AutoCompService.GetCompleter(self),
+            synmgr=SyntaxMgr(),
+            keywords=[ ' ' ],
+            comment=list(),
+            clexer=None,  # Container lexer method
+            indenter=None,  # Auto indenter
+            lang_id=0)  # Language ID from syntax module
         self.vert_edit = VertEdit(self, markerNumber=MARKER_VERT_EDIT)
         self._line_num = True  # Show line numbers
         self._last_cwidth = 1  # one pixel
@@ -383,9 +385,9 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
         """
         self.AutoCompSetAutoHide(False)
         self.InitCompleter()
-        self.AutoCompSetChooseSingle(self._code['compsvc'].GetChooseSingle())
-        self.AutoCompSetIgnoreCase(not self._code['compsvc'].GetCaseSensitive())
-        self.AutoCompStops(self._code['compsvc'].GetAutoCompStops())
+#         self.AutoCompSetChooseSingle(self._code['compsvc'].GetChooseSingle())
+#         self.AutoCompSetIgnoreCase(not self._code['compsvc'].GetCaseSensitive())
+#         self.AutoCompStops(self._code['compsvc'].GetAutoCompStops())
         # TODO: come back to this it can cause some annoying behavior where
         #       it automatically completes strings that you don't want to be
         #       inserted in the buffer. (i.e typing self._value will bring up
@@ -450,7 +452,7 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
             rgb = HexToRGB(back[1:])
             back = wx.Colour(red=rgb[0], green=rgb[1], blue=rgb[2])
         else:
-            back=wx.BG_STYLE_COLOUR
+            back = wx.BG_STYLE_COLOUR
 
         fore = style.GetBack()
         rgb = HexToRGB(fore[1:])
@@ -563,7 +565,7 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
         if set_ext != u'':
             ext = set_ext.lower()
         else:
-            ext = self.file.GetExtension().lower()
+            ext = self.file.getExtension().lower()
 
         if ext == u'':
             fname = self.GetFileName()
@@ -599,8 +601,7 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
 
     def FireModified(self):
         """Fire a modified event"""
-        self.OnChanged(stc.StyledTextEvent(stc.wxEVT_STC_CHANGE,
-                                              self.GetId()))
+        self.OnChanged(stc.StyledTextEvent(stc.wxEVT_STC_CHANGE, self.GetId()))
 
     def GetCommandStr(self, line=None, col=None):
         """Gets the command string to the left of the autocomp
@@ -800,6 +801,7 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
         """
         # Check for plugins that may extend or override functionality for this
         # file type.
+        self._code['compsvc'] = None
 #         autocomp_ext = AutoCompExtension(wx.GetApp().GetPluginManager())
 #         completer = autocomp_ext.GetCompleter(self)
 #         if completer is not None:
@@ -807,7 +809,6 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
 #         else:
 #             extend = Profile_Get('AUTO_COMP_EX') # Using extended autocomp?
 #             self._code['compsvc'] = autocomp.AutoCompService.GetCompleter(self, extend)
-        pass
 
     def LoadFile(self, path):
         """Load the file at the given path into the buffer. Returns
