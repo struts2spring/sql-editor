@@ -10,6 +10,7 @@ import logging.config
 from src.view.constants import LOG_SETTINGS
 import json
 import unicodedata
+from src.view.util.FileOperationsUtil import FileOperations
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
@@ -246,7 +247,8 @@ class StyleManager():
 #         elif os.path.exists(sysp):
 #             return sysp
 #         else:
-        return r"C:\Users\xbbntni\AppData\Roaming\Editra\styles\Default.ess"
+
+        return FileOperations().getStylePath(styleName="Default.ess")
 
     def GetSyntaxParams(self):
         """Get the set of syntax parameters
@@ -645,10 +647,14 @@ class StyleManager():
 
         default_fore = self.GetDefaultForeColour()
         edge_colour = self.GetItemByName('edge_style')
-        self.SetEdgeColour(edge_colour.GetFore())
+        try:
+            self.SetEdgeColour(edge_colour.GetFore())
+        except Exception as e:
+            logger.error(e)
         self.SetCaretForeground(default_fore)
 #         self.SetCaretLineBack(self.GetItemByName('caret_line').GetBack())
         self.Colourise(0, -1)
+        # TODO:
 
 
 # Globals

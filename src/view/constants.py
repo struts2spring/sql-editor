@@ -30,6 +30,7 @@ ID_FILE_EXPLORER = wx.NewIdRef()
 ID_PROJECT_EXPLORER = wx.NewIdRef()
 ID_NAVIGATOR = wx.NewIdRef()
 ID_TERMINAL = wx.NewIdRef()
+ID_TASKS = wx.NewIdRef()
 ID_OUTLINE = wx.NewIdRef()
 ID_PYTHON_PACKAGE_EXPLORER = wx.NewIdRef()
 

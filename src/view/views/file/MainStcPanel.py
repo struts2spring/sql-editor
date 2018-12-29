@@ -1968,9 +1968,9 @@ if __name__ == "__main__":
     frame = wx.Frame(None)
     mainstc=MainStc(frame)
     from src.view.util.FileOperationsUtil import FileOperations
-    text=FileOperations().readFile(filePath='C:\\1\\sql_editor\\src\\html\\welcome.html')
+    text=FileOperations().readFile(filePath=r'/docs/work/python_project/Editra/src/dev_tool.py')
     mainstc.SetText(text)
     mainstc._config['highlight'] = True
-    mainstc.FindLexer(set_ext='html')
+    mainstc.FindLexer(set_ext='py')
     frame.Show()
     app.MainLoop()

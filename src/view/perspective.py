@@ -12,6 +12,7 @@ from src.view.views.file.explorer.FileBrowserPanel import FileBrowser
 from src.view.views.console.SqlOutputPanel import SqlConsoleOutputPanel
 from src.view.views.console.worksheet.WorksheetPanel import CreateWorksheetTabPanel
 from src.view.views.sql.history.HistoryListPanel import HistoryGrid
+from src.view.views.console.worksheet.WelcomePage import WelcomePanel
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -110,7 +111,7 @@ class PerspectiveManager(object):
         self._mgr = MyAuiManager()
         self._mgr.SetManagedWindow(self)
         # set up default notebook style
-        self._notebook_style = aui.AUI_NB_DEFAULT_STYLE | aui.AUI_NB_TAB_EXTERNAL_MOVE | wx.NO_BORDER | wx.BORDER_NONE
+        self._notebook_style = aui.AUI_NB_DEFAULT_STYLE | wx.BORDER_NONE
         self._notebook_theme = 1      
         # min size for the frame itself isn't completely done.
         # see the end up AuiManager.Update() for the test
@@ -144,9 +145,12 @@ class PerspectiveManager(object):
                           Name("databaseNaviagor").Caption("Database Navigator").Dockable(True).Movable(True).MinSize(500, -1).
                           Left().Layer(1).Position(1).CloseButton(True).MaximizeButton(True).MinimizeButton(True), target=self._mgr.GetPane("fileExplorer"))
         
-        self._mgr.AddPane(self.constructSqlPane(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="script.png")).
-                          Name("centerPane").Caption("Center Pane").LeftDockable(True).
-                          Center().CloseButton(True).MaximizeButton(True).MinimizeButton(True))
+        self._mgr.AddPane(WelcomePanel(self), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="welcome16.png")).BestSize(500, -1).
+                          Name("onWelcome").Caption("Welcome").Dockable(True).Movable(True).MinSize(500, -1).CaptionVisible(visible=True).Direction(wx.TOP).
+                          Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True))  
+        self._mgr.AddPane(self.constructCenterPane(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="script.png")).
+                          Name("centerPane").Caption("Center Pane").LeftDockable(True).Direction(wx.TOP).
+                          Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).CaptionVisible(visible=True), target=self._mgr.GetPane("onWelcome"))
         
 #         self._mgr.AddPane(self.constructSchemaViewerPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "script.png"))).
 #                           Name("schemaViewer").Caption("Schema Viewer").LeftDockable(True).
@@ -163,9 +167,12 @@ class PerspectiveManager(object):
         self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="sql.png")).
                           Name("sqlLog").Caption("SQL Log").Dockable(True).BestSize(wx.Size(500, 400)).MinSize(wx.Size(500, 400)).
                           Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True), target=self._mgr.GetPane("consoleOutput"))
-            
+
+        
+        self._mgr.GetPane("onWelcome").Show()
+        
         self._mgr.GetPane("viewToolbar").Show()
-        self._mgr.GetPane("perspectiveToolbar").Show()
+        self._mgr.GetPane("perspectiveToolbar").Hide()
         self.perspective_default = self._mgr.SavePerspective()
         perspective_all = self._mgr.SavePerspective()
         self.setStyleToPanes()
@@ -188,22 +195,22 @@ class PerspectiveManager(object):
         self.Bind(wx.EVT_TIMER, self.TimerHandler)
         self.timer = wx.Timer(self)
         self.timer.Start(100)
-
+        
 #######################################################################################    
 
     def OnPaneClose(self, event):
         logger.debug("OnPaneClose")
 #         if event.pane.name == "test10":
 
-        msg = "Are you sure you want to "
-        if event.GetEventType() == aui.wxEVT_AUI_PANE_MINIMIZE:
-            msg += "minimize "
-        else:
-            msg += "close/hide "
-
-        res = wx.MessageBox(msg + "this pane?", "AUI", wx.YES_NO, self)
-        if res != wx.YES:
-            event.Veto()
+#         msg = "Are you sure you want to "
+#         if event.GetEventType() == aui.wxEVT_AUI_PANE_MINIMIZE:
+#             msg += "minimize "
+#         else:
+#             msg += "close/hide "
+# 
+#         res = wx.MessageBox(msg + "this pane?", "AUI", wx.YES_NO, self)
+#         if res != wx.YES:
+#             event.Veto()
 
     def OnAllowNotebookDnD(self, event):
 
@@ -359,7 +366,7 @@ class PerspectiveManager(object):
 
         return treePanel
     
-    def constructSqlPane(self):
+    def constructCenterPane(self):
         worksheet = CreateWorksheetTabPanel(self)      
 #         worksheet.addTab('Start Page')
         return worksheet

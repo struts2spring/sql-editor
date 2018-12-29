@@ -8,9 +8,8 @@ import wx
 logger = logging.getLogger('extensive')
 logging.config.dictConfig(LOG_SETTINGS)
 
-
-
 BAD_IMAGE = -1
+
 
 class FileOperations():
 
@@ -92,7 +91,7 @@ class FileOperations():
 			sqlList.append(partialSql)
 		return sqlList
 	
-	def getStylePath(self):
+	def getStylePath(self, styleName="Default.ess"):
 		path = os.path.abspath(__file__)
 		tail = None
 # 		 head, tail = os.path.split(path)
@@ -104,8 +103,9 @@ class FileOperations():
 		except Exception as e:
 			logger.error(e, exc_info=True)
 # 		logger.info('path {}'.format(path))
-		path = os.path.abspath(os.path.join(path, "images")) 
+		path = os.path.abspath(os.path.join(path, "view", "util", "style", styleName)) 
 		return path
+
 	def getImagePath(self):
 		"""
 		this method return impagePath
@@ -130,7 +130,8 @@ class FileOperations():
 		if not path:
 			path = self.getImagePath()
 		return wx.Bitmap(os.path.join(path, imageName), wx.BITMAP_TYPE_PNG)
-	def ConvertBMP(self,  imageName=None, path=None):
+
+	def ConvertBMP(self, imageName=None, path=None):
 		"""
 	    Convert file
 	
@@ -154,6 +155,7 @@ class FileOperations():
 		
 		# BAD_IMAGE means a bad image, None just means no image (i.e. directory)
 		return BAD_IMAGE
+
 
 if __name__ == "__main__":
 # 	print(".".join("Book1_csv.csv".split(sep=".")[:-1]))
