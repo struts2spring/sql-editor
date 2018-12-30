@@ -1,6 +1,12 @@
 eclipse.preferences.version=1
+encoding//src/file_browser/FileHunter.py=utf-8
+encoding//src/view/util/common/vertedit.py=latin1
+encoding//src/view/util/syntax/syndata.py=utf-8
 encoding//venv/Lib/site-packages/wxPython-4.0.3-py3.6-win-amd64.egg/wx/lib/agw/aui/aui_constants.py=utf-8
 encoding//venv/Lib/site-packages/wxPython-4.0.3-py3.6-win-amd64.egg/wx/lib/agw/aui/auibar.py=utf-8
 encoding//venv/Lib/site-packages/wxPython-4.0.3-py3.6-win-amd64.egg/wx/lib/agw/aui/auibook.py=utf-8
 encoding//venv/Lib/site-packages/wxPython-4.0.3-py3.6-win-amd64.egg/wx/lib/agw/aui/framemanager.py=utf-8
 encoding//venv/Lib/site-packages/wxPython-4.0.3-py3.6-win-amd64.egg/wx/lib/agw/aui/tabmdi.py=utf-8
+encoding//venv/lib/python3.6/site-packages/wxPython-4.0.3-py3.6-linux-x86_64.egg/wx/lib/agw/aui/aui_constants.py=utf-8
+encoding//venv/lib/python3.6/site-packages/wxPython-4.0.3-py3.6-linux-x86_64.egg/wx/lib/agw/aui/auibook.py=utf-8
+encoding//venv/lib/python3.6/site-packages/wxPython-4.0.3-py3.6-linux-x86_64.egg/wx/lib/agw/aui/framemanager.py=utf-8

@@ -3,20 +3,19 @@ import wx
 
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 from src.view.AutoCompleteTextCtrl import TextCtrlAutoComplete
-from src.view.SqlOutputPanel import SqlConsoleOutputPanel
 from src.view.TreePanel import CreatingTreePanel
 from src.view.constants import LOG_SETTINGS, ID_newConnection, ID_openConnection, \
     ID_newWorksheet
 
-from src.view.file.explorer.FileBrowserPanel import FileBrowser
-from src.view.history.HistoryListPanel import HistoryGrid
-from src.view.worksheet.WorksheetPanel import CreateWorksheetTabPanel
 from wx.lib.agw.aui.aui_constants import actionDragFloatingPane, AUI_DOCK_NONE
-
+from src.view.views.file.explorer.FileBrowserPanel import FileBrowser
+from src.view.views.console.SqlOutputPanel import SqlConsoleOutputPanel
+from src.view.views.console.worksheet.WorksheetPanel import CreateWorksheetTabPanel
+from src.view.views.sql.history.HistoryListPanel import HistoryGrid
+from src.view.views.console.worksheet.WelcomePage import WelcomePanel
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
-
 
 try:
     from agw import aui
@@ -87,12 +86,14 @@ class MyAuiManager(aui.AuiManager):
                 # not our window
                 event.Skip()
 
+
 class PerspectiveManager(object):
     """Creates a perspective manager for the given aui managed window.
     It supports saving and loading of on disk perspectives as created by
     calling SavePerspective from the AuiManager. Mixin class for a wx.Frame.
 
     """
+
     def __init__(self, base=None):
         """Initializes the perspective manager. The auimgr parameter is
         a reference to the windows AuiManager instance, base is the base
@@ -110,7 +111,7 @@ class PerspectiveManager(object):
         self._mgr = MyAuiManager()
         self._mgr.SetManagedWindow(self)
         # set up default notebook style
-        self._notebook_style = aui.AUI_NB_DEFAULT_STYLE | aui.AUI_NB_TAB_EXTERNAL_MOVE | wx.NO_BORDER| wx.BORDER_NONE
+        self._notebook_style = aui.AUI_NB_DEFAULT_STYLE | wx.BORDER_NONE
         self._notebook_theme = 1      
         # min size for the frame itself isn't completely done.
         # see the end up AuiManager.Update() for the test
@@ -136,17 +137,20 @@ class PerspectiveManager(object):
                           ToolbarPane().Top().Row(1).Position(2).CloseButton(True).
                           LeftDockable(False).RightDockable(False).Gripper(True))    
         
-        self._mgr.AddPane(self.creatingFileExplorer(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="file_explorer.png")).BestSize(500,-1).
-                          Name("fileExplorer").Caption("File Explorer").Dockable(True).Movable(True).MinSize(500,-1).Resizable(True).
+        self._mgr.AddPane(self.creatingFileExplorer(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="file_explorer.png")).BestSize(500, -1).
+                          Name("fileExplorer").Caption("File Explorer").Dockable(True).Movable(True).MinSize(500, -1).Resizable(True).
                           Left().Layer(1).Position(2).CloseButton(True).MaximizeButton(True).MinimizeButton(True))
         
-        self._mgr.AddPane(self.creatingTreeCtrl(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="folder_database.png")).BestSize(500,-1).
-                          Name("databaseNaviagor").Caption("Database Navigator").Dockable(True).Movable(True).MinSize(500,-1).
+        self._mgr.AddPane(self.creatingTreeCtrl(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="folder_database.png")).BestSize(500, -1).
+                          Name("databaseNaviagor").Caption("Database Navigator").Dockable(True).Movable(True).MinSize(500, -1).
                           Left().Layer(1).Position(1).CloseButton(True).MaximizeButton(True).MinimizeButton(True), target=self._mgr.GetPane("fileExplorer"))
         
-        self._mgr.AddPane(self.constructSqlPane(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="script.png")).
-                          Name("centerPane").Caption("Center Pane").LeftDockable(True).
-                          Center().CloseButton(True).MaximizeButton(True).MinimizeButton(True))
+        self._mgr.AddPane(WelcomePanel(self), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="welcome16.png")).BestSize(500, -1).
+                          Name("onWelcome").Caption("Welcome").Dockable(True).Movable(True).MinSize(500, -1).CaptionVisible(visible=True).Direction(wx.TOP).
+                          Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True))  
+        self._mgr.AddPane(self.constructCenterPane(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="script.png")).
+                          Name("centerPane").Caption("Center Pane").LeftDockable(True).Direction(wx.TOP).
+                          Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).CaptionVisible(visible=True), target=self._mgr.GetPane("onWelcome"))
         
 #         self._mgr.AddPane(self.constructSchemaViewerPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "script.png"))).
 #                           Name("schemaViewer").Caption("Schema Viewer").LeftDockable(True).
@@ -163,9 +167,12 @@ class PerspectiveManager(object):
         self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="sql.png")).
                           Name("sqlLog").Caption("SQL Log").Dockable(True).BestSize(wx.Size(500, 400)).MinSize(wx.Size(500, 400)).
                           Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True), target=self._mgr.GetPane("consoleOutput"))
-            
+
+        
+        self._mgr.GetPane("onWelcome").Show()
+        
         self._mgr.GetPane("viewToolbar").Show()
-        self._mgr.GetPane("perspectiveToolbar").Show()
+        self._mgr.GetPane("perspectiveToolbar").Hide()
         self.perspective_default = self._mgr.SavePerspective()
         perspective_all = self._mgr.SavePerspective()
         self.setStyleToPanes()
@@ -188,51 +195,52 @@ class PerspectiveManager(object):
         self.Bind(wx.EVT_TIMER, self.TimerHandler)
         self.timer = wx.Timer(self)
         self.timer.Start(100)
-
-
-
+        
 #######################################################################################    
 
     def OnPaneClose(self, event):
         logger.debug("OnPaneClose")
 #         if event.pane.name == "test10":
 
-        msg = "Are you sure you want to "
-        if event.GetEventType() == aui.wxEVT_AUI_PANE_MINIMIZE:
-            msg += "minimize "
-        else:
-            msg += "close/hide "
+#         msg = "Are you sure you want to "
+#         if event.GetEventType() == aui.wxEVT_AUI_PANE_MINIMIZE:
+#             msg += "minimize "
+#         else:
+#             msg += "close/hide "
+# 
+#         res = wx.MessageBox(msg + "this pane?", "AUI", wx.YES_NO, self)
+#         if res != wx.YES:
+#             event.Veto()
 
-        res = wx.MessageBox(msg + "this pane?", "AUI", wx.YES_NO, self)
-        if res != wx.YES:
-            event.Veto()
     def OnAllowNotebookDnD(self, event):
 
         # for the purpose of this test application, explicitly
         # allow all noteboko drag and drop events
         event.Allow()
+
     def OnNotebookPageClose(self, event):
         logger.debug("OnNotebookPageClose")
         ctrl = event.GetEventObject()
-        if isinstance(ctrl.GetPage(event.GetSelection()), wx.html.HtmlWindow):
 
-            res = wx.MessageBox("Are you sure you want to close/hide this notebook page?",
-                                "AUI", wx.YES_NO, self)
-            if res != wx.YES:
-                event.Veto()
+#         if isinstance(ctrl.GetPage(event.GetSelection()), wx.html.HtmlWindow):
+# 
+#             res = wx.MessageBox("Are you sure you want to close/hide this notebook page?",
+#                                 "AUI", wx.YES_NO, self)
+#             if res != wx.YES:
+#                 event.Veto()
     def OnFloatDock(self, event):
 
         paneLabel = event.pane.caption
         etype = event.GetEventType()
 
-        strs = "Pane %s "%paneLabel
+        strs = "Pane %s " % paneLabel
         if etype == aui.wxEVT_AUI_PANE_FLOATING:
             strs += "is about to be floated"
 
             if event.pane.name == "test8" and self._veto_tree:
                 event.Veto()
                 strs += "... Event vetoed by user selection!"
-                logger.debug(strs )
+                logger.debug(strs)
                 return
 
         elif etype == aui.wxEVT_AUI_PANE_FLOATED:
@@ -243,26 +251,23 @@ class PerspectiveManager(object):
             if event.pane.name == "test11" and self._veto_text:
                 event.Veto()
                 strs += "... Event vetoed by user selection!"
-                logger.debug(strs )
+                logger.debug(strs)
                 return
 
         elif etype == aui.wxEVT_AUI_PANE_DOCKED:
             strs += "has been docked"
 
-        logger.debug(strs )
-
+        logger.debug(strs)
 
     def __del__(self):
 
         self.timer.Stop()
-
 
     def OnClose(self, event):
 
         self.timer.Stop()
         self._mgr.UnInit()
         event.Skip()
-
 
     def TimerHandler(self, event):
 
@@ -283,22 +288,23 @@ class PerspectiveManager(object):
                 nb.SetArtProvider(aui.ChromeTabArt())
                 nb.Refresh()
                 nb.Update()
+
     def constructToolBar(self):
         # create some toolbars
-        tb1 = aui.AuiToolBar(self, -1, wx.Point(500,0), wx.DefaultSize, agwStyle=aui.AUI_TB_DEFAULT_STYLE | aui.AUI_TB_OVERFLOW|wx.NO_BORDER)
+        tb1 = aui.AuiToolBar(self, -1, wx.Point(500, 0), wx.DefaultSize, agwStyle=aui.AUI_TB_DEFAULT_STYLE | aui.AUI_TB_OVERFLOW | wx.NO_BORDER)
         
         tb1.SetToolBitmapSize(wx.Size(42, 42))
         tb1.AddSimpleTool(tool_id=ID_newConnection, label="New Connection", bitmap=wx.Bitmap(self.fileOperations.getImageBitmap(imageName="connect.png")), short_help_string='Create a new connection')
         tb1.AddSeparator()
         
 #         :TODO:FIX
-        tools=[
+        tools = [
             (ID_openConnection, "Open Connection", "database_connect.png", 'Open Connection'),
             (ID_newWorksheet, "Script", "script.png", 'Open a new script worksheet'),
             (wx.ID_PREFERENCES, "Preferences", "preference.png", 'Preference'),
             ]
         for tool in tools:
-            tb1.AddSimpleTool(tool[0], tool[1],self.fileOperations.getImageBitmap(imageName=tool[2]), short_help_string=tool[3])
+            tb1.AddSimpleTool(tool[0], tool[1], self.fileOperations.getImageBitmap(imageName=tool[2]), short_help_string=tool[3])
             
 #         tb1.AddSimpleTool(ID_openConnection, "Open Connection", wx.Bitmap(self.fileOperations.getImageBitmap(imageName="database_connect.png")), short_help_string='Open Connection')
 #         tb1.AddSimpleTool(ID_newWorksheet, "Script", wx.Bitmap(self.fileOperations.getImageBitmap(imageName="script.png")), short_help_string='Open a new script worksheet')
@@ -351,9 +357,8 @@ class PerspectiveManager(object):
     
     def creatingFileExplorer(self):
         
-        fileBrowserPanel=FileBrowser(self, size=(500,300))
+        fileBrowserPanel = FileBrowser(self, size=(500, 300))
         return fileBrowserPanel
-    
     
     def creatingTreeCtrl(self):
         # Create a TreeCtrl
@@ -361,7 +366,7 @@ class PerspectiveManager(object):
 
         return treePanel
     
-    def constructSqlPane(self):
+    def constructCenterPane(self):
         worksheet = CreateWorksheetTabPanel(self)      
 #         worksheet.addTab('Start Page')
         return worksheet

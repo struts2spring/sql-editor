@@ -3,11 +3,11 @@ import wx
 import wx.lib.filebrowsebutton as filebrowse
 import logging.config
 from src.view.constants import TITLE, LOG_SETTINGS
-from src.view.worksheet.ResultGrid import ResultDataGrid
 import os
 from src.view.util.FileOperationsUtil import FileOperations
 import ntpath
 from src.sqlite_executer.ConnectExecuteSqlite import SQLUtils
+from src.view.views.console.worksheet.ResultGrid import ResultDataGrid
 
 logger = logging.getLogger('extensive')
 logging.config.dictConfig(LOG_SETTINGS)

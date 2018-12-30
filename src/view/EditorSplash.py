@@ -4,7 +4,6 @@ Created on Nov 20, 2018
 @author: xbbntni
 '''
 import wx.adv
-import os
 import wx.lib.eventStack as events
 from src.view.sql_editor_view import DatabaseMainFrame
 from wx._adv import SplashScreen

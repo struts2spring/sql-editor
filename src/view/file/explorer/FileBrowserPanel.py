@@ -13,6 +13,7 @@ from src.view.file.explorer.eclutil import Freezer
 from src.view.util.FileOperationsUtil import FileOperations
 from src.view.util.osutil import GetWindowsDrives, GetWindowsDriveType, \
     RemovableDrive, CDROMDrive
+from src.view.file.BaseStcPanel import BaseStc
 
 # from src.view.syntax.syntax import GetIdFromExt
 logging.config.dictConfig(LOG_SETTINGS)
@@ -280,8 +281,7 @@ class FileBrowser(FileTree):
 
     #---- End FileTree Interface Methods ----#
 
-    @staticmethod
-    def OpenFiles(files):
+    def OpenFiles(self,files):
         """Open the list of files in Editra for editing
         @param files: list of file names
 
@@ -294,10 +294,20 @@ class FileBrowser(FileTree):
                     to_open.append(fname)
             except (IOError, OSError) as msg:
                 logger.debug("[filebrowser][err] %s" % str(msg))
-
-        win = wx.GetApp().GetActiveWindow()
-        if win:
-            win.GetNotebook().OnDrop(to_open)
+        
+                
+        if hasattr(self.GetTopLevelParent(), '_mgr'):
+            centerPaneTab = self.GetTopLevelParent()._mgr.GetPane("centerPane")
+            if centerPaneTab.window:
+                for path in to_open:
+                    stc=BaseStc(self)
+                    fileName=os.path.split(path)[-1]
+                    stc.SetText(FileOperations().readFile(filePath=fname))
+                    centerPaneTab.window.addTab(name='openFileLoad'+fileName, worksheetPanel=stc)
+                
+#         win = wx.GetApp().GetActiveWindow()
+#         if win:
+#             win.GetNotebook().OnDrop(to_open)
 
     def OnCompareItems(self, item1, item2):
         """Handle SortItems"""
@@ -541,7 +551,8 @@ class FileBrowserMimeManager():
             '.xml':'xml.png',
             '.java':'java.png',
             '.py':'python.png',
-#             '.cpp':'cpp.png',
+            '.html':'web.png',
+            '.md':'markdown.png',
             
             }
         pass
@@ -554,11 +565,37 @@ class FileBrowserMimeManager():
         imglist.RemoveAll()
         self.iconsDictIndex = {}
         count = 0
+        for extensionName in ['.pdf', '.zip', '.xlsx', '.xls', '.doc', '.ppt',  '.7z', '.png', '.md', '.json', '.docx','.css','.js','.bat','.csv','.txt','.emf' ]:
+            try:
+                icon=self.getIconByExtension(extensionName)
+                if icon:
+                    imglist.Add(icon)
+                    self.iconsDictIndex[extensionName] = count
+                    self.fileImageExtensionDict[extensionName] = extensionName
+                    count += 1
+            except Exception as e:
+                logger.error(e, exc_info=True)
         for imageName in ['fileType_filter.png', 'folder.png', 'folder_view.png', 'harddisk.png', 'usb.png', 'stop.png',
-                          'java.png', 'python_module.png', 'xml.png','python.png']:
+                          'java.png', 'python_module.png', 'xml.png', 'python.png']:
             imglist.Add(self.fileOperations.getImageBitmap(imageName=imageName))
             self.iconsDictIndex[imageName] = count
             count += 1
+
+    def getIconByExtension(self, extension=".txt"):
+        icon = None
+        logger.debug(extension)
+        fileType = wx.TheMimeTypesManager.GetFileTypeFromExtension(extension)
+
+        if fileType is None:
+            logger.debug("File extension not found.")
+        else:
+            try:
+                icon, file, idx = fileType.GetIconInfo()
+                if icon.IsOk():
+                    icon = icon
+            except :
+                logger.error('some error :'+extension)           
+        return icon
 
     def GetImageIndex(self, path, expanded=False):
         """Get the appropriate file index for the given path
@@ -583,8 +620,10 @@ class FileBrowserMimeManager():
                 imageName = 'folder.png'
         elif os.path.isfile(path):
             filename, fileExtension = os.path.splitext(path)
+            fileExtension = fileExtension.lower()
             if fileExtension and self.getFileImageNameByExtension(fileExtension):
                 imageName = self.getFileImageNameByExtension(fileExtension)
+                
         return self.iconsDictIndex[imageName]
     
     def getFileImageNameByExtension(self, fileExtension=None):

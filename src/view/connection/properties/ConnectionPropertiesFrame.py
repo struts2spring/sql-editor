@@ -15,7 +15,7 @@ from src.view.tree.TreePanel import CreatingTreePanel
 from wx.lib.agw import aui
 
 from src.view.worksheet.WorksheetPanel import   CreateWorksheetTabPanel
-# from src.view.history.HistoryListPanel import HistoryPanel
+# from src.view.views.sql.history.HistoryListPanel import HistoryPanel
 from src.view.Constant import ID_newConnection, ID_openConnection,\
     ID_newWorksheet, ID_UPDATE_CHECK, ID_SQL_LOG, ID_SQL_EXECUTION
 from wx import ID_PREFERENCES

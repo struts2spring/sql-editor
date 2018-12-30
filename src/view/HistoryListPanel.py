@@ -6,8 +6,6 @@ Created on 17-Dec-2016
 
 
 import wx
-import wx.dataview as dv
-from wx import ListCtrl
 
 import string
 import  wx.grid as gridlib
