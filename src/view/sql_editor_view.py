@@ -2,7 +2,6 @@ import logging
 import platform
 import sys
 
-from wx import ID_PREFERENCES
 import wx
 
 from src.view.connection.NewConnectionWizard import CreateNewConncetionWixard
@@ -14,6 +13,7 @@ from src.view.util.FileOperationsUtil import FileOperations
 
 from src.view.perspective import PerspectiveManager
 from src.view.views.console.worksheet.WelcomePage import WelcomePanel
+from src.view.other.OtherPanel import OtherViewTreePanel
     
 logger = logging.getLogger('extensive')
 try:
@@ -184,7 +184,7 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
                                                 [ID_OUTLINE, 'Outline', "outline_co.png", None ],
                                                 [ID_PYTHON_PACKAGE_EXPLORER, 'Python Package Explorer', "package_explorer.png", None ],  # TODO : need to set image icon
                                                 [],
-                                                [wx.NewIdRef(), 'Other', None, None ]
+                                                [ID_OTHER_VIEW, 'Other', None, None ]
                                             ], None
                     ],
                     [ID_PROSPECTIVE_NAVIGATION, "Perspective", [
@@ -202,7 +202,7 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
                                             ], None
                     ],
                     [],
-                    [wx.ID_PREFERENCES, "&Preferences", None, "preference.png" ]
+                    [ID_PREFERENCES, "&Preferences", None, "preference.png" ]
                 ]),
             ("&Help", [
                     [ ID_WELCOME, "Welcome", None, "welcome16.png"],
@@ -278,11 +278,12 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
         self.Bind(wx.EVT_MENU, self.onOpenConnection, id=ID_openConnection)
         self.Bind(wx.EVT_MENU, self.onNewConnection, id=ID_newConnection)
         self.Bind(wx.EVT_MENU, self.onNewWorksheet, id=ID_newWorksheet)
-        self.Bind(wx.EVT_MENU, self.onPreferences, id=ID_PREFERENCES)
+        self.Bind(wx.EVT_MENU, self.onPreferences, ID_PREFERENCES)
         self.Bind(wx.EVT_MENU, self.onSqlLog, id=ID_SQL_LOG)
         self.Bind(wx.EVT_MENU, self.onConsole, id=ID_CONSOLE_LOG)
         self.Bind(wx.EVT_MENU, self.onDatabaseNavigator, id=ID_DATABASE_NAVIGATOR)
         self.Bind(wx.EVT_MENU, self.onFileExplorer, id=ID_FILE_EXPLORER)
+        self.Bind(wx.EVT_MENU, self.onOtherView, id=ID_OTHER_VIEW)
         
         self.Bind(wx.EVT_MENU, self.onSqlExecution, id=ID_SQL_EXECUTION)
         self.Bind(wx.EVT_MENU, self.onShowViewToolbar, id=ID_SHOW_VIEW_TOOLBAR)
@@ -387,6 +388,7 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
     def onSqlLog(self, event):
         logger.debug('onSqlLog')
         self.addTab(tabName="sqlLog", tabDirection=3)
+
     def onDatabaseNavigator(self, event):
         logger.debug("onDatabaseNavigator")
         self.addTab(tabName="databaseNaviagor", tabDirection=4)    
@@ -394,6 +396,11 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
     def onConsole(self, event):
         logger.debug('onConsole')
         self.addTab(tabName="consoleOutput", tabDirection=3)        
+
+    def onOtherView(self, event):
+        logger.debug('onOtherView')
+        frame1 = OtherViewTreePanel(self, "Show View", size=(600, 560))
+
     def onFileExplorer(self, event):
         logger.debug('onFileExplorer')
 
@@ -418,7 +425,7 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
         
         for pane in self._mgr.GetAllPanes():
             logger.debug(pane.dock_direction_get())
-            if pane.dock_direction_get()==tabDirection: # adding to center tab
+            if pane.dock_direction_get() == tabDirection:  # adding to center tab
                 if not pane.HasNotebook():
                     self._mgr.CreateNotebookBase(self._mgr._panes, pane)
                 targetTab.NotebookPage(pane.notebook_id)

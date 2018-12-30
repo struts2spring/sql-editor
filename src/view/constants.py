@@ -33,6 +33,7 @@ ID_TERMINAL = wx.NewIdRef()
 ID_TASKS = wx.NewIdRef()
 ID_OUTLINE = wx.NewIdRef()
 ID_PYTHON_PACKAGE_EXPLORER = wx.NewIdRef()
+ID_OTHER_VIEW = wx.NewIdRef()
 
 ID_SQL_EXECUTION = wx.NewIdRef()
 ID_COPY_COLUMN_HEADER = wx.NewIdRef()
@@ -44,6 +45,7 @@ ID_SHOW_VIEW_TOOLBAR = wx.NewIdRef()
 ID_PERSPECTIVE_TOOLBAR = wx.NewIdRef()
 
 # Prospective menu menu
+ID_PREFERENCES = wx.NewIdRef()
 ID_PROSPECTIVE_NAVIGATION = wx.NewIdRef()
 ID_PROSPECTIVE_OTHER = wx.NewIdRef()
 ID_OPEN_PROSPECTIVE = wx.NewIdRef()
