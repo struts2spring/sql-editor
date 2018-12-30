@@ -46,6 +46,6 @@ setuptools.setup(
         'Programming Language :: Python :: 3.6',
         'Topic :: Scientific/Engineering :: Information Analysis',
     ],
-    package_data={'src.images': ['*.png']},
+    package_data={'src.images': ['*.png'],'src.view.util.styles':['*.ess']},
     include_package_data=True
 )

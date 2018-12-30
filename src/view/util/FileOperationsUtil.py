@@ -103,7 +103,7 @@ class FileOperations():
 		except Exception as e:
 			logger.error(e, exc_info=True)
 # 		logger.info('path {}'.format(path))
-		path = os.path.abspath(os.path.join(path, "view", "util", "style", styleName)) 
+		path = os.path.abspath(os.path.join(path, "view", "util", "styles", styleName)) 
 		return path
 
 	def getImagePath(self):
