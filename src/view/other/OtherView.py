@@ -173,7 +173,7 @@ _treeList = [
 
 
 
-class OtherViewTreeFrame(wx.Dialog):
+class OtherViewTreeFrame(wx.Frame):
     
     def __init__(self, parent, title, size=(313, 441)):
         wx.Frame.__init__(self, parent, -1, title, size=size,

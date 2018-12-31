@@ -307,7 +307,7 @@ class FileBrowser(FileTree):
                 
 #                     imageName=self.iconsDictIndex[extensionName]
                 stc.SetText(FileOperations().readFile(filePath=path))
-                self.GetTopLevelParent().addWindowTab(window=stc, imageName=None,tabName="$$$${}".format(fileName),captionName=fileName, tabDirection=5)
+                self.GetTopLevelParent().addTabByWindow(window=stc, captionName=fileName, tabDirection=5)
 #                     centerPaneTab.window.addTab(name='openFileLoad'+fileName, worksheetPanel=stc)
                 
 #         win = wx.GetApp().GetActiveWindow()

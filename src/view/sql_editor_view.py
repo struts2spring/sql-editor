@@ -13,7 +13,8 @@ from src.view.util.FileOperationsUtil import FileOperations
 
 from src.view.perspective import PerspectiveManager
 from src.view.views.console.worksheet.WelcomePage import WelcomePanel
-from src.view.other.OtherPanel import OtherViewTreePanel
+from src.view.other.OtherView import OtherViewTreePanel, OtherViewTreeFrame
+from src.view.other.OtherPerspecitve import OtherPerspectiveTreeFrame
     
 logger = logging.getLogger('extensive')
 try:
@@ -195,7 +196,7 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
                                                         [ wx.NewIdRef(), 'Resources', "resource_persp.png", None],
                                                         [ wx.NewIdRef(), 'Git', "gitrepository.png", None],
                                                         [],
-                                                        [wx.NewIdRef(), "Other", None],
+                                                        [ID_OTHER_PERSPECTIVE, "Other", None],
                                                     ]],
                                                 [ wx.NewIdRef(), 'SQL Log', "sql.png", None ],
                                                 [ wx.NewIdRef(), 'Console', "console_view.png", None ]
@@ -284,6 +285,7 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
         self.Bind(wx.EVT_MENU, self.onDatabaseNavigator, id=ID_DATABASE_NAVIGATOR)
         self.Bind(wx.EVT_MENU, self.onFileExplorer, id=ID_FILE_EXPLORER)
         self.Bind(wx.EVT_MENU, self.onOtherView, id=ID_OTHER_VIEW)
+        self.Bind(wx.EVT_MENU, self.onOtherPerspecitve, id=ID_OTHER_PERSPECTIVE)
         
         self.Bind(wx.EVT_MENU, self.onSqlExecution, id=ID_SQL_EXECUTION)
         self.Bind(wx.EVT_MENU, self.onShowViewToolbar, id=ID_SHOW_VIEW_TOOLBAR)
@@ -332,8 +334,15 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
     def onNewWorksheet(self, event):
         logger.debug('onNewWorksheet')
 #         all_panes = self._mgr.GetAllPanes()
-        sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("centerPane")
-        sqlExecutionTab.window.addTab("Worksheet")
+        count = 0
+        for pane in self._mgr.GetAllPanes():
+            if "Worksheet-" in pane.name: 
+                countStr = pane.name.replace("Worksheet-", '')
+                count = int(countStr)
+                count += 1
+        self.addTabByWindow(self.getWorksheet(), imageName="script.png", captionName="Worksheet-{}".format(count), tabDirection=5)
+#         sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("centerPane")
+#         sqlExecutionTab.window.addTab("Worksheet")
         
     def onPreferences(self, event):
         logger.debug('onPreferences')
@@ -399,7 +408,13 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
 
     def onOtherView(self, event):
         logger.debug('onOtherView')
-        frame1 = OtherViewTreePanel(self, "Show View", size=(600, 560))
+        frame = OtherViewTreeFrame(self, "Show View")
+        frame.Show()
+
+    def onOtherPerspecitve(self, event):
+        logger.debug('onOtherPerspecitve')
+        frame = OtherPerspectiveTreeFrame(self, "Open Pespective")
+        frame.Show()
 
     def onFileExplorer(self, event):
         logger.debug('onFileExplorer')
@@ -417,6 +432,30 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
         self.addTab(tabName="onWelcome", tabDirection=5)
 #         centerPaneTab.window.addTab(name)    
 
+    def addTabByWindow(self, window=None , imageName="script.png", captionName=None, tabDirection=5):
+        '''
+        This method always create a new tab for the window.
+        tabDirection=5 is the center 
+        '''
+        self._mgr.SetAutoNotebookStyle(aui.AUI_NB_DEFAULT_STYLE | wx.BORDER_NONE)
+        for pane in self._mgr.GetAllPanes():
+            logger.debug(pane.dock_direction_get())
+            auiPanInfo = aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName=imageName)).\
+                Name(captionName).Caption(captionName).LeftDockable(True).Direction(wx.TOP).\
+                Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).CaptionVisible(visible=True)
+            if pane.dock_direction_get() == tabDirection:  # adding to center tab
+                targetTab = pane
+                if not pane.HasNotebook():
+                    self._mgr.CreateNotebookBase(self._mgr._panes, pane)
+#                 targetTab.NotebookPage(pane.notebook_id)
+                    self._mgr.AddPane(window, auiPanInfo, target=targetTab)
+#                 self._mgr._notebooks
+#                 self._mgr.ActivatePane(targetTab.window)
+                else:
+                    self._mgr.AddPane(window, auiPanInfo, target=targetTab)
+                break
+        self.GetTopLevelParent()._mgr.Update()
+        
     def addTab(self, tabName='', tabDirection=5):
         self._mgr.SetAutoNotebookStyle(aui.AUI_NB_DEFAULT_STYLE | wx.BORDER_NONE)
 #         worksheetPanel=WelcomePanel(self)

@@ -167,7 +167,7 @@ class PerspectiveManager(object):
                           Name("centerPane").Caption("Center Pane").LeftDockable(True).Direction(wx.TOP).
                           Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).CaptionVisible(visible=True), target=self._mgr.GetPane("onWelcome"))
         self._mgr.AddPane(self.getWorksheet(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="script.png")).
-                          Name("$$$$sqlWorkSheet-0").Caption("Worksheet-0").LeftDockable(True).Direction(wx.TOP).
+                          Name("Worksheet-0").Caption("Worksheet-0").LeftDockable(True).Direction(wx.TOP).
                           Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).CaptionVisible(visible=True), target=self._mgr.GetPane("onWelcome"))
         
 #         self._mgr.AddPane(self.constructSchemaViewerPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "script.png"))).
