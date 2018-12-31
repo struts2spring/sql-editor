@@ -225,15 +225,15 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
                 self.EnsureCaretVisible()
                 return
             indent = self.GetLineIndentation(line)
-            i_space = indent / self.GetTabWidth()
+            i_space = int( indent / self.GetTabWidth())
             try:
                 ndent = self.GetEOLChar() + self.GetIndentChar() * i_space
                 txt = ndent + ((indent - (self.GetTabWidth() * i_space)) * u' ')
                 self.AddText(txt)
+                self.EnsureCaretVisible()
             except Exception as e:
                 logger.error(e, exc_info=True)
 
-        self.EnsureCaretVisible()
 
     def BackTab(self):
         """Unindent or remove excess whitespace to left of cursor"""

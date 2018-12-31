@@ -300,14 +300,14 @@ class FileBrowser(FileTree):
         if hasattr(self.GetTopLevelParent(), '_mgr'):
 
             for path in to_open:
-                stc=MainStc(self)
-                stc.SetSavePoint()
+                mainStc=MainStc(self)
+                mainStc.SetSavePoint()
                 fileName=os.path.split(path)[-1]
-                extensionName=fileName.split('.')[-1]
-                
+                file_ext=fileName.split('.')[-1]
+                mainStc.SetText(FileOperations().readFile(filePath=path))
+                mainStc.ConfigureLexer(file_ext)
 #                     imageName=self.iconsDictIndex[extensionName]
-                stc.SetText(FileOperations().readFile(filePath=path))
-                self.GetTopLevelParent().addTabByWindow(window=stc, captionName=fileName, tabDirection=5)
+                self.GetTopLevelParent().addTabByWindow(window=mainStc, captionName=fileName, tabDirection=5)
 #                     centerPaneTab.window.addTab(name='openFileLoad'+fileName, worksheetPanel=stc)
                 
 #         win = wx.GetApp().GetActiveWindow()

@@ -5,6 +5,8 @@
 # Copyright: (c) 2007 Cody Precord <staff@editra.org>                         #
 # License: wxWindows License                                                  #
 ###############################################################################
+from src.view.util.syntax.syndata import SyntaxDataBase
+from src.view.util.syntax.synglob import FEATURE_AUTOINDENT
 
 """
 FILE: python.py
@@ -23,8 +25,8 @@ import wx.stc as stc
 import keyword
 
 # Local Imports
-import synglob
-import syndata
+# import synglob
+# import syndata
 
 #-----------------------------------------------------------------------------#
 
@@ -43,8 +45,8 @@ PY_KW = (0, u" ".join(KEYWORDS))
 
 # Highlighted builtins
 try:
-    import __builtin__
-    BUILTINS = dir(__builtin__)
+    import builtins 
+    BUILTINS = dir(builtins)
 except:
     BUILTINS = list()
 #BUILTINS.append('self')
@@ -78,14 +80,14 @@ TIMMY = ("tab.timmy.whinge.level", "1") # Mark Inconsistent indentation
 
 #-----------------------------------------------------------------------------#
 
-class SyntaxData(syndata.SyntaxDataBase):
+class SyntaxData(SyntaxDataBase):
     """SyntaxData object for Python""" 
     def __init__(self, langid):
         super(SyntaxData, self).__init__(langid)
 
         # Setup
         self.SetLexer(stc.STC_LEX_PYTHON)
-        self.RegisterFeature(synglob.FEATURE_AUTOINDENT, AutoIndenter)
+        self.RegisterFeature(FEATURE_AUTOINDENT, AutoIndenter)
 
     def GetKeywords(self):
         """Returns Specified Keywords List """
