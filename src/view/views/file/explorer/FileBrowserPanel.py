@@ -556,6 +556,7 @@ class FileBrowserMimeManager():
             '.py':'python.png',
             '.html':'web.png',
             '.md':'markdown.png',
+            '.jar':'jar_file.png',
             
             }
         pass
@@ -568,7 +569,10 @@ class FileBrowserMimeManager():
         imglist.RemoveAll()
         self.iconsDictIndex = {}
         count = 0
-        for extensionName in ['.pdf', '.zip', '.xlsx', '.xls', '.doc', '.ppt',  '.7z', '.png', '.md', '.json', '.docx','.css','.js','.bat','.csv','.txt','.emf' ]:
+        for extensionName in ['.pdf', '.zip', '.xlsx', '.xls', '.doc', '.ppt',  '.7z', '.png', '.md', '.json', 
+                              '.docx','.css','.js','.bat','.csv','.txt','.emf', '.rtf', '.chm','.odt','.ini',
+                              '.rar','.msi','.avi','.mp4','.mov','.flv','.mpg','.gif',
+                              '.wma','.mp3','.wav','.aac','.m4a','.dmg','.tar','.gz', ]:
             try:
                 icon=self.getIconByExtension(extensionName)
                 if icon:
@@ -579,7 +583,7 @@ class FileBrowserMimeManager():
             except Exception as e:
                 logger.error(e, exc_info=True)
         for imageName in ['fileType_filter.png', 'folder.png', 'folder_view.png', 'harddisk.png', 'usb.png', 'stop.png',
-                          'java.png', 'python_module.png', 'xml.png', 'python.png', 'java.png',]:
+                          'java.png', 'python_module.png', 'xml.png', 'python.png', 'java.png','jar_file.png','markdown.png']:
             imglist.Add(self.fileOperations.getImageBitmap(imageName=imageName))
             self.iconsDictIndex[imageName] = count
             count += 1
