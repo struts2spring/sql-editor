@@ -159,7 +159,7 @@ class MainStc(BaseStc):
     __name__ = u"EditraTextCtrl"
 
 
-    def OnUpdatePageText(self):
+    def OnUpdatePageText(self,event):
         logger.debug('OnUpdatePageText')
     #---- Protected Member Functions ----#
 

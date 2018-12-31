@@ -226,9 +226,12 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
                 return
             indent = self.GetLineIndentation(line)
             i_space = indent / self.GetTabWidth()
-            ndent = self.GetEOLChar() + self.GetIndentChar() * i_space
-            txt = ndent + ((indent - (self.GetTabWidth() * i_space)) * u' ')
-            self.AddText(txt)
+            try:
+                ndent = self.GetEOLChar() + self.GetIndentChar() * i_space
+                txt = ndent + ((indent - (self.GetTabWidth() * i_space)) * u' ')
+                self.AddText(txt)
+            except Exception as e:
+                logger.error(e, exc_info=True)
 
         self.EnsureCaretVisible()
 

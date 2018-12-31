@@ -583,6 +583,7 @@ class FileBrowserMimeManager():
                     self.iconsDictIndex[extensionName] = count
                     self.fileImageExtensionDict[extensionName] = extensionName
                     count += 1
+                    wx.LogNull()
             except Exception as e:
                 logger.error(e, exc_info=True)
         for imageName in ['fileType_filter.png', 'folder.png', 'folder_view.png', 'harddisk.png', 'usb.png', 'stop.png',
@@ -594,6 +595,7 @@ class FileBrowserMimeManager():
 
     def getIconByExtension(self, extension=".txt"):
         icon = None
+        noLog = wx.LogNull()
         logger.debug(extension)
         fileType = wx.TheMimeTypesManager.GetFileTypeFromExtension(extension)
 
@@ -605,7 +607,9 @@ class FileBrowserMimeManager():
                 if icon.IsOk():
                     icon = icon
             except :
-                logger.error('some error :'+extension)           
+                logger.error('some error :'+extension)
+#        This is to supress warning
+        del noLog        
         return icon
 
     def GetImageIndex(self, path, expanded=False):
