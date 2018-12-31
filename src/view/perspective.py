@@ -10,9 +10,11 @@ from src.view.constants import LOG_SETTINGS, ID_newConnection, ID_openConnection
 from wx.lib.agw.aui.aui_constants import actionDragFloatingPane, AUI_DOCK_NONE
 from src.view.views.file.explorer.FileBrowserPanel import FileBrowser
 from src.view.views.console.SqlOutputPanel import SqlConsoleOutputPanel
-from src.view.views.console.worksheet.WorksheetPanel import CreateWorksheetTabPanel
+from src.view.views.console.worksheet.WorksheetPanel import CreateWorksheetTabPanel,\
+    CreatingWorksheetWithToolbarPanel
 from src.view.views.sql.history.HistoryListPanel import HistoryGrid
 from src.view.views.console.worksheet.WelcomePage import WelcomePanel
+from wx.lib.agw.aui.framemanager import NonePaneInfo
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -86,7 +88,20 @@ class MyAuiManager(aui.AuiManager):
                 # not our window
                 event.Skip()
 
+    def GetPaneByHavingName(self, name):
+        """
+        This version of :meth:`GetPane` looks up a pane based on a 'pane name'.
 
+        :param string `name`: the pane name.
+
+        :see: :meth:`GetPane`
+        """
+
+        for p in self._panes:
+            if p.name in name:
+                return p
+
+        return NonePaneInfo
 class PerspectiveManager(object):
     """Creates a perspective manager for the given aui managed window.
     It supports saving and loading of on disk perspectives as created by
@@ -150,6 +165,9 @@ class PerspectiveManager(object):
                           Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True))  
         self._mgr.AddPane(self.constructCenterPane(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="script.png")).
                           Name("centerPane").Caption("Center Pane").LeftDockable(True).Direction(wx.TOP).
+                          Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).CaptionVisible(visible=True), target=self._mgr.GetPane("onWelcome"))
+        self._mgr.AddPane(self.getWorksheet(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="script.png")).
+                          Name("$$$$sqlWorkSheet-0").Caption("Worksheet-0").LeftDockable(True).Direction(wx.TOP).
                           Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).CaptionVisible(visible=True), target=self._mgr.GetPane("onWelcome"))
         
 #         self._mgr.AddPane(self.constructSchemaViewerPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "script.png"))).
@@ -365,6 +383,10 @@ class PerspectiveManager(object):
         treePanel = CreatingTreePanel(self)
 
         return treePanel
+    
+    def getWorksheet(self):
+        worksheetPanel = CreatingWorksheetWithToolbarPanel(self, -1, style=wx.CLIP_CHILDREN|wx.BORDER_NONE)
+        return worksheetPanel
     
     def constructCenterPane(self):
         worksheet = CreateWorksheetTabPanel(self)      

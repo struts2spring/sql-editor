@@ -23,7 +23,7 @@ logger = logging.getLogger('extensive')
 
 class FileBrowser(FileTree):
     
-    """FileExplorer Tree"""
+    """FileBrowser Tree is a left navigation tree in File explorer"""
 
     def __init__(self, parent, size=wx.DefaultSize):
         self._mime = FileBrowserMimeManager()
@@ -298,15 +298,17 @@ class FileBrowser(FileTree):
         
         # TODO : Need to work on it.
         if hasattr(self.GetTopLevelParent(), '_mgr'):
-            centerPaneTab = self.GetTopLevelParent()._mgr.GetPane("centerPane")
-            if centerPaneTab.window:
-                for path in to_open:
-                    stc=MainStc(self)
-                    fileName=os.path.split(path)[-1]
-                    
-                    
-                    stc.SetText(FileOperations().readFile(filePath=path))
-                    centerPaneTab.window.addTab(name='openFileLoad'+fileName, worksheetPanel=stc)
+
+            for path in to_open:
+                stc=MainStc(self)
+                stc.SetSavePoint()
+                fileName=os.path.split(path)[-1]
+                extensionName=fileName.split('.')[-1]
+                
+#                     imageName=self.iconsDictIndex[extensionName]
+                stc.SetText(FileOperations().readFile(filePath=path))
+                self.GetTopLevelParent().addWindowTab(window=stc, imageName=None,tabName="$$$${}".format(fileName),captionName=fileName, tabDirection=5)
+#                     centerPaneTab.window.addTab(name='openFileLoad'+fileName, worksheetPanel=stc)
                 
 #         win = wx.GetApp().GetActiveWindow()
 #         if win:

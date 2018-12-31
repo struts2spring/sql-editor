@@ -149,6 +149,7 @@ class MainStc(BaseStc):
         self.Bind(wx.EVT_KEY_UP, self.OnKeyUp)
         self.Bind(wx.EVT_LEFT_UP, self.OnLeftUp)
         self.Bind(wx.EVT_TIMER, self.OnBackupTimer)
+        self.Bind(wx.stc.EVT_STC_CHANGE, self.OnUpdatePageText)
 
         # Async file load events
         self.Bind(EVT_FILE_LOAD, self.OnLoadProgress)
@@ -157,6 +158,9 @@ class MainStc(BaseStc):
 
     __name__ = u"EditraTextCtrl"
 
+
+    def OnUpdatePageText(self):
+        logger.debug('OnUpdatePageText')
     #---- Protected Member Functions ----#
 
     def _BuildMacro(self):
@@ -699,6 +703,7 @@ class MainStc(BaseStc):
                prevent a slow down in the input of text into the buffer
 
         """
+        self._config['autocomp']=None # TODO need to remove
         key_code = evt.GetKeyCode()
         cpos = self.GetCurrentPos()
         cmpl = self.GetCompleter()

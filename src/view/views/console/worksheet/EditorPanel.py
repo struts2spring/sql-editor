@@ -946,10 +946,12 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 duration = endTime - startTime
                 if selectedItemText:
                     self.updateSqlLog(sqlText, duration, connectionName=selectedItemText)
-        
-                creatingWorksheetPanel = self.GetTopLevelParent()._mgr.GetPane("centerPane").window.GetChildren()[0].GetCurrentPage().Children[1]
+                
+                creatingWorksheetPanel=self.GetGrandParent().GetParent()
                 creatingWorksheetPanel.setResultData(data=sqlOutput)
-                resultListPanel = self.GetTopLevelParent()._mgr.GetPane("centerPane").window.GetChildren()[0].GetCurrentPage().Children[1].splitter.Children[1]
+#                 creatingWorksheetPanel = self.GetTopLevelParent()._mgr.GetPane("centerPane").window.GetChildren()[0].GetCurrentPage().Children[1]
+#                 creatingWorksheetPanel.setResultData(data=sqlOutput)
+                resultListPanel = self.GetGrandParent().Children[1]
         #         if sqlOutput:
                 if sqlOutput and resultListPanel._nb.GetCurrentPage():
                     resultListPanel._nb.GetCurrentPage().bottomResultToolbar.SetStatusText('Count: {}'.format(len(sqlOutput)-1))
