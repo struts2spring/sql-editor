@@ -172,6 +172,97 @@ _treeList = [
 ]
 
 
+
+class OtherViewTreeFrame(wx.Dialog):
+    
+    def __init__(self, parent, title, size=(313, 441)):
+        wx.Frame.__init__(self, parent, -1, title, size=size,
+                          style=wx.DEFAULT_FRAME_STYLE | wx.NO_FULL_REPAINT_ON_RESIZE)
+        self.Bind(wx.EVT_CLOSE, self.OnCloseFrame)
+        self.SetMinSize((100, 100))
+        sizer = wx.BoxSizer(wx.VERTICAL)        
+        self.buttonPanel = CreateButtonPanel(self)
+        ####################################################################
+        
+        
+        self.otherViewTreePanel = OtherViewTreePanel(self)
+        ####################################################################
+        
+        sizer.Add(self.otherViewTreePanel, 1, wx.EXPAND)
+        sizer.Add(self.buttonPanel, 0, wx.EXPAND)
+        self.SetSizer(sizer)
+        self.Center()
+#         self.createStatusBar()
+        self.Show(True)
+#         self.Bind(wx.EVT_SIZE, self.OnSize)
+    
+    def OnCloseFrame(self, event):
+        self.Destroy()  
+    def OnSize(self, event):
+        hsize = event.GetSize()
+        logger.debug(hsize)
+class CreateButtonPanel(wx.Panel):
+
+    def __init__(self, parent=None, *args, **kw):
+    
+        wx.Panel.__init__(self, parent, id=-1)
+        self.parent = parent         
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        hbox = wx.BoxSizer(wx.HORIZONTAL)
+        okButton = wx.Button(self, 50, "Ok", (20, 220))
+        okButton.SetToolTip("Execute script to create table.")
+        self.Bind(wx.EVT_BUTTON, self.onOkClick, okButton)
+        
+        cancelButton = wx.Button(self, 51, "Cancel", (20, 220))
+        cancelButton.SetToolTip("Execute script to create table.")
+        self.Bind(wx.EVT_BUTTON, self.onCancelButtonClick, cancelButton)
+
+#         b.SetBitmap(images.Mondrian.Bitmap,
+#                     wx.LEFT    # Left is the default, the image can be on the other sides too
+#                     #wx.RIGHT
+#                     #wx.TOP
+#                     #wx.BOTTOM
+#                     )
+        hbox.Add(okButton)    
+        hbox.Add(cancelButton)    
+#         sizer.Add(cancelButton, 0, wx.ALIGN_RIGHT | wx.RIGHT | wx.BOTTOM)
+        sizer.Add(hbox, 0, wx.ALIGN_RIGHT | wx.RIGHT | wx.BOTTOM, 5)
+#         sizer.Add(vBox, 1, wx.EXPAND , 0)
+        self.SetAutoLayout(True)
+        self.SetSizer(sizer)
+        
+    def onOkClick(self, event):
+        logger.debug('onOkClick')
+        # TODO : need to implement
+#         sqlExecuter=SQLExecuter()
+#         obj=sqlExecuter.getObject()
+#         if len(obj[1])==0:
+#             sqlExecuter.createOpalTables()
+#         sqlExecuter.addNewConnectionRow(self.GetParent().CreateOpenConnectionPanel.filePath, self.GetParent().CreateOpenConnectionPanel.connectionNameText.GetValue())
+#         data = self.GetTopLevelParent().createImportingCsvPanel.data
+#         tableName = self.GetTopLevelParent().createImportingCsvPanel.tableNameText.GetValue()
+#         fileOperations = FileOperations()
+# #         data = fileOperations.readCsvFile(filePath=filePath, columnNameFirstRow=True, delimiter=",", quotechar='|')
+# #         print(len(data))    
+# #         print(data)
+#         createTableScript = fileOperations.createTableScript(tableName=tableName, columnHeader=data[0])
+#         print(createTableScript)
+#         sqlList = fileOperations.sqlScript(tableName=tableName, data=data)
+#         print(sqlList)
+#         connectionName = self.GetTopLevelParent().connectionName
+#         importStatus = SQLUtils().importingData(connectionName=connectionName, sqlList=sqlList)
+#         dlg = wx.MessageDialog(self, "Some status",
+#                        'Importing data status',
+#                        wx.OK | wx.ICON_INFORMATION
+#                        #wx.YES_NO | wx.NO_DEFAULT | wx.CANCEL | wx.ICON_INFORMATION
+#                        )
+#         dlg.ShowModal()
+#         dlg.Destroy()
+        self.GetTopLevelParent().Destroy()
+        
+    def onCancelButtonClick(self, event):
+        logger.debug('onCancelButtonClick')
+        self.GetTopLevelParent().Destroy()    
 class OtherViewTreePanel(wx.Panel):
 
     def __init__(self, parent=None, *args, **kw):
@@ -263,8 +354,8 @@ class OtherViewTreePanel(wx.Panel):
                     
         self.tree.Freeze()
         self.tree.DeleteAllItems()
-        self.root = self.tree.AddRoot("Preferences")
-        self.tree.SetItemImage(self.root, self.tree.iconsDictIndex['preference.png'])
+        self.root = self.tree.AddRoot("Other View")
+        self.tree.SetItemImage(self.root, self.tree.iconsDictIndex['other_view.png'])
         self.tree.SetItemData(self.root, 0)
 
         treeFont = self.tree.GetFont()
@@ -539,7 +630,7 @@ class OtherViewBaseTreePanel(ExpansionState, TreeCtrl):
         count = 0
         self.fileOperations = FileOperations()
         for imageName in ['preference.png', 'folder.png', 'folder_view.png', 'fileType_filter.png', 'usb.png', 'stop.png',
-                          'java.png', 'python_module.png', 'xml.png']:
+                          'java.png', 'python_module.png', 'xml.png', "other_view.png"]:
             self.ImageList.Add(self.fileOperations.getImageBitmap(imageName=imageName))
             self.iconsDictIndex[imageName] = count
             count += 1
@@ -558,8 +649,6 @@ class OtherViewBaseTreePanel(ExpansionState, TreeCtrl):
         
 if __name__ == '__main__':
     app = wx.App(False)
-    f = wx.Frame(None)
-    ft = OtherViewTreePanel(f)
-
-    f.Show()
+    frame = OtherViewTreeFrame(None, 'Show View')
+    frame.Show()
     app.MainLoop()

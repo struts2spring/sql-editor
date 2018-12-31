@@ -43,6 +43,7 @@ ID_ROOT_REFERESH = wx.NewIdRef()
 ID_ROOT_NEW_CONNECTION = wx.NewIdRef()
 ID_SHOW_VIEW_TOOLBAR = wx.NewIdRef()
 ID_PERSPECTIVE_TOOLBAR = wx.NewIdRef()
+ID_OTHER_PERSPECTIVE = wx.NewIdRef()
 
 # Prospective menu menu
 ID_PREFERENCES = wx.NewIdRef()
