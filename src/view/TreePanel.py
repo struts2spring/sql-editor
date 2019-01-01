@@ -24,6 +24,7 @@ import datetime
 
 import logging.config
 from src.view.constants import LOG_SETTINGS
+from src.view.views.console.worksheet.tableInfoPanel import CreatingTableInfoPanel
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -299,8 +300,8 @@ class CreatingTreePanel(wx.Panel):
         if rightClickDepth == 3:
             # Open a new tab in SQL execution Pane. It is for table info.
             # TODO 
-            sheetName = "tableInfo_{}".format(self.tree.GetItemText(item))
-            self.openWorksheet(sheetName=sheetName)
+            tableName = self.tree.GetItemText(item)
+            self.openWorksheet(sheetName=tableName)
         if self.tree.IsExpanded(item):
             self.tree.Collapse(item)
         else:
@@ -637,11 +638,12 @@ class CreatingTreePanel(wx.Panel):
         logger.debug('onOpenSqlEditorTab')
         self.openWorksheet(sheetName="Worksheet")
 
-    def openWorksheet(self, sheetName="Worksheet"):
+    def openWorksheet(self, sheetName="tableName"):
         if hasattr(self.GetTopLevelParent(), '_mgr'):
-            sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("centerPane")
-            if sqlExecutionTab.window:
-                sqlExecutionTab.window.addTab(name=sheetName)
+            tableInfo= CreatingTableInfoPanel(self, -1, style=wx.CLIP_CHILDREN |wx.BORDER_NONE, tableName=sheetName)
+            sqlExecutionTab = self.GetTopLevelParent()._mgr.addTabByWindow(window=tableInfo , imageName="script.png", captionName=sheetName, tabDirection=5)
+#             if sqlExecutionTab.window:
+#                 sqlExecutionTab.window.addTab(name=sheetName)
     
     def onProperties(self, event):
         logger.debug('onProperties')

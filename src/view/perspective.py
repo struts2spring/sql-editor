@@ -15,6 +15,7 @@ from src.view.views.console.worksheet.WorksheetPanel import CreateWorksheetTabPa
 from src.view.views.sql.history.HistoryListPanel import HistoryGrid
 from src.view.views.console.worksheet.WelcomePage import WelcomePanel
 from wx.lib.agw.aui.framemanager import NonePaneInfo
+from src.view.util.FileOperationsUtil import FileOperations
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -30,6 +31,30 @@ except ImportError:  # if it's not there locally, try the wxPython lib.
 
 class MyAuiManager(aui.AuiManager):
     
+    
+    def addTabByWindow(self, window=None , imageName="script.png", captionName=None, tabDirection=5):
+        '''
+        This method always create a new tab for the window.
+        tabDirection=5 is the center 
+        '''
+        self.SetAutoNotebookStyle(aui.AUI_NB_DEFAULT_STYLE | wx.BORDER_NONE)
+        for pane in self.GetAllPanes():
+            logger.debug(pane.dock_direction_get())
+            auiPanInfo = aui.AuiPaneInfo().Icon(FileOperations().getImageBitmap(imageName=imageName)).\
+                Name(captionName).Caption(captionName).LeftDockable(True).Direction(wx.TOP).\
+                Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).CaptionVisible(visible=True)
+            if pane.dock_direction_get() == tabDirection:  # adding to center tab
+                targetTab = pane
+                if not pane.HasNotebook():
+                    self.CreateNotebookBase(self._panes, pane)
+#                 targetTab.NotebookPage(pane.notebook_id)
+                    self.AddPane(window, auiPanInfo, target=targetTab)
+#                 self._mgr._notebooks
+#                 self._mgr.ActivatePane(targetTab.window)
+                else:
+                    self.AddPane(window, auiPanInfo, target=targetTab)
+                break
+        self.Update()
     def OnTabBeginDrag(self, event):
         """
         Handles the ``EVT_AUINOTEBOOK_BEGIN_DRAG`` event.

@@ -343,7 +343,7 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
                 countStr = pane.name.replace("Worksheet-", '')
                 count = int(countStr)
                 count += 1
-        self.addTabByWindow(self.getWorksheet(), imageName="script.png", captionName="Worksheet-{}".format(count), tabDirection=5)
+        self._mgr.addTabByWindow(self.getWorksheet(), imageName="script.png", captionName="Worksheet-{}".format(count), tabDirection=5)
 #         sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("centerPane")
 #         sqlExecutionTab.window.addTab("Worksheet")
         
@@ -435,7 +435,7 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
         self.addTab(tabName="onWelcome", tabDirection=5)
 #         centerPaneTab.window.addTab(name)    
 
-    def addTabByWindow(self, window=None , imageName="script.png", captionName=None, tabDirection=5):
+    def addTabByWindo1(self, window=None , imageName="script.png", captionName=None, tabDirection=5):
         '''
         This method always create a new tab for the window.
         tabDirection=5 is the center 
