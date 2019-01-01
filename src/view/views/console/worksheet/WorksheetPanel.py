@@ -10,12 +10,15 @@ import wx.lib.agw.aui.auibook as aui
 
 from src.view.constants import ID_RUN
 from wx import ID_SPELL_CHECK
-import logging
 from src.view.views.console.worksheet.EditorPanel import CreatingEditorPanel
 from src.view.views.console.worksheet.ResultListPanel import CreateResultSheetTabPanel
 from src.view.views.console.worksheet.WelcomePage import WelcomePanel
 from src.view.views.console.worksheet.tableInfoPanel import CreatingTableInfoPanel
 
+import logging.config
+from src.view.constants import LOG_SETTINGS
+
+logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
 

@@ -7,9 +7,12 @@ import wx
 from wx import TreeCtrl
 from wx.lib.mixins.treemixin import ExpansionState
 import os
-import logging
 from src.view.constants import keyMap
 
+import logging.config
+from src.view.constants import LOG_SETTINGS
+
+logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
 class CreatingNewConnectionFrame(wx.Frame):

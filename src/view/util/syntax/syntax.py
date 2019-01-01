@@ -153,8 +153,7 @@ class SyntaxMgr(object):
             return False
         if not self.IsModLoaded(modname):
             try:
-                self._loaded[modname] = __import__(modname, globals(), 
-                                                   locals(), [''])
+                self._loaded[modname] = __import__(modname, globals(), locals(), [''])
             except ImportError as msg:
                 return False
         return True

@@ -24,7 +24,6 @@ try:
 except ImportError:  # if it's not there locally, try the wxPython lib.
     from wx.lib.agw import ultimatelistctrl as ULC
     
-import logging
 
 logger = logging.getLogger('extensive')
 

@@ -17,9 +17,12 @@ try:
 except:
     pass
 
-import logging
 import tempfile
 
+import logging.config
+from src.view.constants import LOG_SETTINGS
+
+logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
 

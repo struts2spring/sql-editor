@@ -4,13 +4,16 @@ Created on 13-Dec-2016
 
 @author: vijay
 '''
-import logging
 
 from src.view.util.FileOperationsUtil import FileOperations
 import wx
 
 
 # from src.view.table.CreateTable import CreateTableFrame
+import logging.config
+from src.view.constants import LOG_SETTINGS
+
+logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
 

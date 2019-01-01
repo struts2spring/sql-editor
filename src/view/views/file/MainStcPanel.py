@@ -1977,5 +1977,6 @@ if __name__ == "__main__":
     mainstc.SetText(text)
     mainstc._config['highlight'] = True
     mainstc.FindLexer(set_ext='py')
+    mainstc.ConfigureLexer(file_ext='py')
     frame.Show()
     app.MainLoop()

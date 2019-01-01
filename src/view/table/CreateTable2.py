@@ -3,8 +3,10 @@ import os
 import wx.grid
 
 from src.view.worksheet.EditorPanel import CreatingEditorPanel
-import logging
+import logging.config
+from src.view.constants import LOG_SETTINGS
 
+logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
 

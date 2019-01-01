@@ -10,8 +10,10 @@ from wx import ListCtrl
 from src.view.constants import ID_COPY_COLUMN_HEADER
 import string
 import  wx.grid as gridlib
-import logging
+import logging.config
+from src.view.constants import LOG_SETTINGS
 
+logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
 

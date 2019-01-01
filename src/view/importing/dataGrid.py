@@ -3,9 +3,12 @@
 import wx
 import wx.grid as gridlib
 
-import logging
 from src.view.constants import TITLE
 
+import logging.config
+from src.view.constants import LOG_SETTINGS
+
+logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 #import wx.lib.mixins.grid as mixins
 

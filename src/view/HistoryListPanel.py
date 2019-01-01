@@ -10,8 +10,10 @@ import wx
 import string
 import  wx.grid as gridlib
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
-import logging
+import logging.config
+from src.view.constants import LOG_SETTINGS
 
+logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
 

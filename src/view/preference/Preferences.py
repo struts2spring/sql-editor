@@ -17,9 +17,12 @@ from src.view.preference.PreferencePanel import PreferencePanel, \
 from src.view.preference.PreferencesTree import PrefrencesTreePanel
 from src.view.preference.images import catalog
 # from src.view.images import WXPdemo
-import logging
 from src.view.constants import TITLE
 
+import logging.config
+from src.view.constants import LOG_SETTINGS
+
+logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
 logger.debug('preferences logger init')

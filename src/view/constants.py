@@ -187,7 +187,7 @@ LOG_SETTINGS = {
         'class': 'logging.handlers.RotatingFileHandler',
         'level': 'DEBUG',
         'formatter': 'detailed',
-        'filename': os.path.join(tempfile.gettempdir(), 'sql_editor.log'),
+        'filename': os.path.join(tempfile.gettempdir(), 'eclipse.log'),
         'mode': 'a',
         'maxBytes': 10485760,
         'backupCount': 5,

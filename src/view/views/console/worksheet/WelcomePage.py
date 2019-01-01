@@ -1,7 +1,6 @@
 import sys
 import wx
 import wx.html2 as webview
-import logging
 from src.view.util.FileOperationsUtil import FileOperations
 import os
 try:
@@ -11,6 +10,10 @@ except ImportError: # if it's not there locally, try the wxPython lib.
     import wx.lib.agw.aui as aui
     from wx.lib.agw.aui import aui_switcherdialog as ASD
     
+import logging.config
+from src.view.constants import LOG_SETTINGS
+
+logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 #----------------------------------------------------------------------
 

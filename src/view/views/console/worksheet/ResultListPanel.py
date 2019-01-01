@@ -12,8 +12,10 @@ import os
 from src.view.constants import ID_RUN,ID_EXECUTE_SCRIPT, ID_RESULT_REFRESH,\
     ID_ROW_ADD, ID_ROW_DELETE, ID_RESULT_NEXT, ID_RESULT_PREVIOUS,\
     ID_APPLY_CHANGE, ID_RESULT_FIRST, ID_RESULT_LAST
-import logging
+import logging.config
+from src.view.constants import LOG_SETTINGS
 
+logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 #----------------------------------------------------------------------
 

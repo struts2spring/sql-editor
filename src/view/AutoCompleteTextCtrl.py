@@ -11,9 +11,12 @@ import locale, wx, sys
 import  wx.lib.mixins.listctrl  as  listmix
 from wx import ImageFromStream, BitmapFromImage, Image
 
-import logging
 import os
 
+import logging.config
+from src.view.constants import LOG_SETTINGS
+
+logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 #----------------------------------------------------------------------
 def getSmallUpArrowData():

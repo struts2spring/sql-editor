@@ -16,13 +16,16 @@ from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter, \
     ManageSqliteDatabase, SQLUtils
 from src.view.connection.NewConnectionWizard import CreateNewConncetionWixard
 from src.view.schema.CreateSchemaViewer import CreateErDiagramFrame
-import logging
 from src.view.table.CreateTable import CreatingTableFrame
 from src.view.util.FileOperationsUtil import FileOperations
 from src.view.importing.importCsvExcel import ImportingCsvExcelFrame
 import ntpath
 import datetime
 
+import logging.config
+from src.view.constants import LOG_SETTINGS
+
+logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
 

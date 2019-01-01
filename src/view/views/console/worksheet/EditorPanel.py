@@ -17,12 +17,15 @@ from src.view.findAndReplace.GoToLinePanel import CreatingGoToLinePanel
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter, \
     ManageSqliteDatabase
 import time
-import logging
 from sqlite3 import OperationalError
 import sqlparse
 from src.view import SqliteKeywords
 import datetime
 
+import logging.config
+from src.view.constants import LOG_SETTINGS
+
+logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
 keylist = {

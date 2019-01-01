@@ -8,9 +8,12 @@ import os
 import re
 from os.path import expanduser
 import sys
-import logging
 from datetime import datetime
 
+import logging.config
+from src.view.constants import LOG_SETTINGS
+
+logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
 

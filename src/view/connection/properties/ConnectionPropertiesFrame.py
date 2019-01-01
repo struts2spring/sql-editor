@@ -26,9 +26,12 @@ from src.view.connection.NewConnectionWizard import SelectDatabaseNamePage,\
 from src.view.history.HistoryListPanel import HistoryGrid
 from src.view.autocomplete.AutoCompleteTextCtrl import TextCtrlAutoCompletePanel,\
     TextCtrlAutoComplete
-import logging
 import platform,sys
 
+import logging.config
+from src.view.constants import LOG_SETTINGS
+
+logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
 # from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter

@@ -1,4 +1,3 @@
-import logging
 import platform
 import sys
 
@@ -16,6 +15,10 @@ from src.view.views.console.worksheet.WelcomePage import WelcomePanel
 from src.view.other.OtherView import OtherViewTreePanel, OtherViewTreeFrame
 from src.view.other.OtherPerspecitve import OtherPerspectiveTreeFrame
     
+import logging.config
+from src.view.constants import LOG_SETTINGS
+
+logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 try:
     from agw import aui

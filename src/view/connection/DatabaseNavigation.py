@@ -8,8 +8,10 @@ import os
 from wx import TreeCtrl
 from wx.lib.mixins.treemixin import ExpansionState
 from src.view.constants import keyMap
-import logging
+import logging.config
+from src.view.constants import LOG_SETTINGS
 
+logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
 class DatabaseNavigationTree(ExpansionState, TreeCtrl):

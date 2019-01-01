@@ -6,8 +6,10 @@ Created on Feb 18, 2017
 import os
 import sys
 import subprocess
-import logging
+import logging.config
+from src.view.constants import LOG_SETTINGS
 
+logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
 logger.debug(sys.platform)
