@@ -5,7 +5,7 @@ from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 from src.view.AutoCompleteTextCtrl import TextCtrlAutoComplete
 from src.view.TreePanel import CreatingTreePanel
 from src.view.constants import LOG_SETTINGS, ID_newConnection, ID_openConnection, \
-    ID_newWorksheet
+    ID_newWorksheet, ID_SAVE, ID_SAVE_ALL
 
 from wx.lib.agw.aui.aui_constants import actionDragFloatingPane, AUI_DOCK_NONE
 from src.view.views.file.explorer.FileBrowserPanel import FileBrowser
@@ -334,20 +334,27 @@ class PerspectiveManager(object):
 
     def constructToolBar(self):
         # create some toolbars
-        tb1 = aui.AuiToolBar(self, -1, wx.Point(500, 0), wx.DefaultSize, agwStyle=aui.AUI_TB_DEFAULT_STYLE | aui.AUI_TB_OVERFLOW | wx.NO_BORDER)
+        tb1 = aui.AuiToolBar(self, -1, agwStyle=aui.AUI_TB_DEFAULT_STYLE | wx.NO_BORDER)
         
-        tb1.SetToolBitmapSize(wx.Size(42, 42))
-        tb1.AddSimpleTool(tool_id=ID_newConnection, label="New Connection", bitmap=wx.Bitmap(self.fileOperations.getImageBitmap(imageName="connect.png")), short_help_string='Create a new connection')
-        tb1.AddSeparator()
+#         tb1.SetToolBitmapSize(wx.Size(42, 42))
+#         tb1.AddSimpleTool(tool_id=ID_newConnection, label="New Connection", bitmap=wx.Bitmap(self.fileOperations.getImageBitmap(imageName="connect.png")), short_help_string='Create a new connection')
+#         tb1.AddSeparator()
         
 #         :TODO:FIX
         tools = [
+            (ID_SAVE, "Save (Ctrl+S)", "save.png", 'Save (Ctrl+S)'),
+            (ID_SAVE_ALL, "Save All (Ctrl+Shift+S)", "saveall_edit.png", 'Save (Ctrl+Shift+S)'),
+            (),
+            (ID_newConnection,"New Connection","connect.png",  "New Connection"),
             (ID_openConnection, "Open Connection", "database_connect.png", 'Open Connection'),
             (ID_newWorksheet, "Script", "script.png", 'Open a new script worksheet'),
             (wx.ID_PREFERENCES, "Preferences", "preference.png", 'Preference'),
             ]
         for tool in tools:
-            tb1.AddSimpleTool(tool[0], tool[1], self.fileOperations.getImageBitmap(imageName=tool[2]), short_help_string=tool[3])
+            if len(tool)==0:
+                tb1.AddSeparator()
+            else:
+                tb1.AddSimpleTool(tool[0], tool[1], self.fileOperations.getImageBitmap(imageName=tool[2]), short_help_string=tool[3])
             
 #         tb1.AddSimpleTool(ID_openConnection, "Open Connection", wx.Bitmap(self.fileOperations.getImageBitmap(imageName="database_connect.png")), short_help_string='Open Connection')
 #         tb1.AddSimpleTool(ID_newWorksheet, "Script", wx.Bitmap(self.fileOperations.getImageBitmap(imageName="script.png")), short_help_string='Open a new script worksheet')

@@ -11,6 +11,7 @@ from src.view.util.common.FileImpl import FileObjectBaseImpl
 from src.view.util.common.FileChecker import FileTypeChecker
 from _io import StringIO
 import sys
+from src.view.util.common.fileutil import GetFileModTime, GetFileSize
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
@@ -18,11 +19,11 @@ logger = logging.getLogger('extensive')
 # Globals
 
 # The default fallback encoding
-DEFAULT_ENCODING = locale.getpreferredencoding()
-try:
-    codecs.lookup(DEFAULT_ENCODING)
-except (LookupError, TypeError):
-    DEFAULT_ENCODING = 'utf-8'
+# DEFAULT_ENCODING = locale.getpreferredencoding()
+# try:
+#     codecs.lookup(DEFAULT_ENCODING)
+# except (LookupError, TypeError):
+DEFAULT_ENCODING = 'utf-8'
 
 # File Helper Functions
 # NOTE: keep in synch with CheckBom function
@@ -109,7 +110,441 @@ class FileObject(FileObjectBaseImpl):
             self.__buffer.close()
             del self.__buffer
         self.__buffer = StringIO()
+    def AddModifiedCallback(self, callback):
+        """Set modified callback method
+        @param callback: callable
 
+        """
+        self._mcallback.append(callback)
+
+    def CleanUp(self):
+        """Cleanup callback"""
+        pass
+
+    def Clone(self):
+        """Clone the file object
+        @return: FileObject
+
+        """
+        fileobj = FileObject(self.Path, self.ModTime)
+        fileobj.SetLastError(self.last_err)
+        fileobj.SetEncoding(self.encoding)
+        fileobj.bom = self.bom
+        fileobj._magic = dict(self._magic)
+        fileobj._fuzzy_enc = self._fuzzy_enc
+        for cback in self._mcallback:
+            fileobj.AddModifiedCallback(cback)
+        return fileobj
+
+    def DecodeText(self):
+        """Decode the text in the buffer and return a unicode string.
+        @return: unicode or str
+
+        """
+        assert self.__buffer is not None, "No buffer!"
+        assert self.encoding is not None, "Encoding Not Set!"
+
+        bytes_value = self.__buffer.getvalue()
+        ustr = u""
+        try:
+            if not self._fuzzy_enc or not FileObject._Checker.IsBinaryBytes(bytes_value):
+                if self.bom is not None:
+                    logger.debug("[ed_txt][info] Stripping %s BOM from text" % self.encoding)
+                    bytes_value = bytes_value.replace(self.bom, '', 1)
+
+                logger.debug("[ed_txt][info] Attempting to decode with: %s" % self.encoding)
+                ustr = bytes_value.decode(self.encoding)
+                # TODO: temporary...maybe
+                # Check for utf-16 encodings which use double bytes
+                # can result in NULLs in the string if decoded with
+                # other encodings.
+                if str('\0') in ustr:
+                    logger.debug("[ed_txt][info] NULL terminators found in decoded str")
+                    logger.debug("[ed_txt][info] Attempting UTF-16/32 detection...")
+                    for utf_encoding in ('utf_16', 'utf_32'):
+                        try:
+                            tmpstr = bytes_value.decode(utf_encoding)
+                        except UnicodeDecodeError:
+                            pass
+                        else:
+                            self.encoding = utf_encoding
+                            ustr = tmpstr
+                            logger.debug("[ed_txt][info] %s detected" % utf_encoding)
+                            break
+                    else:
+                        logger.debug("[ed_txt][info] No valid UTF-16/32 bytes detected")
+            else:
+                # Binary data was read
+                logger.debug("[ed_txt][info] Binary bytes where read")
+                ustr = self._HandleRawBytes(bytes_value)
+        except (UnicodeDecodeError, LookupError) as msg:
+            logger.debug("[ed_txt][err] Error while reading with %s" % self.encoding)
+            logger.debug("[ed_txt][err] %s" % msg)
+            self.SetLastError(msg)
+            self.Close()
+            # Decoding failed so convert to raw bytes for display
+            ustr = self._HandleRawBytes(bytes_value)
+        else:
+            # logger.debug success
+            if not self._raw:
+                logger.debug("[ed_txt][info] Decoded %s with %s" % \
+                    (self.GetPath(), self.encoding))
+
+        # Scintilla bug, SetText will quit at first null found in the
+        # string. So join the raw bytes and stuff them in the buffer instead.
+        # TODO: are there other control characters that need to be checked
+        #       for besides NUL?
+        if not self._raw and '\0' in ustr:
+            # Return the raw bytes to put into the buffer
+            logger.debug("[ed_txt][info] DecodeText - joining nul terminators")
+            ustr = '\0'.join(bytes_value)+'\0'
+            self._raw = True
+
+        if self._raw:
+            # TODO: wx/Scintilla Bug?
+            # Replace \x05 with a space as it causes the buffer
+            # to crash when its inserted.
+            logger.debug("[ed_txt][info] DecodeText - raw - set encoding to binary")
+            ustr = ustr.replace('\x05', ' ')
+            self.SetEncoding('binary')
+            self._raw = True
+
+        return ustr
+
+    def DetectEncoding(self):
+        """Try to determine the files encoding
+        @precondition: File handle has been opened and is valid
+        @postcondition: encoding and bom attributes will be set
+
+        """
+        if self.encoding != None:
+            msg = ("[ed_txt][info] DetectEncoding, skipping do to user set "
+                   "encoding: %s") % self.encoding
+            logger.debug(msg)
+            return
+
+        assert self.Handle is not None, "File handle not initialized"
+        lines = [ self.Handle.readline() for x in range(2) ]
+        self.Handle.seek(0)
+        enc = None
+        if len(lines):
+            # First check for a Byte Order Mark
+            enc = CheckBom(lines[0])
+
+            # If no byte-order mark check for an encoding comment
+            if enc is None:
+                logger.debug("[ed_txt][info] DetectEncoding - Check magic comment")
+                self.bom = None
+                if not self._magic['bad']:
+                    enc = CheckMagicComment(lines)
+                    if enc:
+                        self._magic['comment'] = enc
+            else:
+                logger.debug("[ed_txt][info] File Has %s BOM" % enc)
+                self.bom = BOM.get(enc, None)
+
+        if enc is None:
+            logger.debug("[ed_txt][info] Doing brute force encoding check")
+            enc = GuessEncoding(self.GetPath(), 4096)
+
+        if enc is None:
+            self._fuzzy_enc = True
+#             enc = Profile_Get('ENCODING', default=DEFAULT_ENCODING)
+
+        logger.debug("[ed_txt][info] DetectEncoding - Set Encoding to %s" % enc)
+        self.encoding = enc 
+
+    def EncodeText(self):
+        """Do a trial run of encoding all the text to ensure that we can
+        determine an encoding that will correctly be able to write the data
+        to disk.
+        @return: bool
+
+        """
+        bOk = True
+        txt = self.__buffer.read(8)
+        self.__buffer.seek(0)
+#         if not IsUnicode(txt):
+#             # Already a string so nothing to do
+#             return bOk
+
+        encs = GetEncodings()
+#         if self.encoding is None:
+#             self.encoding = Profile_Get('ENCODING', default=DEFAULT_ENCODING)
+        encs.insert(0, self.encoding)
+        cenc = self.encoding
+
+        readsize = min(self.__buffer.len, 4096)
+        for enc in encs:
+            self.__buffer.seek(0)
+            try:
+                tmpchars = self.__buffer.read(readsize)
+                while len(tmpchars):
+                    tmpchars.encode(enc)
+                    tmpchars = self.__buffer.read(readsize)
+                self.encoding = enc
+                self.__buffer.seek(0)
+                self.ClearLastError()
+            except LookupError as msg:
+                logger.debug("[ed_txt][err] Invalid encoding: %s" % enc)
+                logger.debug("[ed_txt][err] %s" % msg)
+                self.SetLastError(msg)
+            except UnicodeEncodeError as msg:
+                logger.debug("[ed_txt][err] Failed to encode text with %s" % enc)
+                logger.debug("[ed_txt][err] %s" % msg)
+                self.SetLastError(msg)
+            else:
+                break
+        else:
+            bOk = False
+            raise WriteError("Failed to encode text to byte string")
+
+        # logger.debug if the encoding changed due to encoding errors
+        if self.encoding != cenc:
+            logger.debug("[ed_txt][warn] Used encoding %s differs from original %s" %\
+                (self.encoding, cenc))
+
+        self.__buffer.seek(0)
+        return bOk
+
+    def FireModified(self):
+        """Fire the modified callback(s)"""
+        remove = list()
+        for idx, mcallback in enumerate(self._mcallback):
+            try:
+                mcallback()
+            except:
+                remove.append(idx)
+
+        # Cleanup any bad callbacks
+        if len(remove):
+            remove.reverse()
+            for idx in remove:
+                self._mcallback.pop(idx)
+
+    def GetEncoding(self):
+        """Get the encoding used by the file it may not be the
+        same as the encoding requested at construction time
+        @return: string encoding name
+
+        """
+        if self.encoding is None:
+            self.encoding=DEFAULT_ENCODING
+            # Guard against early entry
+#             return Profile_Get('ENCODING', default=DEFAULT_ENCODING)
+        return self.encoding
+
+    def GetMagic(self):
+        """Get the magic comment if one was present
+        @return: string or None
+
+        """
+        return self._magic['comment']
+
+    def HasBom(self):
+        """Return whether the file has a bom byte or not
+        @return: bool
+
+        """
+        return self.bom is not None
+
+    def IsRawBytes(self):
+        """Were only raw bytes read during the last read operation?
+        @return: bool
+
+        """
+        return self._raw
+
+    def IsReadOnly(self):
+        """Return as read only when file is read only or if raw bytes"""
+        return super(FileObject, self).IsReadOnly() or self.IsRawBytes()
+
+    def Read(self, chunk=512):
+        """Get the contents of the file as a string, automatically handling
+        any decoding that may be needed.
+        @keyword chunk: read size
+        @return: unicode str
+        @throws: ReadError Failed to open file for reading
+
+        """
+        if self.DoOpen('rb'):
+            self.DetectEncoding()
+
+            if self.encoding is None:
+                # fall back to user setting
+#                 self.encoding = Profile_Get('ENCODING', default=DEFAULT_ENCODING)
+                logger.debug(("[ed_txt][warn] Failed to detect encoding "
+                    "falling back to default: %s") % self.encoding)
+
+            self._ResetBuffer()
+            self._raw = False
+
+            logger.debug("[ed_txt][info] Read - Start reading")
+            tmp = self.Handle.read(chunk)
+            while len(tmp):
+                self.__buffer.write(tmp)
+                tmp = self.Handle.read(chunk)
+            logger.debug("[ed_txt][info] Read - End reading")
+
+            self.Close()
+            txt = self.DecodeText()
+            self.SetModTime(GetFileModTime(self.GetPath()))
+            self._ResetBuffer()
+            return txt
+        else:
+            logger.debug("[ed_txt][err] Read Error: %s" % self.GetLastError())
+            raise (ReadError, self.GetLastError())
+
+    def ReadAsync(self, control):
+        """Read the file asynchronously on a separate thread
+        @param control: text control to send text to
+
+        """
+        logger.debug("[ed_txt][info] FileObject.ReadAsync()")
+        pid = control.GetTopLevelParent().Id
+        filesize = GetFileSize(self.GetPath())
+#         ed_msg.PostMessage(ed_msg.EDMSG_PROGRESS_STATE, (pid, 1, filesize))
+        # Fork off async job to threadpool
+        self._job = FileReadJob(control, self.ReadGenerator, 4096)
+#         ed_thread.EdThreadPool().QueueJob(self._job.run)
+
+    def ReadGenerator(self, chunk=512):
+        """Get the contents of the file as a string, automatically handling
+        any decoding that may be needed.
+
+        @keyword chunk: read size
+        @return: unicode (generator)
+        @throws: ReadError Failed to open file for reading.
+
+        """
+        if self.DoOpen('rb'):
+            # Throttle yielded text to reduce event over head
+            filesize = GetFileSize(self.Path)
+            throttle = max(chunk, filesize/100)
+
+            self.DetectEncoding()
+            try:
+                # Must use codec reader to ensure correct number of
+                # bytes are read in to be decoded.
+                reader = codecs.getreader(self.Encoding)(self.Handle)
+                buffered_data = StringIO()
+                while True:
+                    tmp = reader.read(chunk)
+                    if not len(tmp):
+                        if buffered_data.len:
+                            yield buffered_data.getvalue()
+                            buffered_data.close()
+                        break
+
+                    buffered_data.write(tmp)
+                    if buffered_data.len >= throttle:
+                        yield buffered_data.getvalue()
+                        buffered_data.close()
+                        buffered_data = StringIO()
+            except Exception as msg:
+                logger.debug("[ed_txt][err] Error while reading with %s" % self.Encoding)
+                logger.debug("[ed_txt][err] %s" % msg)
+                self.SetLastError(msg)
+                self.Close()
+                if self._magic['comment']:
+                    self._magic['bad'] = True
+
+            logger.debug("[ed_txt][info] Decoded %s with %s" % (self.Path, self.Encoding))
+            self.SetModTime(GetFileModTime(self.Path))
+        else:
+            raise (ReadError, self.GetLastError())
+
+    def RemoveModifiedCallback(self, callback):
+        """Remove a registered callback
+        @param callback: callable to remove
+
+        """
+        if callback in self._mcallback:
+            self._mcallback.remove(callback)
+
+    def ResetAll(self):
+        """Reset all attributes of this file"""
+        super(FileObject, self).ResetAll()
+        self._ResetBuffer()
+        self._magic = dict(comment=None, bad=False)
+#         self.encoding = Profile_Get('ENCODING', default=DEFAULT_ENCODING)
+        self.bom = None
+
+    def SetEncoding(self, enc):
+        """Explicitly set/change the encoding of the file
+        @param enc: encoding to change to
+
+        """
+        if enc is None:
+            enc = DEFAULT_ENCODING
+        self.encoding = enc
+
+    def ReadLines(self):
+        """Get the contents of the file as a list of lines
+        @return: list of strings
+
+        """
+        raise NotImplementedError
+
+    def Write(self, value):
+        """Write the given value to the file
+        @param value: (Unicode) String of text to write to disk
+        @note: exceptions are allowed to be raised for the writing
+        @throws: WriteError Failed to open file for writing
+        @throws: UnicodeEncodeError Failed to encode text using set encoding
+
+        """
+        ctime = time.time()
+        logger.debug("[ed_txt][info] Write - Called: %s - Time: %d" % (self.Path, ctime))
+
+        # Check if a magic comment was added or changed
+        self._ResetBuffer()
+        self.__buffer.write(value)
+        self.__buffer.seek(0)
+        enc = CheckMagicComment([ self.__buffer.readline() for x in range(2) ])
+        self.__buffer.seek(0)
+
+        # Update encoding if necessary
+        if enc is not None:
+            logger.debug("[ed_txt][info] Write: found magic comment: %s" % enc)
+            self.encoding = enc
+
+        # Encode to byte string
+        # Do before opening file so that encoding failures don't cause file
+        # data to get lost!
+        if self.EncodeText():
+            logger.debug("[ed_txt][info] Write Successful test encode with %s" % self.Encoding)
+
+            # Open and write the file
+            if self.DoOpen('wb'):
+                logger.debug("[ed_txt][info] Opened %s, writing as %s" % (self.Path, self.Encoding))
+                
+                if self.HasBom():
+                    logger.debug("[ed_txt][info] Adding BOM back to text")
+                    self.Handle.write(self.bom)
+
+                # Write the file to disk
+                chunk = min(self.__buffer.len, 4096)
+                buffer_read = self.__buffer.read
+                filewrite = self.Handle.write
+                fileflush = self.Handle.flush
+                sanitize = self._SanitizeBOM
+                tmp = buffer_read(chunk)
+                while len(tmp):
+                    tmp_bytes = sanitize(tmp.encode(self.Encoding))
+                    filewrite(tmp_bytes)
+                    fileflush()
+                    tmp = buffer_read(chunk)
+
+                self._ResetBuffer() # Free buffer
+                self.Close()
+                logger.debug("[ed_txt][info] %s was written successfully" % self.Path)
+            else:
+                self._ResetBuffer()
+                raise (WriteError, self.GetLastError())
+
+        logger.debug("[ed_txt][info] Write - Complete: %s - Time: %d" % 
+            (self.Path, time.time() - ctime))
 #-----------------------------------------------------------------------------#
 
 class FileReadJob(object):
