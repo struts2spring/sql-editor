@@ -279,6 +279,10 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
         self.Bind(wx.EVT_MENU, self.OnAbout, id=wx.ID_HELP)
         self.Bind(wx.EVT_MENU, self.OnWelcome, id=ID_WELCOME)
         
+        self.Bind(wx.EVT_MENU, self.onSave, id=ID_SAVE)
+        self.Bind(wx.EVT_MENU, self.onSaveAll, id=ID_SAVE_ALL)
+        self.Bind(wx.EVT_MENU, self.onNew, id=ID_NEW)
+        
         self.Bind(wx.EVT_MENU, self.onOpenConnection, id=ID_openConnection)
         self.Bind(wx.EVT_MENU, self.onNewConnection, id=ID_newConnection)
         self.Bind(wx.EVT_MENU, self.onNewWorksheet, id=ID_newWorksheet)
@@ -304,6 +308,12 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
     def OnExit(self, event):
         self.Close() 
         
+    def onNew(self, event):
+        logger.debug('onNew')
+    def onSave(self, event):
+        logger.debug('onSave1')
+    def onSaveAll(self, event):
+        logger.debug('onSaveAll1')
     def onOpenConnection(self, event):
         logger.debug('onOpenConnection')
         self.openFrame()

@@ -5,7 +5,7 @@ from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 from src.view.AutoCompleteTextCtrl import TextCtrlAutoComplete
 from src.view.TreePanel import CreatingTreePanel
 from src.view.constants import LOG_SETTINGS, ID_newConnection, ID_openConnection, \
-    ID_newWorksheet, ID_SAVE, ID_SAVE_ALL
+    ID_newWorksheet, ID_SAVE, ID_SAVE_ALL, ID_NEW
 
 from wx.lib.agw.aui.aui_constants import actionDragFloatingPane, AUI_DOCK_NONE
 from src.view.views.file.explorer.FileBrowserPanel import FileBrowser
@@ -16,6 +16,7 @@ from src.view.views.sql.history.HistoryListPanel import HistoryGrid
 from src.view.views.console.worksheet.WelcomePage import WelcomePanel
 from wx.lib.agw.aui.framemanager import NonePaneInfo
 from src.view.util.FileOperationsUtil import FileOperations
+from wx.lib.platebtn import PlateButton, PB_STYLE_DEFAULT, PB_STYLE_DROPARROW
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -340,10 +341,15 @@ class PerspectiveManager(object):
 #         tb1.AddSimpleTool(tool_id=ID_newConnection, label="New Connection", bitmap=wx.Bitmap(self.fileOperations.getImageBitmap(imageName="connect.png")), short_help_string='Create a new connection')
 #         tb1.AddSeparator()
         
-#         :TODO:FIX
+#         :TODO:FIXnew_con
+#         tb4_bmp1 = wx.ArtProvider.GetBitmap(wx.ART_NORMAL_FILE, wx.ART_OTHER, wx.Size(16, 16))
+        tb4_bmp1 = self.fileOperations.getImageBitmap(imageName='new_con.png')
+        tb1.AddSimpleTool(ID_NEW, "Item 1", tb4_bmp1)
+        tb1.SetToolDropDown(ID_NEW, True)
+        tb1.AddSeparator()
         tools = [
             (ID_SAVE, "Save (Ctrl+S)", "save.png", 'Save (Ctrl+S)'),
-            (ID_SAVE_ALL, "Save All (Ctrl+Shift+S)", "saveall_edit.png", 'Save (Ctrl+Shift+S)'),
+            (ID_SAVE_ALL, "Save All (Ctrl+Shift+S)", "saveall_edit.png", 'Save All (Ctrl+Shift+S)'),
             (),
             (ID_newConnection,"New Connection","connect.png",  "New Connection"),
             (ID_openConnection, "Open Connection", "database_connect.png", 'Open Connection'),
@@ -402,9 +408,44 @@ class PerspectiveManager(object):
 #         tb1.AddLabelTool(103, "Test"t1 = wx.TextCtrl(self, -1, "Test it out and see", size=(125, -1)), wx.ArtProvider_GetBitmap(wx.ART_WARNING))
 #         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_MISSING_IMAGE))
         tb1.Realize()
-        
+        self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onNewDropDown, id=ID_NEW)
         return tb1
-    
+    def onNewDropDown(self, event):
+
+        if event.IsDropDownClicked():
+
+            tb = event.GetEventObject()
+            tb.SetToolSticky(event.GetId(), True)
+
+            # create the popup menu
+            menuPopup = wx.Menu()
+            bmp = wx.ArtProvider.GetBitmap(wx.ART_QUESTION, wx.ART_OTHER, wx.Size(16, 16))
+
+            m1 =  wx.MenuItem(menuPopup, 10001, "Drop Down Item 1")
+            m1.SetBitmap(bmp)
+            menuPopup.Append(m1)
+
+            m2 =  wx.MenuItem(menuPopup, 10002, "Drop Down Item 2")
+            m2.SetBitmap(bmp)
+            menuPopup.Append(m2)
+
+            m3 =  wx.MenuItem(menuPopup, 10003, "Drop Down Item 3")
+            m3.SetBitmap(bmp)
+            menuPopup.Append(m3)
+
+            m4 =  wx.MenuItem(menuPopup, 10004, "Drop Down Item 4")
+            m4.SetBitmap(bmp)
+            menuPopup.Append(m4)
+
+            # line up our menu with the button
+            rect = tb.GetToolRect(event.GetId())
+            pt = tb.ClientToScreen(rect.GetBottomLeft())
+            pt = self.ScreenToClient(pt)
+
+            self.PopupMenu(menuPopup, pt)
+
+            # make sure the button is "un-stuck"
+            tb.SetToolSticky(event.GetId(), False)    
     def creatingFileExplorer(self):
         
         fileBrowserPanel = FileBrowser(self, size=(500, 300))

@@ -13,6 +13,7 @@ ID_newWorksheet = wx.NewIdRef()
 ID_deleteWithDatabase = wx.NewIdRef()
 ID_Import = wx.NewIdRef()
 
+ID_NEW = wx.NewIdRef()
 ID_SAVE = wx.NewIdRef()
 ID_SAVE_ALL = wx.NewIdRef()
 

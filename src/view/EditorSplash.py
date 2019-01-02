@@ -61,9 +61,11 @@ class MyApp(wx.App, events.AppEventHandlerMixin):
         @postcondition: custom artprovider and plugins are loaded
 
         """
-        splash = MySplashScreen()
-        splash.Show()
-
+        try:
+            splash = MySplashScreen()
+            splash.Show()
+        except:
+            pass
         return True
 if __name__ == '__main__':
     app = MyApp(False)
