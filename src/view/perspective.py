@@ -5,7 +5,7 @@ from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 from src.view.AutoCompleteTextCtrl import TextCtrlAutoComplete
 from src.view.TreePanel import CreatingTreePanel
 from src.view.constants import LOG_SETTINGS, ID_newConnection, ID_openConnection, \
-    ID_newWorksheet, ID_SAVE, ID_SAVE_ALL, ID_NEW
+    ID_newWorksheet, ID_SAVE, ID_SAVE_ALL, ID_NEW, ID_TERMINAL
 
 from wx.lib.agw.aui.aui_constants import actionDragFloatingPane, AUI_DOCK_NONE
 from src.view.views.file.explorer.FileBrowserPanel import FileBrowser
@@ -347,9 +347,12 @@ class PerspectiveManager(object):
         tb1.AddSimpleTool(ID_NEW, "Item 1", tb4_bmp1)
         tb1.SetToolDropDown(ID_NEW, True)
         tb1.AddSeparator()
+        
         tools = [
             (ID_SAVE, "Save (Ctrl+S)", "save.png", 'Save (Ctrl+S)'),
             (ID_SAVE_ALL, "Save All (Ctrl+Shift+S)", "saveall_edit.png", 'Save All (Ctrl+Shift+S)'),
+            (),
+            (ID_TERMINAL,"Open a Terminal","linux_terminal.png","Open a Terminal (Ctrl+Shift+Alt+T)"),
             (),
             (ID_newConnection,"New Connection","connect.png",  "New Connection"),
             (ID_openConnection, "Open Connection", "database_connect.png", 'Open Connection'),

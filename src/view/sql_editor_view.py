@@ -20,6 +20,7 @@ from src.view.constants import LOG_SETTINGS
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
+
 try:
     from agw import aui
     from agw.aui import aui_switcherdialog as ASD
