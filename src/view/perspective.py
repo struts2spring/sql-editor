@@ -344,7 +344,7 @@ class PerspectiveManager(object):
 #         :TODO:FIXnew_con
 #         tb4_bmp1 = wx.ArtProvider.GetBitmap(wx.ART_NORMAL_FILE, wx.ART_OTHER, wx.Size(16, 16))
         tb4_bmp1 = self.fileOperations.getImageBitmap(imageName='new_con.png')
-        tb1.AddSimpleTool(ID_NEW, "Item 1", tb4_bmp1)
+        tb1.AddSimpleTool(ID_NEW, "Item 1", tb4_bmp1,short_help_string='New')
         tb1.SetToolDropDown(ID_NEW, True)
         tb1.AddSeparator()
         
@@ -413,6 +413,7 @@ class PerspectiveManager(object):
         tb1.Realize()
         self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onNewDropDown, id=ID_NEW)
         return tb1
+        
     def onNewDropDown(self, event):
 
         if event.IsDropDownClicked():
@@ -421,24 +422,25 @@ class PerspectiveManager(object):
             tb.SetToolSticky(event.GetId(), True)
 
             # create the popup menu
-            menuPopup = wx.Menu()
-            bmp = wx.ArtProvider.GetBitmap(wx.ART_QUESTION, wx.ART_OTHER, wx.Size(16, 16))
+            # menuPopup = wx.Menu()
+            menuPopup=self.createMenuByPerspective(perspectiveName='java')
+            # bmp = wx.ArtProvider.GetBitmap(wx.ART_QUESTION, wx.ART_OTHER, wx.Size(16, 16))
 
-            m1 =  wx.MenuItem(menuPopup, 10001, "Drop Down Item 1")
-            m1.SetBitmap(bmp)
-            menuPopup.Append(m1)
+            # javaProjectMenu =  wx.MenuItem(menuPopup, 10001, "Java Project")
+            # javaProjectMenu.SetBitmap(bmp)
+            # menuPopup.Append(javaProjectMenu)
 
-            m2 =  wx.MenuItem(menuPopup, 10002, "Drop Down Item 2")
-            m2.SetBitmap(bmp)
-            menuPopup.Append(m2)
+            # project =  wx.MenuItem(menuPopup, 10002, "Project...")
+            # project.SetBitmap(bmp)
+            # menuPopup.Append(project)
 
-            m3 =  wx.MenuItem(menuPopup, 10003, "Drop Down Item 3")
-            m3.SetBitmap(bmp)
-            menuPopup.Append(m3)
+            # javaPackage =  wx.MenuItem(menuPopup, 10003, "Package")
+            # javaPackage.SetBitmap(bmp)
+            # menuPopup.Append(javaPackage)
 
-            m4 =  wx.MenuItem(menuPopup, 10004, "Drop Down Item 4")
-            m4.SetBitmap(bmp)
-            menuPopup.Append(m4)
+            # javaClass =  wx.MenuItem(menuPopup, 10004, "Class")
+            # javaClass.SetBitmap(bmp)
+            # menuPopup.Append(javaClass)
 
             # line up our menu with the button
             rect = tb.GetToolRect(event.GetId())
@@ -449,6 +451,41 @@ class PerspectiveManager(object):
 
             # make sure the button is "un-stuck"
             tb.SetToolSticky(event.GetId(), False)    
+
+    def createMenuByPerspective(self, perspectiveName='java'):
+        menuItemList = {"java": [
+                [10001, 'Java Project', None, None],
+                [10002, 'Project...', "project.png", None],
+                [],
+                [10003, 'Package', None, None],
+                [10004, 'Class', None, None],
+                [10004, 'Interface', None, None],
+                [10004, 'Enum', None, None],
+                [10004, 'Annotation', None, None],
+                [10004, 'Source Folder', None, None],
+                [10004, 'Java Working Set', None, None],
+                [10004, 'Folder', None, None],
+                [10004, 'File', None, None],
+
+                ],
+            "python": [20001, 'Python Project', None, None],
+            "database": [30001, 'Database Project', None, None],
+            }
+            
+            
+            
+        menuPopup = wx.Menu()
+        bmp = wx.ArtProvider.GetBitmap(wx.ART_QUESTION, wx.ART_OTHER, wx.Size(16, 16))
+        for menuItemName in menuItemList[perspectiveName]:
+            if len(menuItemName)>1:
+                menuItem =  wx.MenuItem(menuPopup, menuItemName[0], menuItemName[1])
+                if menuItemName[2]:
+                    menuItem.SetBitmap(self.fileOperations.getImageBitmap(imageName=menuItemName[2]))
+                menuPopup.Append(menuItem)
+            else:
+                menuPopup.AppendSeparator()
+        return menuPopup
+
     def creatingFileExplorer(self):
         
         fileBrowserPanel = FileBrowser(self, size=(500, 300))
