@@ -10,7 +10,7 @@ from src.view.constants import LOG_SETTINGS, ID_newConnection, ID_openConnection
 from wx.lib.agw.aui.aui_constants import actionDragFloatingPane, AUI_DOCK_NONE
 from src.view.views.file.explorer.FileBrowserPanel import FileBrowser
 from src.view.views.console.SqlOutputPanel import SqlConsoleOutputPanel
-from src.view.views.console.worksheet.WorksheetPanel import CreateWorksheetTabPanel,\
+from src.view.views.console.worksheet.WorksheetPanel import CreateWorksheetTabPanel, \
     CreatingWorksheetWithToolbarPanel
 from src.view.views.sql.history.HistoryListPanel import HistoryGrid
 from src.view.views.console.worksheet.WelcomePage import WelcomePanel
@@ -31,7 +31,6 @@ except ImportError:  # if it's not there locally, try the wxPython lib.
 
 
 class MyAuiManager(aui.AuiManager):
-    
     
     def addTabByWindow(self, window=None , imageName="script.png", captionName=None, tabDirection=5):
         '''
@@ -56,6 +55,7 @@ class MyAuiManager(aui.AuiManager):
                     self.AddPane(window, auiPanInfo, target=targetTab)
                 break
         self.Update()
+
     def OnTabBeginDrag(self, event):
         """
         Handles the ``EVT_AUINOTEBOOK_BEGIN_DRAG`` event.
@@ -128,6 +128,8 @@ class MyAuiManager(aui.AuiManager):
                 return p
 
         return NonePaneInfo
+
+
 class PerspectiveManager(object):
     """Creates a perspective manager for the given aui managed window.
     It supports saving and loading of on disk perspectives as created by
@@ -211,7 +213,6 @@ class PerspectiveManager(object):
         self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="sql.png")).
                           Name("sqlLog").Caption("SQL Log").Dockable(True).BestSize(wx.Size(500, 400)).MinSize(wx.Size(500, 400)).
                           Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True), target=self._mgr.GetPane("consoleOutput"))
-
         
         self._mgr.GetPane("onWelcome").Show()
         
@@ -335,14 +336,15 @@ class PerspectiveManager(object):
 
     def constructPerspectiveToolBar(self):
         tb1 = aui.AuiToolBar(self, -1, agwStyle=aui.AUI_TB_DEFAULT_STYLE | wx.NO_BORDER)
-        tb1.AddSimpleTool(ID_NEW, "Open Perspective", self.fileOperations.getImageBitmap(imageName='new_persp.png'),short_help_string='Open Perspective')
+        tb1.AddSimpleTool(ID_NEW, "Open Perspective", self.fileOperations.getImageBitmap(imageName='new_persp.png'), short_help_string='Open Perspective')
         tb1.AddSeparator()
-        tb1.AddSimpleTool(ID_NEW, "Java", self.fileOperations.getImageBitmap(imageName='jperspective.png'),short_help_string='Java')
-        tb1.AddSimpleTool(ID_NEW, "Java EE", self.fileOperations.getImageBitmap(imageName='javaee_perspective.png'),short_help_string='Java EE')
-        tb1.AddSimpleTool(ID_NEW, "Debug", self.fileOperations.getImageBitmap(imageName='debug_persp.png'),short_help_string='Debug')
-        tb1.AddSimpleTool(ID_NEW, "Python", self.fileOperations.getImageBitmap(imageName='python_perspective.png'),short_help_string='Python')
-        tb1.AddSimpleTool(ID_NEW, "Git", self.fileOperations.getImageBitmap(imageName='gitrepository.png'),short_help_string='Git')
+        tb1.AddSimpleTool(ID_NEW, "Java", self.fileOperations.getImageBitmap(imageName='jperspective.png'), short_help_string='Java')
+        tb1.AddSimpleTool(ID_NEW, "Java EE", self.fileOperations.getImageBitmap(imageName='javaee_perspective.png'), short_help_string='Java EE')
+        tb1.AddSimpleTool(ID_NEW, "Debug", self.fileOperations.getImageBitmap(imageName='debug_persp.png'), short_help_string='Debug')
+        tb1.AddSimpleTool(ID_NEW, "Python", self.fileOperations.getImageBitmap(imageName='python_perspective.png'), short_help_string='Python')
+        tb1.AddSimpleTool(ID_NEW, "Git", self.fileOperations.getImageBitmap(imageName='gitrepository.png'), short_help_string='Git')
         return tb1
+
     def constructViewToolBar(self):
         # create some toolbars
         tb1 = aui.AuiToolBar(self, -1, agwStyle=aui.AUI_TB_DEFAULT_STYLE | wx.NO_BORDER)
@@ -354,7 +356,7 @@ class PerspectiveManager(object):
 #         :TODO:FIXnew_con
 #         tb4_bmp1 = wx.ArtProvider.GetBitmap(wx.ART_NORMAL_FILE, wx.ART_OTHER, wx.Size(16, 16))
         tb4_bmp1 = self.fileOperations.getImageBitmap(imageName='new_con.png')
-        tb1.AddSimpleTool(ID_NEW, "Item 1", tb4_bmp1,short_help_string='New')
+        tb1.AddSimpleTool(ID_NEW, "Item 1", tb4_bmp1, short_help_string='New')
         tb1.SetToolDropDown(ID_NEW, True)
         tb1.AddSeparator()
         
@@ -362,15 +364,15 @@ class PerspectiveManager(object):
             (ID_SAVE, "Save (Ctrl+S)", "save.png", 'Save (Ctrl+S)'),
             (ID_SAVE_ALL, "Save All (Ctrl+Shift+S)", "saveall_edit.png", 'Save All (Ctrl+Shift+S)'),
             (),
-            (ID_TERMINAL,"Open a Terminal","linux_terminal.png","Open a Terminal (Ctrl+Shift+Alt+T)"),
+            (ID_TERMINAL, "Open a Terminal", "linux_terminal.png", "Open a Terminal (Ctrl+Shift+Alt+T)"),
             (),
-            (ID_newConnection,"New Connection","connect.png",  "New Connection"),
+            (ID_newConnection, "New Connection", "connect.png", "New Connection"),
             (ID_openConnection, "Open Connection", "database_connect.png", 'Open Connection'),
             (ID_newWorksheet, "Script", "script.png", 'Open a new script worksheet'),
             (wx.ID_PREFERENCES, "Preferences", "preference.png", 'Preference'),
             ]
         for tool in tools:
-            if len(tool)==0:
+            if len(tool) == 0:
                 tb1.AddSeparator()
             else:
                 tb1.AddSimpleTool(tool[0], tool[1], self.fileOperations.getImageBitmap(imageName=tool[2]), short_help_string=tool[3])
@@ -433,7 +435,7 @@ class PerspectiveManager(object):
 
             # create the popup menu
             # menuPopup = wx.Menu()
-            menuPopup=self.createMenuByPerspective(perspectiveName='java')
+            menuPopup = self.createMenuByPerspective(perspectiveName='java')
             # bmp = wx.ArtProvider.GetBitmap(wx.ART_QUESTION, wx.ART_OTHER, wx.Size(16, 16))
 
             # javaProjectMenu =  wx.MenuItem(menuPopup, 10001, "Java Project")
@@ -468,27 +470,42 @@ class PerspectiveManager(object):
                 [10002, 'Project...', "project.png", None],
                 [],
                 [10003, 'Package', None, None],
-                [10004, 'Class', None, None],
-                [10004, 'Interface', None, None],
-                [10004, 'Enum', None, None],
-                [10004, 'Annotation', None, None],
-                [10004, 'Source Folder', None, None],
-                [10004, 'Java Working Set', None, None],
-                [10004, 'Folder', None, None],
-                [10004, 'File', None, None],
+                [10004, 'Class', 'class_obj.png', None],
+                [10005, 'Interface', 'int_obj.png', None],
+                [10006, 'Enum', 'enum_obj.png', None],
+                [10007, 'Annotation', 'annotation_obj.png', None],
+                [10008, 'Source Folder', None, None],
+                [10009, 'Java Working Set', None, None],
+                [10010, 'Folder', None, None],
+                [10011, 'File', None, None],
 
                 ],
-            "python": [20001, 'Python Project', None, None],
-            "database": [30001, 'Database Project', None, None],
+            "Python": [
+                [20001, 'Python Project', None, None],
+                [20002, 'Project...', "project.png", None],
+                [],
+                [20003, 'Source Folder', "packagefolder_obj.png", None],
+                [20004, 'Python Project', "package_obj.png", None],
+                [20005, 'Python Module', "project.png", None],
+                [20006, 'Folder', "project.png", None],
+                [20007, 'File', "file_obj.png", None],
+                [],
+                [20008, 'Other', "project.png", None],
+                ],
+            "Resource": [[30001, 'Database Project', None, None], ],
+            "Debug": [[30001, 'Database Project', None, None], ],
+            "database": [
+                [30001, 'Database Project', None, None],
+                [30001, 'Database Connection', None, None],
+                [30001, 'ER Diagram', None, None],
+                ]
             }
-            
-            
             
         menuPopup = wx.Menu()
         bmp = wx.ArtProvider.GetBitmap(wx.ART_QUESTION, wx.ART_OTHER, wx.Size(16, 16))
         for menuItemName in menuItemList[perspectiveName]:
-            if len(menuItemName)>1:
-                menuItem =  wx.MenuItem(menuPopup, menuItemName[0], menuItemName[1])
+            if len(menuItemName) > 1:
+                menuItem = wx.MenuItem(menuPopup, menuItemName[0], menuItemName[1])
                 if menuItemName[2]:
                     menuItem.SetBitmap(self.fileOperations.getImageBitmap(imageName=menuItemName[2]))
                 menuPopup.Append(menuItem)
@@ -508,7 +525,7 @@ class PerspectiveManager(object):
         return treePanel
     
     def getWorksheet(self):
-        worksheetPanel = CreatingWorksheetWithToolbarPanel(self, -1, style=wx.CLIP_CHILDREN|wx.BORDER_NONE)
+        worksheetPanel = CreatingWorksheetWithToolbarPanel(self, -1, style=wx.CLIP_CHILDREN | wx.BORDER_NONE)
         return worksheetPanel
     
     def constructCenterPane(self):
