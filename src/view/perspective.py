@@ -169,11 +169,11 @@ class PerspectiveManager(object):
 #         #topToolBar.AddStretchSpacer()
 #         topToolBar.Add(self.constructToolBar(),0,wx.ALIGN_RIGHT,4)
         
-        self._mgr.AddPane(self.constructToolBar(), aui.AuiPaneInfo().
+        self._mgr.AddPane(self.constructViewToolBar(), aui.AuiPaneInfo().
                           Name("viewToolbar").Caption("View Toolbar").
                           ToolbarPane().Top().Row(1).Position(1).CloseButton(True).
                           LeftDockable(False).RightDockable(False).Gripper(True))    
-        self._mgr.AddPane(self.constructToolBar(), aui.AuiPaneInfo().
+        self._mgr.AddPane(self.constructPerspectiveToolBar(), aui.AuiPaneInfo().
                           Name("perspectiveToolbar").Caption("Perspective Toolbar").
                           ToolbarPane().Top().Row(1).Position(2).CloseButton(True).
                           LeftDockable(False).RightDockable(False).Gripper(True))    
@@ -216,7 +216,7 @@ class PerspectiveManager(object):
         self._mgr.GetPane("onWelcome").Show()
         
         self._mgr.GetPane("viewToolbar").Show()
-        self._mgr.GetPane("perspectiveToolbar").Hide()
+        self._mgr.GetPane("perspectiveToolbar").Show()
         self.perspective_default = self._mgr.SavePerspective()
         perspective_all = self._mgr.SavePerspective()
         self.setStyleToPanes()
@@ -333,7 +333,17 @@ class PerspectiveManager(object):
                 nb.Refresh()
                 nb.Update()
 
-    def constructToolBar(self):
+    def constructPerspectiveToolBar(self):
+        tb1 = aui.AuiToolBar(self, -1, agwStyle=aui.AUI_TB_DEFAULT_STYLE | wx.NO_BORDER)
+        tb1.AddSimpleTool(ID_NEW, "Open Perspective", self.fileOperations.getImageBitmap(imageName='new_persp.png'),short_help_string='Open Perspective')
+        tb1.AddSeparator()
+        tb1.AddSimpleTool(ID_NEW, "Java", self.fileOperations.getImageBitmap(imageName='jperspective.png'),short_help_string='Java')
+        tb1.AddSimpleTool(ID_NEW, "Java EE", self.fileOperations.getImageBitmap(imageName='javaee_perspective.png'),short_help_string='Java EE')
+        tb1.AddSimpleTool(ID_NEW, "Debug", self.fileOperations.getImageBitmap(imageName='debug_persp.png'),short_help_string='Debug')
+        tb1.AddSimpleTool(ID_NEW, "Python", self.fileOperations.getImageBitmap(imageName='python_perspective.png'),short_help_string='Python')
+        tb1.AddSimpleTool(ID_NEW, "Git", self.fileOperations.getImageBitmap(imageName='gitrepository.png'),short_help_string='Git')
+        return tb1
+    def constructViewToolBar(self):
         # create some toolbars
         tb1 = aui.AuiToolBar(self, -1, agwStyle=aui.AUI_TB_DEFAULT_STYLE | wx.NO_BORDER)
         
