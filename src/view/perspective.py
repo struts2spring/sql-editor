@@ -38,8 +38,8 @@ except ImportError:  # if it's not there locally, try the wxPython lib.
 
 class EclipseAuiToolbar(aui.AuiToolBar):
 
-    def __init__(self,parent):
-        super().__init__( parent,-1, agwStyle=aui.AUI_TB_DEFAULT_STYLE | wx.NO_BORDER)
+    def __init__(self, parent):
+        super().__init__(parent, -1, agwStyle=aui.AUI_TB_DEFAULT_STYLE | wx.NO_BORDER)
         pub.subscribe(self.__onObjectAdded, 'perspectiveClicked')
 
     def __onObjectAdded(self, data, extra1, extra2=None):
@@ -48,6 +48,28 @@ class EclipseAuiToolbar(aui.AuiToolBar):
         print(extra1)
         if extra2:
             print(extra2)
+    
+    def getToolBarItemById(self, id=None):
+        item = None
+        for _item in self._items:
+            if _item.id == id:
+                item = _item
+                break
+        return item
+    def OnLeaveWindow(self, event):
+        """
+        Handles the ``wx.EVT_LEAVE_WINDOW`` event for :class:`AuiToolBar`.
+
+        :param `event`: a :class:`MouseEvent` event to be processed.
+        """
+
+        self.RefreshOverflowState()
+#         self.SetHoverItem(None)
+#         self.SetPressedItem(None)
+# 
+#         self._tip_item = None
+        self.StopPreviewTimer()
+
     
 class MyAuiManager(aui.AuiManager):
     
@@ -218,12 +240,12 @@ class PerspectiveManager(object):
         self._mgr.AddPane(WelcomePanel(self), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="welcome16.png")).BestSize(500, -1).
                           Name("onWelcome").Caption("Welcome").Dockable(True).Movable(True).MinSize(500, -1).CaptionVisible(visible=True).Direction(wx.TOP).
                           Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True))  
-        self._mgr.AddPane(self.constructCenterPane(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="script.png")).
-                          Name("centerPane").Caption("Center Pane").LeftDockable(True).Direction(wx.TOP).
-                          Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).CaptionVisible(visible=True), target=self._mgr.GetPane("onWelcome"))
-        self._mgr.AddPane(self.getWorksheet(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="script.png")).
-                          Name("Worksheet-0").Caption("Worksheet-0").LeftDockable(True).Direction(wx.TOP).
-                          Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).CaptionVisible(visible=True), target=self._mgr.GetPane("onWelcome"))
+#         self._mgr.AddPane(self.constructCenterPane(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="script.png")).
+#                           Name("centerPane").Caption("Center Pane").LeftDockable(True).Direction(wx.TOP).
+#                           Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).CaptionVisible(visible=True), target=self._mgr.GetPane("onWelcome"))
+#         self._mgr.AddPane(self.getWorksheet(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="script.png")).
+#                           Name("Worksheet-0").Caption("Worksheet-0").LeftDockable(True).Direction(wx.TOP).
+#                           Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).CaptionVisible(visible=True), target=self._mgr.GetPane("onWelcome"))
         
 #         self._mgr.AddPane(self.constructSchemaViewerPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "script.png"))).
 #                           Name("schemaViewer").Caption("Schema Viewer").LeftDockable(True).
@@ -362,7 +384,8 @@ class PerspectiveManager(object):
                 nb.Update()
 
     def constructPerspectiveToolBar(self):
-        tb1 = aui.AuiToolBar(self, -1, agwStyle=aui.AUI_TB_DEFAULT_STYLE | wx.NO_BORDER)
+#         tb1 = aui.AuiToolBar(self, -1, agwStyle=aui.AUI_TB_DEFAULT_STYLE | wx.NO_BORDER)
+        tb1 = EclipseAuiToolbar(self)
         
         perspectiveList = [
             [ID_OPEN_PERSPECTIVE, "Open Perspective", 'new_persp.png', 'Open Perspective', self.onOpenPerspecitve ],
@@ -375,8 +398,10 @@ class PerspectiveManager(object):
             ]
         for perspectiveName in perspectiveList:
             if len(perspectiveName) > 1:
-                tb1.AddSimpleTool(perspectiveName[0], perspectiveName[1], self.fileOperations.getImageBitmap(imageName=perspectiveName[2]), short_help_string=perspectiveName[3])
+                toolBarItem = tb1.AddSimpleTool(perspectiveName[0], perspectiveName[1], self.fileOperations.getImageBitmap(imageName=perspectiveName[2]), short_help_string=perspectiveName[3])
                 self.Bind(wx.EVT_MENU, perspectiveName[4], id=perspectiveName[0])
+                if toolBarItem.label=='Python':
+                    tb1.SetPressedItem(toolBarItem)
             else:
                 tb1.AddSeparator()
             
@@ -384,23 +409,40 @@ class PerspectiveManager(object):
 
     def onOpenPerspecitve(self, event):
         logger.debug('onOpenPerspecitve')
-        
 
     def onJavaPerspective(self, event):
         logger.debug('onJavaPerspective')
         pub.sendMessage('perspectiveClicked', data=42, extra1='onJavaPerspective')
+        perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
+        javaItem=perspectiveToolbar.window.getToolBarItemById(ID_JAVA_PERSPECTIVE)
+        javaItem.state=4
+        javaEEItem=perspectiveToolbar.window.getToolBarItemById(ID_JAVA_EE_PERSPECTIVE)
+#         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_JAVA_PERSPECTIVE))
+#         item=perspectiveToolbar.window.getToolBarItemById(ID_JAVA_PERSPECTIVE)
+        print('perspectiveToolbar')
 
     def onJavaEEPerspective(self, event):
         logger.debug('onJavaEEPerspective')
+        perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
+        perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_JAVA_EE_PERSPECTIVE))
 
     def onDebugPerspecitve(self, event):
         logger.debug('onDebugPerspecitve')
+        perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
+        perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_DEBUG_PERSPECTIVE))
+        
 
     def onPythonPerspecitve(self, event):
         logger.debug('onPythonPerspecitve')
+        perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
+        perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(event.EventObject.GetId()))
+        
 
     def onGitPerspecitve(self, event):
         logger.debug('onGitPerspecitve')
+        perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
+        perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_GIT_PERSPECTIVE))
+        
 
     def constructViewToolBar(self):
         # create some toolbars
@@ -419,22 +461,23 @@ class PerspectiveManager(object):
         tb1.AddSeparator()
         
         tools = [
-            (ID_SAVE, "Save (Ctrl+S)", "save.png", 'Save (Ctrl+S)'),
-            (ID_SAVE_ALL, "Save All (Ctrl+Shift+S)", "saveall_edit.png", 'Save All (Ctrl+Shift+S)'),
+            (ID_SAVE, "Save (Ctrl+S)", "save.png", 'Save (Ctrl+S)', self.onSave),
+            (ID_SAVE_ALL, "Save All (Ctrl+Shift+S)", "saveall_edit.png", 'Save All (Ctrl+Shift+S)', self.onSaveAll),
             (),
-            (ID_TERMINAL, "Open a Terminal", "linux_terminal.png", "Open a Terminal (Ctrl+Shift+Alt+T)"),
+            (ID_TERMINAL, "Open a Terminal", "linux_terminal.png", "Open a Terminal (Ctrl+Shift+Alt+T)", self.onOpenTerminal),
             (),
-            (ID_newConnection, "New Connection", "connect.png", "New Connection"),
-            (ID_openConnection, "Open Connection", "database_connect.png", 'Open Connection'),
-            (ID_newWorksheet, "Script", "script.png", 'Open a new script worksheet'),
-            (wx.ID_PREFERENCES, "Preferences", "preference.png", 'Preference'),
+            (ID_newConnection, "New Connection", "connect.png", "New Connection", None),
+            (ID_openConnection, "Open Connection", "database_connect.png", 'Open Connection', None),
+            (ID_newWorksheet, "Script", "script.png", 'Open a new script worksheet', None),
+            (wx.ID_PREFERENCES, "Preferences", "preference.png", 'Preference', None),
             ]
         for tool in tools:
             if len(tool) == 0:
                 tb1.AddSeparator()
             else:
                 tb1.AddSimpleTool(tool[0], tool[1], self.fileOperations.getImageBitmap(imageName=tool[2]), short_help_string=tool[3])
-            
+                if tool[4]:
+                    self.Bind(wx.EVT_MENU, tool[4], tool[0])
         ###################################################################################################
         args = {}
         if True:
@@ -479,7 +522,16 @@ class PerspectiveManager(object):
         tb1.Realize()
         self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onNewDropDown, id=ID_NEW)
         return tb1
-        
+    
+    def onOpenTerminal(self, event):
+        logger.debug('onOpenTerminal')
+
+    def onSave(self, event):
+        logger.debug('onSave1')
+
+    def onSaveAll(self, event):
+        logger.debug('onSaveAll1')        
+
     def onNewDropDown(self, event):
 
         if event.IsDropDownClicked():

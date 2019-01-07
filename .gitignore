@@ -22,4 +22,4 @@ coverage.xml
 *,cover
 .hypothesis/
 *.log
-.pydevproject
+/.pydevproject
