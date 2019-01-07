@@ -5,7 +5,9 @@ from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 from src.view.AutoCompleteTextCtrl import TextCtrlAutoComplete
 from src.view.TreePanel import CreatingTreePanel
 from src.view.constants import LOG_SETTINGS, ID_newConnection, ID_openConnection, \
-    ID_newWorksheet, ID_SAVE, ID_SAVE_ALL, ID_NEW, ID_TERMINAL
+    ID_newWorksheet, ID_SAVE, ID_SAVE_ALL, ID_NEW, ID_TERMINAL, ID_OPEN_PERSPECTIVE, \
+    ID_JAVA_PERSPECTIVE, ID_JAVA_EE_PERSPECTIVE, ID_DEBUG_PERSPECTIVE, ID_PYTHON_PERSPECTIVE, \
+    ID_GIT_PERSPECTIVE
 
 from wx.lib.agw.aui.aui_constants import actionDragFloatingPane, AUI_DOCK_NONE
 from src.view.views.file.explorer.FileBrowserPanel import FileBrowser
@@ -17,6 +19,10 @@ from src.view.views.console.worksheet.WelcomePage import WelcomePanel
 from wx.lib.agw.aui.framemanager import NonePaneInfo
 from src.view.util.FileOperationsUtil import FileOperations
 from wx.lib.platebtn import PlateButton, PB_STYLE_DEFAULT, PB_STYLE_DROPARROW
+
+# from wx.lib.pubsub import setupkwargs
+# regular pubsub import
+from wx.lib.pubsub import pub
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -30,6 +36,19 @@ except ImportError:  # if it's not there locally, try the wxPython lib.
 ############################################################
 
 
+class EclipseAuiToolbar(aui.AuiToolBar):
+
+    def __init__(self,parent):
+        super().__init__( parent,-1, agwStyle=aui.AUI_TB_DEFAULT_STYLE | wx.NO_BORDER)
+        pub.subscribe(self.__onObjectAdded, 'perspectiveClicked')
+
+    def __onObjectAdded(self, data, extra1, extra2=None):
+        # no longer need to access data through message.data.
+        print('Object', repr(data), 'is added')
+        print(extra1)
+        if extra2:
+            print(extra2)
+    
 class MyAuiManager(aui.AuiManager):
     
     def addTabByWindow(self, window=None , imageName="script.png", captionName=None, tabDirection=5):
@@ -147,6 +166,14 @@ class PerspectiveManager(object):
         super(PerspectiveManager, self).__init__()
 
         self.createAuiManager()
+        pub.subscribe(self.__onObjectAdded, 'perspectiveClicked')
+
+    def __onObjectAdded(self, data, extra1, extra2=None):
+        # no longer need to access data through message.data.
+        print('PerspectiveManager', repr(data), 'is added')
+        print(extra1)
+        if extra2:
+            print(extra2)
         
     def createAuiManager(self):
         logger.debug('createAuiManager')
@@ -336,18 +363,49 @@ class PerspectiveManager(object):
 
     def constructPerspectiveToolBar(self):
         tb1 = aui.AuiToolBar(self, -1, agwStyle=aui.AUI_TB_DEFAULT_STYLE | wx.NO_BORDER)
-        tb1.AddSimpleTool(ID_NEW, "Open Perspective", self.fileOperations.getImageBitmap(imageName='new_persp.png'), short_help_string='Open Perspective')
-        tb1.AddSeparator()
-        tb1.AddSimpleTool(ID_NEW, "Java", self.fileOperations.getImageBitmap(imageName='jperspective.png'), short_help_string='Java')
-        tb1.AddSimpleTool(ID_NEW, "Java EE", self.fileOperations.getImageBitmap(imageName='javaee_perspective.png'), short_help_string='Java EE')
-        tb1.AddSimpleTool(ID_NEW, "Debug", self.fileOperations.getImageBitmap(imageName='debug_persp.png'), short_help_string='Debug')
-        tb1.AddSimpleTool(ID_NEW, "Python", self.fileOperations.getImageBitmap(imageName='python_perspective.png'), short_help_string='Python')
-        tb1.AddSimpleTool(ID_NEW, "Git", self.fileOperations.getImageBitmap(imageName='gitrepository.png'), short_help_string='Git')
+        
+        perspectiveList = [
+            [ID_OPEN_PERSPECTIVE, "Open Perspective", 'new_persp.png', 'Open Perspective', self.onOpenPerspecitve ],
+            [],
+            [ID_JAVA_PERSPECTIVE, "Java", 'jperspective.png', 'Java', self.onJavaPerspective],
+            [ID_JAVA_EE_PERSPECTIVE, "Java EE", 'javaee_perspective.png', 'Java EE', self.onJavaEEPerspective],
+            [ID_DEBUG_PERSPECTIVE, "Debug", 'debug_persp.png', 'Debug', self.onDebugPerspecitve],
+            [ID_PYTHON_PERSPECTIVE, "Python", 'python_perspective.png', 'Python', self.onPythonPerspecitve],
+            [ID_GIT_PERSPECTIVE, "Git", 'gitrepository.png', 'Git', self.onGitPerspecitve],
+            ]
+        for perspectiveName in perspectiveList:
+            if len(perspectiveName) > 1:
+                tb1.AddSimpleTool(perspectiveName[0], perspectiveName[1], self.fileOperations.getImageBitmap(imageName=perspectiveName[2]), short_help_string=perspectiveName[3])
+                self.Bind(wx.EVT_MENU, perspectiveName[4], id=perspectiveName[0])
+            else:
+                tb1.AddSeparator()
+            
         return tb1
+
+    def onOpenPerspecitve(self, event):
+        logger.debug('onOpenPerspecitve')
+        
+
+    def onJavaPerspective(self, event):
+        logger.debug('onJavaPerspective')
+        pub.sendMessage('perspectiveClicked', data=42, extra1='onJavaPerspective')
+
+    def onJavaEEPerspective(self, event):
+        logger.debug('onJavaEEPerspective')
+
+    def onDebugPerspecitve(self, event):
+        logger.debug('onDebugPerspecitve')
+
+    def onPythonPerspecitve(self, event):
+        logger.debug('onPythonPerspecitve')
+
+    def onGitPerspecitve(self, event):
+        logger.debug('onGitPerspecitve')
 
     def constructViewToolBar(self):
         # create some toolbars
-        tb1 = aui.AuiToolBar(self, -1, agwStyle=aui.AUI_TB_DEFAULT_STYLE | wx.NO_BORDER)
+#         tb1 = aui.AuiToolBar(self, -1, agwStyle=aui.AUI_TB_DEFAULT_STYLE | wx.NO_BORDER)
+        tb1 = EclipseAuiToolbar(self)
         
 #         tb1.SetToolBitmapSize(wx.Size(42, 42))
 #         tb1.AddSimpleTool(tool_id=ID_newConnection, label="New Connection", bitmap=wx.Bitmap(self.fileOperations.getImageBitmap(imageName="connect.png")), short_help_string='Create a new connection')
@@ -377,10 +435,6 @@ class PerspectiveManager(object):
             else:
                 tb1.AddSimpleTool(tool[0], tool[1], self.fileOperations.getImageBitmap(imageName=tool[2]), short_help_string=tool[3])
             
-#         tb1.AddSimpleTool(ID_openConnection, "Open Connection", wx.Bitmap(self.fileOperations.getImageBitmap(imageName="database_connect.png")), short_help_string='Open Connection')
-#         tb1.AddSimpleTool(ID_newWorksheet, "Script", wx.Bitmap(self.fileOperations.getImageBitmap(imageName="script.png")), short_help_string='Open a new script worksheet')
-#         tb1.AddSimpleTool(wx.ID_PREFERENCES, "Preferences", wx.Bitmap(self.fileOperations.getImageBitmap(imageName="preference.png")), short_help_string='Preference')
-#         tb1.DoGetBestSize()
         ###################################################################################################
         args = {}
         if True:

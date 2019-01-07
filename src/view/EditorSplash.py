@@ -5,7 +5,7 @@ Created on Nov 20, 2018
 '''
 import wx.adv
 import wx.lib.eventStack as events
-from src.view.sql_editor_view import DatabaseMainFrame
+from src.view.sql_editor_view import EclipseMainFrame
 from wx._adv import SplashScreen
 from src.view.util.FileOperationsUtil import FileOperations
 
@@ -17,17 +17,18 @@ from src.view.util.FileOperationsUtil import FileOperations
 #         st = '/' + st
 #     return st
 
+
 class MySplashScreen(SplashScreen):
+
     def __init__(self):
 #         bmp = wx.Image(opj("../images/splash.png")).ConvertToBitmap()
-        self.fileOperations=FileOperations()
+        self.fileOperations = FileOperations()
         bmp = self.fileOperations.getImageBitmap("splash.png")
         SplashScreen.__init__(self, bmp,
                                  wx.adv.SPLASH_CENTRE_ON_SCREEN | wx.adv.SPLASH_TIMEOUT,
                                  2000, None, -1)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
         self.fc = wx.CallLater(1, self.ShowMain)
-
 
     def OnClose(self, evt):
         # Make sure the default handler runs too so this window gets
@@ -41,15 +42,16 @@ class MySplashScreen(SplashScreen):
             self.fc.Stop()
             self.ShowMain()
 
-
     def ShowMain(self):
-        frame = DatabaseMainFrame(None)
+        frame = EclipseMainFrame(None)
         frame.Show()
         if self.fc.IsRunning():
             self.Raise()
 #         wx.CallAfter(frame.ShowTip)
 
+
 class MyApp(wx.App, events.AppEventHandlerMixin):
+
     def __init__(self, *args, **kargs):
         wx.App.__init__(self, *args, **kargs)
         events.AppEventHandlerMixin.__init__(self)
@@ -67,6 +69,8 @@ class MyApp(wx.App, events.AppEventHandlerMixin):
         except:
             pass
         return True
+
+
 if __name__ == '__main__':
     app = MyApp(False)
     app.MainLoop()

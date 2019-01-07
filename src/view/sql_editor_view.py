@@ -29,7 +29,7 @@ except ImportError:  # if it's not there locally, try the wxPython lib.
     from wx.lib.agw.aui import aui_switcherdialog as ASD
 
 
-class DatabaseMainFrame(wx.Frame, PerspectiveManager):
+class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
     def __init__(self, parent, style=wx.DEFAULT_FRAME_STYLE | wx.MAXIMIZE , title=TITLE):
         logger.info("This is from Runner ")
@@ -108,7 +108,7 @@ class DatabaseMainFrame(wx.Frame, PerspectiveManager):
 
         menuItemList = [
             ("&File", [
-                    [ID_openConnection, 'Open Database connection \tCtrl+O', None, None],
+                    [ID_openConnection, 'Open Database connection \tCtrl+O', None, None, self.onOpenConnection],
                     [wx.NewIdRef(), 'Recent Files', None, None],
                     [wx.NewIdRef(), 'Refresh \tF5', None, "refresh.png"],
                     [],
@@ -513,6 +513,6 @@ Python :{}""".format(TITLE, VERSION, plate, sys.version)
 
 if __name__ == "__main__":
     app = wx.App()
-    frame = DatabaseMainFrame(None)
+    frame = EclipseMainFrame(None)
     frame.Show()
     app.MainLoop()
