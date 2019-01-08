@@ -5,7 +5,7 @@ Created on Nov 20, 2018
 '''
 import wx.adv
 import wx.lib.eventStack as events
-from src.view.sql_editor_view import EclipseMainFrame
+from src.view.TheEclipseView import EclipseMainFrame
 from wx._adv import SplashScreen
 from src.view.util.FileOperationsUtil import FileOperations
 

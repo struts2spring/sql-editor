@@ -9,20 +9,25 @@ from src.view.constants import LOG_SETTINGS, ID_newConnection, ID_openConnection
     ID_JAVA_PERSPECTIVE, ID_JAVA_EE_PERSPECTIVE, ID_DEBUG_PERSPECTIVE, ID_PYTHON_PERSPECTIVE, \
     ID_GIT_PERSPECTIVE
 
-from wx.lib.agw.aui.aui_constants import actionDragFloatingPane, AUI_DOCK_NONE
+from wx.lib.agw.aui.aui_constants import actionDragFloatingPane, AUI_DOCK_NONE,\
+    ITEM_NORMAL, ITEM_CHECK, ITEM_RADIO, ID_RESTORE_FRAME
 from src.view.views.file.explorer.FileBrowserPanel import FileBrowser
 from src.view.views.console.SqlOutputPanel import SqlConsoleOutputPanel
 from src.view.views.console.worksheet.WorksheetPanel import CreateWorksheetTabPanel, \
     CreatingWorksheetWithToolbarPanel
 from src.view.views.sql.history.HistoryListPanel import HistoryGrid
 from src.view.views.console.worksheet.WelcomePage import WelcomePanel
-from wx.lib.agw.aui.framemanager import NonePaneInfo
+from wx.lib.agw.aui.framemanager import NonePaneInfo, wxEVT_AUI_PANE_MIN_RESTORE,\
+    AuiManagerEvent
 from src.view.util.FileOperationsUtil import FileOperations
 from wx.lib.platebtn import PlateButton, PB_STYLE_DEFAULT, PB_STYLE_DROPARROW
 
 # from wx.lib.pubsub import setupkwargs
 # regular pubsub import
 from wx.lib.pubsub import pub
+from wx.lib.agw.aui.auibar import AuiToolBarEvent,\
+    wxEVT_COMMAND_AUITOOLBAR_BEGIN_DRAG, wxEVT_COMMAND_AUITOOLBAR_MIDDLE_CLICK,\
+    wxEVT_COMMAND_AUITOOLBAR_RIGHT_CLICK
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -69,8 +74,296 @@ class EclipseAuiToolbar(aui.AuiToolBar):
 # 
 #         self._tip_item = None
         self.StopPreviewTimer()
+    def SetPressedItem(self, pitem):
+        """
+        Sets a toolbar item to be currently in a "pressed" state.
 
+        :param `pitem`: an instance of :class:`AuiToolBarItem`.
+        """
+
+
+        if pitem and pitem.label !='Open Perspective':
+            former_item = None
     
+            for item in self._items:
+    
+                if item.state & aui.AUI_BUTTON_STATE_PRESSED:
+                    former_item = item
+    
+                item.state &= ~aui.AUI_BUTTON_STATE_PRESSED
+                
+            pitem.state &= ~aui.AUI_BUTTON_STATE_HOVER
+            pitem.state |= aui.AUI_BUTTON_STATE_PRESSED
+            
+
+            if former_item != pitem:
+                self.Refresh(False)
+                self.Update()
+    def OnLeftUp(self, event):
+        """
+        Handles the ``wx.EVT_LEFT_UP`` event for :class:`AuiToolBar`.
+
+        :param `event`: a :class:`MouseEvent` event to be processed.
+        """
+
+        self.SetPressedItem(None)
+
+        hit_item = self.FindToolForPosition(*event.GetPosition())
+
+        if hit_item and not hit_item.state & aui.AUI_BUTTON_STATE_DISABLED:
+            self.SetHoverItem(hit_item)
+
+        if self._dragging:
+            # reset drag and drop member variables
+            self._dragging = False
+            self._action_pos = wx.Point(-1, -1)
+            self._action_item = None
+
+        else:
+
+            if self._action_item and hit_item == self._action_item:
+                self.SetToolTip("")
+
+                if hit_item.kind in [ITEM_CHECK, ITEM_RADIO]:
+                    toggle = not (self._action_item.state & aui.AUI_BUTTON_STATE_CHECKED)
+                    self.ToggleTool(self._action_item.id, toggle)
+
+                    # repaint immediately
+                    self.Refresh(False)
+                    self.Update()
+
+                    e = wx.CommandEvent(wx.wxEVT_COMMAND_MENU_SELECTED, self._action_item.id)
+                    e.SetEventObject(self)
+                    e.SetInt(toggle)
+                    self._action_pos = wx.Point(-1, -1)
+                    self._action_item = None
+
+                    self.ProcessEvent(e)
+                    self.DoIdleUpdate()
+
+                else:
+
+                    if self._action_item.id == ID_RESTORE_FRAME:
+                        # find aui manager
+                        manager = self.GetAuiManager()
+
+                        if not manager:
+                            return
+
+                        if self._action_item.target:
+                            pane = manager.GetPane(self._action_item.target)
+                        else:
+                            pane = manager.GetPane(self)
+
+#                         from . import framemanager
+                        e = AuiManagerEvent(wxEVT_AUI_PANE_MIN_RESTORE)
+
+                        e.SetManager(manager)
+                        e.SetPane(pane)
+
+                        manager.ProcessEvent(e)
+                        self.DoIdleUpdate()
+
+                    else:
+
+                        e = wx.CommandEvent(wx.wxEVT_COMMAND_MENU_SELECTED, self._action_item.id)
+                        e.SetEventObject(self)
+                        self.ProcessEvent(e)
+                        self.DoIdleUpdate()
+
+        # reset drag and drop member variables
+        self._dragging = False
+        self._action_pos = wx.Point(-1, -1)
+        self._action_item = None
+
+
+    def OnRightDown(self, event):
+        """
+        Handles the ``wx.EVT_RIGHT_DOWN`` event for :class:`AuiToolBar`.
+
+        :param `event`: a :class:`MouseEvent` event to be processed.
+        """
+
+        cli_rect = wx.Rect(wx.Point(0, 0), self.GetClientSize())
+
+        if self._gripper_sizer_item:
+            gripper_rect = self._gripper_sizer_item.GetRect()
+            if gripper_rect.Contains(event.GetPosition()):
+                return
+
+        if self.GetOverflowVisible():
+
+            dropdown_size = self._art.GetElementSize(aui.AUI_TBART_OVERFLOW_SIZE)
+            if dropdown_size > 0 and event.GetX() > cli_rect.width - dropdown_size and \
+               event.GetY() >= 0 and event.GetY() < cli_rect.height and self._art:
+                return
+
+        self._action_pos = wx.Point(*event.GetPosition())
+        self._action_item = self.FindToolForPosition(*event.GetPosition())
+
+        if self._action_item:
+            if self._action_item.state & aui.AUI_BUTTON_STATE_DISABLED:
+
+                self._action_pos = wx.Point(-1, -1)
+                self._action_item = None
+                return
+
+
+    def OnRightUp(self, event):
+        """
+        Handles the ``wx.EVT_RIGHT_UP`` event for :class:`AuiToolBar`.
+
+        :param `event`: a :class:`MouseEvent` event to be processed.
+        """
+
+        hit_item = self.FindToolForPosition(*event.GetPosition())
+
+        if self._action_item and hit_item == self._action_item:
+
+            e = AuiToolBarEvent(wxEVT_COMMAND_AUITOOLBAR_RIGHT_CLICK, self._action_item.id)
+            e.SetEventObject(self)
+            e.SetToolId(self._action_item.id)
+            e.SetClickPoint(self._action_pos)
+            self.ProcessEvent(e)
+            self.DoIdleUpdate()
+
+        else:
+
+            # right-clicked on the invalid area of the toolbar
+            e = AuiToolBarEvent(wxEVT_COMMAND_AUITOOLBAR_RIGHT_CLICK, -1)
+            e.SetEventObject(self)
+            e.SetToolId(-1)
+            e.SetClickPoint(self._action_pos)
+            self.ProcessEvent(e)
+            self.DoIdleUpdate()
+
+        # reset member variables
+        self._action_pos = wx.Point(-1, -1)
+        self._action_item = None
+
+
+    def OnMiddleDown(self, event):
+        """
+        Handles the ``wx.EVT_MIDDLE_DOWN`` event for :class:`AuiToolBar`.
+
+        :param `event`: a :class:`MouseEvent` event to be processed.
+        """
+
+        cli_rect = wx.Rect(wx.Point(0, 0), self.GetClientSize())
+
+        if self._gripper_sizer_item:
+
+            gripper_rect = self._gripper_sizer_item.GetRect()
+            if gripper_rect.Contains(event.GetPosition()):
+                return
+
+        if self.GetOverflowVisible():
+
+            dropdown_size = self._art.GetElementSize(aui.AUI_TBART_OVERFLOW_SIZE)
+            if dropdown_size > 0 and event.GetX() > cli_rect.width - dropdown_size and \
+               event.GetY() >= 0 and event.GetY() < cli_rect.height and self._art:
+                return
+
+        self._action_pos = wx.Point(*event.GetPosition())
+        self._action_item = self.FindToolForPosition(*event.GetPosition())
+
+        if self._action_item:
+            if self._action_item.state & aui.AUI_BUTTON_STATE_DISABLED:
+
+                self._action_pos = wx.Point(-1, -1)
+                self._action_item = None
+                return
+
+
+    def OnMiddleUp(self, event):
+        """
+        Handles the ``wx.EVT_MIDDLE_UP`` event for :class:`AuiToolBar`.
+
+        :param `event`: a :class:`MouseEvent` event to be processed.
+        """
+
+        hit_item = self.FindToolForPosition(*event.GetPosition())
+
+        if self._action_item and hit_item == self._action_item:
+            if hit_item.kind == ITEM_NORMAL:
+
+                e = AuiToolBarEvent(wxEVT_COMMAND_AUITOOLBAR_MIDDLE_CLICK, self._action_item.id)
+                e.SetEventObject(self)
+                e.SetToolId(self._action_item.id)
+                e.SetClickPoint(self._action_pos)
+                self.ProcessEvent(e)
+                self.DoIdleUpdate()
+
+        # reset member variables
+        self._action_pos = wx.Point(-1, -1)
+        self._action_item = None
+
+
+    def OnMotion(self, event):
+        """
+        Handles the ``wx.EVT_MOTION`` event for :class:`AuiToolBar`.
+
+        :param `event`: a :class:`MouseEvent` event to be processed.
+        """
+
+        # start a drag event
+        if not self._dragging and self._action_item != None and self._action_pos != wx.Point(-1, -1) and \
+           abs(event.GetX() - self._action_pos.x) + abs(event.GetY() - self._action_pos.y) > 5:
+
+            self.SetToolTip("")
+            self._dragging = True
+
+            e = AuiToolBarEvent(wxEVT_COMMAND_AUITOOLBAR_BEGIN_DRAG, self.GetId())
+            e.SetEventObject(self)
+            e.SetToolId(self._action_item.id)
+            self.ProcessEvent(e)
+            self.DoIdleUpdate()
+            return
+
+        hit_item = self.FindToolForPosition(*event.GetPosition())
+
+        if hit_item:
+            if not hit_item.state & aui.AUI_BUTTON_STATE_DISABLED:
+                self.SetHoverItem(hit_item)
+            else:
+                self.SetHoverItem(None)
+
+        else:
+            # no hit item, remove any hit item
+            self.SetHoverItem(hit_item)
+
+        # figure out tooltips
+        packing_hit_item = self.FindToolForPositionWithPacking(*event.GetPosition())
+
+        if packing_hit_item:
+
+            if packing_hit_item != self._tip_item:
+                self._tip_item = packing_hit_item
+
+                if packing_hit_item.short_help != "":
+                    self.StartPreviewTimer()
+                    self.SetToolTip(packing_hit_item.short_help)
+                else:
+                    self.SetToolTip("")
+                    self.StopPreviewTimer()
+
+        else:
+
+            self.SetToolTip("")
+            self._tip_item = None
+            self.StopPreviewTimer()
+
+        # if we've pressed down an item and we're hovering
+        # over it, make sure it's state is set to pressed
+        if self._action_item:
+
+            if self._action_item == hit_item:
+                self.SetPressedItem(self._action_item)
+            else:
+                self.SetPressedItem(None)
+
+        # figure out the dropdown button state (are we hovering or pressing it?)
+        self.RefreshOverflowState()    
 class MyAuiManager(aui.AuiManager):
     
     def addTabByWindow(self, window=None , imageName="script.png", captionName=None, tabDirection=5):
@@ -80,11 +373,11 @@ class MyAuiManager(aui.AuiManager):
         '''
         self.SetAutoNotebookStyle(aui.AUI_NB_DEFAULT_STYLE | wx.BORDER_NONE)
         for pane in self.GetAllPanes():
-            logger.debug(pane.dock_direction_get())
-            auiPanInfo = aui.AuiPaneInfo().Icon(FileOperations().getImageBitmap(imageName=imageName)).\
-                Name(captionName).Caption(captionName).LeftDockable(True).Direction(wx.TOP).\
-                Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).CaptionVisible(visible=True)
+#             logger.debug(pane.dock_direction_get())
             if pane.dock_direction_get() == tabDirection:  # adding to center tab
+                auiPanInfo = aui.AuiPaneInfo().Icon(FileOperations().getImageBitmap(imageName=imageName)).\
+                    Name(captionName).Caption(captionName).LeftDockable(True).Direction(wx.TOP).\
+                    Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).CaptionVisible(visible=True)
                 targetTab = pane
                 if not pane.HasNotebook():
                     self.CreateNotebookBase(self._panes, pane)
@@ -410,38 +703,46 @@ class PerspectiveManager(object):
     def onOpenPerspecitve(self, event):
         logger.debug('onOpenPerspecitve')
 
+
+    def selectItem(self, id=None):
+        perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
+        item=perspectiveToolbar.window.getToolBarItemById(id)   
+        perspectiveToolbar.window.EnableTool(item, True) 
+        
+#         item.state=4   
     def onJavaPerspective(self, event):
         logger.debug('onJavaPerspective')
         pub.sendMessage('perspectiveClicked', data=42, extra1='onJavaPerspective')
-        perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
-        javaItem=perspectiveToolbar.window.getToolBarItemById(ID_JAVA_PERSPECTIVE)
-        javaItem.state=4
-        javaEEItem=perspectiveToolbar.window.getToolBarItemById(ID_JAVA_EE_PERSPECTIVE)
+        self.selectItem(ID_JAVA_PERSPECTIVE)
 #         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_JAVA_PERSPECTIVE))
 #         item=perspectiveToolbar.window.getToolBarItemById(ID_JAVA_PERSPECTIVE)
         print('perspectiveToolbar')
 
     def onJavaEEPerspective(self, event):
         logger.debug('onJavaEEPerspective')
-        perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
-        perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_JAVA_EE_PERSPECTIVE))
+        self.selectItem(ID_JAVA_EE_PERSPECTIVE)
+#         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
+#         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_JAVA_EE_PERSPECTIVE))
 
     def onDebugPerspecitve(self, event):
         logger.debug('onDebugPerspecitve')
-        perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
-        perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_DEBUG_PERSPECTIVE))
+        self.selectItem(ID_DEBUG_PERSPECTIVE)
+#         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
+#         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_DEBUG_PERSPECTIVE))
         
 
     def onPythonPerspecitve(self, event):
         logger.debug('onPythonPerspecitve')
-        perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
-        perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(event.EventObject.GetId()))
+        self.selectItem(ID_PYTHON_PERSPECTIVE)
+#         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
+#         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(event.EventObject.GetId()))
         
 
     def onGitPerspecitve(self, event):
         logger.debug('onGitPerspecitve')
-        perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
-        perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_GIT_PERSPECTIVE))
+        self.selectItem(ID_GIT_PERSPECTIVE)
+#         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
+#         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_GIT_PERSPECTIVE))
         
 
     def constructViewToolBar(self):
