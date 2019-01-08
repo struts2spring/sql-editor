@@ -7,9 +7,10 @@ from src.view.TreePanel import CreatingTreePanel
 from src.view.constants import LOG_SETTINGS, ID_newConnection, ID_openConnection, \
     ID_newWorksheet, ID_SAVE, ID_SAVE_ALL, ID_NEW, ID_TERMINAL, ID_OPEN_PERSPECTIVE, \
     ID_JAVA_PERSPECTIVE, ID_JAVA_EE_PERSPECTIVE, ID_DEBUG_PERSPECTIVE, ID_PYTHON_PERSPECTIVE, \
-    ID_GIT_PERSPECTIVE
+    ID_GIT_PERSPECTIVE, ID_DEBUG_AS, ID_RUN_AS, ID_OPEN_TASK, ID_BACKWARD, ID_FORWARD, ID_LAST_EDIT, \
+    ID_SEARCH, ID_OPEN_TYPE, ID_DATABASE_PERSPECTIVE, ID_TEXTCTRL_AUTO_COMPLETE
 
-from wx.lib.agw.aui.aui_constants import actionDragFloatingPane, AUI_DOCK_NONE,\
+from wx.lib.agw.aui.aui_constants import actionDragFloatingPane, AUI_DOCK_NONE, \
     ITEM_NORMAL, ITEM_CHECK, ITEM_RADIO, ID_RESTORE_FRAME
 from src.view.views.file.explorer.FileBrowserPanel import FileBrowser
 from src.view.views.console.SqlOutputPanel import SqlConsoleOutputPanel
@@ -17,7 +18,7 @@ from src.view.views.console.worksheet.WorksheetPanel import CreateWorksheetTabPa
     CreatingWorksheetWithToolbarPanel
 from src.view.views.sql.history.HistoryListPanel import HistoryGrid
 from src.view.views.console.worksheet.WelcomePage import WelcomePanel
-from wx.lib.agw.aui.framemanager import NonePaneInfo, wxEVT_AUI_PANE_MIN_RESTORE,\
+from wx.lib.agw.aui.framemanager import NonePaneInfo, wxEVT_AUI_PANE_MIN_RESTORE, \
     AuiManagerEvent
 from src.view.util.FileOperationsUtil import FileOperations
 from wx.lib.platebtn import PlateButton, PB_STYLE_DEFAULT, PB_STYLE_DROPARROW
@@ -25,8 +26,8 @@ from wx.lib.platebtn import PlateButton, PB_STYLE_DEFAULT, PB_STYLE_DROPARROW
 # from wx.lib.pubsub import setupkwargs
 # regular pubsub import
 from wx.lib.pubsub import pub
-from wx.lib.agw.aui.auibar import AuiToolBarEvent,\
-    wxEVT_COMMAND_AUITOOLBAR_BEGIN_DRAG, wxEVT_COMMAND_AUITOOLBAR_MIDDLE_CLICK,\
+from wx.lib.agw.aui.auibar import AuiToolBarEvent, \
+    wxEVT_COMMAND_AUITOOLBAR_BEGIN_DRAG, wxEVT_COMMAND_AUITOOLBAR_MIDDLE_CLICK, \
     wxEVT_COMMAND_AUITOOLBAR_RIGHT_CLICK
 
 logging.config.dictConfig(LOG_SETTINGS)
@@ -61,6 +62,7 @@ class EclipseAuiToolbar(aui.AuiToolBar):
                 item = _item
                 break
         return item
+
     def OnLeaveWindow(self, event):
         """
         Handles the ``wx.EVT_LEAVE_WINDOW`` event for :class:`AuiToolBar`.
@@ -74,6 +76,7 @@ class EclipseAuiToolbar(aui.AuiToolBar):
 # 
 #         self._tip_item = None
         self.StopPreviewTimer()
+
     def SetPressedItem(self, pitem):
         """
         Sets a toolbar item to be currently in a "pressed" state.
@@ -81,8 +84,7 @@ class EclipseAuiToolbar(aui.AuiToolBar):
         :param `pitem`: an instance of :class:`AuiToolBarItem`.
         """
 
-
-        if pitem and pitem.label !='Open Perspective':
+        if pitem and pitem.label != 'Open Perspective':
             former_item = None
     
             for item in self._items:
@@ -94,11 +96,11 @@ class EclipseAuiToolbar(aui.AuiToolBar):
                 
             pitem.state &= ~aui.AUI_BUTTON_STATE_HOVER
             pitem.state |= aui.AUI_BUTTON_STATE_PRESSED
-            
 
             if former_item != pitem:
                 self.Refresh(False)
                 self.Update()
+
     def OnLeftUp(self, event):
         """
         Handles the ``wx.EVT_LEFT_UP`` event for :class:`AuiToolBar`.
@@ -176,7 +178,6 @@ class EclipseAuiToolbar(aui.AuiToolBar):
         self._action_pos = wx.Point(-1, -1)
         self._action_item = None
 
-
     def OnRightDown(self, event):
         """
         Handles the ``wx.EVT_RIGHT_DOWN`` event for :class:`AuiToolBar`.
@@ -207,7 +208,6 @@ class EclipseAuiToolbar(aui.AuiToolBar):
                 self._action_pos = wx.Point(-1, -1)
                 self._action_item = None
                 return
-
 
     def OnRightUp(self, event):
         """
@@ -241,7 +241,6 @@ class EclipseAuiToolbar(aui.AuiToolBar):
         self._action_pos = wx.Point(-1, -1)
         self._action_item = None
 
-
     def OnMiddleDown(self, event):
         """
         Handles the ``wx.EVT_MIDDLE_DOWN`` event for :class:`AuiToolBar`.
@@ -274,7 +273,6 @@ class EclipseAuiToolbar(aui.AuiToolBar):
                 self._action_item = None
                 return
 
-
     def OnMiddleUp(self, event):
         """
         Handles the ``wx.EVT_MIDDLE_UP`` event for :class:`AuiToolBar`.
@@ -297,7 +295,6 @@ class EclipseAuiToolbar(aui.AuiToolBar):
         # reset member variables
         self._action_pos = wx.Point(-1, -1)
         self._action_item = None
-
 
     def OnMotion(self, event):
         """
@@ -364,6 +361,8 @@ class EclipseAuiToolbar(aui.AuiToolBar):
 
         # figure out the dropdown button state (are we hovering or pressing it?)
         self.RefreshOverflowState()    
+
+
 class MyAuiManager(aui.AuiManager):
     
     def addTabByWindow(self, window=None , imageName="script.png", captionName=None, tabDirection=5):
@@ -519,8 +518,8 @@ class PerspectiveManager(object):
                           LeftDockable(False).RightDockable(False).Gripper(True))    
         self._mgr.AddPane(self.constructPerspectiveToolBar(), aui.AuiPaneInfo().
                           Name("perspectiveToolbar").Caption("Perspective Toolbar").
-                          ToolbarPane().Top().Row(1).Position(2).CloseButton(True).
-                          LeftDockable(False).RightDockable(False).Gripper(True))    
+                          ToolbarPane().Top().Row(1).Position(1).CloseButton(True).
+                          LeftDockable(False).RightDockable(False).Gripper(True), self.definePoint())    
         
         self._mgr.AddPane(self.creatingFileExplorer(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="file_explorer.png")).BestSize(500, -1).
                           Name("fileExplorer").Caption("File Explorer").Dockable(True).Movable(True).MinSize(500, -1).Resizable(True).
@@ -558,8 +557,11 @@ class PerspectiveManager(object):
         
         self._mgr.GetPane("onWelcome").Show()
         
-        self._mgr.GetPane("viewToolbar").Show()
-        self._mgr.GetPane("perspectiveToolbar").Show()
+        viewToolbar = self._mgr.GetPane("viewToolbar")
+        viewToolbar.Show()
+        perspectiveToolbar = self._mgr.GetPane("perspectiveToolbar")
+        perspectiveToolbar.dock_row = viewToolbar.dock_row
+        perspectiveToolbar.Show()
         self.perspective_default = self._mgr.SavePerspective()
         perspective_all = self._mgr.SavePerspective()
         self.setStyleToPanes()
@@ -584,7 +586,13 @@ class PerspectiveManager(object):
         self.timer.Start(100)
         
 #######################################################################################    
-
+    def definePoint(self):
+        managed_window = self._mgr.GetManagedWindow()
+        wnd_pos = managed_window.GetPosition()
+        (x, y) = wnd_size = managed_window.GetSize()
+        point = wx.Point(x - ((len(self.perspectiveList)-1) * 32)+5, 0)
+        return point
+        
     def OnPaneClose(self, event):
         logger.debug("OnPaneClose")
 #         if event.pane.name == "test10":
@@ -680,20 +688,21 @@ class PerspectiveManager(object):
 #         tb1 = aui.AuiToolBar(self, -1, agwStyle=aui.AUI_TB_DEFAULT_STYLE | wx.NO_BORDER)
         tb1 = EclipseAuiToolbar(self)
         
-        perspectiveList = [
+        self.perspectiveList = [
             [ID_OPEN_PERSPECTIVE, "Open Perspective", 'new_persp.png', 'Open Perspective', self.onOpenPerspecitve ],
             [],
             [ID_JAVA_PERSPECTIVE, "Java", 'jperspective.png', 'Java', self.onJavaPerspective],
             [ID_JAVA_EE_PERSPECTIVE, "Java EE", 'javaee_perspective.png', 'Java EE', self.onJavaEEPerspective],
             [ID_DEBUG_PERSPECTIVE, "Debug", 'debug_persp.png', 'Debug', self.onDebugPerspecitve],
             [ID_PYTHON_PERSPECTIVE, "Python", 'python_perspective.png', 'Python', self.onPythonPerspecitve],
+            [ID_DATABASE_PERSPECTIVE, "Database", 'database.png', 'Database', self.onDatabasePerspecitve],
             [ID_GIT_PERSPECTIVE, "Git", 'gitrepository.png', 'Git', self.onGitPerspecitve],
             ]
-        for perspectiveName in perspectiveList:
+        for perspectiveName in self.perspectiveList:
             if len(perspectiveName) > 1:
                 toolBarItem = tb1.AddSimpleTool(perspectiveName[0], perspectiveName[1], self.fileOperations.getImageBitmap(imageName=perspectiveName[2]), short_help_string=perspectiveName[3])
                 self.Bind(wx.EVT_MENU, perspectiveName[4], id=perspectiveName[0])
-                if toolBarItem.label=='Python':
+                if toolBarItem.label == 'Python':
                     tb1.SetPressedItem(toolBarItem)
             else:
                 tb1.AddSeparator()
@@ -703,52 +712,65 @@ class PerspectiveManager(object):
     def onOpenPerspecitve(self, event):
         logger.debug('onOpenPerspecitve')
 
-
     def selectItem(self, id=None):
-        perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
-        item=perspectiveToolbar.window.getToolBarItemById(id)   
+        perspectiveToolbar = self._mgr.GetPane("perspectiveToolbar")
+        item = perspectiveToolbar.window.getToolBarItemById(id)   
         perspectiveToolbar.window.EnableTool(item, True) 
+    
+    def viewToolBarByPerspective(self, perspectiveName):
+        viewToolbar = self._mgr.GetPane("viewToolbar")
+        
+#         viewToolbar.window.DeleteTool(wx.ID_PREFERENCES)
+        self.constructViewToolBar(viewToolbar.window, perspectiveName)
+        print('viewToolBarByPerspective')
         
 #         item.state=4   
     def onJavaPerspective(self, event):
         logger.debug('onJavaPerspective')
         pub.sendMessage('perspectiveClicked', data=42, extra1='onJavaPerspective')
         self.selectItem(ID_JAVA_PERSPECTIVE)
-#         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_JAVA_PERSPECTIVE))
-#         item=perspectiveToolbar.window.getToolBarItemById(ID_JAVA_PERSPECTIVE)
+        self.viewToolBarByPerspective('java')
         print('perspectiveToolbar')
 
     def onJavaEEPerspective(self, event):
         logger.debug('onJavaEEPerspective')
         self.selectItem(ID_JAVA_EE_PERSPECTIVE)
+        self.viewToolBarByPerspective('java ee')
 #         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
 #         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_JAVA_EE_PERSPECTIVE))
 
     def onDebugPerspecitve(self, event):
         logger.debug('onDebugPerspecitve')
         self.selectItem(ID_DEBUG_PERSPECTIVE)
+        self.viewToolBarByPerspective('debug')
 #         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
 #         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_DEBUG_PERSPECTIVE))
-        
 
     def onPythonPerspecitve(self, event):
         logger.debug('onPythonPerspecitve')
         self.selectItem(ID_PYTHON_PERSPECTIVE)
+        self.viewToolBarByPerspective('python')
 #         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
 #         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(event.EventObject.GetId()))
-        
 
     def onGitPerspecitve(self, event):
         logger.debug('onGitPerspecitve')
         self.selectItem(ID_GIT_PERSPECTIVE)
+        self.viewToolBarByPerspective('git')
+        
+    def onDatabasePerspecitve(self, event):
+        logger.debug('onDatabasePerspecitve')
+        self.selectItem(ID_DATABASE_PERSPECTIVE)
+        self.viewToolBarByPerspective('database')
 #         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
 #         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_GIT_PERSPECTIVE))
-        
 
-    def constructViewToolBar(self):
+    def constructViewToolBar(self, toobar=None, perspectiveName='python'):
         # create some toolbars
 #         tb1 = aui.AuiToolBar(self, -1, agwStyle=aui.AUI_TB_DEFAULT_STYLE | wx.NO_BORDER)
-        tb1 = EclipseAuiToolbar(self)
+        if toobar == None:
+            self._ctrl=None
+            toobar = EclipseAuiToolbar(self)
         
 #         tb1.SetToolBitmapSize(wx.Size(42, 42))
 #         tb1.AddSimpleTool(tool_id=ID_newConnection, label="New Connection", bitmap=wx.Bitmap(self.fileOperations.getImageBitmap(imageName="connect.png")), short_help_string='Create a new connection')
@@ -756,76 +778,100 @@ class PerspectiveManager(object):
         
 #         :TODO:FIXnew_con
 #         tb4_bmp1 = wx.ArtProvider.GetBitmap(wx.ART_NORMAL_FILE, wx.ART_OTHER, wx.Size(16, 16))
-        tb4_bmp1 = self.fileOperations.getImageBitmap(imageName='new_con.png')
-        tb1.AddSimpleTool(ID_NEW, "Item 1", tb4_bmp1, short_help_string='New')
-        tb1.SetToolDropDown(ID_NEW, True)
-        tb1.AddSeparator()
+#         tb4_bmp1 = self.fileOperations.getImageBitmap(imageName='new_con.png')
+#         toobar.AddSimpleTool(ID_NEW, "Item 1", tb4_bmp1, short_help_string='New')
+#         toobar.SetToolDropDown(ID_NEW, True)
+#         toobar.AddSeparator()
         
         tools = [
-            (ID_SAVE, "Save (Ctrl+S)", "save.png", 'Save (Ctrl+S)', self.onSave),
-            (ID_SAVE_ALL, "Save All (Ctrl+Shift+S)", "saveall_edit.png", 'Save All (Ctrl+Shift+S)', self.onSaveAll),
+            (ID_NEW, "New", "new_con.png", 'New', self.onNewMenu, True, ['resource', 'python', 'java', 'debug','java ee']),
             (),
-            (ID_TERMINAL, "Open a Terminal", "linux_terminal.png", "Open a Terminal (Ctrl+Shift+Alt+T)", self.onOpenTerminal),
-            (),
-            (ID_newConnection, "New Connection", "connect.png", "New Connection", None),
-            (ID_openConnection, "Open Connection", "database_connect.png", 'Open Connection', None),
-            (ID_newWorksheet, "Script", "script.png", 'Open a new script worksheet', None),
-            (wx.ID_PREFERENCES, "Preferences", "preference.png", 'Preference', None),
+            (ID_SAVE, "Save (Ctrl+S)", "save.png", 'Save (Ctrl+S)', self.onSave, False, ['resource', 'python', 'java', 'debug','java ee']),
+            (ID_SAVE_ALL, "Save All (Ctrl+Shift+S)", "saveall_edit.png", 'Save All (Ctrl+Shift+S)', self.onSaveAll, False, ['resource', 'python', 'java', 'debug','java ee']),
+            (ID_TERMINAL, "Open a Terminal", "linux_terminal.png", "Open a Terminal (Ctrl+Shift+Alt+T)", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug','java ee']),
+            (ID_DEBUG_AS, "Debug As...", "debug_exc.png", "Debug As...", self.onOpenTerminal, True, ['python', 'java', 'debug']),
+            (ID_RUN_AS, "Run As...", "run_exc.png", "Run As...", self.onOpenTerminal, True, ['python', 'java', 'debug']),
+            (ID_OPEN_TYPE, "Open Type", "opentype.png", "Open Type", self.onOpenTerminal, True, ['resource', 'python', 'java', 'debug']),
+            (ID_OPEN_TASK, "Open Task (Ctrl+F12)", "open_task.png", "Run As...", self.onOpenTerminal, True, ['resource', 'python', 'java', 'debug']),
+            (ID_SEARCH, "Search", "searchres.png", "Search", self.onOpenTerminal, True, ['resource', 'python', 'java', 'debug']),
+            (ID_LAST_EDIT, "Last Edit Location", "last_edit_pos.png", "Last Edit Location", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug']),
+            (ID_BACKWARD, "Back", "backward_nav.png", "Back", self.onOpenTerminal, True, ['python', 'java', 'debug']),
+            (ID_FORWARD, "Forward", "forward_nav.png", "Forward", self.onOpenTerminal, True, ['python', 'java', 'debug']),
+            (ID_newConnection, "New Connection", "connect.png", "New Connection", None, False, ['database']),
+            (ID_openConnection, "Open Connection", "database_connect.png", 'Open Connection', None, False, ['database']),
+            (ID_newWorksheet, "Script", "script.png", 'Open a new script worksheet', None, False, ['database']),
+#             (wx.ID_PREFERENCES, "Preferences", "preference.png", 'Preference', None),
             ]
+        
+        toobar._items.clear()
+        if self._ctrl:
+            self._ctrl.Hide()
+        
         for tool in tools:
+            
             if len(tool) == 0:
-                tb1.AddSeparator()
-            else:
-                tb1.AddSimpleTool(tool[0], tool[1], self.fileOperations.getImageBitmap(imageName=tool[2]), short_help_string=tool[3])
+                toobar.AddSeparator()
+            elif perspectiveName in tool[6]:
+                logger.debug(tool)
+                toobar.AddSimpleTool(tool[0], tool[1], self.fileOperations.getImageBitmap(imageName=tool[2]), short_help_string=tool[3])
                 if tool[4]:
                     self.Bind(wx.EVT_MENU, tool[4], tool[0])
+                if tool[5]:
+                    toobar.SetToolDropDown(tool[0], tool[5])
+            
+                
         ###################################################################################################
-        args = {}
-        if True:
-            args["colNames"] = ("col1", "col2")
-            args["multiChoices"] = [ ("Zoey", "WOW"), ("Alpha", "wxPython"),
-                                    ("Ceda", "Is"), ("Beta", "fantastic"),
-                                    ("zoebob", "!!")]
-            args["colFetch"] = 1
-        else:
-            args["choices"] = ["123", "cs", "cds", "Bob", "Marley", "Alpha"]
-        args["selectCallback"] = self.selectCallback   
-        self.dynamic_choices = list()
-        sqlExecuter = SQLExecuter()
-        dbList = sqlExecuter.getListDatabase()  
-        for db in dbList:
-            self.dynamic_choices.append(db[1])
-           
-#         self.dynamic_choices = [
-#                 'aardvark', 'abandon', 'acorn', 'acute', 'adore',
-#                 'aegis', 'ascertain', 'asteroid',
-#                 'beautiful', 'bold', 'classic',
-#                 'daring', 'dazzling', 'debonair', 'definitive',
-#                 'effective', 'elegant',
-#                 'http://python.org', 'http://www.google.com',
-#                 'fabulous', 'fantastic', 'friendly', 'forgiving', 'feature',
-#                 'sage', 'scarlet', 'scenic', 'seaside', 'showpiece', 'spiffy',
-#                 'www.wxPython.org', 'www.osafoundation.org'
-#                 ]
-
-        self._ctrl = TextCtrlAutoComplete(tb1, **args)
-        self._ctrl.SetSize((250, 25))
-        self._ctrl.SetChoices(self.dynamic_choices)
-        self._ctrl.SetEntryCallback(self.setDynamicChoices)
-        self._ctrl.SetMatchFunction(self.match)
-        tb1.AddControl(self._ctrl) 
+        
+        if perspectiveName =='database':
+            args = {}
+            if True:
+                args["colNames"] = ("col1", "col2")
+                args["multiChoices"] = [ ("Zoey", "WOW"), ("Alpha", "wxPython"),
+                                        ("Ceda", "Is"), ("Beta", "fantastic"),
+                                        ("zoebob", "!!")]
+                args["colFetch"] = 1
+            else:
+                args["choices"] = ["123", "cs", "cds", "Bob", "Marley", "Alpha"]
+            args["selectCallback"] = self.selectCallback   
+            self.dynamic_choices = list()
+            sqlExecuter = SQLExecuter()
+            dbList = sqlExecuter.getListDatabase()  
+            for db in dbList:
+                self.dynamic_choices.append(db[1])
+               
+    #         self.dynamic_choices = [
+    #                 'aardvark', 'abandon', 'acorn', 'acute', 'adore',
+    #                 'aegis', 'ascertain', 'asteroid',
+    #                 'beautiful', 'bold', 'classic',
+    #                 'daring', 'dazzling', 'debonair', 'definitive',
+    #                 'effective', 'elegant',
+    #                 'http://python.org', 'http://www.google.com',
+    #                 'fabulous', 'fantastic', 'friendly', 'forgiving', 'feature',
+    #                 'sage', 'scarlet', 'scenic', 'seaside', 'showpiece', 'spiffy',
+    #                 'www.wxPython.org', 'www.osafoundation.org'
+    #                 ]
+    
+            self._ctrl = TextCtrlAutoComplete(toobar,id=ID_TEXTCTRL_AUTO_COMPLETE, **args)
+            self._ctrl.SetSize((250, 25))
+            self._ctrl.SetChoices(self.dynamic_choices)
+            self._ctrl.SetEntryCallback(self.setDynamicChoices)
+            self._ctrl.SetMatchFunction(self.match)
+            toobar.AddControl(self._ctrl) 
 
         ###################################################################################################
 #         tb1.AddControl( self.choice ) 
 #         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_INFORMATION))
 #         tb1.AddLabelTool(103, "Test"t1 = wx.TextCtrl(self, -1, "Test it out and see", size=(125, -1)), wx.ArtProvider_GetBitmap(wx.ART_WARNING))
 #         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_MISSING_IMAGE))
-        tb1.Realize()
+        toobar.Realize()
         self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onNewDropDown, id=ID_NEW)
-        return tb1
+        return toobar
     
     def onOpenTerminal(self, event):
         logger.debug('onOpenTerminal')
+
+    def onNewMenu(self, event):
+        logger.debug('onNewMenu')
 
     def onSave(self, event):
         logger.debug('onSave1')
@@ -842,7 +888,7 @@ class PerspectiveManager(object):
 
             # create the popup menu
             # menuPopup = wx.Menu()
-            menuPopup = self.createMenuByPerspective(perspectiveName='java')
+            menuPopup = self.createMenuByPerspective(perspectiveName='python')
             # bmp = wx.ArtProvider.GetBitmap(wx.ART_QUESTION, wx.ART_OTHER, wx.Size(16, 16))
 
             # javaProjectMenu =  wx.MenuItem(menuPopup, 10001, "Java Project")
@@ -887,7 +933,7 @@ class PerspectiveManager(object):
                 [10011, 'File', None, None],
 
                 ],
-            "Python": [
+            "python": [
                 [20001, 'Python Project', None, None],
                 [20002, 'Project...', "project.png", None],
                 [],
@@ -899,8 +945,8 @@ class PerspectiveManager(object):
                 [],
                 [20008, 'Other', "project.png", None],
                 ],
-            "Resource": [[30001, 'Database Project', None, None], ],
-            "Debug": [[30001, 'Database Project', None, None], ],
+            "resource": [[30001, 'Database Project', None, None], ],
+            "debug": [[30001, 'Database Project', None, None], ],
             "database": [
                 [30001, 'Database Project', None, None],
                 [30001, 'Database Connection', None, None],

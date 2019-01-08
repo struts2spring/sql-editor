@@ -82,7 +82,7 @@ class myListCtrl(wx.ListCtrl, listmix.ListCtrlAutoWidthMixin):
 
 class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin ):
     
-    def __init__ ( self, parent, colNames=None, choices = None,
+    def __init__ ( self, parent, id=None, colNames=None, choices = None,
                   multiChoices=None, showHead=True, dropDownClick=True,
                   colFetch=-1, colSearch=0, hideOnNoMatch=True,
                   selectCallback=None, entryCallback=None, matchFunction=None,
@@ -96,7 +96,7 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin ):
             therest['style']=wx.TE_PROCESS_ENTER | therest['style']
         else:
             therest['style']=wx.TE_PROCESS_ENTER
-        wx.TextCtrl.__init__(self, parent, **therest )
+        wx.TextCtrl.__init__(self, parent, id=id, **therest )
         #Some variables
         self.SetToolTip('Select database')
         self._dropDownClick = dropDownClick
