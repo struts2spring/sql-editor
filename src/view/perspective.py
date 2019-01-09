@@ -703,6 +703,7 @@ class PerspectiveManager(object):
                 toolBarItem = tb1.AddSimpleTool(perspectiveName[0], perspectiveName[1], self.fileOperations.getImageBitmap(imageName=perspectiveName[2]), short_help_string=perspectiveName[3])
                 self.Bind(wx.EVT_MENU, perspectiveName[4], id=perspectiveName[0])
                 if toolBarItem.label == 'Python':
+                    self.selectedPerspectiveName='python'
                     tb1.SetPressedItem(toolBarItem)
             else:
                 tb1.AddSeparator()
@@ -722,6 +723,8 @@ class PerspectiveManager(object):
         
 #         viewToolbar.window.DeleteTool(wx.ID_PREFERENCES)
         self.constructViewToolBar(viewToolbar.window, perspectiveName)
+        self._mgr.Update()  
+        
         print('viewToolBarByPerspective')
         
 #         item.state=4   
@@ -729,13 +732,15 @@ class PerspectiveManager(object):
         logger.debug('onJavaPerspective')
         pub.sendMessage('perspectiveClicked', data=42, extra1='onJavaPerspective')
         self.selectItem(ID_JAVA_PERSPECTIVE)
-        self.viewToolBarByPerspective('java')
+        self.selectedPerspectiveName='java'
+        self.viewToolBarByPerspective(self.selectedPerspectiveName)
         print('perspectiveToolbar')
 
     def onJavaEEPerspective(self, event):
         logger.debug('onJavaEEPerspective')
         self.selectItem(ID_JAVA_EE_PERSPECTIVE)
-        self.viewToolBarByPerspective('java ee')
+        self.selectedPerspectiveName='java ee'
+        self.viewToolBarByPerspective(self.selectedPerspectiveName)
 #         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
 #         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_JAVA_EE_PERSPECTIVE))
 
@@ -749,19 +754,22 @@ class PerspectiveManager(object):
     def onPythonPerspecitve(self, event):
         logger.debug('onPythonPerspecitve')
         self.selectItem(ID_PYTHON_PERSPECTIVE)
-        self.viewToolBarByPerspective('python')
+        self.selectedPerspectiveName='python'
+        self.viewToolBarByPerspective(self.selectedPerspectiveName)
 #         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
 #         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(event.EventObject.GetId()))
 
     def onGitPerspecitve(self, event):
         logger.debug('onGitPerspecitve')
         self.selectItem(ID_GIT_PERSPECTIVE)
-        self.viewToolBarByPerspective('git')
+        self.selectedPerspectiveName='git'
+        self.viewToolBarByPerspective(self.selectedPerspectiveName)
         
     def onDatabasePerspecitve(self, event):
         logger.debug('onDatabasePerspecitve')
         self.selectItem(ID_DATABASE_PERSPECTIVE)
-        self.viewToolBarByPerspective('database')
+        self.selectedPerspectiveName='database'
+        self.viewToolBarByPerspective(self.selectedPerspectiveName)
 #         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
 #         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_GIT_PERSPECTIVE))
 
@@ -852,7 +860,7 @@ class PerspectiveManager(object):
     #                 ]
     
             self._ctrl = TextCtrlAutoComplete(toobar,id=ID_TEXTCTRL_AUTO_COMPLETE, **args)
-            self._ctrl.SetSize((250, 25))
+            self._ctrl.SetSize((250, 20))
             self._ctrl.SetChoices(self.dynamic_choices)
             self._ctrl.SetEntryCallback(self.setDynamicChoices)
             self._ctrl.SetMatchFunction(self.match)
@@ -888,24 +896,8 @@ class PerspectiveManager(object):
 
             # create the popup menu
             # menuPopup = wx.Menu()
-            menuPopup = self.createMenuByPerspective(perspectiveName='python')
-            # bmp = wx.ArtProvider.GetBitmap(wx.ART_QUESTION, wx.ART_OTHER, wx.Size(16, 16))
+            menuPopup = self.createMenuByPerspective(perspectiveName=self.selectedPerspectiveName)
 
-            # javaProjectMenu =  wx.MenuItem(menuPopup, 10001, "Java Project")
-            # javaProjectMenu.SetBitmap(bmp)
-            # menuPopup.Append(javaProjectMenu)
-
-            # project =  wx.MenuItem(menuPopup, 10002, "Project...")
-            # project.SetBitmap(bmp)
-            # menuPopup.Append(project)
-
-            # javaPackage =  wx.MenuItem(menuPopup, 10003, "Package")
-            # javaPackage.SetBitmap(bmp)
-            # menuPopup.Append(javaPackage)
-
-            # javaClass =  wx.MenuItem(menuPopup, 10004, "Class")
-            # javaClass.SetBitmap(bmp)
-            # menuPopup.Append(javaClass)
 
             # line up our menu with the button
             rect = tb.GetToolRect(event.GetId())
@@ -917,40 +909,62 @@ class PerspectiveManager(object):
             # make sure the button is "un-stuck"
             tb.SetToolSticky(event.GetId(), False)    
 
-    def createMenuByPerspective(self, perspectiveName='java'):
+    def createMenuByPerspective(self, perspectiveName='python'):
         menuItemList = {"java": [
-                [10001, 'Java Project', None, None],
-                [10002, 'Project...', "project.png", None],
+                [10001, 'Java Project', 'newjprj_wiz.png', None],
+                [30001, 'Project', "new_con.png", None], 
                 [],
-                [10003, 'Package', None, None],
-                [10004, 'Class', 'class_obj.png', None],
-                [10005, 'Interface', 'int_obj.png', None],
-                [10006, 'Enum', 'enum_obj.png', None],
-                [10007, 'Annotation', 'annotation_obj.png', None],
-                [10008, 'Source Folder', None, None],
-                [10009, 'Java Working Set', None, None],
-                [10010, 'Folder', None, None],
-                [10011, 'File', None, None],
+                [10003, 'Package', "newpack_wiz.png", None],
+                [10004, 'Class', 'newclass_wiz.png', None],
+                [10005, 'Interface', 'newint_wiz.png', None],
+                [10006, 'Enum', 'newenum_wiz.png', None],
+                [10007, 'Annotation', 'newannotation_wiz.png', None],
+                [10008, 'Source Folder', "newpackfolder_wiz.png", None],
+                [10009, 'Java Working Set', "newjworkingSet_wiz.png", None],
+                [10010, 'Folder', "new_folder.png", None],
+                [20007, 'File', "newfile_wiz.png", None],
+                [20007, 'Untitled text file', "new_untitled_text_file.png", None],
+                [10011, 'Task', "new_task.png", None],
+                [10012, 'JUnit Test Case', "new_testcase.png", None],
+                [],
+                [30003, 'Other (Ctrl+N)', "new_con.png", None], 
 
                 ],
             "python": [
-                [20001, 'Python Project', None, None],
-                [20002, 'Project...', "project.png", None],
+                [20001, 'Python Project', 'new_py_prj_wiz.png', None],
+                [30001, 'Project', "new_con.png", None], 
                 [],
                 [20003, 'Source Folder', "packagefolder_obj.png", None],
                 [20004, 'Python Project', "package_obj.png", None],
                 [20005, 'Python Module', "project.png", None],
                 [20006, 'Folder', "project.png", None],
-                [20007, 'File', "file_obj.png", None],
+                [20007, 'File', "newfile_wiz.png", None],
                 [],
-                [20008, 'Other', "project.png", None],
+                [30003, 'Other (Ctrl+N)', "new_con.png", None], 
                 ],
-            "resource": [[30001, 'Database Project', None, None], ],
-            "debug": [[30001, 'Database Project', None, None], ],
+            "resource": [
+                [30001, 'Project', "new_con.png", None], 
+                [],
+                [20006, 'Folder', "project.png", None],
+                [20007, 'File', "newfile_wiz.png", None],
+                [],
+                [30002, 'Example', "new_con.png", None], 
+                [],
+                [30003, 'Other (Ctrl+N)', "new_con.png", None], 
+                ],
+            "debug": [
+                [30001, 'Project', "new_con.png", None], 
+                [],
+                [30002, 'Example', "new_con.png", None], 
+                [],
+                [30003, 'Other (Ctrl+N)', "new_con.png", None], 
+                      ],
             "database": [
-                [30001, 'Database Project', None, None],
-                [30001, 'Database Connection', None, None],
-                [30001, 'ER Diagram', None, None],
+                [30001, 'Project', "new_con.png", None], 
+                [],
+                [30002, 'Example', "new_con.png", None], 
+                [],
+                [30003, 'Other (Ctrl+N)', "new_con.png", None], 
                 ]
             }
             
