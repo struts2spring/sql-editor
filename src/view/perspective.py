@@ -859,8 +859,8 @@ class PerspectiveManager(object):
     #                 'www.wxPython.org', 'www.osafoundation.org'
     #                 ]
     
-            self._ctrl = TextCtrlAutoComplete(toobar,id=ID_TEXTCTRL_AUTO_COMPLETE, **args)
-            self._ctrl.SetSize((250, 20))
+            self._ctrl = TextCtrlAutoComplete(toobar,id=ID_TEXTCTRL_AUTO_COMPLETE,size=(250, 20), **args)
+            self._ctrl.SetSize((250, 15))
             self._ctrl.SetChoices(self.dynamic_choices)
             self._ctrl.SetEntryCallback(self.setDynamicChoices)
             self._ctrl.SetMatchFunction(self.match)
