@@ -10,7 +10,8 @@ from src.view.constants import LOG_SETTINGS, ID_newConnection, ID_openConnection
     ID_GIT_PERSPECTIVE, ID_DEBUG_AS, ID_RUN_AS, ID_OPEN_TASK, ID_BACKWARD, ID_FORWARD, ID_LAST_EDIT, \
     ID_SEARCH, ID_OPEN_TYPE, ID_DATABASE_PERSPECTIVE, ID_TEXTCTRL_AUTO_COMPLETE, \
     ID_SKIP_ALL_BREAKPOINTS, ID_NEW_JAVA_PACKAGE, ID_NEW_JAVA_CLASS, ID_RESUME_DEBUG, ID_SUSPEND_DEBUG, \
-    ID_TERMNATE_DEBUG, ID_DISCONNECT_DEBUG, ID_STEP_INTO_DEBUG, ID_STEP_OVER_DEBUG, ID_STEP_RETURN_DEBUG
+    ID_TERMNATE_DEBUG, ID_DISCONNECT_DEBUG, ID_STEP_INTO_DEBUG, ID_STEP_OVER_DEBUG, ID_STEP_RETURN_DEBUG, \
+    ID_RESOURCE_PERSPECTIVE
 
 from wx.lib.agw.aui.aui_constants import actionDragFloatingPane, AUI_DOCK_NONE, \
     ITEM_NORMAL, ITEM_CHECK, ITEM_RADIO, ID_RESTORE_FRAME
@@ -367,6 +368,10 @@ class EclipseAuiToolbar(aui.AuiToolBar):
 
 class MyAuiManager(aui.AuiManager):
     
+    def __init__(self, managed_window=None, agwFlags=None):
+
+        super().__init__( managed_window=managed_window, agwFlags=agwFlags)
+    
     def addTabByWindow(self, window=None , imageName="script.png", captionName=None, tabDirection=5):
         '''
         This method always create a new tab for the window.
@@ -448,6 +453,7 @@ class MyAuiManager(aui.AuiManager):
 
                 # not our window
                 event.Skip()
+    
 
     def GetPaneByHavingName(self, name):
         """
@@ -463,6 +469,17 @@ class MyAuiManager(aui.AuiManager):
                 return p
 
         return NonePaneInfo
+
+    def OnSize(self, event):
+        
+        super().OnSize(event)
+        print('    def OnSize(self, event): completed')
+        (x,y)=clientSize = self._frame.GetClientSize()
+#         point = wx.Point(x - ((perspectiveToolbar.window._items - 1) * 32) + 5, 0)
+        perspectiveToolbar = self.GetPane("perspectiveToolbar")
+        perspectiveToolbar.dock_pos= x - ((len(perspectiveToolbar.window._items) - 2) * 32) + 5
+        self.Update()  
+#         self.DoDropToolbar(self._docks, self._panes, perspectiveToolbar, point, wx.Point(0,0))
 
 
 class PerspectiveManager(object):
@@ -527,9 +544,9 @@ class PerspectiveManager(object):
                           Name("fileExplorer").Caption("File Explorer").Dockable(True).Movable(True).MinSize(500, -1).Resizable(True).
                           Left().Layer(1).Position(2).CloseButton(True).MaximizeButton(True).MinimizeButton(True))
         
-        self._mgr.AddPane(self.creatingTreeCtrl(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="folder_database.png")).BestSize(500, -1).
-                          Name("databaseNaviagor").Caption("Database Navigator").Dockable(True).Movable(True).MinSize(500, -1).
-                          Left().Layer(1).Position(1).CloseButton(True).MaximizeButton(True).MinimizeButton(True), target=self._mgr.GetPane("fileExplorer"))
+#         self._mgr.AddPane(self.creatingTreeCtrl(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="folder_database.png")).BestSize(500, -1).
+#                           Name("databaseNaviagor").Caption("Database Navigator").Dockable(True).Movable(True).MinSize(500, -1).
+#                           Left().Layer(1).Position(1).CloseButton(True).MaximizeButton(True).MinimizeButton(True), target=self._mgr.GetPane("fileExplorer"))
         
         self._mgr.AddPane(WelcomePanel(self), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="welcome16.png")).BestSize(500, -1).
                           Name("onWelcome").Caption("Welcome").Dockable(True).Movable(True).MinSize(500, -1).CaptionVisible(visible=True).Direction(wx.TOP).
@@ -561,9 +578,11 @@ class PerspectiveManager(object):
         
         viewToolbar = self._mgr.GetPane("viewToolbar")
         viewToolbar.Show()
+        
         perspectiveToolbar = self._mgr.GetPane("perspectiveToolbar")
         perspectiveToolbar.dock_row = viewToolbar.dock_row
         perspectiveToolbar.Show()
+        
         self.perspective_default = self._mgr.SavePerspective()
         perspective_all = self._mgr.SavePerspective()
         self.setStyleToPanes()
@@ -592,7 +611,7 @@ class PerspectiveManager(object):
         managed_window = self._mgr.GetManagedWindow()
         wnd_pos = managed_window.GetPosition()
         (x, y) = wnd_size = managed_window.GetSize()
-        point = wx.Point(x - ((len(self.perspectiveList)-1) * 32)+5, 0)
+        point = wx.Point(x - ((len(self.perspectiveList) - 1) * 32) + 5, 0)
         return point
         
     def OnPaneClose(self, event):
@@ -699,13 +718,14 @@ class PerspectiveManager(object):
             [ID_PYTHON_PERSPECTIVE, "Python", 'python_perspective.png', 'Python', self.onPythonPerspecitve],
             [ID_DATABASE_PERSPECTIVE, "Database", 'database.png', 'Database', self.onDatabasePerspecitve],
             [ID_GIT_PERSPECTIVE, "Git", 'gitrepository.png', 'Git', self.onGitPerspecitve],
+            [ID_RESOURCE_PERSPECTIVE, "Resource", 'resource_persp.png', 'Git', self.onResourcePerspecitve],
             ]
         for perspectiveName in self.perspectiveList:
             if len(perspectiveName) > 1:
                 toolBarItem = tb1.AddSimpleTool(perspectiveName[0], perspectiveName[1], self.fileOperations.getImageBitmap(imageName=perspectiveName[2]), short_help_string=perspectiveName[3])
                 self.Bind(wx.EVT_MENU, perspectiveName[4], id=perspectiveName[0])
                 if toolBarItem.label == 'Python':
-                    self.selectedPerspectiveName='python'
+                    self.selectedPerspectiveName = 'python'
                     tb1.SetPressedItem(toolBarItem)
             else:
                 tb1.AddSeparator()
@@ -725,6 +745,8 @@ class PerspectiveManager(object):
         
 #         viewToolbar.window.DeleteTool(wx.ID_PREFERENCES)
         self.constructViewToolBar(viewToolbar.window, perspectiveName)
+        s = viewToolbar.window.GetMinSize()
+        viewToolbar.BestSize(s)
         self._mgr.Update()  
         
         print('viewToolBarByPerspective')
@@ -734,14 +756,14 @@ class PerspectiveManager(object):
         logger.debug('onJavaPerspective')
         pub.sendMessage('perspectiveClicked', data=42, extra1='onJavaPerspective')
         self.selectItem(ID_JAVA_PERSPECTIVE)
-        self.selectedPerspectiveName='java'
+        self.selectedPerspectiveName = 'java'
         self.viewToolBarByPerspective(self.selectedPerspectiveName)
         print('perspectiveToolbar')
 
     def onJavaEEPerspective(self, event):
         logger.debug('onJavaEEPerspective')
         self.selectItem(ID_JAVA_EE_PERSPECTIVE)
-        self.selectedPerspectiveName='java ee'
+        self.selectedPerspectiveName = 'java ee'
         self.viewToolBarByPerspective(self.selectedPerspectiveName)
 #         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
 #         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_JAVA_EE_PERSPECTIVE))
@@ -756,7 +778,7 @@ class PerspectiveManager(object):
     def onPythonPerspecitve(self, event):
         logger.debug('onPythonPerspecitve')
         self.selectItem(ID_PYTHON_PERSPECTIVE)
-        self.selectedPerspectiveName='python'
+        self.selectedPerspectiveName = 'python'
         self.viewToolBarByPerspective(self.selectedPerspectiveName)
 #         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
 #         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(event.EventObject.GetId()))
@@ -764,13 +786,19 @@ class PerspectiveManager(object):
     def onGitPerspecitve(self, event):
         logger.debug('onGitPerspecitve')
         self.selectItem(ID_GIT_PERSPECTIVE)
-        self.selectedPerspectiveName='git'
+        self.selectedPerspectiveName = 'git'
+        self.viewToolBarByPerspective(self.selectedPerspectiveName)
+        
+    def onResourcePerspecitve(self, event):
+        logger.debug('onResourcePerspecitve')
+        self.selectItem(ID_RESOURCE_PERSPECTIVE)
+        self.selectedPerspectiveName = 'resource'
         self.viewToolBarByPerspective(self.selectedPerspectiveName)
         
     def onDatabasePerspecitve(self, event):
         logger.debug('onDatabasePerspecitve')
         self.selectItem(ID_DATABASE_PERSPECTIVE)
-        self.selectedPerspectiveName='database'
+        self.selectedPerspectiveName = 'database'
         self.viewToolBarByPerspective(self.selectedPerspectiveName)
 #         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
 #         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_GIT_PERSPECTIVE))
@@ -779,7 +807,7 @@ class PerspectiveManager(object):
         # create some toolbars
 #         tb1 = aui.AuiToolBar(self, -1, agwStyle=aui.AUI_TB_DEFAULT_STYLE | wx.NO_BORDER)
         if toobar == None:
-            self._ctrl=None
+            self._ctrl = None
             toobar = EclipseAuiToolbar(self)
         
 #         tb1.SetToolBitmapSize(wx.Size(42, 42))
@@ -794,15 +822,15 @@ class PerspectiveManager(object):
 #         toobar.AddSeparator()
 #         id, name, imageName, fullName, methodName, IsDropdonw, prospectives, isDisable
         tools = [
-            (ID_NEW, "New", "new_con.png", 'New', self.onNewMenu, True, ['resource', 'python', 'java', 'debug','java ee'], True),
+            (ID_NEW, "New", "new_con.png", 'New', self.onNewMenu, True, ['resource', 'python', 'java', 'debug', 'java ee'], True),
             (),
-            (ID_SAVE, "Save (Ctrl+S)", "save.png", 'Save (Ctrl+S)', self.onSave, False, ['resource', 'python', 'java', 'debug','java ee'], False),
-            (ID_SAVE_ALL, "Save All (Ctrl+Shift+S)", "saveall_edit.png", 'Save All (Ctrl+Shift+S)', self.onSaveAll, False, ['resource', 'python', 'java', 'debug','java ee'], False),
-            (ID_TERMINAL, "Open a Terminal", "linux_terminal.png", "Open a Terminal (Ctrl+Shift+Alt+T)", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug','java ee'], True),
+            (ID_SAVE, "Save (Ctrl+S)", "save.png", 'Save (Ctrl+S)', self.onSave, False, ['resource', 'python', 'java', 'debug', 'java ee'], False),
+            (ID_SAVE_ALL, "Save All (Ctrl+Shift+S)", "saveall_edit.png", 'Save All (Ctrl+Shift+S)', self.onSaveAll, False, ['resource', 'python', 'java', 'debug', 'java ee'], False),
+            (ID_TERMINAL, "Open a Terminal", "linux_terminal.png", "Open a Terminal (Ctrl+Shift+Alt+T)", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug', 'java ee'], True),
             (),
-            (ID_SKIP_ALL_BREAKPOINTS, "Skip All Breakpoints (Ctrl+Alt+B)", "skip_brkp.png", "Skip All Breakpoints (Ctrl+Alt+B)", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug','java ee'], True),
-            (ID_NEW_JAVA_PACKAGE, "New Java Package", "newpack_wiz.png", "New Java Package", self.onOpenTerminal, False, ['resource',  'java', 'java ee'], True),
-            (ID_NEW_JAVA_CLASS, "New Java Class", "newclass_wiz.png", "New Java Class", self.onOpenTerminal, True, ['resource',  'java', 'java ee'], True),
+            (ID_SKIP_ALL_BREAKPOINTS, "Skip All Breakpoints (Ctrl+Alt+B)", "skip_brkp.png", "Skip All Breakpoints (Ctrl+Alt+B)", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug', 'java ee'], True),
+            (ID_NEW_JAVA_PACKAGE, "New Java Package", "newpack_wiz.png", "New Java Package", self.onOpenTerminal, False, ['resource', 'java', 'java ee'], True),
+            (ID_NEW_JAVA_CLASS, "New Java Class", "newclass_wiz.png", "New Java Class", self.onOpenTerminal, True, ['resource', 'java', 'java ee'], True),
             (ID_RESUME_DEBUG, "Resume", "resume_co.png", "Resume", self.onOpenTerminal, False, ['debug'], False),
             (ID_SUSPEND_DEBUG, "Suspend", "suspend_co.png", "Suspend", self.onOpenTerminal, False, ['debug'], False),
             (ID_TERMNATE_DEBUG, "Terminate", "terminatedlaunch_obj.png", "Terminate", self.onOpenTerminal, False, ['debug'], False),
@@ -836,8 +864,8 @@ class PerspectiveManager(object):
                 toobar.AddSeparator()
             elif perspectiveName in tool[6]:
                 logger.debug(tool)
-                state=tool[7]
-                toolItem=toobar.AddSimpleTool(tool[0], tool[1], self.fileOperations.getImageBitmap(imageName=tool[2]), short_help_string=tool[3])
+                state = tool[7]
+                toolItem = toobar.AddSimpleTool(tool[0], tool[1], self.fileOperations.getImageBitmap(imageName=tool[2]), short_help_string=tool[3])
                 if state:
                     toolItem.state &= ~aui.AUI_BUTTON_STATE_DISABLED
                 else:
@@ -846,11 +874,10 @@ class PerspectiveManager(object):
                     self.Bind(wx.EVT_MENU, tool[4], tool[0])
                 if tool[5]:
                     toobar.SetToolDropDown(tool[0], tool[5])
-            
                 
         ###################################################################################################
         
-        if perspectiveName =='database':
+        if perspectiveName == 'database':
             args = {}
             if True:
                 args["colNames"] = ("col1", "col2")
@@ -879,7 +906,7 @@ class PerspectiveManager(object):
     #                 'www.wxPython.org', 'www.osafoundation.org'
     #                 ]
     
-            self._ctrl = TextCtrlAutoComplete(toobar,id=ID_TEXTCTRL_AUTO_COMPLETE,size=(250, 20), **args)
+            self._ctrl = TextCtrlAutoComplete(toobar, id=ID_TEXTCTRL_AUTO_COMPLETE, size=(250, 20), **args)
             self._ctrl.SetSize((250, 15))
             self._ctrl.SetChoices(self.dynamic_choices)
             self._ctrl.SetEntryCallback(self.setDynamicChoices)
@@ -918,7 +945,6 @@ class PerspectiveManager(object):
             # menuPopup = wx.Menu()
             menuPopup = self.createMenuByPerspective(perspectiveName=self.selectedPerspectiveName)
 
-
             # line up our menu with the button
             rect = tb.GetToolRect(event.GetId())
             pt = tb.ClientToScreen(rect.GetBottomLeft())
@@ -932,7 +958,7 @@ class PerspectiveManager(object):
     def createMenuByPerspective(self, perspectiveName='python'):
         menuItemList = {"java": [
                 [10001, 'Java Project', 'newjprj_wiz.png', None],
-                [30001, 'Project', "new_con.png", None], 
+                [30001, 'Project', "new_con.png", None],
                 [],
                 [10003, 'Package', "newpack_wiz.png", None],
                 [10004, 'Class', 'newclass_wiz.png', None],
@@ -947,12 +973,12 @@ class PerspectiveManager(object):
                 [10011, 'Task', "new_task.png", None],
                 [10012, 'JUnit Test Case', "new_testcase.png", None],
                 [],
-                [30003, 'Other (Ctrl+N)', "new_con.png", None], 
+                [30003, 'Other (Ctrl+N)', "new_con.png", None],
 
                 ],
             "python": [
                 [20001, 'Python Project', 'new_py_prj_wiz.png', None],
-                [30001, 'Project', "new_con.png", None], 
+                [30001, 'Project', "new_con.png", None],
                 [],
                 [20003, 'Source Folder', "packagefolder_obj.png", None],
                 [20004, 'Python Project', "package_obj.png", None],
@@ -960,31 +986,31 @@ class PerspectiveManager(object):
                 [20006, 'Folder', "project.png", None],
                 [20007, 'File', "newfile_wiz.png", None],
                 [],
-                [30003, 'Other (Ctrl+N)', "new_con.png", None], 
+                [30003, 'Other (Ctrl+N)', "new_con.png", None],
                 ],
             "resource": [
-                [30001, 'Project', "new_con.png", None], 
+                [30001, 'Project', "new_con.png", None],
                 [],
                 [20006, 'Folder', "project.png", None],
                 [20007, 'File', "newfile_wiz.png", None],
                 [],
-                [30002, 'Example', "new_con.png", None], 
+                [30002, 'Example', "new_con.png", None],
                 [],
-                [30003, 'Other (Ctrl+N)', "new_con.png", None], 
+                [30003, 'Other (Ctrl+N)', "new_con.png", None],
                 ],
             "debug": [
-                [30001, 'Project', "new_con.png", None], 
+                [30001, 'Project', "new_con.png", None],
                 [],
-                [30002, 'Example', "new_con.png", None], 
+                [30002, 'Example', "new_con.png", None],
                 [],
-                [30003, 'Other (Ctrl+N)', "new_con.png", None], 
+                [30003, 'Other (Ctrl+N)', "new_con.png", None],
                       ],
             "database": [
-                [30001, 'Project', "new_con.png", None], 
+                [30001, 'Project', "new_con.png", None],
                 [],
-                [30002, 'Example', "new_con.png", None], 
+                [30002, 'Example', "new_con.png", None],
                 [],
-                [30003, 'Other (Ctrl+N)', "new_con.png", None], 
+                [30003, 'Other (Ctrl+N)', "new_con.png", None],
                 ]
             }
             
