@@ -25,6 +25,18 @@ ID_FORWARD = wx.NewIdRef()
 ID_SEARCH = wx.NewIdRef()
 ID_OPEN_TYPE = wx.NewIdRef()
 ID_TEXTCTRL_AUTO_COMPLETE = wx.NewIdRef()
+ID_SKIP_ALL_BREAKPOINTS = wx.NewIdRef()
+ID_NEW_JAVA_PACKAGE = wx.NewIdRef()
+ID_NEW_JAVA_CLASS = wx.NewIdRef()
+ID_RESUME_DEBUG = wx.NewIdRef()
+ID_SUSPEND_DEBUG = wx.NewIdRef()
+ID_TERMNATE_DEBUG = wx.NewIdRef()
+ID_DISCONNECT_DEBUG = wx.NewIdRef()
+ID_STEP_INTO_DEBUG = wx.NewIdRef()
+ID_STEP_OVER_DEBUG = wx.NewIdRef()
+ID_STEP_RETURN_DEBUG = wx.NewIdRef()
+
+
 
 ID_RUN = wx.NewIdRef()
 ID_EXECUTE_SCRIPT = wx.NewIdRef()

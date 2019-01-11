@@ -8,7 +8,9 @@ from src.view.constants import LOG_SETTINGS, ID_newConnection, ID_openConnection
     ID_newWorksheet, ID_SAVE, ID_SAVE_ALL, ID_NEW, ID_TERMINAL, ID_OPEN_PERSPECTIVE, \
     ID_JAVA_PERSPECTIVE, ID_JAVA_EE_PERSPECTIVE, ID_DEBUG_PERSPECTIVE, ID_PYTHON_PERSPECTIVE, \
     ID_GIT_PERSPECTIVE, ID_DEBUG_AS, ID_RUN_AS, ID_OPEN_TASK, ID_BACKWARD, ID_FORWARD, ID_LAST_EDIT, \
-    ID_SEARCH, ID_OPEN_TYPE, ID_DATABASE_PERSPECTIVE, ID_TEXTCTRL_AUTO_COMPLETE
+    ID_SEARCH, ID_OPEN_TYPE, ID_DATABASE_PERSPECTIVE, ID_TEXTCTRL_AUTO_COMPLETE, \
+    ID_SKIP_ALL_BREAKPOINTS, ID_NEW_JAVA_PACKAGE, ID_NEW_JAVA_CLASS, ID_RESUME_DEBUG, ID_SUSPEND_DEBUG, \
+    ID_TERMNATE_DEBUG, ID_DISCONNECT_DEBUG, ID_STEP_INTO_DEBUG, ID_STEP_OVER_DEBUG, ID_STEP_RETURN_DEBUG
 
 from wx.lib.agw.aui.aui_constants import actionDragFloatingPane, AUI_DOCK_NONE, \
     ITEM_NORMAL, ITEM_CHECK, ITEM_RADIO, ID_RESTORE_FRAME
@@ -790,24 +792,37 @@ class PerspectiveManager(object):
 #         toobar.AddSimpleTool(ID_NEW, "Item 1", tb4_bmp1, short_help_string='New')
 #         toobar.SetToolDropDown(ID_NEW, True)
 #         toobar.AddSeparator()
-        
+#         id, name, imageName, fullName, methodName, IsDropdonw, prospectives, isDisable
         tools = [
-            (ID_NEW, "New", "new_con.png", 'New', self.onNewMenu, True, ['resource', 'python', 'java', 'debug','java ee']),
+            (ID_NEW, "New", "new_con.png", 'New', self.onNewMenu, True, ['resource', 'python', 'java', 'debug','java ee'], True),
             (),
-            (ID_SAVE, "Save (Ctrl+S)", "save.png", 'Save (Ctrl+S)', self.onSave, False, ['resource', 'python', 'java', 'debug','java ee']),
-            (ID_SAVE_ALL, "Save All (Ctrl+Shift+S)", "saveall_edit.png", 'Save All (Ctrl+Shift+S)', self.onSaveAll, False, ['resource', 'python', 'java', 'debug','java ee']),
-            (ID_TERMINAL, "Open a Terminal", "linux_terminal.png", "Open a Terminal (Ctrl+Shift+Alt+T)", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug','java ee']),
-            (ID_DEBUG_AS, "Debug As...", "debug_exc.png", "Debug As...", self.onOpenTerminal, True, ['python', 'java', 'debug']),
-            (ID_RUN_AS, "Run As...", "run_exc.png", "Run As...", self.onOpenTerminal, True, ['python', 'java', 'debug']),
-            (ID_OPEN_TYPE, "Open Type", "opentype.png", "Open Type", self.onOpenTerminal, True, ['resource', 'python', 'java', 'debug']),
-            (ID_OPEN_TASK, "Open Task (Ctrl+F12)", "open_task.png", "Run As...", self.onOpenTerminal, True, ['resource', 'python', 'java', 'debug']),
-            (ID_SEARCH, "Search", "searchres.png", "Search", self.onOpenTerminal, True, ['resource', 'python', 'java', 'debug']),
-            (ID_LAST_EDIT, "Last Edit Location", "last_edit_pos.png", "Last Edit Location", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug']),
-            (ID_BACKWARD, "Back", "backward_nav.png", "Back", self.onOpenTerminal, True, ['python', 'java', 'debug']),
-            (ID_FORWARD, "Forward", "forward_nav.png", "Forward", self.onOpenTerminal, True, ['python', 'java', 'debug']),
-            (ID_newConnection, "New Connection", "connect.png", "New Connection", None, False, ['database']),
-            (ID_openConnection, "Open Connection", "database_connect.png", 'Open Connection', None, False, ['database']),
-            (ID_newWorksheet, "Script", "script.png", 'Open a new script worksheet', None, False, ['database']),
+            (ID_SAVE, "Save (Ctrl+S)", "save.png", 'Save (Ctrl+S)', self.onSave, False, ['resource', 'python', 'java', 'debug','java ee'], False),
+            (ID_SAVE_ALL, "Save All (Ctrl+Shift+S)", "saveall_edit.png", 'Save All (Ctrl+Shift+S)', self.onSaveAll, False, ['resource', 'python', 'java', 'debug','java ee'], False),
+            (ID_TERMINAL, "Open a Terminal", "linux_terminal.png", "Open a Terminal (Ctrl+Shift+Alt+T)", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug','java ee'], True),
+            (),
+            (ID_SKIP_ALL_BREAKPOINTS, "Skip All Breakpoints (Ctrl+Alt+B)", "skip_brkp.png", "Skip All Breakpoints (Ctrl+Alt+B)", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug','java ee'], True),
+            (ID_NEW_JAVA_PACKAGE, "New Java Package", "newpack_wiz.png", "New Java Package", self.onOpenTerminal, False, ['resource',  'java', 'java ee'], True),
+            (ID_NEW_JAVA_CLASS, "New Java Class", "newclass_wiz.png", "New Java Class", self.onOpenTerminal, True, ['resource',  'java', 'java ee'], True),
+            (ID_RESUME_DEBUG, "Resume", "resume_co.png", "Resume", self.onOpenTerminal, False, ['debug'], False),
+            (ID_SUSPEND_DEBUG, "Suspend", "suspend_co.png", "Suspend", self.onOpenTerminal, False, ['debug'], False),
+            (ID_TERMNATE_DEBUG, "Terminate", "terminatedlaunch_obj.png", "Terminate", self.onOpenTerminal, False, ['debug'], False),
+            (ID_DISCONNECT_DEBUG, "Disconnect", "disconnect_co.png", "Terminate", self.onOpenTerminal, False, ['debug'], False),
+            (ID_STEP_INTO_DEBUG, "Step Into", "stepinto_co.png", "Step Into", self.onOpenTerminal, False, ['debug'], False),
+            (ID_STEP_OVER_DEBUG, "Step Over", "stepover_co.png", "Step Over", self.onOpenTerminal, False, ['debug'], False),
+            (ID_STEP_RETURN_DEBUG, "Step Return", "stepreturn_co.png", "Step Return", self.onOpenTerminal, False, ['debug'], False),
+            
+            (),
+            (ID_DEBUG_AS, "Debug As...", "debug_exc.png", "Debug As...", self.onOpenTerminal, True, ['python', 'java', 'debug'], True),
+            (ID_RUN_AS, "Run As...", "run_exc.png", "Run As...", self.onOpenTerminal, True, ['python', 'java', 'debug'], True),
+            (ID_OPEN_TYPE, "Open Type", "opentype.png", "Open Type", self.onOpenTerminal, True, ['resource', 'python', 'java', 'debug'], True),
+            (ID_OPEN_TASK, "Open Task (Ctrl+F12)", "open_task.png", "Run As...", self.onOpenTerminal, True, ['resource', 'python', 'java', 'debug'], True),
+            (ID_SEARCH, "Search", "searchres.png", "Search", self.onOpenTerminal, True, ['resource', 'python', 'java', 'debug'], True),
+            (ID_LAST_EDIT, "Last Edit Location", "last_edit_pos.png", "Last Edit Location", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug'], True),
+            (ID_BACKWARD, "Back", "backward_nav.png", "Back", self.onOpenTerminal, True, ['python', 'java', 'debug'], True),
+            (ID_FORWARD, "Forward", "forward_nav.png", "Forward", self.onOpenTerminal, True, ['python', 'java', 'debug'], False),
+            (ID_newConnection, "New Connection", "connect.png", "New Connection", None, False, ['database'], True),
+            (ID_openConnection, "Open Connection", "database_connect.png", 'Open Connection', None, False, ['database'], True),
+            (ID_newWorksheet, "Script", "script.png", 'Open a new script worksheet', None, False, ['database'], True),
 #             (wx.ID_PREFERENCES, "Preferences", "preference.png", 'Preference', None),
             ]
         
@@ -821,7 +836,12 @@ class PerspectiveManager(object):
                 toobar.AddSeparator()
             elif perspectiveName in tool[6]:
                 logger.debug(tool)
-                toobar.AddSimpleTool(tool[0], tool[1], self.fileOperations.getImageBitmap(imageName=tool[2]), short_help_string=tool[3])
+                state=tool[7]
+                toolItem=toobar.AddSimpleTool(tool[0], tool[1], self.fileOperations.getImageBitmap(imageName=tool[2]), short_help_string=tool[3])
+                if state:
+                    toolItem.state &= ~aui.AUI_BUTTON_STATE_DISABLED
+                else:
+                    toolItem.state |= aui.AUI_BUTTON_STATE_DISABLED
                 if tool[4]:
                     self.Bind(wx.EVT_MENU, tool[4], tool[0])
                 if tool[5]:
