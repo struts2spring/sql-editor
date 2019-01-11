@@ -471,11 +471,8 @@ class MyAuiManager(aui.AuiManager):
         return NonePaneInfo
 
     def OnSize(self, event):
-        
         super().OnSize(event)
-        print('    def OnSize(self, event): completed')
-        (x,y)=clientSize = self._frame.GetClientSize()
-#         point = wx.Point(x - ((perspectiveToolbar.window._items - 1) * 32) + 5, 0)
+        (x,y)= self._frame.GetClientSize()
         perspectiveToolbar = self.GetPane("perspectiveToolbar")
         perspectiveToolbar.dock_pos= x - ((len(perspectiveToolbar.window._items) - 2) * 32) + 5
         self.Update()  
