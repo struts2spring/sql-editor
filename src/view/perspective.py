@@ -372,17 +372,19 @@ class MyAuiManager(aui.AuiManager):
 
         super().__init__(managed_window=managed_window, agwFlags=agwFlags)
     
-    def addTabByWindow(self, window=None , imageName="script.png", captionName=None, tabDirection=5):
+    def addTabByWindow(self, window=None , imageName="script.png", name=None, captionName=None, tabDirection=5):
         '''
         This method always create a new tab for the window.
         tabDirection=5 is the center 
         '''
         self.SetAutoNotebookStyle(aui.AUI_NB_DEFAULT_STYLE | wx.BORDER_NONE)
+        if name == None:
+            name = captionName
         for pane in self.GetAllPanes():
 #             logger.debug(pane.dock_direction_get())
             if pane.dock_direction_get() == tabDirection:  # adding to center tab
                 auiPanInfo = aui.AuiPaneInfo().Icon(FileOperations().getImageBitmap(imageName=imageName)).\
-                    Name(captionName).Caption(captionName).LeftDockable(True).Direction(wx.TOP).\
+                    Name(name).Caption(captionName).LeftDockable(True).Direction(wx.TOP).\
                     Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).CaptionVisible(visible=True)
                 targetTab = pane
                 if not pane.HasNotebook():

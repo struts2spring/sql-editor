@@ -17,6 +17,7 @@ from src.view.other.OtherPerspecitve import OtherPerspectiveTreeFrame
     
 import logging.config
 from src.view.constants import LOG_SETTINGS
+from src.view.TreePanel import CreatingTreePanel
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -312,10 +313,13 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         
     def onNew(self, event):
         logger.debug('onNew')
+
     def onSave(self, event):
         logger.debug('onSave1')
+
     def onSaveAll(self, event):
         logger.debug('onSaveAll1')
+
     def onOpenConnection(self, event):
         logger.debug('onOpenConnection')
         self.openFrame()
@@ -415,7 +419,11 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
     def onDatabaseNavigator(self, event):
         logger.debug("onDatabaseNavigator")
-        self.addTab(tabName="databaseNaviagor", tabDirection=4)    
+        databaseNaviagorPane = self._mgr.GetPane("databaseNaviagor")
+        if databaseNaviagorPane.window == None:
+            treePanel = CreatingTreePanel(self)
+            self._mgr.addTabByWindow(treePanel, imageName="folder_database.png", name='databaseNaviagor' , captionName="Database Navigator", tabDirection=4)
+#         self.addTab(tabName="databaseNaviagor", tabDirection=4)
             
     def onConsole(self, event):
         logger.debug('onConsole')
