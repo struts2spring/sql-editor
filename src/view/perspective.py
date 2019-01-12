@@ -471,6 +471,9 @@ class MyAuiManager(aui.AuiManager):
 
         return NonePaneInfo
 
+    def hidePane(self, window):
+        self.ShowPane(window, show=False)
+
     def OnSize(self, event):
         super().OnSize(event)
         (x, y) = self._frame.GetClientSize()
@@ -708,7 +711,7 @@ class PerspectiveManager(object):
         tb1 = EclipseAuiToolbar(self)
         
         self.perspectiveList = [
-            [ID_OTHER_PERSPECTIVE, "Open Perspective", 'new_persp.png', 'Open Perspective', self.onOpenPerspecitve ],
+            [ID_OTHER_PERSPECTIVE, "Open Perspective", 'new_persp.png', 'Open Perspective', None],
             [],
             [ID_JAVA_PERSPECTIVE, "Java", 'jperspective.png', 'Java', self.onJavaPerspective],
             [ID_JAVA_EE_PERSPECTIVE, "Java EE", 'javaee_perspective.png', 'Java EE', self.onJavaEEPerspective],
@@ -721,7 +724,8 @@ class PerspectiveManager(object):
         for perspectiveName in self.perspectiveList:
             if len(perspectiveName) > 1:
                 toolBarItem = tb1.AddSimpleTool(perspectiveName[0], perspectiveName[1], self.fileOperations.getImageBitmap(imageName=perspectiveName[2]), short_help_string=perspectiveName[3])
-                self.Bind(wx.EVT_MENU, perspectiveName[4], id=perspectiveName[0])
+                if perspectiveName[4]:
+                    self.Bind(wx.EVT_MENU, perspectiveName[4], id=perspectiveName[0])
                 if toolBarItem.label == 'Python':
                     self.selectedPerspectiveName = 'python'
                     tb1.SetPressedItem(toolBarItem)
@@ -745,6 +749,22 @@ class PerspectiveManager(object):
         self.constructViewToolBar(viewToolbar.window, perspectiveName)
         s = viewToolbar.window.GetMinSize()
         viewToolbar.BestSize(s)
+        
+        if self.selectedPerspectiveName == 'database':
+            name='databaseNaviagor'
+            treePanel=None
+            if self._mgr.GetPaneByName(name).window==None:
+                treePanel = CreatingTreePanel(self)
+                self._mgr.addTabByWindow(treePanel, imageName="folder_database.png", name='databaseNaviagor' , captionName="Database Navigator", tabDirection=4)
+            else:
+                treePanel=self._mgr.GetPaneByName(name).window
+                treePanel.Show()
+                self._mgr.addTabByWindow(treePanel, imageName="folder_database.png", name='databaseNaviagor' , captionName="Database Navigator", tabDirection=4)
+#                 self._mgr.addTabByWindow(treePanel, imageName="folder_database.png", name='databaseNaviagor' , captionName="Database Navigator", tabDirection=4)
+        else:
+            databaseNaviagorPane = self._mgr.GetPane("databaseNaviagor")
+            self._mgr.ClosePane(databaseNaviagorPane)
+        
         self._mgr.Update()  
         
         print('viewToolBarByPerspective')
