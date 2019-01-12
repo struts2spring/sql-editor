@@ -177,7 +177,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                                                 [ID_SHOW_VIEW_TOOLBAR, 'View Toolbar', "toolbar.png", None ],
                                                 [ID_PERSPECTIVE_TOOLBAR, 'Perspective Toolbar', "toolbar.png", None ],
                                                 [],
-                                                [ID_SQL_EXECUTION, 'Center Pane', "script.png", None ],
+#                                                 [ID_SQL_EXECUTION, 'Center Pane', "script.png", None ],
                                                 [ID_SQL_LOG, 'SQL Log', "sql.png" , None],
                                                 [ID_CONSOLE_LOG, 'Console', "console_view.png", None ],
                                                 [ID_DATABASE_NAVIGATOR, "Database Navigator", "folder_database.png", None ],
@@ -193,12 +193,13 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                                             ], None
                     ],
                     [ID_PROSPECTIVE_NAVIGATION, "Perspective", [
-                                                [ wx.NewIdRef(), 'Open Perspective', "new_persp.png", [
-                                                        [ wx.NewIdRef(), 'Python', "python_16x16.png", None],
-                                                        [ wx.NewIdRef(), 'Java', "jperspective.png", None],
-                                                        [ wx.NewIdRef(), 'Java EE', "javaee_perspective.png", None],
-                                                        [ wx.NewIdRef(), 'Resources', "resource_persp.png", None],
-                                                        [ wx.NewIdRef(), 'Git', "gitrepository.png", None],
+                                                [ ID_OPEN_PERSPECTIVE, 'Open Perspective', "new_persp.png", [
+                                                        [ ID_PYTHON_PERSPECTIVE, 'Python', "python_perspective.png", None],
+                                                        [ ID_JAVA_PERSPECTIVE, 'Java', "jperspective.png", None],
+                                                        [ ID_JAVA_EE_PERSPECTIVE, 'Java EE', "javaee_perspective.png", None],
+                                                        [ ID_RESOURCE_PERSPECTIVE, 'Resources', "resource_persp.png", None],
+                                                        [ ID_GIT_PERSPECTIVE, 'Git', "gitrepository.png", None],
+                                                        [ ID_DEBUG_PERSPECTIVE, 'Debug', "debug_persp.png", None],
                                                         [],
                                                         [ID_OTHER_PERSPECTIVE, "Other", None],
                                                     ]],

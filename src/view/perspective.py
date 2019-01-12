@@ -11,7 +11,7 @@ from src.view.constants import LOG_SETTINGS, ID_newConnection, ID_openConnection
     ID_SEARCH, ID_OPEN_TYPE, ID_DATABASE_PERSPECTIVE, ID_TEXTCTRL_AUTO_COMPLETE, \
     ID_SKIP_ALL_BREAKPOINTS, ID_NEW_JAVA_PACKAGE, ID_NEW_JAVA_CLASS, ID_RESUME_DEBUG, ID_SUSPEND_DEBUG, \
     ID_TERMNATE_DEBUG, ID_DISCONNECT_DEBUG, ID_STEP_INTO_DEBUG, ID_STEP_OVER_DEBUG, ID_STEP_RETURN_DEBUG, \
-    ID_RESOURCE_PERSPECTIVE
+    ID_RESOURCE_PERSPECTIVE, ID_OTHER_PERSPECTIVE
 
 from wx.lib.agw.aui.aui_constants import actionDragFloatingPane, AUI_DOCK_NONE, \
     ITEM_NORMAL, ITEM_CHECK, ITEM_RADIO, ID_RESTORE_FRAME
@@ -370,7 +370,7 @@ class MyAuiManager(aui.AuiManager):
     
     def __init__(self, managed_window=None, agwFlags=None):
 
-        super().__init__( managed_window=managed_window, agwFlags=agwFlags)
+        super().__init__(managed_window=managed_window, agwFlags=agwFlags)
     
     def addTabByWindow(self, window=None , imageName="script.png", captionName=None, tabDirection=5):
         '''
@@ -453,7 +453,6 @@ class MyAuiManager(aui.AuiManager):
 
                 # not our window
                 event.Skip()
-    
 
     def GetPaneByHavingName(self, name):
         """
@@ -472,9 +471,9 @@ class MyAuiManager(aui.AuiManager):
 
     def OnSize(self, event):
         super().OnSize(event)
-        (x,y)= self._frame.GetClientSize()
+        (x, y) = self._frame.GetClientSize()
         perspectiveToolbar = self.GetPane("perspectiveToolbar")
-        perspectiveToolbar.dock_pos= x - ((len(perspectiveToolbar.window._items) - 2) * 32) + 5
+        perspectiveToolbar.dock_pos = x - ((len(perspectiveToolbar.window._items) - 2) * 32) + 5
         self.Update()  
 #         self.DoDropToolbar(self._docks, self._panes, perspectiveToolbar, point, wx.Point(0,0))
 
@@ -707,7 +706,7 @@ class PerspectiveManager(object):
         tb1 = EclipseAuiToolbar(self)
         
         self.perspectiveList = [
-            [ID_OPEN_PERSPECTIVE, "Open Perspective", 'new_persp.png', 'Open Perspective', self.onOpenPerspecitve ],
+            [ID_OTHER_PERSPECTIVE, "Open Perspective", 'new_persp.png', 'Open Perspective', self.onOpenPerspecitve ],
             [],
             [ID_JAVA_PERSPECTIVE, "Java", 'jperspective.png', 'Java', self.onJavaPerspective],
             [ID_JAVA_EE_PERSPECTIVE, "Java EE", 'javaee_perspective.png', 'Java EE', self.onJavaEEPerspective],
@@ -715,7 +714,7 @@ class PerspectiveManager(object):
             [ID_PYTHON_PERSPECTIVE, "Python", 'python_perspective.png', 'Python', self.onPythonPerspecitve],
             [ID_DATABASE_PERSPECTIVE, "Database", 'database.png', 'Database', self.onDatabasePerspecitve],
             [ID_GIT_PERSPECTIVE, "Git", 'gitrepository.png', 'Git', self.onGitPerspecitve],
-            [ID_RESOURCE_PERSPECTIVE, "Resource", 'resource_persp.png', 'Git', self.onResourcePerspecitve],
+            [ID_RESOURCE_PERSPECTIVE, "Resources", 'resource_persp.png', 'Git', self.onResourcePerspecitve],
             ]
         for perspectiveName in self.perspectiveList:
             if len(perspectiveName) > 1:
@@ -768,7 +767,8 @@ class PerspectiveManager(object):
     def onDebugPerspecitve(self, event):
         logger.debug('onDebugPerspecitve')
         self.selectItem(ID_DEBUG_PERSPECTIVE)
-        self.viewToolBarByPerspective('debug')
+        self.selectedPerspectiveName = 'debug'
+        self.viewToolBarByPerspective(self.selectedPerspectiveName)
 #         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
 #         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_DEBUG_PERSPECTIVE))
 
@@ -953,62 +953,58 @@ class PerspectiveManager(object):
             tb.SetToolSticky(event.GetId(), False)    
 
     def createMenuByPerspective(self, perspectiveName='python'):
-        menuItemList = {"java": [
-                [10001, 'Java Project', 'newjprj_wiz.png', None],
-                [30001, 'Project', "new_con.png", None],
-                [],
-                [10003, 'Package', "newpack_wiz.png", None],
-                [10004, 'Class', 'newclass_wiz.png', None],
-                [10005, 'Interface', 'newint_wiz.png', None],
-                [10006, 'Enum', 'newenum_wiz.png', None],
-                [10007, 'Annotation', 'newannotation_wiz.png', None],
-                [10008, 'Source Folder', "newpackfolder_wiz.png", None],
-                [10009, 'Java Working Set', "newjworkingSet_wiz.png", None],
-                [10010, 'Folder', "new_folder.png", None],
-                [20007, 'File', "newfile_wiz.png", None],
-                [20007, 'Untitled text file', "new_untitled_text_file.png", None],
-                [10011, 'Task', "new_task.png", None],
-                [10012, 'JUnit Test Case', "new_testcase.png", None],
-                [],
-                [30003, 'Other (Ctrl+N)', "new_con.png", None],
-
-                ],
-            "python": [
-                [20001, 'Python Project', 'new_py_prj_wiz.png', None],
-                [30001, 'Project', "new_con.png", None],
-                [],
-                [20003, 'Source Folder', "packagefolder_obj.png", None],
-                [20004, 'Python Project', "package_obj.png", None],
-                [20005, 'Python Module', "project.png", None],
-                [20006, 'Folder', "project.png", None],
-                [20007, 'File', "newfile_wiz.png", None],
-                [],
-                [30003, 'Other (Ctrl+N)', "new_con.png", None],
-                ],
-            "resource": [
-                [30001, 'Project', "new_con.png", None],
-                [],
-                [20006, 'Folder', "project.png", None],
-                [20007, 'File', "newfile_wiz.png", None],
-                [],
-                [30002, 'Example', "new_con.png", None],
-                [],
-                [30003, 'Other (Ctrl+N)', "new_con.png", None],
-                ],
-            "debug": [
-                [30001, 'Project', "new_con.png", None],
-                [],
-                [30002, 'Example', "new_con.png", None],
-                [],
-                [30003, 'Other (Ctrl+N)', "new_con.png", None],
-                      ],
-            "database": [
+        
+        baseList = [
                 [30001, 'Project', "new_con.png", None],
                 [],
                 [30002, 'Example', "new_con.png", None],
                 [],
                 [30003, 'Other (Ctrl+N)', "new_con.png", None],
                 ]
+        
+        menuItemList = {
+            "java": 
+                [[10001, 'Java Project', 'newjprj_wiz.png', None], ] + 
+                baseList[0:1] + 
+                [
+                    [],
+                    [10003, 'Package', "newpack_wiz.png", None],
+                    [10004, 'Class', 'newclass_wiz.png', None],
+                    [10005, 'Interface', 'newint_wiz.png', None],
+                    [10006, 'Enum', 'newenum_wiz.png', None],
+                    [10007, 'Annotation', 'newannotation_wiz.png', None],
+                    [10008, 'Source Folder', "newpackfolder_wiz.png", None],
+                    [10009, 'Java Working Set', "newjworkingSet_wiz.png", None],
+                    [10010, 'Folder', "new_folder.png", None],
+                    [20007, 'File', "newfile_wiz.png", None],
+                    [20007, 'Untitled text file', "new_untitled_text_file.png", None],
+                    [10011, 'Task', "new_task.png", None],
+                    [10012, 'JUnit Test Case', "new_testcase.png", None],
+                ]
+                +baseList[1:],
+            "python": 
+                [
+                    [10001, 'Java Project', 'newjprj_wiz.png', None],
+                ] + 
+                baseList[0:1] + 
+                [
+                    [],
+                    [20003, 'Source Folder', "packagefolder_obj.png", None],
+                    [20004, 'Python Project', "package_obj.png", None],
+                    [20005, 'Python Module', "project.png", None],
+                    [20006, 'Folder', "project.png", None],
+                    [20007, 'File', "newfile_wiz.png", None],
+                ]
+                +baseList[1:],
+            "resource": baseList[0:1] + 
+                [
+                    [],
+                    [20006, 'Folder', "project.png", None],
+                    [20007, 'File', "newfile_wiz.png", None],
+                ]
+                +baseList[1:],
+            "debug": baseList,
+            "database": baseList
             }
             
         menuPopup = wx.Menu()
