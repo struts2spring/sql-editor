@@ -20,6 +20,9 @@ from src.view.constants import LOG_SETTINGS
 from src.view.TreePanel import CreatingTreePanel
 from src.view.views.python.explorer.PythonExplorer import CreatingPythonExplorerPanel
 from src.view.views.sql.history.HistoryListPanel import HistoryGrid
+from src.view.views.file.explorer import FileBrowserPanel
+from src.view.views.file.explorer.FileBrowserPanel import FileBrowser
+from wx import py
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -189,6 +192,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                                                 [ID_NAVIGATOR, 'Navigator', "filenav_nav.png", None ],
                                                 [ID_TASKS, 'Tasks', "tasks_tsk.png", None ],
                                                 [ID_TERMINAL, 'Terminal', 'terminal.png', None ],
+                                                [ID_PYTHON_SHELL, 'Python Shell', 'shell.png', None ],
                                                 [ID_OUTLINE, 'Outline', "outline_co.png", None ],
                                                 [ID_VARIABLE, 'Variable', "variable_view.png", None ],
                                                 [ID_BREAKPOINTS, 'Breakpoints', "breakpoint_view.png", None ],
@@ -312,6 +316,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         self.Bind(wx.EVT_MENU, self.onTasks, id=ID_TASKS)
         self.Bind(wx.EVT_MENU, self.onNavigator, id=ID_NAVIGATOR)
         self.Bind(wx.EVT_MENU, self.onProjectExplorer, id=ID_PROJECT_EXPLORER)
+        self.Bind(wx.EVT_MENU, self.onPythonShell, id=ID_PYTHON_SHELL)
         
         self.Bind(wx.EVT_MENU, self.onOtherView, id=ID_OTHER_VIEW)
         self.Bind(wx.EVT_MENU, self.onOtherPerspecitve, id=ID_OTHER_PERSPECTIVE)
@@ -471,10 +476,15 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
     def onTerminal(self, event):
         logger.debug("onTerminal")
-        pythonPackageExplorerPane = self._mgr.GetPane("terminalView")
-        if pythonPackageExplorerPane.window == None:
-            pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
-            self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="terminal.png", name='terminalView' , captionName="Termninal", tabDirection=3)
+        pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
+        self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="terminal.png", name='terminalView' , captionName="Termninal", tabDirection=3)
+
+    def onPythonShell(self, event):
+        logger.debug("onPythonShell")
+        pythonPackageExplorerPane = self._mgr.GetPane("pythonShellView")
+        intro = '%s' % py.version.VERSION
+        pythonShellViewPane = py.shell.Shell(self, -1, introText=intro)
+        self._mgr.addTabByWindow(pythonShellViewPane, imageName="shell.png", name='pythonShellView' , captionName="Python Shell", tabDirection=3)
 
     def onTasks(self, event):
         logger.debug("onTasks")
@@ -535,8 +545,8 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
     def onFileExplorer(self, event):
         logger.debug('onFileExplorer')
-
-        self.addTab(tabName="fileExplorer", tabDirection=4)
+        fileBrowserPanel = FileBrowser(self, size=(500, 300))
+        self._mgr.addTabByWindow(fileBrowserPanel, imageName="file_explorer.png", name='fileExplorer' , captionName="File Explorer", tabDirection=4)
         
     def onSqlExecution(self, event):
         logger.debug('onSqlExecution')
