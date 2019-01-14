@@ -11,7 +11,7 @@ from src.view.constants import LOG_SETTINGS, ID_newConnection, ID_openConnection
     ID_SEARCH, ID_OPEN_TYPE, ID_DATABASE_PERSPECTIVE, ID_TEXTCTRL_AUTO_COMPLETE, \
     ID_SKIP_ALL_BREAKPOINTS, ID_NEW_JAVA_PACKAGE, ID_NEW_JAVA_CLASS, ID_RESUME_DEBUG, ID_SUSPEND_DEBUG, \
     ID_TERMNATE_DEBUG, ID_DISCONNECT_DEBUG, ID_STEP_INTO_DEBUG, ID_STEP_OVER_DEBUG, ID_STEP_RETURN_DEBUG, \
-    ID_RESOURCE_PERSPECTIVE, ID_OTHER_PERSPECTIVE
+    ID_RESOURCE_PERSPECTIVE, ID_OTHER_PERSPECTIVE, ID_BUILD_ALL
 
 from wx.lib.agw.aui.aui_constants import actionDragFloatingPane, AUI_DOCK_NONE, \
     ITEM_NORMAL, ITEM_CHECK, ITEM_RADIO, ID_RESTORE_FRAME
@@ -375,11 +375,15 @@ class MyAuiManager(aui.AuiManager):
     def addTabByWindow(self, window=None , imageName="script.png", name=None, captionName=None, tabDirection=5):
         '''
         This method always create a new tab for the window.
+        tabDirection=2 is the right 
+        tabDirection=3 is the bottom 
+        tabDirection=4 is the left 
         tabDirection=5 is the center 
         '''
         self.SetAutoNotebookStyle(aui.AUI_NB_DEFAULT_STYLE | wx.BORDER_NONE)
         if name == None:
             name = captionName
+        isPaneAdded=False
         for pane in self.GetAllPanes():
 #             logger.debug(pane.dock_direction_get())
             if pane.dock_direction_get() == tabDirection:  # adding to center tab
@@ -391,11 +395,21 @@ class MyAuiManager(aui.AuiManager):
                     self.CreateNotebookBase(self._panes, pane)
 #                 targetTab.NotebookPage(pane.notebook_id)
                     self.AddPane(window, auiPanInfo, target=targetTab)
+                    isPaneAdded=True
 #                 self._mgr._notebooks
 #                 self._mgr.ActivatePane(targetTab.window)
                 else:
                     self.AddPane(window, auiPanInfo, target=targetTab)
+                    isPaneAdded=True
                 break
+            
+        if not isPaneAdded:
+            auiPanInfo = aui.AuiPaneInfo().Icon(FileOperations().getImageBitmap(imageName=imageName)).\
+                Name(name).Caption(captionName).LeftDockable(True).Dockable(True).Movable(True).MinSize(500, -1).CaptionVisible(visible=True).Direction(wx.TOP).\
+                Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).CaptionVisible(visible=True)
+            auiPanInfo.dock_direction=tabDirection
+            self.AddPane(window, auiPanInfo)
+     
         self.Update()
 
     def OnTabBeginDrag(self, event):
@@ -552,6 +566,9 @@ class PerspectiveManager(object):
         self._mgr.AddPane(WelcomePanel(self), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="welcome16.png")).BestSize(500, -1).
                           Name("onWelcome").Caption("Welcome").Dockable(True).Movable(True).MinSize(500, -1).CaptionVisible(visible=True).Direction(wx.TOP).
                           Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True))  
+#         self._mgr.AddPane(wx.Panel(self), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="variable_view.png")).BestSize(500, -1).
+#                           Name("variableView").Caption("Variable").Dockable(True).Movable(True).MinSize(500, -1).CaptionVisible(visible=True).Direction(wx.TOP).
+#                           Right().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True))   
 #         self._mgr.AddPane(self.constructCenterPane(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="script.png")).
 #                           Name("centerPane").Caption("Center Pane").LeftDockable(True).Direction(wx.TOP).
 #                           Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).CaptionVisible(visible=True), target=self._mgr.GetPane("onWelcome"))
@@ -571,15 +588,16 @@ class PerspectiveManager(object):
                           Name("consoleOutput").Caption("Console").Dockable(True).Movable(True).LeftDockable(True).BestSize(wx.Size(500, 400)).MinSize(wx.Size(500, 400)).
                           Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True).PinButton(visible=True).GripperTop())
             
-        self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="sql.png")).
-                          Name("sqlLog").Caption("SQL Log").Dockable(True).BestSize(wx.Size(500, 400)).MinSize(wx.Size(500, 400)).
-                          Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True), target=self._mgr.GetPane("consoleOutput"))
+#         self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="sql.png")).
+#                           Name("sqlLog").Caption("SQL Log").Dockable(True).BestSize(wx.Size(500, 400)).MinSize(wx.Size(500, 400)).
+#                           Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True), target=self._mgr.GetPane("consoleOutput"))
         
         self._mgr.GetPane("onWelcome").Show()
         
         viewToolbar = self._mgr.GetPane("viewToolbar")
         viewToolbar.Show()
         
+        self._mgr.GetPane("variableView").Show()
         perspectiveToolbar = self._mgr.GetPane("perspectiveToolbar")
         perspectiveToolbar.dock_row = viewToolbar.dock_row
         perspectiveToolbar.Show()
@@ -751,13 +769,13 @@ class PerspectiveManager(object):
         viewToolbar.BestSize(s)
         
         if self.selectedPerspectiveName == 'database':
-            name='databaseNaviagor'
-            treePanel=None
-            if self._mgr.GetPaneByName(name).window==None:
+            name = 'databaseNaviagor'
+            treePanel = None
+            if self._mgr.GetPaneByName(name).window == None:
                 treePanel = CreatingTreePanel(self)
                 self._mgr.addTabByWindow(treePanel, imageName="folder_database.png", name='databaseNaviagor' , captionName="Database Navigator", tabDirection=4)
             else:
-                treePanel=self._mgr.GetPaneByName(name).window
+                treePanel = self._mgr.GetPaneByName(name).window
                 treePanel.Show()
                 self._mgr.addTabByWindow(treePanel, imageName="folder_database.png", name='databaseNaviagor' , captionName="Database Navigator", tabDirection=4)
 #                 self._mgr.addTabByWindow(treePanel, imageName="folder_database.png", name='databaseNaviagor' , captionName="Database Navigator", tabDirection=4)
@@ -845,6 +863,7 @@ class PerspectiveManager(object):
             (),
             (ID_SAVE, "Save (Ctrl+S)", "save.png", 'Save (Ctrl+S)', self.onSave, False, ['resource', 'python', 'java', 'debug', 'java ee'], False),
             (ID_SAVE_ALL, "Save All (Ctrl+Shift+S)", "saveall_edit.png", 'Save All (Ctrl+Shift+S)', self.onSaveAll, False, ['resource', 'python', 'java', 'debug', 'java ee'], False),
+            (ID_BUILD_ALL, "Build All (Ctrl+B)", "build_exec.png", "Build All (Ctrl+B)", self.onOpenTerminal, False, [ 'python', 'java', 'java ee'], True),
             (ID_TERMINAL, "Open a Terminal", "linux_terminal.png", "Open a Terminal (Ctrl+Shift+Alt+T)", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug', 'java ee'], True),
             (),
             (ID_SKIP_ALL_BREAKPOINTS, "Skip All Breakpoints (Ctrl+Alt+B)", "skip_brkp.png", "Skip All Breakpoints (Ctrl+Alt+B)", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug', 'java ee'], True),
@@ -862,8 +881,8 @@ class PerspectiveManager(object):
             (ID_DEBUG_AS, "Debug As...", "debug_exc.png", "Debug As...", self.onOpenTerminal, True, ['python', 'java', 'debug'], True),
             (ID_RUN_AS, "Run As...", "run_exc.png", "Run As...", self.onOpenTerminal, True, ['python', 'java', 'debug'], True),
             (ID_OPEN_TYPE, "Open Type", "opentype.png", "Open Type", self.onOpenTerminal, True, ['resource', 'python', 'java', 'debug'], True),
-            (ID_OPEN_TASK, "Open Task (Ctrl+F12)", "open_task.png", "Run As...", self.onOpenTerminal, True, ['resource', 'python', 'java', 'debug'], True),
-            (ID_SEARCH, "Search", "searchres.png", "Search", self.onOpenTerminal, True, ['resource', 'python', 'java', 'debug'], True),
+            (ID_OPEN_TASK, "Open Task (Ctrl+F12)", "open_task.png", "Open Task (Ctrl+F12)", self.onOpenTask, True, ['resource', 'python', 'java', 'debug'], True),
+            (ID_SEARCH, "Search", "searchres.png", "Search", self.onOpenSearch, True, ['resource', 'python', 'java', 'debug'], True),
             (ID_LAST_EDIT, "Last Edit Location", "last_edit_pos.png", "Last Edit Location", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug'], True),
             (ID_BACKWARD, "Back", "backward_nav.png", "Back", self.onOpenTerminal, True, ['python', 'java', 'debug'], True),
             (ID_FORWARD, "Forward", "forward_nav.png", "Forward", self.onOpenTerminal, True, ['python', 'java', 'debug'], False),
@@ -943,6 +962,12 @@ class PerspectiveManager(object):
     
     def onOpenTerminal(self, event):
         logger.debug('onOpenTerminal')
+    
+    def onOpenTask(self, event):
+        logger.debug('onOpenTask')
+    
+    def onOpenSearch(self, event):
+        logger.debug('onOpenSearch')
 
     def onNewMenu(self, event):
         logger.debug('onNewMenu')

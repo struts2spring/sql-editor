@@ -18,6 +18,8 @@ from src.view.other.OtherPerspecitve import OtherPerspectiveTreeFrame
 import logging.config
 from src.view.constants import LOG_SETTINGS
 from src.view.TreePanel import CreatingTreePanel
+from src.view.views.python.explorer.PythonExplorer import CreatingPythonExplorerPanel
+from src.view.views.sql.history.HistoryListPanel import HistoryGrid
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -152,8 +154,8 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                     [wx.NewIdRef(), 'Open Project', None, None],
                     [wx.NewIdRef(), 'Close Project', None, None],
                     [],
-                    [wx.NewIdRef(), 'Build All \tCtrl+B', None, None],
-                    [wx.NewIdRef(), 'Build Project', None, None],
+                    [ID_BUILD_ALL, 'Build All \tCtrl+B', None, "build_exec.png"],
+                    [ID_BUILD_PROJECT, 'Build Project', None, None],
                     [wx.NewIdRef(), 'Clean', None, None],
                     [wx.NewIdRef(), 'Build Automatically', None, None],
                     [],
@@ -188,7 +190,11 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                                                 [ID_TASKS, 'Tasks', "tasks_tsk.png", None ],
                                                 [ID_TERMINAL, 'Terminal', 'terminal.png', None ],
                                                 [ID_OUTLINE, 'Outline', "outline_co.png", None ],
+                                                [ID_VARIABLE, 'Variable', "variable_view.png", None ],
+                                                [ID_BREAKPOINTS, 'Breakpoints', "breakpoint_view.png", None ],
+                                                [ID_EXPRESSIONS, 'Expressions', "watchlist_view.png", None ],
                                                 [ID_PYTHON_PACKAGE_EXPLORER, 'Python Package Explorer', "package_explorer.png", None ],  # TODO : need to set image icon
+                                                [ID_JAVA_PACKAGE_EXPLORER, 'Java Package Explorer', "package_explorer.png", None ],  # TODO : need to set image icon
                                                 [],
                                                 [ID_OTHER_VIEW, 'Other', None, None ]
                                             ], None
@@ -294,6 +300,19 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         self.Bind(wx.EVT_MENU, self.onConsole, id=ID_CONSOLE_LOG)
         self.Bind(wx.EVT_MENU, self.onDatabaseNavigator, id=ID_DATABASE_NAVIGATOR)
         self.Bind(wx.EVT_MENU, self.onFileExplorer, id=ID_FILE_EXPLORER)
+        self.Bind(wx.EVT_MENU, self.onPythonPackageExplorer, id=ID_PYTHON_PACKAGE_EXPLORER)
+        self.Bind(wx.EVT_MENU, self.onJavaPackageExplorer, id=ID_JAVA_PACKAGE_EXPLORER)
+        
+        self.Bind(wx.EVT_MENU, self.onOutline, id=ID_OUTLINE)
+        self.Bind(wx.EVT_MENU, self.onVariable, id=ID_VARIABLE)
+        self.Bind(wx.EVT_MENU, self.onBreakpoints, id=ID_BREAKPOINTS)
+        self.Bind(wx.EVT_MENU, self.onExpressions, id=ID_EXPRESSIONS)
+        
+        self.Bind(wx.EVT_MENU, self.onTerminal, id=ID_TERMINAL)
+        self.Bind(wx.EVT_MENU, self.onTasks, id=ID_TASKS)
+        self.Bind(wx.EVT_MENU, self.onNavigator, id=ID_NAVIGATOR)
+        self.Bind(wx.EVT_MENU, self.onProjectExplorer, id=ID_PROJECT_EXPLORER)
+        
         self.Bind(wx.EVT_MENU, self.onOtherView, id=ID_OTHER_VIEW)
         self.Bind(wx.EVT_MENU, self.onOtherPerspecitve, id=ID_OTHER_PERSPECTIVE)
         
@@ -416,7 +435,82 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
     def onSqlLog(self, event):
         logger.debug('onSqlLog')
         self.addTab(tabName="sqlLog", tabDirection=3)
+        sqlLogViewPane = self._mgr.GetPane("sqlLogView")
+        if sqlLogViewPane.window == None:
+#             treePanel = CreatingTreePanel(self)
+            historyGrid = HistoryGrid(self)
+            self._mgr.addTabByWindow(historyGrid, imageName="sql.png", name='sqlLogView' , captionName="SQL Log", tabDirection=3)
+            
+    def onOutline(self, event):
+        logger.debug("onOutline")
+        pythonPackageExplorerPane = self._mgr.GetPane("outlineView")
+        if pythonPackageExplorerPane.window == None:
+            pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
+            self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="outline_co.png", name='outlineView' , captionName="Outline", tabDirection=2)
 
+    def onVariable(self, event):
+        logger.debug("onVariable")
+        pythonPackageExplorerPane = self._mgr.GetPane("variablesView")
+        if pythonPackageExplorerPane.window == None:
+            pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
+            self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="variable_view.png", name='variablesView' , captionName="Variables", tabDirection=2)
+
+    def onBreakpoints(self, event):
+        logger.debug("onBreakpoints")
+        pythonPackageExplorerPane = self._mgr.GetPane("breakpointsView")
+        if pythonPackageExplorerPane.window == None:
+            pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
+            self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="breakpoint_view.png", name='breakpointsView' , captionName="Breakpoints", tabDirection=2)
+
+    def onExpressions(self, event):
+        logger.debug("onExpressions")
+        pythonPackageExplorerPane = self._mgr.GetPane("expressionsView")
+        if pythonPackageExplorerPane.window == None:
+            pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
+            self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="watchlist_view.png", name='expressionsView' , captionName="Expressions", tabDirection=2)
+
+    def onTerminal(self, event):
+        logger.debug("onTerminal")
+        pythonPackageExplorerPane = self._mgr.GetPane("terminalView")
+        if pythonPackageExplorerPane.window == None:
+            pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
+            self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="terminal.png", name='terminalView' , captionName="Termninal", tabDirection=3)
+
+    def onTasks(self, event):
+        logger.debug("onTasks")
+        pythonPackageExplorerPane = self._mgr.GetPane("tasksView")
+        if pythonPackageExplorerPane.window == None:
+            pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
+            self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="tasks_tsk.png", name='tasksView' , captionName="Tasks", tabDirection=3)
+
+    def onProjectExplorer(self, event):
+        logger.debug("onProjectExplorer")
+        pythonPackageExplorerPane = self._mgr.GetPane("projectExplorerView")
+        if pythonPackageExplorerPane.window == None:
+            pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
+            self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="resource_persp.png", name='projectExplorerView' , captionName="Project Explorer", tabDirection=4)
+
+    def onNavigator(self, event):
+        logger.debug("onNavigaotor")
+        pythonPackageExplorerPane = self._mgr.GetPane("navigatorView")
+        if pythonPackageExplorerPane.window == None:
+            pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
+            self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="filenav_nav.png", name='navigatorView' , captionName="Navigator", tabDirection=4)
+
+    def onJavaPackageExplorer(self, event):
+        logger.debug("onJavaPackageExplorer")
+        pythonPackageExplorerPane = self._mgr.GetPane("javaPackageExplorer")
+        if pythonPackageExplorerPane.window == None:
+            pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
+            self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="package_explorer.png", name='javaPackageExplorer' , captionName="Java Package Explorer", tabDirection=4)
+
+    def onPythonPackageExplorer(self, event):
+        logger.debug("onPythonPackageExplorer")
+        pythonPackageExplorerPane = self._mgr.GetPane("pythonPackageExplorer")
+        if pythonPackageExplorerPane.window == None:
+            pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
+            self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="package_explorer.png", name='pythonPackageExplorer' , captionName="Python Package Explorer", tabDirection=4)
+        
     def onDatabaseNavigator(self, event):
         logger.debug("onDatabaseNavigator")
         databaseNaviagorPane = self._mgr.GetPane("databaseNaviagor")

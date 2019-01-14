@@ -35,6 +35,8 @@ ID_DISCONNECT_DEBUG = wx.NewIdRef()
 ID_STEP_INTO_DEBUG = wx.NewIdRef()
 ID_STEP_OVER_DEBUG = wx.NewIdRef()
 ID_STEP_RETURN_DEBUG = wx.NewIdRef()
+ID_BUILD_ALL = wx.NewIdRef()
+ID_BUILD_PROJECT = wx.NewIdRef()
 
 
 
@@ -57,7 +59,11 @@ ID_NAVIGATOR = wx.NewIdRef()
 ID_TERMINAL = wx.NewIdRef()
 ID_TASKS = wx.NewIdRef()
 ID_OUTLINE = wx.NewIdRef()
+ID_VARIABLE = wx.NewIdRef()
+ID_BREAKPOINTS = wx.NewIdRef()
+ID_EXPRESSIONS = wx.NewIdRef()
 ID_PYTHON_PACKAGE_EXPLORER = wx.NewIdRef()
+ID_JAVA_PACKAGE_EXPLORER = wx.NewIdRef()
 ID_OTHER_VIEW = wx.NewIdRef()
 
 ID_SQL_EXECUTION = wx.NewIdRef()
