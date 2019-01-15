@@ -194,7 +194,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                                                 [ID_TERMINAL, 'Terminal', 'terminal.png', None ],
                                                 [ID_PYTHON_SHELL, 'Python Shell', 'shell.png', None ],
                                                 [ID_OUTLINE, 'Outline', "outline_co.png", None ],
-                                                [ID_VARIABLE, 'Variable', "variable_view.png", None ],
+                                                [ID_VARIABLE, 'Variables', "variable_view.png", None ],
                                                 [ID_BREAKPOINTS, 'Breakpoints', "breakpoint_view.png", None ],
                                                 [ID_EXPRESSIONS, 'Expressions', "watchlist_view.png", None ],
                                                 [ID_PYTHON_PACKAGE_EXPLORER, 'Python Package Explorer', "package_explorer.png", None ],  # TODO : need to set image icon

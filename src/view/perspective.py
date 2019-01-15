@@ -555,9 +555,9 @@ class PerspectiveManager(object):
                           ToolbarPane().Top().Row(1).Position(1).CloseButton(True).
                           LeftDockable(False).RightDockable(False).Gripper(True), self.definePoint())    
         
-        self._mgr.AddPane(self.creatingFileExplorer(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="file_explorer.png")).BestSize(500, -1).
-                          Name("fileExplorer").Caption("File Explorer").Dockable(True).Movable(True).MinSize(500, -1).Resizable(True).
-                          Left().Layer(1).Position(2).CloseButton(True).MaximizeButton(True).MinimizeButton(True))
+#         self._mgr.AddPane(self.creatingFileExplorer(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="file_explorer.png")).BestSize(500, -1).
+#                           Name("fileExplorer").Caption("File Explorer").Dockable(True).Movable(True).MinSize(500, -1).Resizable(True).
+#                           Left().Layer(1).Position(2).CloseButton(True).MaximizeButton(True).MinimizeButton(True))
         
 #         self._mgr.AddPane(self.creatingTreeCtrl(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="folder_database.png")).BestSize(500, -1).
 #                           Name("databaseNaviagor").Caption("Database Navigator").Dockable(True).Movable(True).MinSize(500, -1).
