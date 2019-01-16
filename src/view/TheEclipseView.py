@@ -168,7 +168,13 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                     [wx.NewIdRef(), 'Run \tCtrl+F11', None, "runlast_co.png"],
                     [wx.NewIdRef(), 'Debug \tF11', None, "debuglast_co.png"],
                     [],
+                    [wx.NewIdRef(), 'Run history', None, None],
                     [wx.NewIdRef(), 'Run As', None, 'run_exc.png'],
+                    [wx.NewIdRef(), 'Run Configurations...', None, None],
+                    [],
+                    [wx.NewIdRef(), 'Debug history', None, None],
+                    [wx.NewIdRef(), 'Debug As', None, 'run_exc.png'],
+                    [wx.NewIdRef(), 'Debug Configurations...', None, None],
                     
                 ]),
             ("&Window", [
@@ -223,11 +229,19 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                 ]),
             ("&Help", [
                     [ ID_WELCOME, "Welcome", None, "welcome16.png"],
-                    [ ID_UPDATE_CHECK, "Check for &Updates", None, "iu_update_obj.png"],
+                    [],
+                    [ wx.NewIdRef(), "Help Contents", None, "smartmode_co.png"],
+                    [ wx.NewIdRef(), "Search", None, "smartmode_co.png"],
+                    [],
+                    [ wx.NewIdRef(), "Show active key bindings \tShift+Ctrl+L", None, "smartmode_co.png"],
                     [ wx.NewIdRef(), "Tip of the day", None, "smartmode_co.png"],
                     [ wx.NewIdRef(), "Tips and Tricks...", None, "tricks.png"],
+                    [ wx.NewIdRef(), "Report Bug or Enhancement ...", None, "smartmode_co.png"],
+                    [ wx.NewIdRef(), "Cheat sheets ...", None, "smartmode_co.png"],
                     [],
+                    [ ID_UPDATE_CHECK, "Check for &Updates", None, "iu_update_obj.png"],
                     [ wx.NewIdRef(), "Install New Software...", None, "iu_obj.png"],  # TODO: need to set icon
+                    [ wx.NewIdRef(), "Eclipse Marketplace", None, "iu_obj.png"],  # TODO: need to set icon
                     [],
                     [ wx.ID_HELP, "&About {}".format(TITLE), None, None],
                     [ wx.NewIdRef(), "Contribute", None, "star.png"],

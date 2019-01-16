@@ -863,7 +863,7 @@ class PerspectiveManager(object):
             (),
             (ID_SAVE, "Save (Ctrl+S)", "save.png", 'Save (Ctrl+S)', self.onSave, False, ['resource', 'python', 'java', 'debug', 'java ee'], False),
             (ID_SAVE_ALL, "Save All (Ctrl+Shift+S)", "saveall_edit.png", 'Save All (Ctrl+Shift+S)', self.onSaveAll, False, ['resource', 'python', 'java', 'debug', 'java ee'], False),
-            (ID_BUILD_ALL, "Build All (Ctrl+B)", "build_exec.png", "Build All (Ctrl+B)", self.onOpenTerminal, False, [ 'python', 'java', 'java ee'], True),
+            (ID_BUILD_ALL, "Build All (Ctrl+B)", "build_exec.png", "Build All (Ctrl+B)", None, False, [ 'python', 'java', 'java ee'], True),
             (ID_TERMINAL, "Open a Terminal", "linux_terminal.png", "Open a Terminal (Ctrl+Shift+Alt+T)", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug', 'java ee'], True),
             (),
             (ID_SKIP_ALL_BREAKPOINTS, "Skip All Breakpoints (Ctrl+Alt+B)", "skip_brkp.png", "Skip All Breakpoints (Ctrl+Alt+B)", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug', 'java ee'], True),
