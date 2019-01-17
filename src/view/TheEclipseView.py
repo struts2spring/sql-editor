@@ -23,6 +23,7 @@ from src.view.views.sql.history.HistoryListPanel import HistoryGrid
 from src.view.views.file.explorer import FileBrowserPanel
 from src.view.views.file.explorer.FileBrowserPanel import FileBrowser
 from wx import py
+from src.view.views.console.SqlOutputPanel import SqlConsoleOutputPanel
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -111,30 +112,29 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         logger.debug('creating menu bar')
                 # create menu
         mb = wx.MenuBar()
-
+        # id, name, None, imageName, methodName, enable, perspecitveNameList
         menuItemList = [
             ("&File", [
-                    [ID_openConnection, 'Open Database connection \tCtrl+O', None, None, self.onOpenConnection],
-                    [wx.NewIdRef(), 'Recent Files', None, None],
-                    [wx.NewIdRef(), 'Refresh \tF5', None, "refresh.png"],
+                    [ID_openConnection, 'Open Database connection \tCtrl+O', None, None, False, ['database']],
+                    [wx.ID_REFRESH, 'Refresh \tF5', None, "refresh.png", False, ['Python']],
                     [],
-                    [wx.NewIdRef(), 'Close \tCtrl+W', None, None],
-                    [wx.NewIdRef(), 'Close All \tCtrl+Shift+W', None, None],
+                    [ID_CLOSE, 'Close \tCtrl+W', None, None, False, ['Python']],
+                    [ID_CLOSE_ALL, 'Close All \tCtrl+Shift+W', None, None, False, ['Python']],
                     [],
-                    [ID_SAVE, 'Save \tCtrl+S', None, "save.png"],
-                    [ID_SAVE_AS, 'Save As...', None, "saveas_edit.png"],
-                    [ID_SAVE_ALL, 'Save All \tCtrl+Shift+S', None, "saveall_edit.png"],
+                    [ID_SAVE, 'Save \tCtrl+S', None, "save.png", False, ['Python']],
+                    [ID_SAVE_AS, 'Save As...', None, "saveas_edit.png", False, ['Python']],
+                    [ID_SAVE_ALL, 'Save All \tCtrl+Shift+S', None, "saveall_edit.png", False, ['Python']],
                     [],
-                    [wx.NewIdRef(), 'Recent Files', None, None],
-                    [wx.NewIdRef(), 'Import', None, "import_prj.png"],
-                    [wx.NewIdRef(), 'Export', None, "export.png"],
+                    [ID_RECENT_FILES, 'Recent Files', None, None, False, ['Python']],
+                    [ID_IMPORT, 'Import', None, "import_prj.png", False, ['Python']],
+                    [ID_EXPORT, 'Export', None, "export.png", False, ['Python']],
                     [],
-                    [wx.NewIdRef(), 'Print', None, "print.png"],
-                    [wx.NewIdRef(), 'Properties', None, "project_properties.png"],
-                    [wx.NewIdRef(), 'Switch Workspace', None, "workspace_switcher.png"],
-                    [wx.NewIdRef(), 'Restart', None, "restart.png"],
+                    [wx.ID_PRINT, 'Print', None, "print.png", False, ['Python']],
+                    [ID_PROJECT_PROPERTIES, 'Properties', None, "project_properties.png", False, ['Python']],
+                    [ID_SWITCH_WORKSPACE, 'Switch Workspace', None, "workspace_switcher.png", False, ['Python']],
+                    [ID_RESTART, 'Restart', None, "restart.png", False, ['Python']],
                     [],
-                    [ wx.ID_EXIT, '&Quit \tCtrl+Q', None, None],
+                    [ wx.ID_EXIT, '&Quit \tCtrl+Q', None, None, False, ['Python']],
                 ]) ,
             ("&Edit", [
                     [ wx.ID_UNDO, "Undo \tCtrl+Z", None, "undo_edit.png"],
@@ -144,40 +144,40 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                     [ wx.ID_COPY, "Copy \tCtrl+C", None, "copy_edit.png"],
                     [ wx.ID_PASTE, "Paste \tCtrl+V", None, "paste_edit.png"],
                     [],
-                    [ wx.NewIdRef(), "Delete", None, "delete_obj.png"],
+                    [ wx.ID_DELETE, "Delete", None, "delete_obj.png"],
                     [ wx.NewIdRef(), "Set encoding...", None, None],
                 ]),
             ("&Search", [
-                    [wx.NewIdRef(), 'Search \tCtrl+H', None, 'searchres.png'],
+                    [ID_SEARCH_MENU, 'Search \tCtrl+H', None, 'searchres.png'],
                     [ID_SEARCH_FILE, 'File', None, 'search_history.png']
                 ]),
             ("&Navigate", [
-                    [wx.NewIdRef(), 'Open Type', None, 'opentype.png'],
-                    [wx.NewIdRef(), 'Open Task', None, 'open_task.png'],
-                    [wx.NewIdRef(), 'Go to Line... \tCtrl+L', None, None]
+                    [ID_OPEN_TYPE, 'Open Type', None, 'opentype.png'],
+                    [ID_OPEN_TASK, 'Open Task', None, 'open_task.png'],
+                    [ID_GOTO_LINE, 'Go to Line... \tCtrl+L', None, None]
                 ]),
             ("&Project", [
-                    [wx.NewIdRef(), 'Open Project', None, None],
-                    [wx.NewIdRef(), 'Close Project', None, None],
+                    [ID_OPEN_PROJECT, 'Open Project', None, None],
+                    [ID_CLOSE_PROJECT, 'Close Project', None, None],
                     [],
                     [ID_BUILD_ALL, 'Build All \tCtrl+B', None, "build_exec.png"],
                     [ID_BUILD_PROJECT, 'Build Project', None, None],
-                    [wx.NewIdRef(), 'Clean', None, None],
-                    [wx.NewIdRef(), 'Build Automatically', None, None],
+                    [ID_CLEAN, 'Clean', None, None],
+                    [ID_BUILD_AUTO, 'Build Automatically', None, None],
                     [],
-                    [wx.NewIdRef(), 'Properties', None, None],
+                    [ID_PROJECT_PROPERTIES, 'Properties', None, None],
                 ]),
             ("&Run", [
-                    [wx.NewIdRef(), 'Run \tCtrl+F11', None, "runlast_co.png"],
-                    [wx.NewIdRef(), 'Debug \tF11', None, "debuglast_co.png"],
+                    [ID_RUN, 'Run \tCtrl+F11', None, "runlast_co.png"],
+                    [ID_DEBUG, 'Debug \tF11', None, "debuglast_co.png"],
                     [],
-                    [wx.NewIdRef(), 'Run history', None, None],
-                    [wx.NewIdRef(), 'Run As', None, 'run_exc.png'],
-                    [wx.NewIdRef(), 'Run Configurations...', None, None],
+                    [ID_RUN_HISTORY, 'Run history', None, None],
+                    [ID_RUN_AS, 'Run As', None, 'run_exc.png'],
+                    [ID_RUN_CONFIG, 'Run Configurations...', None, None],
                     [],
-                    [wx.NewIdRef(), 'Debug history', None, None],
-                    [wx.NewIdRef(), 'Debug As', None, 'run_exc.png'],
-                    [wx.NewIdRef(), 'Debug Configurations...', None, None],
+                    [ID_DEBUG_HISTORY, 'Debug history', None, None],
+                    [ID_DEBUG_AS, 'Debug As', None, 'run_exc.png'],
+                    [ID_DEBUG_CONFIG, 'Debug Configurations...', None, None],
                     
                 ]),
             ("&Window", [
@@ -254,6 +254,8 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                 ])
             ]
         
+#         mb = self.createMenu(menuItemList=menuItemList)
+        
         for menuItem in menuItemList:
             topLevelMenu = wx.Menu()
             if menuItem[1]:
@@ -278,7 +280,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                                     firstLevleMenuItem.SetBitmap(self.fileOperations.getImageBitmap(imageName=showViewMenu[2]))
                                 else:
                                     self.appendLeafToMenu(showViewMenu[0], attacheTo=firstLevelMenu, menuName=showViewMenu[1], imageName=showViewMenu[2])
-                                    
+                                     
                             topLevelMenu.Append(windowMenu[0], windowMenu[1], firstLevelMenu)
                         except Exception as e:
                             logger.error(e, exc_info=True)
@@ -287,11 +289,30 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                         if windowMenu[3]:
                             firstLevelMenu.SetBitmap(self.fileOperations.getImageBitmap(imageName=windowMenu[3]))
                         topLevelMenu.Append(firstLevelMenu)
-        
+         
             mb.Append(topLevelMenu, menuItem[0])
 
+        self.disableInitial(menuBar=mb)
         self.SetMenuBar(mb)
-    
+
+    def disableInitial(self, menuBar=None):
+        itemIdList=[ID_SAVE, ID_SAVE_ALL, wx.ID_UNDO, wx.ID_REDO, wx.ID_CUT, wx.ID_COPY, wx.ID_PASTE]
+        for itemId in itemIdList:
+            it=menuBar.FindItemById(itemId)
+            it.Enable(False)
+#     def createMenu(self, menuBar=wx.MenuBar(), menu=wx.Menu(), menuItemList=list()) :
+#         '''
+#         return mb: wx.MenuBar
+#         '''
+#         for menuItem in menuItemList:
+#             menuItem = wx.MenuItem(menu, -1, 'asdf')
+# #             if imageName:
+# #                 menuItem.SetBitmap(self.fileOperations.getImageBitmap(imageName=imageName))
+#             menu.Append(menuItem[0], windowMenu[1], firstLevelMenu)
+#             self.createMenu(menuBar, menuItem)
+#         
+#         return menuBar
+        
     def appendLeafToMenu(self, menuId, attacheTo=None, menuName=None, imageName=None):
         '''
         Append menuItem to menu
@@ -366,7 +387,51 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         logger.debug('onSaveAll1')
 
     def onSaveAs(self, event):
+        """Save File Using a new/different name
+        @param event: wx.MenuEvent
+
+        """
         logger.debug('onSaveAs')
+        #     def OnSaveAs(self, evt, title=u'', page=None):
+#         if page:
+#             ctrl = page
+#         else:
+#             ctrl = self.nb.GetCurrentCtrl()
+# 
+#         if title == u'':
+#             title = os.path.split(ctrl.GetFileName())[1]
+# 
+#         sdir = ctrl.GetFileName()
+#         if sdir is None or not len(sdir):
+#             sdir = self._last_save
+# 
+#         dlg = wx.FileDialog(self, _("Choose a Save Location"),
+#                             os.path.dirname(sdir),
+#                             title.lstrip(u"*"),
+#                             u''.join(syntax.GenFileFilters()),
+#                             wx.SAVE | wx.OVERWRITE_PROMPT)
+# 
+#         if ebmlib.LockCall(self._mlock, dlg.ShowModal) == wx.ID_OK:
+#             path = dlg.GetPath()
+#             dlg.Destroy()
+# 
+#             result = ctrl.SaveFile(path)
+#             fname = ebmlib.GetFileName(ctrl.GetFileName())
+#             if not result:
+#                 err = ctrl.GetDocument().GetLastError()
+#                 ed_mdlg.SaveErrorDlg(self, fname, err)
+#                 ctrl.GetDocument().ResetAll()
+#                 self.PushStatusText(_("ERROR: Failed to save %s") % fname, SB_INFO)
+#             else:
+#                 self._last_save = path
+#                 self.PushStatusText(_("Saved File As: %s") % fname, SB_INFO)
+#                 self.SetTitle("%s - file://%s" % (fname, ctrl.GetFileName()))
+#                 self.nb.SetPageText(self.nb.GetSelection(), fname)
+#                 self.nb.GetCurrentCtrl().FindLexer()
+#                 self.nb.UpdatePageImage()
+#                 self.AddFileToHistory(ctrl.GetFileName())
+#         else:
+#             dlg.Destroy()
 
     def onOpenConnection(self, event):
         logger.debug('onOpenConnection')
@@ -555,7 +620,11 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
             
     def onConsole(self, event):
         logger.debug('onConsole')
-        self.addTab(tabName="consoleOutput", tabDirection=3)        
+        consoleOutputPane = self._mgr.GetPane("consoleOutput")
+        if consoleOutputPane.window == None:
+            sqlConsoleOutputPanel = SqlConsoleOutputPanel(self)
+            self._mgr.addTabByWindow(sqlConsoleOutputPanel, imageName="console_view.png", name='consoleOutput' , captionName="Console", tabDirection=3)
+#         self.addTab(tabName="consoleOutput", tabDirection=3)        
 
     def onOtherView(self, event):
         logger.debug('onOtherView')

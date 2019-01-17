@@ -1,6 +1,7 @@
 import wx
 import tempfile
 import os
+from src.view.util.common.ed_glob import ID_GOTO_LINE
 
 TITLE = "Eclipse"
 VERSION = "0.0.5"
@@ -40,8 +41,30 @@ ID_BUILD_ALL = wx.NewIdRef()
 ID_BUILD_PROJECT = wx.NewIdRef()
 
 
+ID_RECENT_FILES = wx.NewIdRef()
+ID_CLOSE = wx.NewIdRef()
+ID_CLOSE_ALL = wx.NewIdRef()
+ID_IMPORT = wx.NewIdRef()
+ID_EXPORT = wx.NewIdRef()
+ID_PROJECT_PROPERTIES = wx.NewIdRef()
+ID_SWITCH_WORKSPACE = wx.NewIdRef()
+ID_RESTART = wx.NewIdRef()
+ID_SEARCH_MENU = wx.NewIdRef()
+ID_GOTO_LINE = wx.NewIdRef()
+ID_OPEN_PROJECT = wx.NewIdRef()
+ID_CLOSE_PROJECT = wx.NewIdRef()
+ID_CLEAN = wx.NewIdRef()
+ID_BUILD_AUTO = wx.NewIdRef()
+
+
+
 
 ID_RUN = wx.NewIdRef()
+ID_DEBUG = wx.NewIdRef()
+ID_RUN_HISTORY = wx.NewIdRef()
+ID_RUN_CONFIG = wx.NewIdRef()
+ID_DEBUG_HISTORY = wx.NewIdRef()
+ID_DEBUG_CONFIG = wx.NewIdRef()
 ID_EXECUTE_SCRIPT = wx.NewIdRef()
 ID_ROW_ADD = wx.NewIdRef()
 ID_ROW_DELETE = wx.NewIdRef()

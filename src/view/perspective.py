@@ -584,9 +584,9 @@ class PerspectiveManager(object):
 #                           BestSize(wx.Size(200, 100)).MinSize(wx.Size(200, 100)).
 #                           Bottom().Layer(1).CloseButton(True).MaximizeButton(True))      
   
-        self._mgr.AddPane(self.sqlConsoleOutputPane(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="console_view.png")).
-                          Name("consoleOutput").Caption("Console").Dockable(True).Movable(True).LeftDockable(True).BestSize(wx.Size(500, 400)).MinSize(wx.Size(500, 400)).
-                          Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True).PinButton(visible=True).GripperTop())
+#         self._mgr.AddPane(self.sqlConsoleOutputPane(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="console_view.png")).
+#                           Name("consoleOutput").Caption("Console").Dockable(True).Movable(True).LeftDockable(True).BestSize(wx.Size(500, 400)).MinSize(wx.Size(500, 400)).
+#                           Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True).PinButton(visible=True).GripperTop())
             
 #         self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="sql.png")).
 #                           Name("sqlLog").Caption("SQL Log").Dockable(True).BestSize(wx.Size(500, 400)).MinSize(wx.Size(500, 400)).
