@@ -619,7 +619,10 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
             #       for multibyte characters.
             line, col = self.GetCurLine()
             col = self.GetColumn(self.GetCurrentPos())
-        cmd = self._code['compsvc'].GetCommandString(self, line, col)
+        try:
+            cmd = self._code['compsvc'].GetCommandString(self, line, col)
+        except Exception as e:
+            logger.error(e)
         return cmd
 
     def GetCommentChars(self):

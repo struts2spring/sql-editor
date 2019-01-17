@@ -737,7 +737,7 @@ class PerspectiveManager(object):
             [ID_PYTHON_PERSPECTIVE, "Python", 'python_perspective.png', 'Python', self.onPythonPerspecitve],
             [ID_DATABASE_PERSPECTIVE, "Database", 'database.png', 'Database', self.onDatabasePerspecitve],
             [ID_GIT_PERSPECTIVE, "Git", 'gitrepository.png', 'Git', self.onGitPerspecitve],
-            [ID_RESOURCE_PERSPECTIVE, "Resources", 'resource_persp.png', 'Git', self.onResourcePerspecitve],
+            [ID_RESOURCE_PERSPECTIVE, "Resources", 'resource_persp.png', 'Resources', self.onResourcePerspecitve],
             ]
         for perspectiveName in self.perspectiveList:
             if len(perspectiveName) > 1:

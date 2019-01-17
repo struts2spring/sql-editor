@@ -932,12 +932,15 @@ class MainStc(BaseStc):
                     endpos = self.WordEndPosition(position, True)
                     col = self.GetColumn(endpos)
                     line = self.GetLine(line_num - 1)
-                    command = self.GetCommandStr(line, col)
-                    tip = self._code['compsvc'].GetCallTip(command)
-                    if len(tip):
-                        tip_pos = position - (len(dwellword.split('.')[-1]) + 1)
-                        fail_safe = position - self.GetColumn(position)
-                        self.CallTipShow(max(tip_pos, fail_safe), tip)
+                    try:
+                        command = self.GetCommandStr(line, col)
+                        tip = self._code['compsvc'].GetCallTip(command)
+                        if len(tip):
+                            tip_pos = position - (len(dwellword.split('.')[-1]) + 1)
+                            fail_safe = position - self.GetColumn(position)
+                            self.CallTipShow(max(tip_pos, fail_safe), tip)
+                    except Exception as e:
+                        logger.error(e)
         evt.Skip()
 
     def OnDwellEnd(self, evt):

@@ -167,7 +167,7 @@ class FileBrowser(FileTree):
         @param item: TreeItem
 
         """
-        busy = wx.BusyCursor()  # can take a few seconds on big directories
+        cursor = wx.BusyCursor()  # can take a few seconds on big directories
 
         d = None
         try:
@@ -190,7 +190,7 @@ class FileBrowser(FileTree):
 
         # Update tree image
         self.SetItemImage(item, self._mime.GetImageIndex(d, True))
-
+        del cursor
     def DoBeginEdit(self, item):
         """Handle when an item is requested to be edited"""
         d = None

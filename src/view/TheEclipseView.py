@@ -121,15 +121,18 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                     [wx.NewIdRef(), 'Close \tCtrl+W', None, None],
                     [wx.NewIdRef(), 'Close All \tCtrl+Shift+W', None, None],
                     [],
-                    [wx.NewIdRef(), 'Save \tCtrl+S', None, None],
-                    [wx.NewIdRef(), 'Save As...', None, None],
-                    [wx.NewIdRef(), 'Save All \tCtrl+Shift+S', None, None],
+                    [ID_SAVE, 'Save \tCtrl+S', None, "save.png"],
+                    [ID_SAVE_AS, 'Save As...', None, "saveas_edit.png"],
+                    [ID_SAVE_ALL, 'Save All \tCtrl+Shift+S', None, "saveall_edit.png"],
                     [],
                     [wx.NewIdRef(), 'Recent Files', None, None],
                     [wx.NewIdRef(), 'Import', None, "import_prj.png"],
                     [wx.NewIdRef(), 'Export', None, "export.png"],
                     [],
                     [wx.NewIdRef(), 'Print', None, "print.png"],
+                    [wx.NewIdRef(), 'Properties', None, "project_properties.png"],
+                    [wx.NewIdRef(), 'Switch Workspace', None, "workspace_switcher.png"],
+                    [wx.NewIdRef(), 'Restart', None, "restart.png"],
                     [],
                     [ wx.ID_EXIT, '&Quit \tCtrl+Q', None, None],
                 ]) ,
@@ -220,8 +223,11 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                                                         [],
                                                         [ID_OTHER_PERSPECTIVE, "Other", None],
                                                     ]],
-                                                [ wx.NewIdRef(), 'SQL Log', "sql.png", None ],
-                                                [ wx.NewIdRef(), 'Console', "console_view.png", None ]
+                                                [ wx.NewIdRef(), 'Customize Perspective...', None, None ],
+                                                [ wx.NewIdRef(), 'Save Perspective As...', None, None ],
+                                                [ wx.NewIdRef(), 'Reset Perspective...', None, None ],
+                                                [ wx.NewIdRef(), 'Close Perspective...', None, None ],
+                                                [ wx.NewIdRef(), 'Close All Perspective...', None, None ],
                                             ], None
                     ],
                     [],
@@ -231,17 +237,17 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                     [ ID_WELCOME, "Welcome", None, "welcome16.png"],
                     [],
                     [ wx.NewIdRef(), "Help Contents", None, "smartmode_co.png"],
-                    [ wx.NewIdRef(), "Search", None, "smartmode_co.png"],
+                    [ wx.NewIdRef(), "Search", None, "help_search.png"],
                     [],
-                    [ wx.NewIdRef(), "Show active key bindings \tShift+Ctrl+L", None, "smartmode_co.png"],
+                    [ wx.NewIdRef(), "Show active key bindings \tShift+Ctrl+L", None, "keyboard.png"],
                     [ wx.NewIdRef(), "Tip of the day", None, "smartmode_co.png"],
                     [ wx.NewIdRef(), "Tips and Tricks...", None, "tricks.png"],
-                    [ wx.NewIdRef(), "Report Bug or Enhancement ...", None, "smartmode_co.png"],
-                    [ wx.NewIdRef(), "Cheat sheets ...", None, "smartmode_co.png"],
+                    [ wx.NewIdRef(), "Report Bug or Enhancement ...", None, "report_bug.png"],
+                    [ wx.NewIdRef(), "Cheat sheets ...", None, "cheet_sheet.png"],
                     [],
                     [ ID_UPDATE_CHECK, "Check for &Updates", None, "iu_update_obj.png"],
                     [ wx.NewIdRef(), "Install New Software...", None, "iu_obj.png"],  # TODO: need to set icon
-                    [ wx.NewIdRef(), "Eclipse Marketplace", None, "iu_obj.png"],  # TODO: need to set icon
+                    [ wx.NewIdRef(), "Eclipse Marketplace", None, "marketplace16.png"],  # TODO: need to set icon
                     [],
                     [ wx.ID_HELP, "&About {}".format(TITLE), None, None],
                     [ wx.NewIdRef(), "Contribute", None, "star.png"],
@@ -306,8 +312,9 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         self.Bind(wx.EVT_MENU, self.OnAbout, id=wx.ID_HELP)
         self.Bind(wx.EVT_MENU, self.OnWelcome, id=ID_WELCOME)
         
-#         self.Bind(wx.EVT_MENU, self.onSave, id=ID_SAVE)
-#         self.Bind(wx.EVT_MENU, self.onSaveAll, id=ID_SAVE_ALL)
+        self.Bind(wx.EVT_MENU, self.onSave, id=ID_SAVE)
+        self.Bind(wx.EVT_MENU, self.onSaveAll, id=ID_SAVE_ALL)
+        self.Bind(wx.EVT_MENU, self.onSaveAs, id=ID_SAVE_AS)
 #         self.Bind(wx.EVT_MENU, self.onNew, id=ID_NEW)
         
         self.Bind(wx.EVT_MENU, self.onOpenConnection, id=ID_openConnection)
@@ -357,6 +364,9 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
     def onSaveAll(self, event):
         logger.debug('onSaveAll1')
+
+    def onSaveAs(self, event):
+        logger.debug('onSaveAs')
 
     def onOpenConnection(self, event):
         logger.debug('onOpenConnection')
