@@ -190,7 +190,9 @@ class CreatingTreePanel(wx.Panel):
         nodeCreated = self.tree.AppendItem(targetNode, nodeLabel, image=image)
         self.tree.SetItemFont(nodeCreated, self.tree.GetFont())
         self.tree.SetItemData(nodeCreated, pydata)
-        return nodeCreated     
+        return nodeCreated   
+    def deleteChildren(self, itemId):
+        self.tree.DeleteChildren(itemId)
     #---------------------------------------------
  
     #---------------------------------------------
@@ -758,6 +760,9 @@ class CreatingTreePanel(wx.Panel):
             data = self.tree.GetItemData(selectedItemId)
         connectionName = data['connection_name']
         databaseAbsolutePath = data['db_file_path']
+        
+        self.deleteChildren(selectedItemId)
+        
         if os.path.isfile(databaseAbsolutePath):     
             dbObjects = ManageSqliteDatabase(connectionName=connectionName , databaseAbsolutePath=databaseAbsolutePath).getObject() 
             isSuccessfullyConnected = True
@@ -874,6 +879,9 @@ class DatabaseNavigationTree(ExpansionState, TreeCtrl):
 
         item = TreeCtrl.AppendItem(self, parent, text, image=image)
         return item
+    
+    def DeleteChildren(self, *args, **kwargs):
+        return TreeCtrl.DeleteChildren(self, *args, **kwargs)
     #---------------------------------------------
 
     def OnKey(self, event):

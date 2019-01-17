@@ -19,7 +19,9 @@ ID_SAVE = wx.NewIdRef()
 ID_SAVE_ALL = wx.NewIdRef()
 ID_SAVE_AS = wx.NewIdRef()
 ID_DEBUG_AS = wx.NewIdRef()
+ID_DEBUG_AS_MENU = wx.NewIdRef()
 ID_RUN_AS = wx.NewIdRef()
+ID_RUN_AS_MENU = wx.NewIdRef()
 ID_OPEN_TASK = wx.NewIdRef()
 ID_LAST_EDIT = wx.NewIdRef()
 ID_BACKWARD = wx.NewIdRef()
@@ -58,11 +60,24 @@ ID_BUILD_AUTO = wx.NewIdRef()
 
 
 
+ID_NEW_PROJECT = wx.NewIdRef()
+ID_EXAMPLE_MENU = wx.NewIdRef()
+ID_OTHER_MENU = wx.NewIdRef()
+
+ID_NEW_JAVA_PROJECT = wx.NewIdRef()
+
+
+ID_NEW_PYTHON_PROJECT = wx.NewIdRef()
+ID_NEW_PYTHON_PACKAGE = wx.NewIdRef()
+ID_NEW_PYTHON_MODULE = wx.NewIdRef()
+
+
 
 ID_RUN = wx.NewIdRef()
 ID_DEBUG = wx.NewIdRef()
 ID_RUN_HISTORY = wx.NewIdRef()
 ID_RUN_CONFIG = wx.NewIdRef()
+ID_ORGANIZE_FAVORITES = wx.NewIdRef()
 ID_DEBUG_HISTORY = wx.NewIdRef()
 ID_DEBUG_CONFIG = wx.NewIdRef()
 ID_EXECUTE_SCRIPT = wx.NewIdRef()

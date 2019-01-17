@@ -4,14 +4,7 @@ import wx
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 from src.view.AutoCompleteTextCtrl import TextCtrlAutoComplete
 from src.view.TreePanel import CreatingTreePanel
-from src.view.constants import LOG_SETTINGS, ID_newConnection, ID_openConnection, \
-    ID_newWorksheet, ID_SAVE, ID_SAVE_ALL, ID_NEW, ID_TERMINAL, ID_OPEN_PERSPECTIVE, \
-    ID_JAVA_PERSPECTIVE, ID_JAVA_EE_PERSPECTIVE, ID_DEBUG_PERSPECTIVE, ID_PYTHON_PERSPECTIVE, \
-    ID_GIT_PERSPECTIVE, ID_DEBUG_AS, ID_RUN_AS, ID_OPEN_TASK, ID_BACKWARD, ID_FORWARD, ID_LAST_EDIT, \
-    ID_SEARCH, ID_OPEN_TYPE, ID_DATABASE_PERSPECTIVE, ID_TEXTCTRL_AUTO_COMPLETE, \
-    ID_SKIP_ALL_BREAKPOINTS, ID_NEW_JAVA_PACKAGE, ID_NEW_JAVA_CLASS, ID_RESUME_DEBUG, ID_SUSPEND_DEBUG, \
-    ID_TERMNATE_DEBUG, ID_DISCONNECT_DEBUG, ID_STEP_INTO_DEBUG, ID_STEP_OVER_DEBUG, ID_STEP_RETURN_DEBUG, \
-    ID_RESOURCE_PERSPECTIVE, ID_OTHER_PERSPECTIVE, ID_BUILD_ALL
+from src.view.constants import *
 
 from wx.lib.agw.aui.aui_constants import actionDragFloatingPane, AUI_DOCK_NONE, \
     ITEM_NORMAL, ITEM_CHECK, ITEM_RADIO, ID_RESTORE_FRAME
@@ -383,7 +376,7 @@ class MyAuiManager(aui.AuiManager):
         self.SetAutoNotebookStyle(aui.AUI_NB_DEFAULT_STYLE | wx.BORDER_NONE)
         if name == None:
             name = captionName
-        isPaneAdded=False
+        isPaneAdded = False
         for pane in self.GetAllPanes():
 #             logger.debug(pane.dock_direction_get())
             if pane.dock_direction_get() == tabDirection:  # adding to center tab
@@ -395,19 +388,19 @@ class MyAuiManager(aui.AuiManager):
                     self.CreateNotebookBase(self._panes, pane)
 #                 targetTab.NotebookPage(pane.notebook_id)
                     self.AddPane(window, auiPanInfo, target=targetTab)
-                    isPaneAdded=True
+                    isPaneAdded = True
 #                 self._mgr._notebooks
 #                 self._mgr.ActivatePane(targetTab.window)
                 else:
                     self.AddPane(window, auiPanInfo, target=targetTab)
-                    isPaneAdded=True
+                    isPaneAdded = True
                 break
             
         if not isPaneAdded:
             auiPanInfo = aui.AuiPaneInfo().Icon(FileOperations().getImageBitmap(imageName=imageName)).\
                 Name(name).Caption(captionName).LeftDockable(True).Dockable(True).Movable(True).MinSize(500, -1).CaptionVisible(visible=True).Direction(wx.TOP).\
                 Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).CaptionVisible(visible=True)
-            auiPanInfo.dock_direction=tabDirection
+            auiPanInfo.dock_direction = tabDirection
             self.AddPane(window, auiPanInfo)
      
         self.Update()
@@ -878,10 +871,10 @@ class PerspectiveManager(object):
             (ID_STEP_RETURN_DEBUG, "Step Return", "stepreturn_co.png", "Step Return", self.onOpenTerminal, False, ['debug'], False),
             
             (),
-            (ID_DEBUG_AS, "Debug As...", "debug_exc.png", "Debug As...", self.onOpenTerminal, True, ['python', 'java', 'debug'], True),
-            (ID_RUN_AS, "Run As...", "run_exc.png", "Run As...", self.onOpenTerminal, True, ['python', 'java', 'debug'], True),
-            (ID_OPEN_TYPE, "Open Type", "opentype.png", "Open Type", self.onOpenTerminal, True, ['resource', 'python', 'java', 'debug'], True),
-            (ID_OPEN_TASK, "Open Task (Ctrl+F12)", "open_task.png", "Open Task (Ctrl+F12)", self.onOpenTask, True, ['resource', 'python', 'java', 'debug'], True),
+            (ID_DEBUG_AS_MENU, "Debug As...", "debug_exc.png", "Debug As...", self.onOpenTerminal, True, ['python', 'java', 'debug'], True),
+            (ID_RUN_AS_MENU, "Run As...", "run_exc.png", "Run As...", self.onRunAsMenu, True, ['python', 'java', 'debug'], True),
+            (ID_OPEN_TYPE, "Open Type", "opentype.png", "Open Type", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug'], True),
+            (ID_OPEN_TASK, "Open Task (Ctrl+F12)", "open_task.png", "Open Task (Ctrl+F12)", self.onOpenTask, False, ['resource', 'python', 'java', 'debug'], True),
             (ID_SEARCH, "Search", "searchres.png", "Search", self.onOpenSearch, True, ['resource', 'python', 'java', 'debug'], True),
             (ID_LAST_EDIT, "Last Edit Location", "last_edit_pos.png", "Last Edit Location", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug'], True),
             (ID_BACKWARD, "Back", "backward_nav.png", "Back", self.onOpenTerminal, True, ['python', 'java', 'debug'], True),
@@ -958,6 +951,8 @@ class PerspectiveManager(object):
 #         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_MISSING_IMAGE))
         toobar.Realize()
         self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onNewDropDown, id=ID_NEW)
+        self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onRunDebugAsDropDown, id=ID_RUN_AS_MENU)
+        self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onRunDebugAsDropDown, id=ID_DEBUG_AS_MENU)
         return toobar
     
     def onOpenTerminal(self, event):
@@ -969,6 +964,9 @@ class PerspectiveManager(object):
     def onOpenSearch(self, event):
         logger.debug('onOpenSearch')
 
+    def onRunAsMenu(self, event):
+        logger.debug('onRunAsMenu')
+
     def onNewMenu(self, event):
         logger.debug('onNewMenu')
 
@@ -978,16 +976,33 @@ class PerspectiveManager(object):
     def onSaveAll(self, event):
         logger.debug('onSaveAll1')        
 
-    def onNewDropDown(self, event):
+    def onRunDebugAsDropDown(self, event):
 
         if event.IsDropDownClicked():
 
             tb = event.GetEventObject()
             tb.SetToolSticky(event.GetId(), True)
-
+            if event.Id == ID_RUN_AS_MENU:
+                baseList = [
+                        [],
+                        [ID_RUN_AS, 'Run As', None, None],
+                        [ID_RUN_CONFIG, 'Run Configurations...', None, None],
+                        [ID_ORGANIZE_FAVORITES, 'Organize Favorites..', None, None],
+                        ]
+            elif event.Id == ID_DEBUG_AS_MENU:
+                baseList = [
+                        [],
+                        [ID_DEBUG_AS, 'Debug As', None, None],
+                        [ID_DEBUG_CONFIG, 'Run Configurations...', None, None],
+                        [ID_ORGANIZE_FAVORITES, 'Organize Favorites..', None, None],
+                        ]
+            
+            menuItemList = {
+                self.selectedPerspectiveName: baseList
+                }
             # create the popup menu
             # menuPopup = wx.Menu()
-            menuPopup = self.createMenuByPerspective(perspectiveName=self.selectedPerspectiveName)
+            menuPopup = self.createMenuByPerspective(menuItemList=menuItemList, perspectiveName=self.selectedPerspectiveName)
 
             # line up our menu with the button
             rect = tb.GetToolRect(event.GetId())
@@ -999,63 +1014,81 @@ class PerspectiveManager(object):
             # make sure the button is "un-stuck"
             tb.SetToolSticky(event.GetId(), False)    
 
-    def createMenuByPerspective(self, perspectiveName='python'):
-        
-        baseList = [
-                [30001, 'Project', "new_con.png", None],
-                [],
-                [30002, 'Example', "new_con.png", None],
-                [],
-                [30003, 'Other (Ctrl+N)', "new_con.png", None],
-                ]
-        
-        menuItemList = {
-            "java": 
-                [[10001, 'Java Project', 'newjprj_wiz.png', None], ] + 
-                baseList[0:1] + 
-                [
+    def onNewDropDown(self, event):
+
+        if event.IsDropDownClicked():
+
+            tb = event.GetEventObject()
+            tb.SetToolSticky(event.GetId(), True)
+            baseList = [
+                    [ID_NEW_PROJECT, 'Project', "new_con.png", None],
                     [],
-                    [10003, 'Package', "newpack_wiz.png", None],
-                    [10004, 'Class', 'newclass_wiz.png', None],
-                    [10005, 'Interface', 'newint_wiz.png', None],
-                    [10006, 'Enum', 'newenum_wiz.png', None],
-                    [10007, 'Annotation', 'newannotation_wiz.png', None],
-                    [10008, 'Source Folder', "newpackfolder_wiz.png", None],
-                    [10009, 'Java Working Set', "newjworkingSet_wiz.png", None],
-                    [10010, 'Folder', "new_folder.png", None],
-                    [20007, 'File', "newfile_wiz.png", None],
-                    [20007, 'Untitled text file', "new_untitled_text_file.png", None],
-                    [10011, 'Task', "new_task.png", None],
-                    [10012, 'JUnit Test Case', "new_testcase.png", None],
-                ]
-                +baseList[1:],
-            "python": 
-                [
-                    [10001, 'Java Project', 'newjprj_wiz.png', None],
-                ] + 
-                baseList[0:1] + 
-                [
+                    [ID_EXAMPLE_MENU, 'Example', "new_con.png", None],
                     [],
-                    [20003, 'Source Folder', "packagefolder_obj.png", None],
-                    [20004, 'Python Project', "package_obj.png", None],
-                    [20005, 'Python Module', "project.png", None],
-                    [20006, 'Folder', "project.png", None],
-                    [20007, 'File', "newfile_wiz.png", None],
-                ]
-                +baseList[1:],
-            "resource": baseList[0:1] + 
-                [
-                    [],
-                    [20006, 'Folder', "project.png", None],
-                    [20007, 'File', "newfile_wiz.png", None],
-                ]
-                +baseList[1:],
-            "debug": baseList,
-            "database": baseList
-            }
+                    [ID_OTHER_MENU, 'Other (Ctrl+N)', "new_con.png", None],
+                    ]
+            
+            menuItemList = {
+                "java": 
+                    [[ID_NEW_JAVA_PROJECT, 'Java Project', 'newjprj_wiz.png', None], ] + 
+                    baseList[0:1] + 
+                    [
+                        [],
+                        [10003, 'Package', "newpack_wiz.png", None],
+                        [10004, 'Class', 'newclass_wiz.png', None],
+                        [10005, 'Interface', 'newint_wiz.png', None],
+                        [10006, 'Enum', 'newenum_wiz.png', None],
+                        [10007, 'Annotation', 'newannotation_wiz.png', None],
+                        [10008, 'Source Folder', "newpackfolder_wiz.png", None],
+                        [10009, 'Java Working Set', "newjworkingSet_wiz.png", None],
+                        [10010, 'Folder', "new_folder.png", None],
+                        [20007, 'File', "newfile_wiz.png", None],
+                        [20007, 'Untitled text file', "new_untitled_text_file.png", None],
+                        [10011, 'Task', "new_task.png", None],
+                        [10012, 'JUnit Test Case', "new_testcase.png", None],
+                    ]
+                    +baseList[1:],
+                "python": 
+                    [
+                        [ID_NEW_PYTHON_PROJECT , 'Python Project', 'new_py_prj_wiz.png', None],
+                    ] + 
+                    baseList[0:1] + 
+                    [
+                        [],
+                        [20003, 'Source Folder', "packagefolder_obj.png", None],
+                        [ID_NEW_PYTHON_PACKAGE, 'Python Package', "package_obj.png", None],
+                        [ID_NEW_PYTHON_MODULE, 'Python Module', "project.png", None],
+                        [20006, 'Folder', "project.png", None],
+                        [20007, 'File', "newfile_wiz.png", None],
+                    ]
+                    +baseList[1:],
+                "resource": baseList[0:1] + 
+                    [
+                        [],
+                        [20006, 'Folder', "project.png", None],
+                        [20007, 'File', "newfile_wiz.png", None],
+                    ]
+                    +baseList[1:],
+                "debug": baseList,
+                "database": baseList
+                }
+            # create the popup menu
+            # menuPopup = wx.Menu()
+            menuPopup = self.createMenuByPerspective(menuItemList=menuItemList, perspectiveName=self.selectedPerspectiveName)
+
+            # line up our menu with the button
+            rect = tb.GetToolRect(event.GetId())
+            pt = tb.ClientToScreen(rect.GetBottomLeft())
+            pt = self.ScreenToClient(pt)
+
+            self.PopupMenu(menuPopup, pt)
+
+            # make sure the button is "un-stuck"
+            tb.SetToolSticky(event.GetId(), False)    
+
+    def createMenuByPerspective(self, menuItemList=None, perspectiveName='python'):
             
         menuPopup = wx.Menu()
-        bmp = wx.ArtProvider.GetBitmap(wx.ART_QUESTION, wx.ART_OTHER, wx.Size(16, 16))
         for menuItemName in menuItemList[perspectiveName]:
             if len(menuItemName) > 1:
                 menuItem = wx.MenuItem(menuPopup, menuItemName[0], menuItemName[1])
