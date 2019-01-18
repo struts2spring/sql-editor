@@ -342,23 +342,22 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         self.Bind(wx.EVT_MENU, self.onNewConnection, id=ID_newConnection)
         self.Bind(wx.EVT_MENU, self.onNewWorksheet, id=ID_newWorksheet)
         self.Bind(wx.EVT_MENU, self.onPreferences, ID_PREFERENCES)
-        self.Bind(wx.EVT_MENU, self.onSqlLog, id=ID_SQL_LOG)
-        self.Bind(wx.EVT_MENU, self.onConsole, id=ID_CONSOLE_LOG)
-        self.Bind(wx.EVT_MENU, self.onDatabaseNavigator, id=ID_DATABASE_NAVIGATOR)
-        self.Bind(wx.EVT_MENU, self.onFileExplorer, id=ID_FILE_EXPLORER)
-        self.Bind(wx.EVT_MENU, self.onPythonPackageExplorer, id=ID_PYTHON_PACKAGE_EXPLORER)
-        self.Bind(wx.EVT_MENU, self.onJavaPackageExplorer, id=ID_JAVA_PACKAGE_EXPLORER)
         
-        self.Bind(wx.EVT_MENU, self.onOutline, id=ID_OUTLINE)
-        self.Bind(wx.EVT_MENU, self.onVariable, id=ID_VARIABLE)
-        self.Bind(wx.EVT_MENU, self.onBreakpoints, id=ID_BREAKPOINTS)
-        self.Bind(wx.EVT_MENU, self.onExpressions, id=ID_EXPRESSIONS)
-        
-        self.Bind(wx.EVT_MENU, self.onTerminal, id=ID_TERMINAL)
-        self.Bind(wx.EVT_MENU, self.onTasks, id=ID_TASKS)
-        self.Bind(wx.EVT_MENU, self.onNavigator, id=ID_NAVIGATOR)
-        self.Bind(wx.EVT_MENU, self.onProjectExplorer, id=ID_PROJECT_EXPLORER)
-        self.Bind(wx.EVT_MENU, self.onPythonShell, id=ID_PYTHON_SHELL)
+        self.Bind(wx.EVT_MENU, self.onViewClick, id=ID_OUTLINE)
+        self.Bind(wx.EVT_MENU, self.onViewClick, id=ID_SQL_LOG)
+        self.Bind(wx.EVT_MENU, self.onViewClick, id=ID_VARIABLE)
+        self.Bind(wx.EVT_MENU, self.onViewClick, id=ID_BREAKPOINTS)
+        self.Bind(wx.EVT_MENU, self.onViewClick, id=ID_EXPRESSIONS)
+        self.Bind(wx.EVT_MENU, self.onViewClick, id=ID_TERMINAL)
+        self.Bind(wx.EVT_MENU, self.onViewClick, id=ID_PYTHON_SHELL)
+        self.Bind(wx.EVT_MENU, self.onViewClick, id=ID_TASKS)
+        self.Bind(wx.EVT_MENU, self.onViewClick, id=ID_PROJECT_EXPLORER)
+        self.Bind(wx.EVT_MENU, self.onViewClick, id=ID_NAVIGATOR)
+        self.Bind(wx.EVT_MENU, self.onViewClick, id=ID_JAVA_PACKAGE_EXPLORER)
+        self.Bind(wx.EVT_MENU, self.onViewClick, id=ID_PYTHON_PACKAGE_EXPLORER)
+        self.Bind(wx.EVT_MENU, self.onViewClick, id=ID_FILE_EXPLORER)
+        self.Bind(wx.EVT_MENU, self.onViewClick, id=ID_DATABASE_NAVIGATOR)
+        self.Bind(wx.EVT_MENU, self.onViewClick, id=ID_CONSOLE_LOG)
         
         self.Bind(wx.EVT_MENU, self.onOtherView, id=ID_OTHER_VIEW)
         self.Bind(wx.EVT_MENU, self.onOtherPerspecitve, id=ID_OTHER_PERSPECTIVE)
@@ -526,106 +525,42 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         sqlLogTab = self.GetTopLevelParent()._mgr.GetPane("perspectiveToolbar").Show()
         self.GetTopLevelParent()._mgr.Update()
 
-    def onSqlLog(self, event):
-        logger.debug('onSqlLog')
-        self.addTab(tabName="sqlLog", tabDirection=3)
-        sqlLogViewPane = self._mgr.GetPane("sqlLogView")
-        if sqlLogViewPane.window == None:
-#             treePanel = CreatingTreePanel(self)
-            historyGrid = HistoryGrid(self)
-            self._mgr.addTabByWindow(historyGrid, imageName="sql.png", name='sqlLogView' , captionName="SQL Log", tabDirection=3)
-            
-    def onOutline(self, event):
-        logger.debug("onOutline")
-        pythonPackageExplorerPane = self._mgr.GetPane("outlineView")
-        if pythonPackageExplorerPane.window == None:
-            pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
-            self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="outline_co.png", name='outlineView' , captionName="Outline", tabDirection=2)
+    def onViewClick(self, event):
+        logger.debug('onViewClick')
+        if event.Id == ID_OUTLINE:
+            self.openPanel(name="outlineView", imageName="outline_co.png", captionName="Outline", tabDirection=2)
+        elif event.Id == ID_SQL_LOG:
+            self.openPanel(name="sqlLogView", imageName="sql.png", captionName="SQL Log", tabDirection=3)
+        elif event.Id == ID_VARIABLE:
+            self.openPanel(name="variablesView", imageName="variable_view.png", captionName="Variables", tabDirection=2)
+        elif event.Id == ID_BREAKPOINTS:
+            self.openPanel(name="breakpointsView", imageName="breakpoint_view.png", captionName="Breakpoints", tabDirection=2)
+        elif event.Id == ID_EXPRESSIONS:
+            self.openPanel(name="expressionsView", imageName="watchlist_view.png", captionName="Expressions", tabDirection=2)
+        elif event.Id == ID_TERMINAL:
+            self.openPanel(name="terminalView", imageName="terminal.png", captionName="Terminal", tabDirection=3)
+        elif event.Id == ID_PYTHON_SHELL:
+            self.openPanel(name="pythonShellView", imageName="shell.png", captionName="Python Shell", tabDirection=3)
+        elif event.Id == ID_TASKS:
+            self.openPanel(name="tasksView", imageName="tasks_tsk.png", captionName="Tasks", tabDirection=3)
+        elif event.Id == ID_PROJECT_EXPLORER:
+            self.openPanel(name="projectExplorerView", imageName="resource_persp.png", captionName="Project Explorer", tabDirection=4)
+        elif event.Id == ID_NAVIGATOR:
+            self.openPanel(name="navigatorView", imageName="filenav_nav.png", captionName="Navigator", tabDirection=4)
+        elif event.Id == ID_JAVA_PACKAGE_EXPLORER:
+            self.openPanel(name="javaPackageExplorer", imageName="package_explorer.png", captionName="Java Package Explorer", tabDirection=4)
+        elif event.Id == ID_PYTHON_PACKAGE_EXPLORER:
+            self.openPanel(name="pythonPackageExplorer", imageName="package_explorer.png", captionName="Python Package Explorer", tabDirection=4)
+        elif event.Id == ID_FILE_EXPLORER:
+            self.openPanel(name="javaPackageExplorer", imageName="package_explorer.png", captionName="Java Package Explorer", tabDirection=4)
+        elif event.Id == ID_DATABASE_NAVIGATOR:
+            self.openPanel(name="databaseNaviagor", imageName="folder_database.png", captionName="Database Navigator", tabDirection=4)
+        elif event.Id == ID_CONSOLE_LOG:
+            self.openPanel(name="consoleOutput", imageName="console_view.png", captionName="Console", tabDirection=3)
+    
 
-    def onVariable(self, event):
-        logger.debug("onVariable")
-        pythonPackageExplorerPane = self._mgr.GetPane("variablesView")
-        if pythonPackageExplorerPane.window == None:
-            pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
-            self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="variable_view.png", name='variablesView' , captionName="Variables", tabDirection=2)
-
-    def onBreakpoints(self, event):
-        logger.debug("onBreakpoints")
-        pythonPackageExplorerPane = self._mgr.GetPane("breakpointsView")
-        if pythonPackageExplorerPane.window == None:
-            pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
-            self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="breakpoint_view.png", name='breakpointsView' , captionName="Breakpoints", tabDirection=2)
-
-    def onExpressions(self, event):
-        logger.debug("onExpressions")
-        pythonPackageExplorerPane = self._mgr.GetPane("expressionsView")
-        if pythonPackageExplorerPane.window == None:
-            pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
-            self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="watchlist_view.png", name='expressionsView' , captionName="Expressions", tabDirection=2)
-
-    def onTerminal(self, event):
-        logger.debug("onTerminal")
-        self.openPanel(name="terminalView", imageName="terminal.png", captionName="Termninal", tabDirection=3)
-#         pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
-#         self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="terminal.png", name='terminalView' , captionName="Termninal", tabDirection=3)
-
-    def onPythonShell(self, event):
-        logger.debug("onPythonShell")
-        self.openPanel(name="pythonShellView", imageName="shell.png", captionName="Python Shell", tabDirection=3)
-#         pythonPackageExplorerPane = self._mgr.GetPane("pythonShellView")
-#         intro = '%s' % py.version.VERSION
-#         pythonShellViewPane = py.shell.Shell(self, -1, introText=intro)
-#         self._mgr.addTabByWindow(pythonShellViewPane, imageName="shell.png", name='pythonShellView' , captionName="Python Shell", tabDirection=3)
-
-    def onTasks(self, event):
-        logger.debug("onTasks")
-        self.openPanel(name="tasksView", imageName="tasks_tsk.png", captionName="Tasks", tabDirection=3)
-#         pythonPackageExplorerPane = self._mgr.GetPane("tasksView")
-#         if pythonPackageExplorerPane.window == None:
-#             pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
-#             self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="tasks_tsk.png", name='tasksView' , captionName="Tasks", tabDirection=3)
-
-    def onProjectExplorer(self, event):
-        logger.debug("onProjectExplorer")
-        self.openPanel(name="projectExplorerView", imageName="resource_persp.png", captionName="Project Explorer", tabDirection=4)
-#         pythonPackageExplorerPane = self._mgr.GetPane("projectExplorerView")
-#         if pythonPackageExplorerPane.window == None:
-#             pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
-#             self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="resource_persp.png", name='projectExplorerView' , captionName="Project Explorer", tabDirection=4)
-
-    def onNavigator(self, event):
-        logger.debug("onNavigaotor")
-        self.openPanel(name="navigatorView", imageName="filenav_nav.png", captionName="Navigator", tabDirection=4)
-#         pythonPackageExplorerPane = self._mgr.GetPane("navigatorView")
-#         if pythonPackageExplorerPane.window == None:
-#             pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
-#             self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="filenav_nav.png", name='navigatorView' , captionName="Navigator", tabDirection=4)
-
-    def onJavaPackageExplorer(self, event):
-        logger.debug("onJavaPackageExplorer")
-        self.openPanel(name="javaPackageExplorer", imageName="package_explorer.png", captionName="Java Package Explorer", tabDirection=4)
-#         pythonPackageExplorerPane = self._mgr.GetPane("javaPackageExplorer")
-#         if pythonPackageExplorerPane.window == None:
-#             pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
-#             self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="package_explorer.png", name='javaPackageExplorer' , captionName="Java Package Explorer", tabDirection=4)
-
-    def onPythonPackageExplorer(self, event):
-        logger.debug("onPythonPackageExplorer")
-        self.openPanel(name="pythonPackageExplorer", imageName="package_explorer.png", captionName="Python Package Explorer", tabDirection=4)
-#         pythonPackageExplorerPane = self._mgr.GetPane("pythonPackageExplorer")
-#         if pythonPackageExplorerPane.window == None:
-#             pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
-#             self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="package_explorer.png", name='pythonPackageExplorer' , captionName="Python Package Explorer", tabDirection=4)
-        
-    def onDatabaseNavigator(self, event):
-        logger.debug("onDatabaseNavigator")
-        self.openPanel(name="databaseNaviagor", imageName="folder_database.png", captionName="Database Navigator", tabDirection=4)
-#         databaseNaviagorPane = self._mgr.GetPane("databaseNaviagor")
-#         if databaseNaviagorPane.window == None:
-#             treePanel = CreatingTreePanel(self)
-#             self._mgr.addTabByWindow(treePanel, imageName="folder_database.png", name='databaseNaviagor' , captionName="Database Navigator", tabDirection=4)
-#         self.addTab(tabName="databaseNaviagor", tabDirection=4)
-            
+       
+         
     def onConsole(self, event):
         logger.debug('onConsole')
         self.openPanel(name="consoleOutput", imageName="console_view.png", captionName="Console", tabDirection=3)
@@ -657,14 +592,23 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                 panel = CreatingPythonExplorerPanel(self)
             elif name == "fileExplorer":
                 panel = FileBrowser(self, size=(500, 300))
-
+            elif name == "sqlLogView":
+                panel = HistoryGrid(self)
+            elif name == "outlineView":
+                panel = CreatingPythonExplorerPanel(self)
+            elif name == "variablesView":
+                panel = CreatingPythonExplorerPanel(self)
+            elif name == "breakpointsView":
+                panel = CreatingPythonExplorerPanel(self)
+            elif name == "expressionsView":
+                panel = CreatingPythonExplorerPanel(self)
                                 
             self._mgr.addTabByWindow(panel, imageName=imageName, name=name , captionName=captionName, tabDirection=tabDirection)
         elif not self._mgr.GetPaneByName(name).IsShown():
             panel = self._mgr.GetPaneByName(name).window
             if panel:
                 panel.Show()
-            pane.dock_direction=tabDirection
+            pane.dock_direction = tabDirection
             pane.Show(True)        
 
     def onOtherView(self, event):

@@ -26,6 +26,8 @@ from wx.lib.agw.aui.auibar import AuiToolBarEvent, \
     wxEVT_COMMAND_AUITOOLBAR_BEGIN_DRAG, wxEVT_COMMAND_AUITOOLBAR_MIDDLE_CLICK, \
     wxEVT_COMMAND_AUITOOLBAR_RIGHT_CLICK
 from src.view.views.python.explorer.PythonExplorer import CreatingPythonExplorerPanel
+
+
 from wx import py
 
 logging.config.dictConfig(LOG_SETTINGS)
@@ -726,13 +728,13 @@ class PerspectiveManager(object):
         self.perspectiveList = [
             [ID_OTHER_PERSPECTIVE, "Open Perspective", 'new_persp.png', 'Open Perspective', None],
             [],
-            [ID_JAVA_PERSPECTIVE, "Java", 'jperspective.png', 'Java', self.onJavaPerspective],
-            [ID_JAVA_EE_PERSPECTIVE, "Java EE", 'javaee_perspective.png', 'Java EE', self.onJavaEEPerspective],
-            [ID_DEBUG_PERSPECTIVE, "Debug", 'debug_persp.png', 'Debug', self.onDebugPerspecitve],
-            [ID_PYTHON_PERSPECTIVE, "Python", 'python_perspective.png', 'Python', self.onPythonPerspecitve],
-            [ID_DATABASE_PERSPECTIVE, "Database", 'database.png', 'Database', self.onDatabasePerspecitve],
-            [ID_GIT_PERSPECTIVE, "Git", 'gitrepository.png', 'Git', self.onGitPerspecitve],
-            [ID_RESOURCE_PERSPECTIVE, "Resources", 'resource_persp.png', 'Resources', self.onResourcePerspecitve],
+            [ID_JAVA_PERSPECTIVE, "Java", 'jperspective.png', 'Java', self.onPerspeciveSelection],
+            [ID_JAVA_EE_PERSPECTIVE, "Java EE", 'javaee_perspective.png', 'Java EE', self.onPerspeciveSelection],
+            [ID_DEBUG_PERSPECTIVE, "Debug", 'debug_persp.png', 'Debug', self.onPerspeciveSelection],
+            [ID_PYTHON_PERSPECTIVE, "Python", 'python_perspective.png', 'Python', self.onPerspeciveSelection],
+            [ID_DATABASE_PERSPECTIVE, "Database", 'database.png', 'Database', self.onPerspeciveSelection],
+            [ID_GIT_PERSPECTIVE, "Git", 'gitrepository.png', 'Git', self.onPerspeciveSelection],
+            [ID_RESOURCE_PERSPECTIVE, "Resources", 'resource_persp.png', 'Resources', self.onPerspeciveSelection],
             ]
         for perspectiveName in self.perspectiveList:
             if len(perspectiveName) > 1:
@@ -763,9 +765,11 @@ class PerspectiveManager(object):
         s = viewToolbar.window.GetMinSize()
         viewToolbar.BestSize(s)
         
+
+        
         for pane in self._mgr.GetAllPanes():
             if pane.window:
-                if not (isinstance(pane.window,  aui.AuiToolBar) or pane.dock_direction ==5):
+                if not (isinstance(pane.window, aui.AuiToolBar) or pane.dock_direction == 5):
 #                     pane.window.Destroy()
     #                         pane.DestroyOnClose(True)
                     self._mgr.ClosePane(pane)
@@ -779,6 +783,9 @@ class PerspectiveManager(object):
         elif self.selectedPerspectiveName == 'resource':
             self.openPanel(name="consoleOutput", imageName="console_view.png", captionName="Console", tabDirection=3)
             self.openPanel(name="fileExplorer", imageName="file_explorer.png", captionName="File Explorer", tabDirection=4)
+        elif self.selectedPerspectiveName == 'java':
+            self.openPanel(name="consoleOutput", imageName="console_view.png", captionName="Console", tabDirection=3)
+            self.openPanel(name="javaPackageExplorer", imageName="package_explorer.png", captionName="Java Package Explorer", tabDirection=4)
             
 #         else:
 #             databaseNaviagorPane = self._mgr.GetPane("databaseNaviagor")
@@ -787,6 +794,7 @@ class PerspectiveManager(object):
         self._mgr.Update()  
         
         print('viewToolBarByPerspective')
+
     def openPanel(self, name="consoleOutput", imageName="console_view.png", captionName="Console", tabDirection=3):
 #         name="consoleOutput"
         pane = self._mgr.GetPane(name)
@@ -816,61 +824,87 @@ class PerspectiveManager(object):
                 
             self._mgr.addTabByWindow(panel, imageName=imageName, name=name , captionName=captionName, tabDirection=tabDirection)
         elif not pane.IsShown():
-            pane.dock_direction=tabDirection
+            pane.dock_direction = tabDirection
             window = pane.window
             if window:
                 window.Show()
             pane.Show(True)         
 #         item.state=4   
-    def onJavaPerspective(self, event):
-        logger.debug('onJavaPerspective')
-        pub.sendMessage('perspectiveClicked', data=42, extra1='onJavaPerspective')
-        self.selectItem(ID_JAVA_PERSPECTIVE)
-        self.selectedPerspectiveName = 'java'
-        self.viewToolBarByPerspective(self.selectedPerspectiveName)
-        print('perspectiveToolbar')
 
-    def onJavaEEPerspective(self, event):
-        logger.debug('onJavaEEPerspective')
-        self.selectItem(ID_JAVA_EE_PERSPECTIVE)
-        self.selectedPerspectiveName = 'java ee'
-        self.viewToolBarByPerspective(self.selectedPerspectiveName)
-#         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
-#         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_JAVA_EE_PERSPECTIVE))
+    def onPerspeciveSelection(self, event):
+        logger.debug('onPerspeciveSelection')
+#         pub.sendMessage('perspectiveClicked', data=42, extra1='onJavaPerspective')
+        self.selectItem(event.Id)
+        if event.Id == ID_JAVA_PERSPECTIVE:
+            self.selectedPerspectiveName = 'java'
+            self.viewToolBarByPerspective(self.selectedPerspectiveName)            
+        elif event.Id == ID_JAVA_EE_PERSPECTIVE:
+            self.selectedPerspectiveName = 'java ee'
+            self.viewToolBarByPerspective(self.selectedPerspectiveName)            
+        elif event.Id == ID_DEBUG_PERSPECTIVE:
+            self.selectedPerspectiveName = 'debug'
+            self.viewToolBarByPerspective(self.selectedPerspectiveName)            
+        elif event.Id == ID_PYTHON_PERSPECTIVE:
+            self.selectedPerspectiveName = 'python'
+            self.viewToolBarByPerspective(self.selectedPerspectiveName)            
+        elif event.Id == ID_DATABASE_PERSPECTIVE:
+            self.selectedPerspectiveName = 'database'
+            self.viewToolBarByPerspective(self.selectedPerspectiveName)            
+        elif event.Id == ID_GIT_PERSPECTIVE:
+            self.selectedPerspectiveName = 'git'
+            self.viewToolBarByPerspective(self.selectedPerspectiveName)            
+        elif event.Id == ID_RESOURCE_PERSPECTIVE:
+            self.selectedPerspectiveName = 'resource'
+            self.viewToolBarByPerspective(self.selectedPerspectiveName)            
 
-    def onDebugPerspecitve(self, event):
-        logger.debug('onDebugPerspecitve')
-        self.selectItem(ID_DEBUG_PERSPECTIVE)
-        self.selectedPerspectiveName = 'debug'
-        self.viewToolBarByPerspective(self.selectedPerspectiveName)
-#         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
-#         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_DEBUG_PERSPECTIVE))
-
-    def onPythonPerspecitve(self, event):
-        logger.debug('onPythonPerspecitve')
-        self.selectItem(ID_PYTHON_PERSPECTIVE)
-        self.selectedPerspectiveName = 'python'
-        self.viewToolBarByPerspective(self.selectedPerspectiveName)
-#         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
-#         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(event.EventObject.GetId()))
-
-    def onGitPerspecitve(self, event):
-        logger.debug('onGitPerspecitve')
-        self.selectItem(ID_GIT_PERSPECTIVE)
-        self.selectedPerspectiveName = 'git'
-        self.viewToolBarByPerspective(self.selectedPerspectiveName)
-        
-    def onResourcePerspecitve(self, event):
-        logger.debug('onResourcePerspecitve')
-        self.selectItem(ID_RESOURCE_PERSPECTIVE)
-        self.selectedPerspectiveName = 'resource'
-        self.viewToolBarByPerspective(self.selectedPerspectiveName)
-        
-    def onDatabasePerspecitve(self, event):
-        logger.debug('onDatabasePerspecitve')
-        self.selectItem(ID_DATABASE_PERSPECTIVE)
-        self.selectedPerspectiveName = 'database'
-        self.viewToolBarByPerspective(self.selectedPerspectiveName)
+#     def onJavaPerspective(self, event):
+#         logger.debug('onJavaPerspective')
+#         self.selectItem(ID_JAVA_PERSPECTIVE)
+#         self.selectedPerspectiveName = 'java'
+#         self.viewToolBarByPerspective(self.selectedPerspectiveName)
+#         print('perspectiveToolbar')
+# 
+#     def onJavaEEPerspective(self, event):
+#         logger.debug('onJavaEEPerspective')
+#         self.selectItem(ID_JAVA_EE_PERSPECTIVE)
+#         self.selectedPerspectiveName = 'java ee'
+#         self.viewToolBarByPerspective(self.selectedPerspectiveName)
+# #         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
+# #         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_JAVA_EE_PERSPECTIVE))
+# 
+#     def onDebugPerspecitve(self, event):
+#         logger.debug('onDebugPerspecitve')
+#         self.selectItem(ID_DEBUG_PERSPECTIVE)
+#         self.selectedPerspectiveName = 'debug'
+#         self.viewToolBarByPerspective(self.selectedPerspectiveName)
+# #         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
+# #         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_DEBUG_PERSPECTIVE))
+# 
+#     def onPythonPerspecitve(self, event):
+#         logger.debug('onPythonPerspecitve')
+#         self.selectItem(ID_PYTHON_PERSPECTIVE)
+#         self.selectedPerspectiveName = 'python'
+#         self.viewToolBarByPerspective(self.selectedPerspectiveName)
+# #         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
+# #         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(event.EventObject.GetId()))
+# 
+#     def onGitPerspecitve(self, event):
+#         logger.debug('onGitPerspecitve')
+#         self.selectItem(ID_GIT_PERSPECTIVE)
+#         self.selectedPerspectiveName = 'git'
+#         self.viewToolBarByPerspective(self.selectedPerspectiveName)
+#         
+#     def onResourcePerspecitve(self, event):
+#         logger.debug('onResourcePerspecitve')
+#         self.selectItem(ID_RESOURCE_PERSPECTIVE)
+#         self.selectedPerspectiveName = 'resource'
+#         self.viewToolBarByPerspective(self.selectedPerspectiveName)
+#         
+#     def onDatabasePerspecitve(self, event):
+#         logger.debug('onDatabasePerspecitve')
+#         self.selectItem(ID_DATABASE_PERSPECTIVE)
+#         self.selectedPerspectiveName = 'database'
+#         self.viewToolBarByPerspective(self.selectedPerspectiveName)
 #         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
 #         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_GIT_PERSPECTIVE))
 
