@@ -1017,10 +1017,11 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
     def refreshSqlLogUi(self):
         logger.debug('refreshSqlLogUi')
         historyGrid = self.GetTopLevelParent()._mgr.GetPane("sqlLog").window
-        sqlText = 'select * from sql_log order by created_time desc;'
-        sqlExecuter = SQLExecuter(database='_opal.sqlite')
-        sqlOutput = sqlExecuter.executeText(sqlText)
-        historyGrid.addData(data=sqlOutput)
+        if historyGrid:
+            sqlText = 'select * from sql_log order by created_time desc;'
+            sqlExecuter = SQLExecuter(database='_opal.sqlite')
+            sqlOutput = sqlExecuter.executeText(sqlText)
+            historyGrid.addData(data=sqlOutput)
               
     def sqlStyle(self):
         # Sql styles

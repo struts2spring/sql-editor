@@ -12,7 +12,8 @@ ID_newConnection = wx.NewIdRef()
 ID_openConnection = wx.NewIdRef()
 ID_newWorksheet = wx.NewIdRef()
 ID_deleteWithDatabase = wx.NewIdRef()
-ID_Import = wx.NewIdRef()
+
+ID_CONNECTION_PROPERTIES = wx.NewIdRef()
 
 ID_NEW = wx.NewIdRef()
 ID_SAVE = wx.NewIdRef()
@@ -42,7 +43,6 @@ ID_STEP_RETURN_DEBUG = wx.NewIdRef()
 ID_BUILD_ALL = wx.NewIdRef()
 ID_BUILD_PROJECT = wx.NewIdRef()
 
-
 ID_RECENT_FILES = wx.NewIdRef()
 ID_CLOSE = wx.NewIdRef()
 ID_CLOSE_ALL = wx.NewIdRef()
@@ -58,20 +58,15 @@ ID_CLOSE_PROJECT = wx.NewIdRef()
 ID_CLEAN = wx.NewIdRef()
 ID_BUILD_AUTO = wx.NewIdRef()
 
-
-
 ID_NEW_PROJECT = wx.NewIdRef()
 ID_EXAMPLE_MENU = wx.NewIdRef()
 ID_OTHER_MENU = wx.NewIdRef()
 
 ID_NEW_JAVA_PROJECT = wx.NewIdRef()
 
-
 ID_NEW_PYTHON_PROJECT = wx.NewIdRef()
 ID_NEW_PYTHON_PACKAGE = wx.NewIdRef()
 ID_NEW_PYTHON_MODULE = wx.NewIdRef()
-
-
 
 ID_RUN = wx.NewIdRef()
 ID_DEBUG = wx.NewIdRef()
@@ -116,7 +111,6 @@ ID_SHOW_VIEW_TOOLBAR = wx.NewIdRef()
 ID_PERSPECTIVE_TOOLBAR = wx.NewIdRef()
 ID_OTHER_PERSPECTIVE = wx.NewIdRef()
 ID_RESOURCE_PERSPECTIVE = wx.NewIdRef()
-
 
 ID_OPEN_PERSPECTIVE = wx.NewIdRef()
 ID_JAVA_PERSPECTIVE = wx.NewIdRef()

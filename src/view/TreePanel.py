@@ -10,7 +10,7 @@ from wx import TreeCtrl
 from wx.lib.mixins.treemixin import ExpansionState
 from src.view.constants import ID_newWorksheet, ID_CONNECT_DB, ID_deleteWithDatabase, \
     ID_DISCONNECT_DB, ID_ROOT_NEW_CONNECTION, ID_ROOT_REFERESH, keyMap, \
-    ID_Import
+    ID_CONNECTION_PROPERTIES, ID_IMPORT
 # from src.view.table.CreateTable import CreateTableFrame
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter, \
     ManageSqliteDatabase, SQLUtils
@@ -372,12 +372,12 @@ class CreatingTreePanel(wx.Panel):
             sqlEditorBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="script.png")))
             item3 = menu.Append(sqlEditorBmp)
             
-            infoMenuItem = wx.MenuItem(menu, wx.ID_ANY, "Properties")
+            infoMenuItem = wx.MenuItem(menu, ID_CONNECTION_PROPERTIES, "Properties")
             infoBmp = wx.ArtProvider.GetBitmap(wx.ART_INFORMATION, wx.ART_MENU, (16, 16)) 
             infoMenuItem.SetBitmap(infoBmp)     
             item4 = menu.Append(infoMenuItem)    
             
-            importBmp = wx.MenuItem(menu, ID_Import, "&Import CSV / Excel")
+            importBmp = wx.MenuItem(menu, ID_IMPORT, "&Import CSV / Excel")
             importBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="import.png")))
             importMenu = menu.Append(importBmp)  
             
@@ -385,7 +385,7 @@ class CreatingTreePanel(wx.Panel):
             refreshBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="database_refresh.png")))
             item5 = menu.Append(refreshBmp)
             
-            item6 = menu.Append(wx.ID_ANY, "Properties")
+#             item6 = menu.Append(wx.ID_ANY, "Properties")
             menu.AppendSeparator()
 #             item7 = wx.MenuItem(menu, wx.ID_ANY, "&Smile!\tCtrl+S", "This one has an icon")
 #             item7.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "index.png"))))
@@ -406,9 +406,10 @@ class CreatingTreePanel(wx.Panel):
             self.Bind(wx.EVT_MENU, self.onProperties, item4)
             self.Bind(wx.EVT_MENU, self.onImport, importMenu)
             self.Bind(wx.EVT_MENU, self.onRefresh, item5)
-            self.Bind(wx.EVT_MENU, self.onEditConnection, item6)
+#             self.Bind(wx.EVT_MENU, self.onEditConnection, item6)
             self.Bind(wx.EVT_MENU, self.onDeleteConnection, delMenu)
             self.Bind(wx.EVT_MENU, self.onDeleteWithDatabaseTable, deleteWithDatabaseMenu)
+#             self.Bind(ID_CONNECTION_PROPERTIES, self.onConnectionProperties, deleteWithDatabaseMenu)
 
         elif rightClickDepth == 2:
             if 'table' in self.tree.GetItemText(item):
@@ -649,6 +650,8 @@ class CreatingTreePanel(wx.Panel):
     
     def onProperties(self, event):
         logger.debug('onProperties')
+        if event.Id==ID_CONNECTION_PROPERTIES:
+            logger.debug('onProperties')
         
     def onImport(self, event=None):
         logger.debug('onImport')
