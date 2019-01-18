@@ -565,29 +565,33 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
     def onTerminal(self, event):
         logger.debug("onTerminal")
-        pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
-        self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="terminal.png", name='terminalView' , captionName="Termninal", tabDirection=3)
+        self.openPanel(name="terminalView", imageName="terminal.png", captionName="Termninal", tabDirection=3)
+#         pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
+#         self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="terminal.png", name='terminalView' , captionName="Termninal", tabDirection=3)
 
     def onPythonShell(self, event):
         logger.debug("onPythonShell")
-        pythonPackageExplorerPane = self._mgr.GetPane("pythonShellView")
-        intro = '%s' % py.version.VERSION
-        pythonShellViewPane = py.shell.Shell(self, -1, introText=intro)
-        self._mgr.addTabByWindow(pythonShellViewPane, imageName="shell.png", name='pythonShellView' , captionName="Python Shell", tabDirection=3)
+        self.openPanel(name="pythonShellView", imageName="shell.png", captionName="Python Shell", tabDirection=3)
+#         pythonPackageExplorerPane = self._mgr.GetPane("pythonShellView")
+#         intro = '%s' % py.version.VERSION
+#         pythonShellViewPane = py.shell.Shell(self, -1, introText=intro)
+#         self._mgr.addTabByWindow(pythonShellViewPane, imageName="shell.png", name='pythonShellView' , captionName="Python Shell", tabDirection=3)
 
     def onTasks(self, event):
         logger.debug("onTasks")
-        pythonPackageExplorerPane = self._mgr.GetPane("tasksView")
-        if pythonPackageExplorerPane.window == None:
-            pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
-            self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="tasks_tsk.png", name='tasksView' , captionName="Tasks", tabDirection=3)
+        self.openPanel(name="tasksView", imageName="tasks_tsk.png", captionName="Tasks", tabDirection=3)
+#         pythonPackageExplorerPane = self._mgr.GetPane("tasksView")
+#         if pythonPackageExplorerPane.window == None:
+#             pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
+#             self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="tasks_tsk.png", name='tasksView' , captionName="Tasks", tabDirection=3)
 
     def onProjectExplorer(self, event):
         logger.debug("onProjectExplorer")
-        pythonPackageExplorerPane = self._mgr.GetPane("projectExplorerView")
-        if pythonPackageExplorerPane.window == None:
-            pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
-            self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="resource_persp.png", name='projectExplorerView' , captionName="Project Explorer", tabDirection=4)
+        self.openPanel(name="projectExplorerView", imageName="resource_persp.png", captionName="Project Explorer", tabDirection=4)
+#         pythonPackageExplorerPane = self._mgr.GetPane("projectExplorerView")
+#         if pythonPackageExplorerPane.window == None:
+#             pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
+#             self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="resource_persp.png", name='projectExplorerView' , captionName="Project Explorer", tabDirection=4)
 
     def onNavigator(self, event):
         logger.debug("onNavigaotor")
@@ -653,6 +657,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                 panel = CreatingPythonExplorerPanel(self)
             elif name == "fileExplorer":
                 panel = FileBrowser(self, size=(500, 300))
+
                                 
             self._mgr.addTabByWindow(panel, imageName=imageName, name=name , captionName=captionName, tabDirection=tabDirection)
         elif not self._mgr.GetPaneByName(name).IsShown():
@@ -674,8 +679,9 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
     def onFileExplorer(self, event):
         logger.debug('onFileExplorer')
-        fileBrowserPanel = FileBrowser(self, size=(500, 300))
-        self._mgr.addTabByWindow(fileBrowserPanel, imageName="file_explorer.png", name='fileExplorer' , captionName="File Explorer", tabDirection=4)
+        self.openPanel(name="fileExplorer", imageName="file_explorer.png", captionName="File Explorer", tabDirection=4)
+#         fileBrowserPanel = FileBrowser(self, size=(500, 300))
+#         self._mgr.addTabByWindow(fileBrowserPanel, imageName="file_explorer.png", name='fileExplorer' , captionName="File Explorer", tabDirection=4)
         
     def onSqlExecution(self, event):
         logger.debug('onSqlExecution')
