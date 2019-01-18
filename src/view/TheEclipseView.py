@@ -296,9 +296,9 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         self.SetMenuBar(mb)
 
     def disableInitial(self, menuBar=None):
-        itemIdList=[ID_SAVE, ID_SAVE_ALL, wx.ID_UNDO, wx.ID_REDO, wx.ID_CUT, wx.ID_COPY, wx.ID_PASTE]
+        itemIdList = [ID_SAVE, ID_SAVE_ALL, wx.ID_UNDO, wx.ID_REDO, wx.ID_CUT, wx.ID_COPY, wx.ID_PASTE]
         for itemId in itemIdList:
-            it=menuBar.FindItemById(itemId)
+            it = menuBar.FindItemById(itemId)
             it.Enable(False)
 #     def createMenu(self, menuBar=wx.MenuBar(), menu=wx.Menu(), menuItemList=list()) :
 #         '''
@@ -591,40 +591,76 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
     def onNavigator(self, event):
         logger.debug("onNavigaotor")
-        pythonPackageExplorerPane = self._mgr.GetPane("navigatorView")
-        if pythonPackageExplorerPane.window == None:
-            pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
-            self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="filenav_nav.png", name='navigatorView' , captionName="Navigator", tabDirection=4)
+        self.openPanel(name="navigatorView", imageName="filenav_nav.png", captionName="Navigator", tabDirection=4)
+#         pythonPackageExplorerPane = self._mgr.GetPane("navigatorView")
+#         if pythonPackageExplorerPane.window == None:
+#             pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
+#             self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="filenav_nav.png", name='navigatorView' , captionName="Navigator", tabDirection=4)
 
     def onJavaPackageExplorer(self, event):
         logger.debug("onJavaPackageExplorer")
-        pythonPackageExplorerPane = self._mgr.GetPane("javaPackageExplorer")
-        if pythonPackageExplorerPane.window == None:
-            pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
-            self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="package_explorer.png", name='javaPackageExplorer' , captionName="Java Package Explorer", tabDirection=4)
+        self.openPanel(name="javaPackageExplorer", imageName="package_explorer.png", captionName="Java Package Explorer", tabDirection=4)
+#         pythonPackageExplorerPane = self._mgr.GetPane("javaPackageExplorer")
+#         if pythonPackageExplorerPane.window == None:
+#             pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
+#             self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="package_explorer.png", name='javaPackageExplorer' , captionName="Java Package Explorer", tabDirection=4)
 
     def onPythonPackageExplorer(self, event):
         logger.debug("onPythonPackageExplorer")
-        pythonPackageExplorerPane = self._mgr.GetPane("pythonPackageExplorer")
-        if pythonPackageExplorerPane.window == None:
-            pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
-            self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="package_explorer.png", name='pythonPackageExplorer' , captionName="Python Package Explorer", tabDirection=4)
+        self.openPanel(name="pythonPackageExplorer", imageName="package_explorer.png", captionName="Python Package Explorer", tabDirection=4)
+#         pythonPackageExplorerPane = self._mgr.GetPane("pythonPackageExplorer")
+#         if pythonPackageExplorerPane.window == None:
+#             pythonPackageExplorePanel = CreatingPythonExplorerPanel(self)
+#             self._mgr.addTabByWindow(pythonPackageExplorePanel, imageName="package_explorer.png", name='pythonPackageExplorer' , captionName="Python Package Explorer", tabDirection=4)
         
     def onDatabaseNavigator(self, event):
         logger.debug("onDatabaseNavigator")
-        databaseNaviagorPane = self._mgr.GetPane("databaseNaviagor")
-        if databaseNaviagorPane.window == None:
-            treePanel = CreatingTreePanel(self)
-            self._mgr.addTabByWindow(treePanel, imageName="folder_database.png", name='databaseNaviagor' , captionName="Database Navigator", tabDirection=4)
+        self.openPanel(name="databaseNaviagor", imageName="folder_database.png", captionName="Database Navigator", tabDirection=4)
+#         databaseNaviagorPane = self._mgr.GetPane("databaseNaviagor")
+#         if databaseNaviagorPane.window == None:
+#             treePanel = CreatingTreePanel(self)
+#             self._mgr.addTabByWindow(treePanel, imageName="folder_database.png", name='databaseNaviagor' , captionName="Database Navigator", tabDirection=4)
 #         self.addTab(tabName="databaseNaviagor", tabDirection=4)
             
     def onConsole(self, event):
         logger.debug('onConsole')
-        consoleOutputPane = self._mgr.GetPane("consoleOutput")
-        if consoleOutputPane.window == None:
-            sqlConsoleOutputPanel = SqlConsoleOutputPanel(self)
-            self._mgr.addTabByWindow(sqlConsoleOutputPanel, imageName="console_view.png", name='consoleOutput' , captionName="Console", tabDirection=3)
+        self.openPanel(name="consoleOutput", imageName="console_view.png", captionName="Console", tabDirection=3)
 #         self.addTab(tabName="consoleOutput", tabDirection=3)        
+
+    def openPanel(self, name="consoleOutput", imageName="console_view.png", captionName="Console", tabDirection=3):
+#         name="consoleOutput"
+        pane = self._mgr.GetPane(name)
+        if pane.window == None:
+            panel = wx.Panel(self)
+            if name == "consoleOutput":
+                panel = SqlConsoleOutputPanel(self)
+            elif name == "databaseNaviagor":
+                panel = CreatingTreePanel(self)
+            elif name == "pythonPackageExplorer":
+                panel = CreatingPythonExplorerPanel(self)
+            elif name == "projectExplorerView":
+                panel = CreatingPythonExplorerPanel(self)
+            elif name == "javaPackageExplorer":
+                panel = CreatingPythonExplorerPanel(self)
+            elif name == "pythonShellView":
+                intro = '%s' % py.version.VERSION
+                panel = py.shell.Shell(self, -1, introText=intro)
+            elif name == "terminalView":
+                panel = CreatingPythonExplorerPanel(self)
+            elif name == "navigatorView":
+                panel = CreatingPythonExplorerPanel(self)
+            elif name == "tasksView":
+                panel = CreatingPythonExplorerPanel(self)
+            elif name == "fileExplorer":
+                panel = FileBrowser(self, size=(500, 300))
+                                
+            self._mgr.addTabByWindow(panel, imageName=imageName, name=name , captionName=captionName, tabDirection=tabDirection)
+        elif not self._mgr.GetPaneByName(name).IsShown():
+            panel = self._mgr.GetPaneByName(name).window
+            if panel:
+                panel.Show()
+            pane.dock_direction=tabDirection
+            pane.Show(True)        
 
     def onOtherView(self, event):
         logger.debug('onOtherView')
