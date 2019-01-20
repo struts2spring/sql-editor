@@ -249,7 +249,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                     [ wx.NewIdRef(), "Install New Software...", None, "iu_obj.png"],  # TODO: need to set icon
                     [ wx.NewIdRef(), "Eclipse Marketplace", None, "marketplace16.png"],  # TODO: need to set icon
                     [],
-                    [ wx.ID_HELP, "&About {}".format(TITLE), None, None],
+                    [ wx.ID_ABOUT, "&About {}".format(TITLE), None, None],
                     [ wx.NewIdRef(), "Contribute", None, "star.png"],
                 ])
             ]
@@ -330,7 +330,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         self.Bind(wx.EVT_MENU, self.OnExit, id=wx.ID_EXIT)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
         self.Bind(wx.EVT_MENU, self.OnExit, id=wx.ID_EXIT)
-        self.Bind(wx.EVT_MENU, self.OnAbout, id=wx.ID_HELP)
+        self.Bind(wx.EVT_MENU, self.OnAbout, id=wx.ID_ABOUT)
         self.Bind(wx.EVT_MENU, self.OnWelcome, id=ID_WELCOME)
         
         self.Bind(wx.EVT_MENU, self.onSave, id=ID_SAVE)
@@ -685,17 +685,19 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         logger.debug('OnAbout')
         plate = platform.platform()
 #         msg=u"\u00A9"
-        msg = u"""{} 
+        msg = f"""{TITLE} 
         
-Version : {} Release 
+Version : {VERSION} Release 
 Build : 0.1 Release 
 
 An advanced Database tool for developers, DBAs and analysts.
 This product includes software developed by other open source projects.
 \u00A9 BSD
 
-Plateform: {} 
-Python :{}""".format(TITLE, VERSION, plate, sys.version)
+Plateform: {plate} 
+wxpython: {wx.__version__}
+Python :{sys.version}"""
+# .format(TITLE, VERSION, plate, sys.version)
 #         msg=msg.unicode('utf-8')
         dlg = wx.MessageDialog(self, msg, TITLE,
                                wx.OK | wx.ICON_INFORMATION)
