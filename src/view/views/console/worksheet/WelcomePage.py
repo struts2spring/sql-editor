@@ -21,7 +21,7 @@ class WelcomePanel(wx.Panel):
     def __init__(self, parent, style=wx.TR_DEFAULT_STYLE | wx.BORDER_NONE):
         wx.Panel.__init__(self, parent, style=style)
         fileOperations=FileOperations()
-        self.current = ""
+        self.current = "http://localhost:5000"
         self.frame = self.GetTopLevelParent()
         self.titleBase = self.frame.GetTitle()
 
@@ -68,11 +68,12 @@ class WelcomePanel(wx.Panel):
         
         self.location = wx.ComboBox(
             tb1, -1, "", size=(400,-1) ,style=wx.CB_DROPDOWN|wx.TE_PROCESS_ENTER)
-        self.location.AppendItems(['http://wxPython.org',
+        self.location.AppendItems(["http://localhost:5000",
+                                    'http://wxPython.org',
                                    'http://wxwidgets.org',
                                    'http://google.com'])
  
-        for url in ['http://wxPython.org',
+        for url in ["http://localhost:5000",'http://wxPython.org',
                     'http://wxwidgets.org',
                     'http://google.com']:
             item = webview.WebViewHistoryItem(url, url)
@@ -91,12 +92,12 @@ class WelcomePanel(wx.Panel):
         sizer.Add(tb1, 0, wx.EXPAND)
         sizer.Add(self.wv, 1, wx.EXPAND|wx.ALL,0)
 
-#         self.wv.LoadURL(self.current)
-        logger.debug("---------------------------------"+ os.getcwd())
-        htmlData=FileOperations().readFile(filePath='./html/welcome.html')
-        logger.debug(htmlData)
-        
-        self.wv.SetPage(htmlData,"/")
+        self.wv.LoadURL(self.current)
+#         logger.debug("---------------------------------"+ os.getcwd())
+#         htmlData=FileOperations().readFile(filePath='./html/welcome.html')
+#         logger.debug(htmlData)
+#         
+#         self.wv.SetPage(htmlData,"http://localhost:5000")
         self.SetSizer(sizer)
 
 
