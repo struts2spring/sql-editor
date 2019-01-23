@@ -20,17 +20,20 @@ logger = logging.getLogger('extensive')
 
 class CreatingJavaExplorerPanel(FileTree):
 
-    def __init__(self, parent=None, *args, **kw):
-        wx.Panel.__init__(self, parent, id=-1)
-        self.parent = parent
-        self.fileOperations = FileOperations()
-        vBox = wx.BoxSizer(wx.VERTICAL)
-        ####################################################################
-        ####################################################################
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(vBox, 1, wx.EXPAND , 0)
-        self.SetSizer(sizer)
+    def __init__(self, parent, size=wx.DefaultSize):
+        super(CreatingJavaExplorerPanel, self).__init__(parent)
+        self.AddWatchDirectory("c:\\1")
+        
+        self.Bind(wx.EVT_MENU, self.OnMenu)
+            
+    def OnMenu(self, evt):
+        """Handle the context menu events for performing
+        filesystem operations
 
+        """
+        e_id = evt.Id
+        path = self._menu.GetUserData('active_node')
+        paths = self._menu.GetUserData('selected_nodes')
 #---------------------------------------------------------------------------
 if __name__ == '__main__':
 #     treeImageLevel = dict()
@@ -43,7 +46,7 @@ if __name__ == '__main__':
     app = wx.App(False)
     frame = wx.Frame(None)
     try: 
-        panel = CreatingJavaExplorerPanel(frame, title='asfd')
+        panel = CreatingJavaExplorerPanel(frame)
     except Exception as ex:
         logger.error(ex)
     frame.Show()

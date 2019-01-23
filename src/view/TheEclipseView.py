@@ -24,6 +24,8 @@ from src.view.views.file.explorer import FileBrowserPanel
 from src.view.views.file.explorer.FileBrowserPanel import FileBrowser
 from wx import py
 from src.view.views.console.SqlOutputPanel import SqlConsoleOutputPanel
+from src.view.views.java.explorer.JavaExplorer import CreatingJavaExplorerPanel
+from src.view.views.project.explorer.ProjectExplorer import CreatingProjectExplorerPanel
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -578,11 +580,11 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
             elif name == "pythonPackageExplorer":
                 panel = CreatingPythonExplorerPanel(self)
             elif name == "projectExplorerView":
-                panel = CreatingPythonExplorerPanel(self)
+                panel = CreatingProjectExplorerPanel(self)
             elif name == "javaPackageExplorer":
-                panel = CreatingPythonExplorerPanel(self)
+                panel = CreatingJavaExplorerPanel(self)
             elif name == "pythonShellView":
-                intro = '%s' % py.version.VERSION
+                intro = f'{py.version.VERSION}'
                 panel = py.shell.Shell(self, -1, introText=intro)
             elif name == "terminalView":
                 panel = CreatingPythonExplorerPanel(self)

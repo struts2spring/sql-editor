@@ -28,6 +28,8 @@ from wx.lib.agw.aui.auibar import AuiToolBarEvent, \
 from src.view.views.python.explorer.PythonExplorer import CreatingPythonExplorerPanel
 
 from wx import py
+from src.view.views.java.explorer.JavaExplorer import CreatingJavaExplorerPanel
+from src.view.views.project.explorer.ProjectExplorer import CreatingProjectExplorerPanel
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -795,8 +797,8 @@ class PerspectiveManager(object):
     def openPanel(self, name="consoleOutput", imageName="console_view.png", captionName="Console", tabDirection=3):
 #         name="consoleOutput"
         pane = self._mgr.GetPane(name)
+        panel = wx.Panel(self)
         if pane.window == None:
-            panel = wx.Panel(self)
             if name == "consoleOutput":
                 panel = SqlConsoleOutputPanel(self)
             elif name == "databaseNaviagor":
@@ -804,9 +806,9 @@ class PerspectiveManager(object):
             elif name == "pythonPackageExplorer":
                 panel = CreatingPythonExplorerPanel(self)
             elif name == "projectExplorerView":
-                panel = CreatingPythonExplorerPanel(self)
+                panel = CreatingProjectExplorerPanel(self)
             elif name == "javaPackageExplorer":
-                panel = CreatingPythonExplorerPanel(self)
+                panel = CreatingJavaExplorerPanel(self)
             elif name == "pythonShellView":
                 intro = f'{py.version.VERSION}'
                 panel = py.shell.Shell(self, -1, introText=intro)
@@ -1090,7 +1092,7 @@ class PerspectiveManager(object):
                         [],
                         [ID_DYNAMIC_WEB_PROJECT, 'Dynamic Web Project', 'create_dynamic_web_project.png', None],
                         [ID_WEB_FRAGMENT_PROJECT, 'Web Fragment Project', 'web_fragment_prj.png', None],
-                        [ID_EJB_PROJECT, 'EJB Project', None, None],
+                        [ID_EJB_PROJECT, 'EJB Project', 'ejb_project.png', None],
                         [ID_ENTERPRISE_APP_PROJECT, 'Enterprise Application Project', 'enterprise_app.png', None],
                         [ID_APP_CLIENT_PROJECT, 'Application Client Project', 'app_client_prj.png', None],
                         [ID_CONNECTER_PROJECT, 'Connecter Project', 'connecter_prj.png', None],
@@ -1100,11 +1102,11 @@ class PerspectiveManager(object):
                 baseList = [
                         [],
                         [ID_SERVLET, 'Servlet', 'create_new_servlet.png', None],
-                        [ID_FILTER, 'Filter', None, None],
-                        [ID_LISTENER, 'Listener', None, None],
+                        [ID_FILTER, 'Filter', 'filter.png', None],
+                        [ID_LISTENER, 'Listener', 'listener.png', None],
                         [ID_SESSION_BEAN, 'Session Bean', 'session_bean.png', None],
                         [ID_MESSAGE_DRIVEN_BEAN, 'Message-Driven Bean', 'message_driven_bean.png', None],
-                        [ID_EJB_TIMER, 'EJB Timer', None, None],
+                        [ID_EJB_TIMER, 'EJB Timer', 'session_bean.png', None],
                         [ID_JPA_ENTITY, 'JPA entity', 'eclipseLink_dynamic_entity.png', None],
                         [ID_JPA_ORM_MAPPING_FILE, 'JPA ORM Mapping File', 'jpa_orm_mapping.png', None],
                         [ID_ECLIPSE_LINK_ORM_MAPPING_FILE, 'Eclipse Link ORM Mapping File', 'jpa_orm_mapping.png', None],
@@ -1143,13 +1145,13 @@ class PerspectiveManager(object):
                         +baseList[1:],
                     "java ee": 
                         [
-                            [ID_MAVEN_PROJECT, 'Maven Project', None, None], 
+                            [ID_MAVEN_PROJECT, 'Maven Project', 'maven_project.png', None], 
                             [ID_ENTERPRISE_APP_PROJECT, 'Enterprise Application Project', 'enterprise_app.png', None], 
                             [ID_DYNAMIC_WEB_PROJECT, 'Dynamic Web Project', 'create_dynamic_web_project.png', None], 
-                            [ID_EJB_PROJECT, 'EJB Project', None, None], 
+                            [ID_EJB_PROJECT, 'EJB Project', 'ejb_project.png', None], 
                             [ID_CONNECTER_PROJECT, 'Connecter Project',  'connecter_prj.png', None], 
                             [ID_APP_CLIENT_PROJECT, 'Application Client Project', 'app_client_prj.png', None], 
-                            [ID_STATIC_WEB_PROJECT, 'Static Web Project', None, None], 
+                            [ID_STATIC_WEB_PROJECT, 'Static Web Project', 'static_web_project.png', None], 
                             [ID_JPA_PROJECT, 'JPA Project', 'jpa_orm_mapping.png', None], 
                          
                          ] + 
@@ -1160,7 +1162,7 @@ class PerspectiveManager(object):
                             [ID_SERVLET, 'Servlet', "create_new_servlet.png", None],
                             [ID_SESSION_BEAN, 'Session Bean (EJB 3.x)', 'session_bean.png', None],
                             [ID_MESSAGE_DRIVEN_BEAN, 'Message-Driven Bean (EJB 3.x)', 'message_driven_bean.png', None],
-                            [ID_WEB_SERVICE, 'Web Service', None, None],
+                            [ID_WEB_SERVICE, 'Web Service', 'web_service.png', None],
                             [10010, 'Folder', "new_folder.png", None],
                             [20007, 'File', "newfile_wiz.png", None],
                         ]
