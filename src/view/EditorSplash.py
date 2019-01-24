@@ -23,7 +23,7 @@ class MySplashScreen(SplashScreen):
     def __init__(self):
 #         bmp = wx.Image(opj("../images/splash.png")).ConvertToBitmap()
         self.fileOperations = FileOperations()
-        bmp = self.fileOperations.getImageBitmap("splash.png")
+        bmp = self.fileOperations.getImageBitmap(imageName="splash.png")
         SplashScreen.__init__(self, bmp,
                                  wx.adv.SPLASH_CENTRE_ON_SCREEN | wx.adv.SPLASH_TIMEOUT,
                                  2000, None, -1)

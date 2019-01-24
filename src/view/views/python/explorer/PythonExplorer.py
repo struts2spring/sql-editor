@@ -336,19 +336,38 @@ class CreatingPythonExplorerPanel(FileTree):
 
             for path in to_open:
                 mainStc = MainStc(self)
-                mainStc.SetSavePoint()
                 fileName = os.path.split(path)[-1]
                 file_ext = fileName.split('.')[-1]
                 mainStc.SetText(FileOperations().readFile(filePath=path))
                 mainStc.ConfigureLexer(file_ext)
+                mainStc.SetModified(False)
+                imageName=self._mime.getFileImageNameByExtension(file_ext)
+                (name, captionName)=self.getTitleString(stc=mainStc,path=path)
+                mainStc.SetSavePoint()
 #                     imageName=self.iconsDictIndex[extensionName]
-                self.GetTopLevelParent()._mgr.addTabByWindow(window=mainStc, captionName=fileName, tabDirection=5)
+                self.GetTopLevelParent()._mgr.addTabByWindow(window=mainStc, imageName=imageName,name=name+'-'+captionName, captionName=name, tabDirection=5)
 #                     centerPaneTab.window.addTab(name='openFileLoad'+fileName, worksheetPanel=stc)
                 
 #         win = wx.GetApp().GetActiveWindow()
 #         if win:
 #             win.GetNotebook().OnDrop(to_open)
 
+    
+    def getTitleString(self,stc=None, path=None):
+        """Get the title string to display in the MainWindows title bar
+        @return: (unicode) string
+
+        """
+#         fname = self.GetFileName()
+        title = os.path.split(path)[-1]
+
+        # Its an unsaved buffer
+        if not len(title):
+            title = path = self.GetTabLabel()
+
+        if stc.GetModify() and not title.startswith(u'*'):
+            title = u"*" + title
+        return title, path
     def OnCompareItems(self, item1, item2):
         """Handle SortItems"""
         data = self.GetPyData(item1)
@@ -629,6 +648,10 @@ class FileBrowserMimeManager():
             count += 1
 
     def getIconByExtension(self, extension=".txt"):
+        '''
+        @param extension: 
+        @return icon
+        '''
         icon = None
         noLog = wx.LogNull()
         logger.debug(extension)
@@ -677,6 +700,9 @@ class FileBrowserMimeManager():
         return self.iconsDictIndex[imageName]
     
     def getFileImageNameByExtension(self, fileExtension=None):
+        if fileExtension:
+            if '.' not in fileExtension:
+                fileExtension='.'+fileExtension
         imageName = None
          
         if fileExtension in self.fileImageExtensionDict.keys():

@@ -740,12 +740,12 @@ class MainStc(BaseStc):
         elif key_code in cmpl.GetCallTipCancel():
             evt.Skip()
             self.CallTipCancel()
-#        elif key_code == wx.WXK_TAB and \
-#             True not in (evt.ControlDown(), evt.CmdDown(), 
-#                          evt.ShiftDown(), evt.AltDown()):
-#            self.Tab() # <- So action can be overridden
+        elif key_code == wx.WXK_TAB and \
+             True not in (evt.ControlDown(), evt.CmdDown(), 
+                          evt.ShiftDown(), evt.AltDown()):
+            self.Tab() # <- So action can be overridden
         else:
-#            print "IS TAB", key_code, wx.WXK_TAB
+            print("IS TAB", key_code, wx.WXK_TAB)
             evt.Skip()
 
     def DoAutoComplete(self):
