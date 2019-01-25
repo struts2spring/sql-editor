@@ -561,6 +561,7 @@ class FileBrowserMimeManager():
             '.jar':'jar_file.png',
             '.yaml':'yaml.png',
             '.yml':'yaml.png',
+            
             }
         pass
     
@@ -574,7 +575,7 @@ class FileBrowserMimeManager():
         count = 0
         for extensionName in ['.pdf', '.zip', '.xlsx', '.xls', '.doc', '.ppt',  '.7z', '.png', '.md', '.json', 
                               '.docx','.css','.js','.bat','.csv','.txt','.emf', '.rtf', '.chm','.odt','.ini',
-                              '.rar','.msi','.avi','.mp4','.mov','.flv','.mpg','.gif',
+                              '.rar','.msi','.avi','.mp4','.mov','.flv','.mpg','.gif', 
                               '.wma','.mp3','.wav','.aac','.m4a','.dmg','.tar','.gz', ]:
             try:
                 icon=self.getIconByExtension(extensionName)

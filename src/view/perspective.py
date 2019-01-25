@@ -48,10 +48,17 @@ class EclipseAuiToolbar(aui.AuiToolBar):
     def __init__(self, parent):
         super().__init__(parent, -1, agwStyle=aui.AUI_TB_DEFAULT_STYLE | wx.NO_BORDER)
         pub.subscribe(self.__onObjectAdded, 'perspectiveClicked')
+        pub.subscribe(self.__onUpdatePageText, 'onUpdatePageText')
 
     def __onObjectAdded(self, data, extra1, extra2=None):
         # no longer need to access data through message.data.
         print('Object', repr(data), 'is added')
+        print(extra1)
+        if extra2:
+            print(extra2)
+    def __onUpdatePageText(self, data, extra1, extra2=None):
+        # no longer need to access data through message.data.
+        logger.info('EclipseAuiToolbar.onUpdatePageText')
         print(extra1)
         if extra2:
             print(extra2)
@@ -370,7 +377,7 @@ class MyAuiManager(aui.AuiManager):
 
         super().__init__(managed_window=managed_window, agwFlags=agwFlags)
     
-    def addTabByWindow(self, window=None , imageName="script.png", name=None, captionName=None, tabDirection=5):
+    def addTabByWindow(self, window=None ,icon=None,  imageName="script.png", name=None, captionName=None, tabDirection=5):
         '''
         This method always create a new tab for the window.
         tabDirection=2 is the right 
@@ -385,7 +392,9 @@ class MyAuiManager(aui.AuiManager):
         for pane in self.GetAllPanes():
 #             logger.debug(pane.dock_direction_get())
             if pane.dock_direction_get() == tabDirection:  # adding to center tab
-                auiPanInfo = aui.AuiPaneInfo().Icon(FileOperations().getImageBitmap(imageName=imageName)).\
+                if not icon:
+                    icon=FileOperations().getImageBitmap(imageName=imageName)
+                auiPanInfo = aui.AuiPaneInfo().Icon(icon).\
                     Name(name).Caption(captionName).LeftDockable(True).Direction(wx.TOP).\
                     Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).CaptionVisible(visible=True)
                 targetTab = pane
@@ -513,7 +522,21 @@ class PerspectiveManager(object):
 
         self.createAuiManager()
         pub.subscribe(self.__onObjectAdded, 'perspectiveClicked')
+        pub.subscribe(self.__onUpdatePageText, 'onUpdatePageText')
 
+    def __onUpdatePageText(self, data, extra1, extra2=None):
+        # no longer need to access data through message.data.
+        logger.info('PerspectiveManager.__onUpdatePageText')
+        viewToolbar = self._mgr.GetPane("viewToolbar")
+        print(extra1)
+        toolSave=viewToolbar.window.FindTool(ID_SAVE)
+        toolSaveAll=viewToolbar.window.FindTool(ID_SAVE_ALL)
+        toolSaveAll.state =aui.AUI_BUTTON_STATE_NORMAL 
+        toolSave.state =aui.AUI_BUTTON_STATE_NORMAL 
+        logger.info(toolSave.state)
+        self._mgr.Update()  
+        if extra2:
+            print(extra2)
     def __onObjectAdded(self, data, extra1, extra2=None):
         # no longer need to access data through message.data.
         print('PerspectiveManager', repr(data), 'is added')
@@ -625,6 +648,10 @@ class PerspectiveManager(object):
         
 #######################################################################################    
     def definePoint(self):
+        '''
+        right align toolbar
+        '''
+        
         managed_window = self._mgr.GetManagedWindow()
         wnd_pos = managed_window.GetPosition()
         (x, y) = wnd_size = managed_window.GetSize()
@@ -856,56 +883,7 @@ class PerspectiveManager(object):
             self.selectedPerspectiveName = 'resource'
             self.viewToolBarByPerspective(self.selectedPerspectiveName)            
 
-#     def onJavaPerspective(self, event):
-#         logger.debug('onJavaPerspective')
-#         self.selectItem(ID_JAVA_PERSPECTIVE)
-#         self.selectedPerspectiveName = 'java'
-#         self.viewToolBarByPerspective(self.selectedPerspectiveName)
-#         print('perspectiveToolbar')
-# 
-#     def onJavaEEPerspective(self, event):
-#         logger.debug('onJavaEEPerspective')
-#         self.selectItem(ID_JAVA_EE_PERSPECTIVE)
-#         self.selectedPerspectiveName = 'java ee'
-#         self.viewToolBarByPerspective(self.selectedPerspectiveName)
-# #         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
-# #         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_JAVA_EE_PERSPECTIVE))
-# 
-#     def onDebugPerspecitve(self, event):
-#         logger.debug('onDebugPerspecitve')
-#         self.selectItem(ID_DEBUG_PERSPECTIVE)
-#         self.selectedPerspectiveName = 'debug'
-#         self.viewToolBarByPerspective(self.selectedPerspectiveName)
-# #         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
-# #         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_DEBUG_PERSPECTIVE))
-# 
-#     def onPythonPerspecitve(self, event):
-#         logger.debug('onPythonPerspecitve')
-#         self.selectItem(ID_PYTHON_PERSPECTIVE)
-#         self.selectedPerspectiveName = 'python'
-#         self.viewToolBarByPerspective(self.selectedPerspectiveName)
-# #         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
-# #         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(event.EventObject.GetId()))
-# 
-#     def onGitPerspecitve(self, event):
-#         logger.debug('onGitPerspecitve')
-#         self.selectItem(ID_GIT_PERSPECTIVE)
-#         self.selectedPerspectiveName = 'git'
-#         self.viewToolBarByPerspective(self.selectedPerspectiveName)
-#         
-#     def onResourcePerspecitve(self, event):
-#         logger.debug('onResourcePerspecitve')
-#         self.selectItem(ID_RESOURCE_PERSPECTIVE)
-#         self.selectedPerspectiveName = 'resource'
-#         self.viewToolBarByPerspective(self.selectedPerspectiveName)
-#         
-#     def onDatabasePerspecitve(self, event):
-#         logger.debug('onDatabasePerspecitve')
-#         self.selectItem(ID_DATABASE_PERSPECTIVE)
-#         self.selectedPerspectiveName = 'database'
-#         self.viewToolBarByPerspective(self.selectedPerspectiveName)
-#         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
-#         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_GIT_PERSPECTIVE))
+
 
     def constructViewToolBar(self, toobar=None, perspectiveName='python'):
         # create some toolbars
@@ -914,17 +892,6 @@ class PerspectiveManager(object):
             self._ctrl = None
             toobar = EclipseAuiToolbar(self)
         
-#         tb1.SetToolBitmapSize(wx.Size(42, 42))
-#         tb1.AddSimpleTool(tool_id=ID_newConnection, label="New Connection", bitmap=wx.Bitmap(self.fileOperations.getImageBitmap(imageName="connect.png")), short_help_string='Create a new connection')
-#         tb1.AddSeparator()
-        
-#         :TODO:FIXnew_con
-#         tb4_bmp1 = wx.ArtProvider.GetBitmap(wx.ART_NORMAL_FILE, wx.ART_OTHER, wx.Size(16, 16))
-#         tb4_bmp1 = self.fileOperations.getImageBitmap(imageName='new_con.png')
-#         toobar.AddSimpleTool(ID_NEW, "Item 1", tb4_bmp1, short_help_string='New')
-#         toobar.SetToolDropDown(ID_NEW, True)
-#         toobar.AddSeparator()
-#         id, name, imageName, fullName, methodName, IsDropdonw, prospectives, isDisable
         tools = [
             (ID_NEW, "New", "new_con.png", 'New', self.onNewMenu, True, ['resource', 'python', 'java', 'debug', 'java ee'], True),
             (),
@@ -1049,12 +1016,20 @@ class PerspectiveManager(object):
     def onNewMenu(self, event):
         logger.debug('onNewMenu')
 
-    def onSave(self, event):
-        logger.debug('onSave1')
-
-    def onSaveAll(self, event):
-        logger.debug('onSaveAll1')        
-                
+#     def onSave(self, event):
+#         logger.debug('onSave1')
+#         viewToolbar = self._mgr.GetPane("viewToolbar")
+#         toolSave=viewToolbar.window.FindTool(ID_SAVE)
+#         toolSave.state =aui.AUI_BUTTON_STATE_DISABLED
+#         self._mgr.Update()  
+#     def onSaveAll(self, event):
+#         logger.debug('onSaveAll1')        
+#         viewToolbar = self._mgr.GetPane("viewToolbar")
+#         toolSaveAll=viewToolbar.window.FindTool(ID_SAVE_ALL)
+#         toolSaveAll.state =aui.AUI_BUTTON_STATE_DISABLED
+#         toolSave=viewToolbar.window.FindTool(ID_SAVE)
+#         toolSave.state =aui.AUI_BUTTON_STATE_DISABLED
+#         self._mgr.Update()  
     def onRunDebugAsDropDown(self, event):
 
         if event.IsDropDownClicked():

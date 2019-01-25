@@ -115,7 +115,9 @@ class CreatingPythonExplorerPanel(FileTree):
         @param item: TreeItem
 
         """
-        self.OpenFiles(self.GetSelectedFiles())
+        logger.debug('DoItemActivated')
+
+        self.OpenFiles(self.GetSelectedFilesWithImage())
 
     def DoItemCollapsed(self, item):
         """Handle when an item is collapsed"""
@@ -183,6 +185,7 @@ class CreatingPythonExplorerPanel(FileTree):
         @param item: TreeItem
 
         """
+        logger.debug('DoItemExpanding')
         cursor = wx.BusyCursor()  # can take a few seconds on big directories
 
         d = None
@@ -317,35 +320,43 @@ class CreatingPythonExplorerPanel(FileTree):
 
     #---- End FileTree Interface Methods ----#
 
-    def OpenFiles(self, files):
+    def OpenFiles(self, filesWithImage=[]):
         """Open the list of files in Editra for editing
         @param files: list of file names
 
         """
         to_open = list()
-        for fname in files:
+        for fileWithImage in filesWithImage:
+            fname=fileWithImage[0]
             try:
                 res = os.stat(fname)[0]
-                if stat.S_ISREG(res) or stat.S_ISDIR(res):
-                    to_open.append(fname)
+                # isRegularFile or IsDirectory
+                if stat.S_ISREG(res):
+                    to_open.append(fileWithImage)
+                    
+                    
+                elif  stat.S_ISDIR(res):
+                    # TODO: need to think on it.
+                    pass
             except (IOError, OSError) as msg:
                 logger.debug("[filebrowser][err] %s" % str(msg))
         
         # TODO : Need to work on it.
         if hasattr(self.GetTopLevelParent(), '_mgr'):
 
-            for path in to_open:
+            for fileWithImage in to_open:
                 mainStc = MainStc(self)
-                fileName = os.path.split(path)[-1]
+                fileName = os.path.split(fileWithImage[0])[-1]
                 file_ext = fileName.split('.')[-1]
-                mainStc.SetText(FileOperations().readFile(filePath=path))
+                mainStc.SetText(FileOperations().readFile(filePath=fileWithImage[0]))
                 mainStc.ConfigureLexer(file_ext)
                 mainStc.SetModified(False)
                 imageName=self._mime.getFileImageNameByExtension(file_ext)
-                (name, captionName)=self.getTitleString(stc=mainStc,path=path)
+                (name, captionName)=self.getTitleString(stc=mainStc,path=fileWithImage[0])
                 mainStc.SetSavePoint()
+                icon=fileWithImage[1]
 #                     imageName=self.iconsDictIndex[extensionName]
-                self.GetTopLevelParent()._mgr.addTabByWindow(window=mainStc, imageName=imageName,name=name+'-'+captionName, captionName=name, tabDirection=5)
+                self.GetTopLevelParent()._mgr.addTabByWindow(window=mainStc,icon=icon, imageName=imageName,name=name+'-'+captionName, captionName=name, tabDirection=5)
 #                     centerPaneTab.window.addTab(name='openFileLoad'+fileName, worksheetPanel=stc)
                 
 #         win = wx.GetApp().GetActiveWindow()
@@ -615,6 +626,7 @@ class FileBrowserMimeManager():
             '.jar':'jar_file.png',
             '.yaml':'yaml.png',
             '.yml':'yaml.png',
+            '.spec':'spec.png',
             }
         pass
     
@@ -628,7 +640,7 @@ class FileBrowserMimeManager():
         count = 0
         for extensionName in ['.pdf', '.zip', '.xlsx', '.xls', '.doc', '.ppt', '.7z', '.png', '.md', '.json',
                               '.docx', '.css', '.js', '.bat', '.csv', '.txt', '.emf', '.rtf', '.chm', '.odt', '.ini',
-                              '.rar', '.msi', '.avi', '.mp4', '.mov', '.flv', '.mpg', '.gif',
+                              '.rar', '.msi', '.avi', '.mp4', '.mov', '.flv', '.mpg', '.gif', '.spec',
                               '.wma', '.mp3', '.wav', '.aac', '.m4a', '.dmg', '.tar', '.gz', ]:
             try:
                 icon = self.getIconByExtension(extensionName)
@@ -642,7 +654,7 @@ class FileBrowserMimeManager():
                 logger.error(e, exc_info=True)
         for imageName in ['fileType_filter.png', 'folder.png', 'folder_view.png', 'harddisk.png', 'usb.png', 'stop.png',
                           'java.png', 'python_module.png', 'xml.png', 'python.png', 'java.png', 'jar_file.png', 'markdown.png',
-                          'yaml.png', ]:
+                          'yaml.png','spec.png' ]:
             imglist.Add(self.fileOperations.getImageBitmap(imageName=imageName))
             self.iconsDictIndex[imageName] = count
             count += 1

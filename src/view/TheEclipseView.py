@@ -370,6 +370,18 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         self.Bind(wx.EVT_MENU, self.onHideToolbar, id=ID_HIDE_TOOLBAR)
         self.Bind(wx.EVT_MENU, self.onHideStatusbar, id=ID_HIDE_STATUSBAR)
     
+    
+    def enableButtons(self, buttonIds=[], enable=True):
+        viewToolbar = self.GetTopLevelParent()._mgr.GetPane("viewToolbar")
+        for buttonId in buttonIds:
+            tool=viewToolbar.window.FindTool(buttonId)
+            if enable:
+                tool.state =aui.AUI_BUTTON_STATE_NORMAL 
+            else:
+                tool.state =aui.AUI_BUTTON_STATE_DISABLED   
+                
+        self._mgr.Update()
+           
     def OnClose(self, event):
 #         self._mgr.UnInit()
 #         del self._mgr
@@ -383,9 +395,14 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
     def onSave(self, event):
         logger.debug('onSave1')
+        # disabling button
+        self.enableButtons(buttonIds=[ID_SAVE], enable=False)
+        # changing title : removing start mark
 
     def onSaveAll(self, event):
         logger.debug('onSaveAll1')
+        self.enableButtons(buttonIds=[ID_SAVE,ID_SAVE_ALL], enable=False)
+
 
     def onSaveAs(self, event):
         """Save File Using a new/different name

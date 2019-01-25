@@ -27,7 +27,7 @@ from src.view.util.common.ed_marker import Bookmark
 from src.view.util.common.fileutil import GetFileSize, GetFileModTime
 from src.view.util.syntax.syntax import SYNTAX_IDS, GetExtFromId
 from src.view.views.file.BaseStcPanel import BaseStc, MARK_MARGIN, FOLD_MARGIN
-
+from wx.lib.pubsub import pub
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -161,6 +161,7 @@ class MainStc(BaseStc):
 
     def OnUpdatePageText(self,event):
         logger.debug('OnUpdatePageText')
+        pub.sendMessage('onUpdatePageText', data=42, extra1='onJavaPerspective')
     #---- Protected Member Functions ----#
 
     def _BuildMacro(self):
