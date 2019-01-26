@@ -14,7 +14,7 @@ from src.view.perspective import PerspectiveManager
 from src.view.views.console.worksheet.WelcomePage import WelcomePanel
 from src.view.other.OtherView import OtherViewTreePanel, OtherViewTreeFrame
 from src.view.other.OtherPerspecitve import OtherPerspectiveTreeFrame
-    
+
 import logging.config
 from src.view.constants import LOG_SETTINGS
 from src.view.TreePanel import CreatingTreePanel
@@ -41,38 +41,55 @@ except ImportError:  # if it's not there locally, try the wxPython lib.
 class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
     def __init__(self, parent, style=wx.DEFAULT_FRAME_STYLE | wx.MAXIMIZE , title=TITLE):
+        super(EclipseMainFrame, self).__init__()
         logger.info("This is from Runner ")
-        
+        self.startWebHelp()
 #         wx.Frame.__init__(self, parent, wx.ID_ANY, title, pos, size, style)
         wx.Frame.__init__(self, parent, wx.ID_ANY, title=title, style=style)
 
         self.fileOperations = FileOperations()
         icon = wx.Icon()
         icon.CopyFromBitmap(self.fileOperations.getImageBitmap(imageName="eclipse16.png"))
-        
+
         self.SetIcon(icon)
         self.SetMinSize(wx.Size(400, 300))
         self.createMenuBar()
         self.createStatusBar()
-        
+
 #         self.creatingTreeCtrl()
-        
+
         try:
             PerspectiveManager.__init__(self)
         except Exception as e:
             logger.error(e, exc_info=True)
-            
-        self.bindingEvent()
-        self._mgr.Update()  
 
-    #---------------------------------------------    
+        self.bindingEvent()
+        self._mgr.Update()
+
+    #---------------------------------------------
+    def startWebHelp(self):
+        '''
+        This method start web server for eclipse help .
+        http://localhost:5000/
+        '''
+        try:
+            process = wx.Process(self)
+            process.Redirect()
+            dirPath = os.path.dirname(os.path.realpath(__file__))
+            filePath = os.path.join(dirPath, '..', 'web', 'HelpWeb.py')
+            logger.debug(dirPath)
+            cmd = f'python -u {filePath}'
+            pid = wx.Execute(cmd, wx.EXEC_ASYNC, process)
+            logger.debug(f'executing: {cmd} pid: {pid}')
+        except Exception as e:
+            logger.error(e)
 
     def selectCallback(self, values):
         """ Simply function that receive the row values when the
             user select an item
         """
         logger.debug(values)
-        
+
     def setDynamicChoices(self):
         ctrl = self._ctrl
         text = ctrl.GetValue().lower()
@@ -92,24 +109,24 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         if c.startswith(r'http://'): c = c[7:]
         if c.startswith(t): return True
         if c.startswith('www.'): c = c[4:]
-        return c.startswith(t)    
-    
+        return c.startswith(t)
+
 #     def constructSchemaViewerPane(self):
 #         svgViewer = SVGViewerPanel(self)
 #         return svgViewer
-    
+
     def getCurrentCursorPosition(self):
         lineNo = 1
         column = 1
         return "Line " + str(lineNo) + " , Column " + str(column)
-        
+
     def createStatusBar(self):
         logger.debug('creating status bar')
         self.statusbar = self.CreateStatusBar(2, wx.STB_SIZEGRIP)
         self.statusbar.SetStatusWidths([-2, -3])
         self.statusbar.SetStatusText(self.getCurrentCursorPosition(), 0)
         self.statusbar.SetStatusText("Welcome to {}".format(TITLE), 1)
-        
+
     def createMenuBar(self):
         logger.debug('creating menu bar')
                 # create menu
@@ -180,7 +197,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                     [ID_DEBUG_HISTORY, 'Debug history', None, None],
                     [ID_DEBUG_AS, 'Debug As', None, 'run_exc.png'],
                     [ID_DEBUG_CONFIG, 'Debug Configurations...', None, None],
-                    
+
                 ]),
             ("&Window", [
                     [ID_CREATE_NEW_WINDOW, 'New Window', None, None ],
@@ -255,9 +272,9 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                     [ wx.NewIdRef(), "Contribute", None, "star.png"],
                 ])
             ]
-        
+
 #         mb = self.createMenu(menuItemList=menuItemList)
-        
+
         for menuItem in menuItemList:
             topLevelMenu = wx.Menu()
             if menuItem[1]:
@@ -282,7 +299,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                                     firstLevleMenuItem.SetBitmap(self.fileOperations.getImageBitmap(imageName=showViewMenu[2]))
                                 else:
                                     self.appendLeafToMenu(showViewMenu[0], attacheTo=firstLevelMenu, menuName=showViewMenu[1], imageName=showViewMenu[2])
-                                     
+
                             topLevelMenu.Append(windowMenu[0], windowMenu[1], firstLevelMenu)
                         except Exception as e:
                             logger.error(e, exc_info=True)
@@ -291,7 +308,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                         if windowMenu[3]:
                             firstLevelMenu.SetBitmap(self.fileOperations.getImageBitmap(imageName=windowMenu[3]))
                         topLevelMenu.Append(firstLevelMenu)
-         
+
             mb.Append(topLevelMenu, menuItem[0])
 
         self.disableInitial(menuBar=mb)
@@ -312,9 +329,9 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 # #                 menuItem.SetBitmap(self.fileOperations.getImageBitmap(imageName=imageName))
 #             menu.Append(menuItem[0], windowMenu[1], firstLevelMenu)
 #             self.createMenu(menuBar, menuItem)
-#         
+#
 #         return menuBar
-        
+
     def appendLeafToMenu(self, menuId, attacheTo=None, menuName=None, imageName=None):
         '''
         Append menuItem to menu
@@ -327,24 +344,24 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         except Exception as e:
             logger.error(e, exc_info=True)
         return attacheTo
-    
+
     def bindingEvent(self):
         self.Bind(wx.EVT_MENU, self.OnExit, id=wx.ID_EXIT)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
         self.Bind(wx.EVT_MENU, self.OnExit, id=wx.ID_EXIT)
         self.Bind(wx.EVT_MENU, self.OnAbout, id=wx.ID_ABOUT)
         self.Bind(wx.EVT_MENU, self.OnWelcome, id=ID_WELCOME)
-        
+
         self.Bind(wx.EVT_MENU, self.onSave, id=ID_SAVE)
         self.Bind(wx.EVT_MENU, self.onSaveAll, id=ID_SAVE_ALL)
         self.Bind(wx.EVT_MENU, self.onSaveAs, id=ID_SAVE_AS)
 #         self.Bind(wx.EVT_MENU, self.onNew, id=ID_NEW)
-        
+
         self.Bind(wx.EVT_MENU, self.onOpenConnection, id=ID_openConnection)
         self.Bind(wx.EVT_MENU, self.onNewConnection, id=ID_newConnection)
         self.Bind(wx.EVT_MENU, self.onNewWorksheet, id=ID_newWorksheet)
         self.Bind(wx.EVT_MENU, self.onPreferences, ID_PREFERENCES)
-        
+
         self.Bind(wx.EVT_MENU, self.onViewClick, id=ID_OUTLINE)
         self.Bind(wx.EVT_MENU, self.onViewClick, id=ID_SQL_LOG)
         self.Bind(wx.EVT_MENU, self.onViewClick, id=ID_VARIABLE)
@@ -360,36 +377,35 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         self.Bind(wx.EVT_MENU, self.onViewClick, id=ID_FILE_EXPLORER)
         self.Bind(wx.EVT_MENU, self.onViewClick, id=ID_DATABASE_NAVIGATOR)
         self.Bind(wx.EVT_MENU, self.onViewClick, id=ID_CONSOLE_LOG)
-        
+
         self.Bind(wx.EVT_MENU, self.onOtherView, id=ID_OTHER_VIEW)
         self.Bind(wx.EVT_MENU, self.onOtherPerspecitve, id=ID_OTHER_PERSPECTIVE)
-        
+
         self.Bind(wx.EVT_MENU, self.onSqlExecution, id=ID_SQL_EXECUTION)
         self.Bind(wx.EVT_MENU, self.onShowViewToolbar, id=ID_SHOW_VIEW_TOOLBAR)
         self.Bind(wx.EVT_MENU, self.onPerspectiveToolbar, id=ID_PERSPECTIVE_TOOLBAR)
         self.Bind(wx.EVT_MENU, self.onHideToolbar, id=ID_HIDE_TOOLBAR)
         self.Bind(wx.EVT_MENU, self.onHideStatusbar, id=ID_HIDE_STATUSBAR)
-    
-    
+
     def enableButtons(self, buttonIds=[], enable=True):
         viewToolbar = self.GetTopLevelParent()._mgr.GetPane("viewToolbar")
         for buttonId in buttonIds:
-            tool=viewToolbar.window.FindTool(buttonId)
+            tool = viewToolbar.window.FindTool(buttonId)
             if enable:
-                tool.state =aui.AUI_BUTTON_STATE_NORMAL 
+                tool.state = aui.AUI_BUTTON_STATE_NORMAL
             else:
-                tool.state =aui.AUI_BUTTON_STATE_DISABLED   
-                
+                tool.state = aui.AUI_BUTTON_STATE_DISABLED
+
         self._mgr.Update()
-           
+
     def OnClose(self, event):
 #         self._mgr.UnInit()
 #         del self._mgr
-        self.Destroy()    
-    
+        self.Destroy()
+
     def OnExit(self, event):
-        self.Close() 
-        
+        self.Close()
+
     def onNew(self, event):
         logger.debug('onNew')
 
@@ -401,8 +417,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
     def onSaveAll(self, event):
         logger.debug('onSaveAll1')
-        self.enableButtons(buttonIds=[ID_SAVE,ID_SAVE_ALL], enable=False)
-
+        self.enableButtons(buttonIds=[ID_SAVE, ID_SAVE_ALL], enable=False)
 
     def onSaveAs(self, event):
         """Save File Using a new/different name
@@ -415,24 +430,24 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 #             ctrl = page
 #         else:
 #             ctrl = self.nb.GetCurrentCtrl()
-# 
+#
 #         if title == u'':
 #             title = os.path.split(ctrl.GetFileName())[1]
-# 
+#
 #         sdir = ctrl.GetFileName()
 #         if sdir is None or not len(sdir):
 #             sdir = self._last_save
-# 
+#
 #         dlg = wx.FileDialog(self, _("Choose a Save Location"),
 #                             os.path.dirname(sdir),
 #                             title.lstrip(u"*"),
 #                             u''.join(syntax.GenFileFilters()),
 #                             wx.SAVE | wx.OVERWRITE_PROMPT)
-# 
+#
 #         if ebmlib.LockCall(self._mlock, dlg.ShowModal) == wx.ID_OK:
 #             path = dlg.GetPath()
 #             dlg.Destroy()
-# 
+#
 #             result = ctrl.SaveFile(path)
 #             fname = ebmlib.GetFileName(ctrl.GetFileName())
 #             if not result:
@@ -454,7 +469,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
     def onOpenConnection(self, event):
         logger.debug('onOpenConnection')
         self.openFrame()
-#         databasefile=page2.markFile.GetValue() 
+#         databasefile=page2.markFile.GetValue()
 #         connectionName=page2.connectionNameTextCtrl.GetValue()
 #         self.createNewDatabase( connectionName=connectionName,databaseAbsolutePath=databasefile)
 
@@ -480,24 +495,24 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         databaseNavTab = self.GetTopLevelParent()._mgr.GetPane("databaseNaviagor")
         databaseNavTab.window.recreateTree()
         logger.debug("recreating database navigation tree.")
-        
+
     def onNewWorksheet(self, event):
         logger.debug('onNewWorksheet')
 #         all_panes = self._mgr.GetAllPanes()
         count = 0
         for pane in self._mgr.GetAllPanes():
-            if "Worksheet-" in pane.name: 
+            if "Worksheet-" in pane.name:
                 countStr = pane.name.replace("Worksheet-", '')
                 count = int(countStr)
                 count += 1
         self._mgr.addTabByWindow(self.getWorksheet(), imageName="script.png", captionName="Worksheet-{}".format(count), tabDirection=5)
 #         sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("centerPane")
 #         sqlExecutionTab.window.addTab("Worksheet")
-        
+
     def onPreferences(self, event):
         logger.debug('onPreferences')
         frame1 = OpalPreference(None, "Preferences", size=(600, 560))
-        
+
     def onHideToolbar(self, event):
         logger.debug('onHideStatusbar')
         if self.GetTopLevelParent()._mgr.GetPane("viewToolbar").IsShown():
@@ -576,14 +591,11 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
             self.openPanel(name="databaseNaviagor", imageName="folder_database.png", captionName="Database Navigator", tabDirection=4)
         elif event.Id == ID_CONSOLE_LOG:
             self.openPanel(name="consoleOutput", imageName="console_view.png", captionName="Console", tabDirection=3)
-    
 
-       
-         
     def onConsole(self, event):
         logger.debug('onConsole')
         self.openPanel(name="consoleOutput", imageName="console_view.png", captionName="Console", tabDirection=3)
-#         self.addTab(tabName="consoleOutput", tabDirection=3)        
+#         self.addTab(tabName="consoleOutput", tabDirection=3)
 
     def openPanel(self, name="consoleOutput", imageName="console_view.png", captionName="Console", tabDirection=3):
 #         name="consoleOutput"
@@ -621,14 +633,14 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                 panel = CreatingPythonExplorerPanel(self)
             elif name == "expressionsView":
                 panel = CreatingPythonExplorerPanel(self)
-                                
+
             self._mgr.addTabByWindow(panel, imageName=imageName, name=name , captionName=captionName, tabDirection=tabDirection)
         elif not self._mgr.GetPaneByName(name).IsShown():
             panel = self._mgr.GetPaneByName(name).window
             if panel:
                 panel.Show()
             pane.dock_direction = tabDirection
-            pane.Show(True)        
+            pane.Show(True)
 
     def onOtherView(self, event):
         logger.debug('onOtherView')
@@ -645,22 +657,22 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         self.openPanel(name="fileExplorer", imageName="file_explorer.png", captionName="File Explorer", tabDirection=4)
 #         fileBrowserPanel = FileBrowser(self, size=(500, 300))
 #         self._mgr.addTabByWindow(fileBrowserPanel, imageName="file_explorer.png", name='fileExplorer' , captionName="File Explorer", tabDirection=4)
-        
+
     def onSqlExecution(self, event):
         logger.debug('onSqlExecution')
 
         self.addTab(tabName="centerPane", tabDirection=5)
-    
+
     def OnWelcome(self, event):
         logger.debug("OnWelcome")
         name = 'Start Page'
         self.addTab(tabName="onWelcome", tabDirection=5)
-#         centerPaneTab.window.addTab(name)    
+#         centerPaneTab.window.addTab(name)
 
     def addTabByWindo1(self, window=None , imageName="script.png", captionName=None, tabDirection=5):
         '''
         This method always create a new tab for the window.
-        tabDirection=5 is the center 
+        tabDirection=5 is the center
         '''
         self._mgr.SetAutoNotebookStyle(aui.AUI_NB_DEFAULT_STYLE | wx.BORDER_NONE)
         for pane in self._mgr.GetAllPanes():
@@ -680,13 +692,13 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                     self._mgr.AddPane(window, auiPanInfo, target=targetTab)
                 break
         self.GetTopLevelParent()._mgr.Update()
-        
+
     def addTab(self, tabName='', tabDirection=5):
         self._mgr.SetAutoNotebookStyle(aui.AUI_NB_DEFAULT_STYLE | wx.BORDER_NONE)
 #         worksheetPanel=WelcomePanel(self)
         targetTab = self.GetTopLevelParent()._mgr.GetPane(tabName).Show()
         targetTab.CaptionVisible(True)
-        
+
         for pane in self._mgr.GetAllPanes():
             logger.debug(pane.dock_direction_get())
             if pane.dock_direction_get() == tabDirection:  # adding to center tab
@@ -696,24 +708,24 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                 self._mgr.ActivatePane(targetTab.window)
                 break
             else:
-                self._mgr.AddPane(targetTab.window, targetTab)  
-               
+                self._mgr.AddPane(targetTab.window, targetTab)
+
         self.GetTopLevelParent()._mgr.Update()
 
     def OnAbout(self, event):
         logger.debug('OnAbout')
         plate = platform.platform()
 #         msg=u"\u00A9"
-        msg = f"""{TITLE} 
-        
-Version : {VERSION} Release 
-Build : 0.1 Release 
+        msg = f"""{TITLE}
+
+Version : {VERSION} Release
+Build : 0.1 Release
 
 An advanced Database tool for developers, DBAs and analysts.
 This product includes software developed by other open source projects.
 \u00A9 BSD
 
-Plateform: {plate} 
+Plateform: {plate}
 wxpython: {wx.__version__}
 Python :{sys.version}"""
 # .format(TITLE, VERSION, plate, sys.version)

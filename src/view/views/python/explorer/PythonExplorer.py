@@ -37,12 +37,11 @@ class CreatingPythonExplorerPanel(FileTree):
         self._cpath = None
         # Setup
         self.SetupImageList()
-        
-        self.AddWatchDirectory("c:\\1\\sql_editor")
-        self.AddWatchDirectory(r"C:\Users\xbbntni\eclipse-workspace2\pyTrack")
-        
+
+        self.AddWatchDirectory(r"C:\work\python_project\sql-editor")
+
         self.Bind(wx.EVT_MENU, self.OnMenu)
-            
+
     def AddWatchDirectory(self, dname):
         """Add a directory to the controls top level view
         @param dname: directory path
@@ -55,7 +54,7 @@ class CreatingPythonExplorerPanel(FileTree):
         assert os.path.exists(dname), "Path(%s) doesn't exist!" % dname
         childNode = None
         if dname not in self._watch:
-            
+
             self._watch.append(dname)
             childNode = self.AppendFileNode(self.RootItem, dname)
             return childNode
@@ -91,7 +90,7 @@ class CreatingPythonExplorerPanel(FileTree):
     def DoSetupImageList(self):
         """Setup the image list for this control"""
         self._mime.PopulateImageList(self.ImageList)
-        
+
 #         super().DoSetupImageList()
 
     def DoGetFileImage(self, path):
@@ -131,9 +130,9 @@ class CreatingPythonExplorerPanel(FileTree):
         """Check if the given file should be displayed based on configuration
         @param path: file path
         @return: bool
- 
+
         """
-        
+
         shouldDisplay = True
         dname = GetFileName(path)
         if dname.startswith('.') or dname in ['__pycache__' ,'build', 'dist'] or '.egg-info' in dname :
@@ -144,7 +143,7 @@ class CreatingPythonExplorerPanel(FileTree):
 #         """Check if the given file should be displayed based on configuration
 #         @param path: file path
 #         @return: bool
-# 
+#
 #         """
 #         showHidden = fbcfg.GetFBOption(fbcfg.FB_SHF_OPT, False)
 #         if not showHidden and ebmlib.IsHidden(path):
@@ -161,7 +160,7 @@ class CreatingPythonExplorerPanel(FileTree):
 #         display in the tree. Optimized for large lists of paths.
 #         @param paths: list of paths
 #         @return: filtered list
-# 
+#
 #         """
 #         showHidden = True
 # #         showHidden = fbcfg.GetFBOption(fbcfg.FB_SHF_OPT, False)
@@ -202,7 +201,7 @@ class CreatingPythonExplorerPanel(FileTree):
                 self.AppendFileNodes(item, contents)
                 self.SortChildren(item)
             logger.info("Tree expand time: %f" % (time.time() - t1))
- 
+
 #             if not self._monitor.AddDirectory(d):
 #                 self.SetItemImage(item, self._mime.IMG_NO_ACCESS)
 #                 return
@@ -210,7 +209,7 @@ class CreatingPythonExplorerPanel(FileTree):
         # Update tree image
         self.SetItemImage(item, self._mime.GetImageIndex(d, True))
         del cursor
-        
+
     def GetDirContents(self, directory):
         """Get the list of files contained in the given directory"""
         logger.debug('GetDirContents')
@@ -293,13 +292,13 @@ class CreatingPythonExplorerPanel(FileTree):
 #                      (wx.ID_SEPARATOR, '', None),
 #                      (ID_DELETE, TrashString(), ID_DELETE),
 #                     ]
-# 
+#
 #             for mi_tup in items:
 #                 mitem = wx.MenuItem(self._menu.Menu, mi_tup[0], mi_tup[1])
 #                 if mi_tup[2] is not None:
 #                     bmp = wx.ArtProvider.GetBitmap(str(mi_tup[2]), wx.ART_MENU)
 #                     mitem.SetBitmap(bmp)
-# 
+#
 #                 self._menu.Menu.AppendItem(mitem)
 
         # Set contextual data
@@ -333,14 +332,14 @@ class CreatingPythonExplorerPanel(FileTree):
                 # isRegularFile or IsDirectory
                 if stat.S_ISREG(res):
                     to_open.append(fileWithImage)
-                    
-                    
+
+
                 elif  stat.S_ISDIR(res):
                     # TODO: need to think on it.
                     pass
             except (IOError, OSError) as msg:
                 logger.debug("[filebrowser][err] %s" % str(msg))
-        
+
         # TODO : Need to work on it.
         if hasattr(self.GetTopLevelParent(), '_mgr'):
 
@@ -358,12 +357,12 @@ class CreatingPythonExplorerPanel(FileTree):
 #                     imageName=self.iconsDictIndex[extensionName]
                 self.GetTopLevelParent()._mgr.addTabByWindow(window=mainStc,icon=icon, imageName=imageName,name=name+'-'+captionName, captionName=name, tabDirection=5)
 #                     centerPaneTab.window.addTab(name='openFileLoad'+fileName, worksheetPanel=stc)
-                
+
 #         win = wx.GetApp().GetActiveWindow()
 #         if win:
 #             win.GetNotebook().OnDrop(to_open)
 
-    
+
     def getTitleString(self,stc=None, path=None):
         """Get the title string to display in the MainWindows title bar
         @return: (unicode) string
@@ -467,7 +466,7 @@ class CreatingPythonExplorerPanel(FileTree):
 #             for fname in paths:
 #                 subprocess.call([FILEMAN_CMD, fname])
 #                 time.sleep(.25)
-# 
+#
 #         if e_id == ID_EDIT:
 #             self.OpenFiles(paths)
 #         elif e_id == ID_OPEN:
@@ -485,7 +484,7 @@ class CreatingPythonExplorerPanel(FileTree):
 #                 if not os.path.isdir(path):
 #                     path = os.path.dirname(path)
 #                 mdata = dict(mainw=self._mw, lookin=path)
-#                 ed_msg.PostMessage(ed_msg.EDMSG_FIND_SHOW_DLG, mdata) 
+#                 ed_msg.PostMessage(ed_msg.EDMSG_FIND_SHOW_DLG, mdata)
 #         elif e_id == ID_GETINFO:
 #             last = None
 #             for fname in paths:
@@ -575,7 +574,7 @@ class CreatingPythonExplorerPanel(FileTree):
 
         pg_count = nbdata[0].GetPageCount()
         if nbdata[1] > pg_count  or nbdata[1] < 0:
-            # Page is out of range, something has changed since the 
+            # Page is out of range, something has changed since the
             # message was sent.
             return
 
@@ -609,11 +608,11 @@ class CreatingPythonExplorerPanel(FileTree):
         @param mainw: MainWindow or None
 
         """
-        self._mw = mainw    
+        self._mw = mainw
 
 
 class FileBrowserMimeManager():
-    
+
     def __init__(self):
         self.fileOperations = FileOperations()
         self.fileImageExtensionDict = {
@@ -629,11 +628,11 @@ class FileBrowserMimeManager():
             '.spec':'spec.png',
             }
         pass
-    
+
     def PopulateImageList(self, imglist):
         """Populate an ImageList with the icons for the file tree
         @param imglist: wx.ImageList instance (16x16)
- 
+
         """
         imglist.RemoveAll()
         self.iconsDictIndex = {}
@@ -661,7 +660,7 @@ class FileBrowserMimeManager():
 
     def getIconByExtension(self, extension=".txt"):
         '''
-        @param extension: 
+        @param extension:
         @return icon
         '''
         icon = None
@@ -679,13 +678,13 @@ class FileBrowserMimeManager():
             except :
                 logger.error('some error :' + extension)
 #        This is to supress warning
-        del noLog        
+        del noLog
         return icon
 
     def GetImageIndex(self, path, expanded=False):
         """Get the appropriate file index for the given path
         @param path: file name or path
- 
+
         """
         imageName = 'fileType_filter.png'
         if not os.access(path, os.R_OK):
@@ -708,21 +707,21 @@ class FileBrowserMimeManager():
             fileExtension = fileExtension.lower()
             if fileExtension and self.getFileImageNameByExtension(fileExtension):
                 imageName = self.getFileImageNameByExtension(fileExtension)
-                
+
         return self.iconsDictIndex[imageName]
-    
+
     def getFileImageNameByExtension(self, fileExtension=None):
         if fileExtension:
             if '.' not in fileExtension:
                 fileExtension='.'+fileExtension
         imageName = None
-         
+
         if fileExtension in self.fileImageExtensionDict.keys():
             imageName = self.fileImageExtensionDict[fileExtension]
-        
+
         return imageName
 
-    
+
 #     def IsDevice(self, path):
 #         """Is the path some sort of device"""
 #         if os.path.ismount(path):
@@ -776,15 +775,15 @@ class FileBrowserMimeManager():
 #                IMG_SHELL   : ID_LANG_BASH }
 #     def __init__(self):
 #         super(FBMimeMgr, self).__init__()
-# 
+#
 #         # Attributes
 #         self._ftype = FBMimeMgr.IMG_FILE
-#         
+#
 #     @classmethod
 #     def PopulateImageList(cls, imglist):
 #         """Populate an ImageList with the icons for the file tree
 #         @param imglist: wx.ImageList instance (16x16)
-# 
+#
 #         """
 #         imglist.RemoveAll()
 #         for img in FBMimeMgr.IMAGES:
@@ -792,7 +791,7 @@ class FileBrowserMimeManager():
 #             bmp = wx.ArtProvider.GetBitmap(str(imgid), wx.ART_MENU)
 #             if bmp.IsOk():
 #                 imglist.Add(bmp)
-# 
+#
 #     @classmethod
 #     def RefreshImageList(cls, imglist):
 #         """Refresh all icons from the icon manager"""
@@ -801,11 +800,11 @@ class FileBrowserMimeManager():
 #             bmp = wx.ArtProvider.GetBitmap(str(imgid), wx.ART_MENU)
 #             if bmp.IsOk():
 #                 imglist.Replace(idx, bmp)
-# 
+#
 #     def GetImageIndex(self, path, expanded=False):
 #         """Get the appropriate file index for the given path
 #         @param path: file name or path
-# 
+#
 #         """
 #         self._ftype = FBMimeMgr.IMG_FILE
 #         if not os.access(path, os.R_OK):
@@ -822,11 +821,11 @@ class FileBrowserMimeManager():
 #         elif self.IsKnownBinType(path):
 #             pass
 #         return self._ftype
-# 
+#
 #     def IsKnownTextFile(self, path):
 #         """Is a known text file type
 #         @param path: file path / name
-# 
+#
 #         """
 #         tpath = os.path.basename(path)
 #         ext = GetFileExtensions(tpath)
@@ -841,11 +840,11 @@ class FileBrowserMimeManager():
 #                  ID_LANG_BASH : FBMimeMgr.IMG_SHELL }
 # #         self._ftype = tmap.get(etype, FBMimeMgr.IMG_FILE)
 #         return self._ftype != FBMimeMgr.IMG_FILE
-# 
+#
 #     def IsKnownBinType(self, path):
 #         """Is a known binary file type
 #         @param path: file path / name
-# 
+#
 #         """
 #         ext = GetFileExtension(path)
 #         if ext in ('exe', 'dll', 'so'): # TODO better mapping
@@ -853,7 +852,7 @@ class FileBrowserMimeManager():
 #         else:
 #             return False
 #         return True
-# 
+#
 #     def IsDevice(self, path):
 #         """Is the path some sort of device"""
 #         if os.path.ismount(path):
@@ -873,11 +872,11 @@ if __name__ == '__main__':
 #     treeImageLevel[(1, 0)] = (0, 'database_category.png')
 #     treeImageLevel[(1, 1)] = (0, 'folder_view.png')
 #     treeImageLevel[(1, 2)] = (0, 'folder.png')
-#     
+#
 #     print(treeImageLevel[(0, 0)])
     app = wx.App(False)
     frame = wx.Frame(None)
-    try: 
+    try:
         panel = CreatingPythonExplorerPanel(frame)
     except Exception as ex:
         logger.error(ex)

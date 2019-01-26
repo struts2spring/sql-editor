@@ -18,6 +18,8 @@ def run(server_class=HTTPServer, handler_class=BaseHTTPRequestHandler):
     httpd = server_class(server_address, handler_class)
     httpd.serve_forever()
 
+
+
 def main():
     Thread(target=run).start()
     app = MyApp(False)
