@@ -13,10 +13,12 @@ from src.view.constants import LOG_SETTINGS
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
+
 class SqlConsoleOutputPanel(wx.Panel):
-    def __init__(self, parent=None, *args, **kw):
-        wx.Panel.__init__(self, parent, id=-1)
-        
+
+    def __init__(self, parent, size=wx.DefaultSize):
+#         wx.Panel.__init__(self, parent, id=-1, size=size)
+        super().__init__(parent, id=-1, size=size)
         vBox = wx.BoxSizer(wx.VERTICAL)
 
         ####################################################################
@@ -25,7 +27,7 @@ class SqlConsoleOutputPanel(wx.Panel):
         self.text.SetText('')
         self.text.EmptyUndoBuffer()
         self.text.Colourise(0, -1)
-        self.text.SetInitialSize(wx.Size(400, 400))
+#         self.text.SetInitialSize(wx.Size(400, 400))
 #         self.sstc.SetBestFittingSize(wx.Size(400, 400))
 
         # line numbers in the margin
@@ -40,10 +42,12 @@ class SqlConsoleOutputPanel(wx.Panel):
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(vBox, 1, wx.EXPAND , 0)
         self.SetSizer(sizer)
+
+
 #---------------------------------------------------------------------------
 if __name__ == '__main__':
     app = wx.App(False)
     frame = wx.Frame(None)
-    panel = SqlConsoleOutputPanel(frame)
+    panel = SqlConsoleOutputPanel(frame, size=(100, 100))
     frame.Show()
     app.MainLoop()
