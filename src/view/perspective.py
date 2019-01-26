@@ -27,8 +27,9 @@ from wx.lib.agw.aui.auibar import AuiToolBarEvent, \
     wxEVT_COMMAND_AUITOOLBAR_RIGHT_CLICK
 from src.view.views.python.explorer.PythonExplorer import CreatingPythonExplorerPanel
 
-
 from wx import py
+from src.view.views.java.explorer.JavaExplorer import CreatingJavaExplorerPanel
+from src.view.views.project.explorer.ProjectExplorer import CreatingProjectExplorerPanel
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -47,10 +48,17 @@ class EclipseAuiToolbar(aui.AuiToolBar):
     def __init__(self, parent):
         super().__init__(parent, -1, agwStyle=aui.AUI_TB_DEFAULT_STYLE | wx.NO_BORDER)
         pub.subscribe(self.__onObjectAdded, 'perspectiveClicked')
+        pub.subscribe(self.__onUpdatePageText, 'onUpdatePageText')
 
     def __onObjectAdded(self, data, extra1, extra2=None):
         # no longer need to access data through message.data.
         print('Object', repr(data), 'is added')
+        print(extra1)
+        if extra2:
+            print(extra2)
+    def __onUpdatePageText(self, data, extra1, extra2=None):
+        # no longer need to access data through message.data.
+        logger.info('EclipseAuiToolbar.onUpdatePageText')
         print(extra1)
         if extra2:
             print(extra2)
@@ -369,7 +377,7 @@ class MyAuiManager(aui.AuiManager):
 
         super().__init__(managed_window=managed_window, agwFlags=agwFlags)
     
-    def addTabByWindow(self, window=None , imageName="script.png", name=None, captionName=None, tabDirection=5):
+    def addTabByWindow(self, window=None ,icon=None,  imageName="script.png", name=None, captionName=None, tabDirection=5):
         '''
         This method always create a new tab for the window.
         tabDirection=2 is the right 
@@ -384,7 +392,9 @@ class MyAuiManager(aui.AuiManager):
         for pane in self.GetAllPanes():
 #             logger.debug(pane.dock_direction_get())
             if pane.dock_direction_get() == tabDirection:  # adding to center tab
-                auiPanInfo = aui.AuiPaneInfo().Icon(FileOperations().getImageBitmap(imageName=imageName)).\
+                if not icon:
+                    icon=FileOperations().getImageBitmap(imageName=imageName)
+                auiPanInfo = aui.AuiPaneInfo().Icon(icon).\
                     Name(name).Caption(captionName).LeftDockable(True).Direction(wx.TOP).\
                     Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).CaptionVisible(visible=True)
                 targetTab = pane
@@ -512,7 +522,21 @@ class PerspectiveManager(object):
 
         self.createAuiManager()
         pub.subscribe(self.__onObjectAdded, 'perspectiveClicked')
+        pub.subscribe(self.__onUpdatePageText, 'onUpdatePageText')
 
+    def __onUpdatePageText(self, data, extra1, extra2=None):
+        # no longer need to access data through message.data.
+        logger.info('PerspectiveManager.__onUpdatePageText')
+        viewToolbar = self._mgr.GetPane("viewToolbar")
+        print(extra1)
+        toolSave=viewToolbar.window.FindTool(ID_SAVE)
+        toolSaveAll=viewToolbar.window.FindTool(ID_SAVE_ALL)
+        toolSaveAll.state =aui.AUI_BUTTON_STATE_NORMAL 
+        toolSave.state =aui.AUI_BUTTON_STATE_NORMAL 
+        logger.info(toolSave.state)
+        self._mgr.Update()  
+        if extra2:
+            print(extra2)
     def __onObjectAdded(self, data, extra1, extra2=None):
         # no longer need to access data through message.data.
         print('PerspectiveManager', repr(data), 'is added')
@@ -624,6 +648,10 @@ class PerspectiveManager(object):
         
 #######################################################################################    
     def definePoint(self):
+        '''
+        right align toolbar
+        '''
+        
         managed_window = self._mgr.GetManagedWindow()
         wnd_pos = managed_window.GetPosition()
         (x, y) = wnd_size = managed_window.GetSize()
@@ -765,8 +793,6 @@ class PerspectiveManager(object):
         s = viewToolbar.window.GetMinSize()
         viewToolbar.BestSize(s)
         
-
-        
         for pane in self._mgr.GetAllPanes():
             if pane.window:
                 if not (isinstance(pane.window, aui.AuiToolBar) or pane.dock_direction == 5):
@@ -798,8 +824,8 @@ class PerspectiveManager(object):
     def openPanel(self, name="consoleOutput", imageName="console_view.png", captionName="Console", tabDirection=3):
 #         name="consoleOutput"
         pane = self._mgr.GetPane(name)
+        panel = wx.Panel(self)
         if pane.window == None:
-            panel = wx.Panel(self)
             if name == "consoleOutput":
                 panel = SqlConsoleOutputPanel(self)
             elif name == "databaseNaviagor":
@@ -807,11 +833,11 @@ class PerspectiveManager(object):
             elif name == "pythonPackageExplorer":
                 panel = CreatingPythonExplorerPanel(self)
             elif name == "projectExplorerView":
-                panel = CreatingPythonExplorerPanel(self)
+                panel = CreatingProjectExplorerPanel(self)
             elif name == "javaPackageExplorer":
-                panel = CreatingPythonExplorerPanel(self)
+                panel = CreatingJavaExplorerPanel(self)
             elif name == "pythonShellView":
-                intro = '%s' % py.version.VERSION
+                intro = f'{py.version.VERSION}'
                 panel = py.shell.Shell(self, -1, introText=intro)
             elif name == "terminalView":
                 panel = CreatingPythonExplorerPanel(self)
@@ -857,56 +883,7 @@ class PerspectiveManager(object):
             self.selectedPerspectiveName = 'resource'
             self.viewToolBarByPerspective(self.selectedPerspectiveName)            
 
-#     def onJavaPerspective(self, event):
-#         logger.debug('onJavaPerspective')
-#         self.selectItem(ID_JAVA_PERSPECTIVE)
-#         self.selectedPerspectiveName = 'java'
-#         self.viewToolBarByPerspective(self.selectedPerspectiveName)
-#         print('perspectiveToolbar')
-# 
-#     def onJavaEEPerspective(self, event):
-#         logger.debug('onJavaEEPerspective')
-#         self.selectItem(ID_JAVA_EE_PERSPECTIVE)
-#         self.selectedPerspectiveName = 'java ee'
-#         self.viewToolBarByPerspective(self.selectedPerspectiveName)
-# #         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
-# #         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_JAVA_EE_PERSPECTIVE))
-# 
-#     def onDebugPerspecitve(self, event):
-#         logger.debug('onDebugPerspecitve')
-#         self.selectItem(ID_DEBUG_PERSPECTIVE)
-#         self.selectedPerspectiveName = 'debug'
-#         self.viewToolBarByPerspective(self.selectedPerspectiveName)
-# #         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
-# #         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_DEBUG_PERSPECTIVE))
-# 
-#     def onPythonPerspecitve(self, event):
-#         logger.debug('onPythonPerspecitve')
-#         self.selectItem(ID_PYTHON_PERSPECTIVE)
-#         self.selectedPerspectiveName = 'python'
-#         self.viewToolBarByPerspective(self.selectedPerspectiveName)
-# #         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
-# #         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(event.EventObject.GetId()))
-# 
-#     def onGitPerspecitve(self, event):
-#         logger.debug('onGitPerspecitve')
-#         self.selectItem(ID_GIT_PERSPECTIVE)
-#         self.selectedPerspectiveName = 'git'
-#         self.viewToolBarByPerspective(self.selectedPerspectiveName)
-#         
-#     def onResourcePerspecitve(self, event):
-#         logger.debug('onResourcePerspecitve')
-#         self.selectItem(ID_RESOURCE_PERSPECTIVE)
-#         self.selectedPerspectiveName = 'resource'
-#         self.viewToolBarByPerspective(self.selectedPerspectiveName)
-#         
-#     def onDatabasePerspecitve(self, event):
-#         logger.debug('onDatabasePerspecitve')
-#         self.selectItem(ID_DATABASE_PERSPECTIVE)
-#         self.selectedPerspectiveName = 'database'
-#         self.viewToolBarByPerspective(self.selectedPerspectiveName)
-#         perspectiveToolbar=self._mgr.GetPane("perspectiveToolbar")
-#         perspectiveToolbar.window.SetPressedItem(perspectiveToolbar.window.getToolBarItemById(ID_GIT_PERSPECTIVE))
+
 
     def constructViewToolBar(self, toobar=None, perspectiveName='python'):
         # create some toolbars
@@ -915,17 +892,6 @@ class PerspectiveManager(object):
             self._ctrl = None
             toobar = EclipseAuiToolbar(self)
         
-#         tb1.SetToolBitmapSize(wx.Size(42, 42))
-#         tb1.AddSimpleTool(tool_id=ID_newConnection, label="New Connection", bitmap=wx.Bitmap(self.fileOperations.getImageBitmap(imageName="connect.png")), short_help_string='Create a new connection')
-#         tb1.AddSeparator()
-        
-#         :TODO:FIXnew_con
-#         tb4_bmp1 = wx.ArtProvider.GetBitmap(wx.ART_NORMAL_FILE, wx.ART_OTHER, wx.Size(16, 16))
-#         tb4_bmp1 = self.fileOperations.getImageBitmap(imageName='new_con.png')
-#         toobar.AddSimpleTool(ID_NEW, "Item 1", tb4_bmp1, short_help_string='New')
-#         toobar.SetToolDropDown(ID_NEW, True)
-#         toobar.AddSeparator()
-#         id, name, imageName, fullName, methodName, IsDropdonw, prospectives, isDisable
         tools = [
             (ID_NEW, "New", "new_con.png", 'New', self.onNewMenu, True, ['resource', 'python', 'java', 'debug', 'java ee'], True),
             (),
@@ -935,19 +901,21 @@ class PerspectiveManager(object):
             (ID_TERMINAL, "Open a Terminal", "linux_terminal.png", "Open a Terminal (Ctrl+Shift+Alt+T)", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug', 'java ee'], True),
             (),
             (ID_SKIP_ALL_BREAKPOINTS, "Skip All Breakpoints (Ctrl+Alt+B)", "skip_brkp.png", "Skip All Breakpoints (Ctrl+Alt+B)", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug', 'java ee'], True),
-            (ID_NEW_JAVA_PACKAGE, "New Java Package", "newpack_wiz.png", "New Java Package", self.onOpenTerminal, False, ['resource', 'java', 'java ee'], True),
-            (ID_NEW_JAVA_CLASS, "New Java Class", "newclass_wiz.png", "New Java Class", self.onOpenTerminal, True, ['resource', 'java', 'java ee'], True),
-            (ID_RESUME_DEBUG, "Resume", "resume_co.png", "Resume", self.onOpenTerminal, False, ['debug'], False),
-            (ID_SUSPEND_DEBUG, "Suspend", "suspend_co.png", "Suspend", self.onOpenTerminal, False, ['debug'], False),
-            (ID_TERMNATE_DEBUG, "Terminate", "terminatedlaunch_obj.png", "Terminate", self.onOpenTerminal, False, ['debug'], False),
-            (ID_DISCONNECT_DEBUG, "Disconnect", "disconnect_co.png", "Terminate", self.onOpenTerminal, False, ['debug'], False),
-            (ID_STEP_INTO_DEBUG, "Step Into", "stepinto_co.png", "Step Into", self.onOpenTerminal, False, ['debug'], False),
-            (ID_STEP_OVER_DEBUG, "Step Over", "stepover_co.png", "Step Over", self.onOpenTerminal, False, ['debug'], False),
-            (ID_STEP_RETURN_DEBUG, "Step Return", "stepreturn_co.png", "Step Return", self.onOpenTerminal, False, ['debug'], False),
+            (ID_NEW_JAVA_PACKAGE, "New Java Package", "newpack_wiz.png", "New Java Package", self.onOpenTerminal, False, ['resource', 'java'], True),
+            (ID_NEW_JAVA_CLASS, "New Java Class", "newclass_wiz.png", "New Java Class", self.onOpenTerminal, True, ['resource', 'java'], True),
+            (ID_RESUME_DEBUG, "Resume", "resume_co.png", "Resume", self.onOpenTerminal, False, ['debug', 'java ee'], False),
+            (ID_SUSPEND_DEBUG, "Suspend", "suspend_co.png", "Suspend", self.onOpenTerminal, False, ['debug', 'java ee'], False),
+            (ID_TERMNATE_DEBUG, "Terminate", "terminatedlaunch_obj.png", "Terminate", self.onOpenTerminal, False, ['debug', 'java ee'], False),
+            (ID_DISCONNECT_DEBUG, "Disconnect", "disconnect_co.png", "Disconnect", self.onOpenTerminal, False, ['debug', 'java ee'], False),
+            (ID_STEP_INTO_DEBUG, "Step Into", "stepinto_co.png", "Step Into", self.onOpenTerminal, False, ['debug', 'java ee'], False),
+            (ID_STEP_OVER_DEBUG, "Step Over", "stepover_co.png", "Step Over", self.onOpenTerminal, False, ['debug', 'java ee'], False),
+            (ID_STEP_RETURN_DEBUG, "Step Return", "stepreturn_co.png", "Step Return", self.onOpenTerminal, False, ['debug', 'java ee'], False),
             
             (),
-            (ID_DEBUG_AS_MENU, "Debug As...", "debug_exc.png", "Debug As...", self.onOpenTerminal, True, ['python', 'java', 'debug'], True),
-            (ID_RUN_AS_MENU, "Run As...", "run_exc.png", "Run As...", self.onRunAsMenu, True, ['python', 'java', 'debug'], True),
+            (ID_DEBUG_AS_MENU, "Debug As...", "debug_exc.png", "Debug As...", self.onOpenTerminal, True, ['python', 'java', 'debug', 'java ee'], True),
+            (ID_RUN_AS_MENU, "Run As...", "run_exc.png", "Run As...", self.onRunAsMenu, True, ['python', 'java', 'debug', 'java ee'], True),
+            (ID_CREATE_DYNAMIC_WEB_PROJECT, "Create a Dynamic Web Project", "create_dynamic_web_project.png", "Create a Dynamic Web Project", self.onRunAsMenu, True, ['java ee'], True),
+            (ID_CREATE_NEW_SERVLET, "Create a New Servlet", "create_new_servlet.png", "Create a New Servlet", self.onRunAsMenu, True, ['java ee'], True),
             (ID_OPEN_TYPE, "Open Type", "opentype.png", "Open Type", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug'], True),
             (ID_OPEN_TASK, "Open Task (Ctrl+F12)", "open_task.png", "Open Task (Ctrl+F12)", self.onOpenTask, False, ['resource', 'python', 'java', 'debug'], True),
             (ID_SEARCH, "Search", "searchres.png", "Search", self.onOpenSearch, True, ['resource', 'python', 'java', 'debug'], True),
@@ -1025,9 +993,12 @@ class PerspectiveManager(object):
 #         tb1.AddLabelTool(103, "Test"t1 = wx.TextCtrl(self, -1, "Test it out and see", size=(125, -1)), wx.ArtProvider_GetBitmap(wx.ART_WARNING))
 #         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_MISSING_IMAGE))
         toobar.Realize()
-        self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onNewDropDown, id=ID_NEW)
+        self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onRunDebugAsDropDown, id=ID_NEW)
         self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onRunDebugAsDropDown, id=ID_RUN_AS_MENU)
         self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onRunDebugAsDropDown, id=ID_DEBUG_AS_MENU)
+        self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onRunDebugAsDropDown, id=ID_NEW_JAVA_CLASS)
+        self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onRunDebugAsDropDown, id=ID_CREATE_DYNAMIC_WEB_PROJECT)
+        self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onRunDebugAsDropDown, id=ID_CREATE_NEW_SERVLET)
         return toobar
     
     def onOpenTerminal(self, event):
@@ -1045,18 +1016,27 @@ class PerspectiveManager(object):
     def onNewMenu(self, event):
         logger.debug('onNewMenu')
 
-    def onSave(self, event):
-        logger.debug('onSave1')
-
-    def onSaveAll(self, event):
-        logger.debug('onSaveAll1')        
-
+#     def onSave(self, event):
+#         logger.debug('onSave1')
+#         viewToolbar = self._mgr.GetPane("viewToolbar")
+#         toolSave=viewToolbar.window.FindTool(ID_SAVE)
+#         toolSave.state =aui.AUI_BUTTON_STATE_DISABLED
+#         self._mgr.Update()  
+#     def onSaveAll(self, event):
+#         logger.debug('onSaveAll1')        
+#         viewToolbar = self._mgr.GetPane("viewToolbar")
+#         toolSaveAll=viewToolbar.window.FindTool(ID_SAVE_ALL)
+#         toolSaveAll.state =aui.AUI_BUTTON_STATE_DISABLED
+#         toolSave=viewToolbar.window.FindTool(ID_SAVE)
+#         toolSave.state =aui.AUI_BUTTON_STATE_DISABLED
+#         self._mgr.Update()  
     def onRunDebugAsDropDown(self, event):
 
         if event.IsDropDownClicked():
 
             tb = event.GetEventObject()
             tb.SetToolSticky(event.GetId(), True)
+            baseList = list()
             if event.Id == ID_RUN_AS_MENU:
                 baseList = [
                         [],
@@ -1072,6 +1052,123 @@ class PerspectiveManager(object):
                         [ID_ORGANIZE_FAVORITES, 'Organize Favorites..', None, None],
                         ]
             
+            elif event.Id == ID_NEW_JAVA_CLASS:
+                baseList = [
+                        [],
+                        [ID_JUNIT_TEST_CASE, 'Junit Test Case', "new_testcase.png", None],
+                        [ID_CLASS, 'Class',  'newclass_wiz.png', None],
+                        [ID_INTERFACE, 'Interface', 'newint_wiz.png', None],
+                        [ID_ENUM, 'Enum', 'newenum_wiz.png', None],
+                        [ID_ANNOTATION, 'Annotation', 'newannotation_wiz.png', None],
+                        [ID_JAX_WS_HANDLER, 'JAX-WS Handler', None, None],
+                        ]
+            elif event.Id == ID_CREATE_DYNAMIC_WEB_PROJECT:
+                baseList = [
+                        [],
+                        [ID_DYNAMIC_WEB_PROJECT, 'Dynamic Web Project', 'create_dynamic_web_project.png', None],
+                        [ID_WEB_FRAGMENT_PROJECT, 'Web Fragment Project', 'web_fragment_prj.png', None],
+                        [ID_EJB_PROJECT, 'EJB Project', 'ejb_project.png', None],
+                        [ID_ENTERPRISE_APP_PROJECT, 'Enterprise Application Project', 'enterprise_app.png', None],
+                        [ID_APP_CLIENT_PROJECT, 'Application Client Project', 'app_client_prj.png', None],
+                        [ID_CONNECTER_PROJECT, 'Connecter Project', 'connecter_prj.png', None],
+                        [ID_UTILITY_PROJECT, 'Utility Project', 'java_lib_obj.png', None],
+                        ]
+            elif event.Id == ID_CREATE_NEW_SERVLET:
+                baseList = [
+                        [],
+                        [ID_SERVLET, 'Servlet', 'create_new_servlet.png', None],
+                        [ID_FILTER, 'Filter', 'filter.png', None],
+                        [ID_LISTENER, 'Listener', 'listener.png', None],
+                        [ID_SESSION_BEAN, 'Session Bean', 'session_bean.png', None],
+                        [ID_MESSAGE_DRIVEN_BEAN, 'Message-Driven Bean', 'message_driven_bean.png', None],
+                        [ID_EJB_TIMER, 'EJB Timer', 'session_bean.png', None],
+                        [ID_JPA_ENTITY, 'JPA entity', 'eclipseLink_dynamic_entity.png', None],
+                        [ID_JPA_ORM_MAPPING_FILE, 'JPA ORM Mapping File', 'jpa_orm_mapping.png', None],
+                        [ID_ECLIPSE_LINK_ORM_MAPPING_FILE, 'Eclipse Link ORM Mapping File', 'jpa_orm_mapping.png', None],
+                        [ID_XDOCKLET_ENTERPRISE_JAVA_BEAN, 'XDocklet Enterprise Java Bean', 'xdoclet_ejb.png', None],
+                        [ID_ECLIPSELINK_DYNAMIC_ENTITY, 'EclipseLink Dynamic Entity', 'eclipseLink_dynamic_entity.png', None],
+                        ]
+            
+            elif event.Id == ID_NEW:
+                baseList = [
+                        [ID_NEW_PROJECT, 'Project', "new_con.png", None],
+                        [],
+                        [ID_EXAMPLE_MENU, 'Example', "new_con.png", None],
+                        [],
+                        [ID_OTHER_MENU, 'Other (Ctrl+N)', "new_con.png", None],
+                        ]
+                
+                menuItemList = {
+                    "java": 
+                        [[ID_NEW_JAVA_PROJECT, 'Java Project', 'newjprj_wiz.png', None], ] + 
+                        baseList[0:1] + 
+                        [
+                            [],
+                            [10003, 'Package', "newpack_wiz.png", None],
+                            [ID_CLASS, 'Class', 'newclass_wiz.png', None],
+                            [ID_INTERFACE, 'Interface', 'newint_wiz.png', None],
+                            [ID_ENUM, 'Enum', 'newenum_wiz.png', None],
+                            [ID_ANNOTATION, 'Annotation', 'newannotation_wiz.png', None],
+                            [10008, 'Source Folder', "newpackfolder_wiz.png", None],
+                            [10009, 'Java Working Set', "newjworkingSet_wiz.png", None],
+                            [10010, 'Folder', "new_folder.png", None],
+                            [20007, 'File', "newfile_wiz.png", None],
+                            [20007, 'Untitled text file', "new_untitled_text_file.png", None],
+                            [10011, 'Task', "new_task.png", None],
+                            [ID_JUNIT_TEST_CASE, 'JUnit Test Case', "new_testcase.png", None],
+                        ]
+                        +baseList[1:],
+                    "java ee": 
+                        [
+                            [ID_MAVEN_PROJECT, 'Maven Project', 'maven_project.png', None], 
+                            [ID_ENTERPRISE_APP_PROJECT, 'Enterprise Application Project', 'enterprise_app.png', None], 
+                            [ID_DYNAMIC_WEB_PROJECT, 'Dynamic Web Project', 'create_dynamic_web_project.png', None], 
+                            [ID_EJB_PROJECT, 'EJB Project', 'ejb_project.png', None], 
+                            [ID_CONNECTER_PROJECT, 'Connecter Project',  'connecter_prj.png', None], 
+                            [ID_APP_CLIENT_PROJECT, 'Application Client Project', 'app_client_prj.png', None], 
+                            [ID_STATIC_WEB_PROJECT, 'Static Web Project', 'static_web_project.png', None], 
+                            [ID_JPA_PROJECT, 'JPA Project', 'jpa_orm_mapping.png', None], 
+                         
+                         ] + 
+                        baseList[0:1] + 
+                        [
+                            [],
+                            
+                            [ID_SERVLET, 'Servlet', "create_new_servlet.png", None],
+                            [ID_SESSION_BEAN, 'Session Bean (EJB 3.x)', 'session_bean.png', None],
+                            [ID_MESSAGE_DRIVEN_BEAN, 'Message-Driven Bean (EJB 3.x)', 'message_driven_bean.png', None],
+                            [ID_WEB_SERVICE, 'Web Service', 'web_service.png', None],
+                            [10010, 'Folder', "new_folder.png", None],
+                            [20007, 'File', "newfile_wiz.png", None],
+                        ]
+                        +baseList[1:],
+                    "python": 
+                        [
+                            [ID_NEW_PYTHON_PROJECT , 'Python Project', 'new_py_prj_wiz.png', None],
+                        ] + 
+                        baseList[0:1] + 
+                        [
+                            [],
+                            [20003, 'Source Folder', "packagefolder_obj.png", None],
+                            [ID_NEW_PYTHON_PACKAGE, 'Python Package', "package_obj.png", None],
+                            [ID_NEW_PYTHON_MODULE, 'Python Module', "project.png", None],
+                            [20006, 'Folder', "project.png", None],
+                            [20007, 'File', "newfile_wiz.png", None],
+                        ]
+                        +baseList[1:],
+                    "resource": baseList[0:1] + 
+                        [
+                            [],
+                            [20006, 'Folder', "project.png", None],
+                            [20007, 'File', "newfile_wiz.png", None],
+                        ]
+                        +baseList[1:],
+                    "debug": baseList,
+                    "database": baseList
+                    }            
+                
+                baseList=menuItemList[self.selectedPerspectiveName]
+                    
             menuItemList = {
                 self.selectedPerspectiveName: baseList
                 }
@@ -1089,77 +1186,7 @@ class PerspectiveManager(object):
             # make sure the button is "un-stuck"
             tb.SetToolSticky(event.GetId(), False)    
 
-    def onNewDropDown(self, event):
 
-        if event.IsDropDownClicked():
-
-            tb = event.GetEventObject()
-            tb.SetToolSticky(event.GetId(), True)
-            baseList = [
-                    [ID_NEW_PROJECT, 'Project', "new_con.png", None],
-                    [],
-                    [ID_EXAMPLE_MENU, 'Example', "new_con.png", None],
-                    [],
-                    [ID_OTHER_MENU, 'Other (Ctrl+N)', "new_con.png", None],
-                    ]
-            
-            menuItemList = {
-                "java": 
-                    [[ID_NEW_JAVA_PROJECT, 'Java Project', 'newjprj_wiz.png', None], ] + 
-                    baseList[0:1] + 
-                    [
-                        [],
-                        [10003, 'Package', "newpack_wiz.png", None],
-                        [10004, 'Class', 'newclass_wiz.png', None],
-                        [10005, 'Interface', 'newint_wiz.png', None],
-                        [10006, 'Enum', 'newenum_wiz.png', None],
-                        [10007, 'Annotation', 'newannotation_wiz.png', None],
-                        [10008, 'Source Folder', "newpackfolder_wiz.png", None],
-                        [10009, 'Java Working Set', "newjworkingSet_wiz.png", None],
-                        [10010, 'Folder', "new_folder.png", None],
-                        [20007, 'File', "newfile_wiz.png", None],
-                        [20007, 'Untitled text file', "new_untitled_text_file.png", None],
-                        [10011, 'Task', "new_task.png", None],
-                        [10012, 'JUnit Test Case', "new_testcase.png", None],
-                    ]
-                    +baseList[1:],
-                "python": 
-                    [
-                        [ID_NEW_PYTHON_PROJECT , 'Python Project', 'new_py_prj_wiz.png', None],
-                    ] + 
-                    baseList[0:1] + 
-                    [
-                        [],
-                        [20003, 'Source Folder', "packagefolder_obj.png", None],
-                        [ID_NEW_PYTHON_PACKAGE, 'Python Package', "package_obj.png", None],
-                        [ID_NEW_PYTHON_MODULE, 'Python Module', "project.png", None],
-                        [20006, 'Folder', "project.png", None],
-                        [20007, 'File', "newfile_wiz.png", None],
-                    ]
-                    +baseList[1:],
-                "resource": baseList[0:1] + 
-                    [
-                        [],
-                        [20006, 'Folder', "project.png", None],
-                        [20007, 'File', "newfile_wiz.png", None],
-                    ]
-                    +baseList[1:],
-                "debug": baseList,
-                "database": baseList
-                }
-            # create the popup menu
-            # menuPopup = wx.Menu()
-            menuPopup = self.createMenuByPerspective(menuItemList=menuItemList, perspectiveName=self.selectedPerspectiveName)
-
-            # line up our menu with the button
-            rect = tb.GetToolRect(event.GetId())
-            pt = tb.ClientToScreen(rect.GetBottomLeft())
-            pt = self.ScreenToClient(pt)
-
-            self.PopupMenu(menuPopup, pt)
-
-            # make sure the button is "un-stuck"
-            tb.SetToolSticky(event.GetId(), False)    
 
     def createMenuByPerspective(self, menuItemList=None, perspectiveName='python'):
             

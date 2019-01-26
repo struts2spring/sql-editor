@@ -24,6 +24,8 @@ from src.view.views.file.explorer import FileBrowserPanel
 from src.view.views.file.explorer.FileBrowserPanel import FileBrowser
 from wx import py
 from src.view.views.console.SqlOutputPanel import SqlConsoleOutputPanel
+from src.view.views.java.explorer.JavaExplorer import CreatingJavaExplorerPanel
+from src.view.views.project.explorer.ProjectExplorer import CreatingProjectExplorerPanel
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -249,7 +251,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                     [ wx.NewIdRef(), "Install New Software...", None, "iu_obj.png"],  # TODO: need to set icon
                     [ wx.NewIdRef(), "Eclipse Marketplace", None, "marketplace16.png"],  # TODO: need to set icon
                     [],
-                    [ wx.ID_HELP, "&About {}".format(TITLE), None, None],
+                    [ wx.ID_ABOUT, "&About {}".format(TITLE), None, None],
                     [ wx.NewIdRef(), "Contribute", None, "star.png"],
                 ])
             ]
@@ -330,7 +332,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         self.Bind(wx.EVT_MENU, self.OnExit, id=wx.ID_EXIT)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
         self.Bind(wx.EVT_MENU, self.OnExit, id=wx.ID_EXIT)
-        self.Bind(wx.EVT_MENU, self.OnAbout, id=wx.ID_HELP)
+        self.Bind(wx.EVT_MENU, self.OnAbout, id=wx.ID_ABOUT)
         self.Bind(wx.EVT_MENU, self.OnWelcome, id=ID_WELCOME)
         
         self.Bind(wx.EVT_MENU, self.onSave, id=ID_SAVE)
@@ -368,6 +370,18 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         self.Bind(wx.EVT_MENU, self.onHideToolbar, id=ID_HIDE_TOOLBAR)
         self.Bind(wx.EVT_MENU, self.onHideStatusbar, id=ID_HIDE_STATUSBAR)
     
+    
+    def enableButtons(self, buttonIds=[], enable=True):
+        viewToolbar = self.GetTopLevelParent()._mgr.GetPane("viewToolbar")
+        for buttonId in buttonIds:
+            tool=viewToolbar.window.FindTool(buttonId)
+            if enable:
+                tool.state =aui.AUI_BUTTON_STATE_NORMAL 
+            else:
+                tool.state =aui.AUI_BUTTON_STATE_DISABLED   
+                
+        self._mgr.Update()
+           
     def OnClose(self, event):
 #         self._mgr.UnInit()
 #         del self._mgr
@@ -381,9 +395,14 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
     def onSave(self, event):
         logger.debug('onSave1')
+        # disabling button
+        self.enableButtons(buttonIds=[ID_SAVE], enable=False)
+        # changing title : removing start mark
 
     def onSaveAll(self, event):
         logger.debug('onSaveAll1')
+        self.enableButtons(buttonIds=[ID_SAVE,ID_SAVE_ALL], enable=False)
+
 
     def onSaveAs(self, event):
         """Save File Using a new/different name
@@ -578,11 +597,11 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
             elif name == "pythonPackageExplorer":
                 panel = CreatingPythonExplorerPanel(self)
             elif name == "projectExplorerView":
-                panel = CreatingPythonExplorerPanel(self)
+                panel = CreatingProjectExplorerPanel(self)
             elif name == "javaPackageExplorer":
-                panel = CreatingPythonExplorerPanel(self)
+                panel = CreatingJavaExplorerPanel(self)
             elif name == "pythonShellView":
-                intro = '%s' % py.version.VERSION
+                intro = f'{py.version.VERSION}'
                 panel = py.shell.Shell(self, -1, introText=intro)
             elif name == "terminalView":
                 panel = CreatingPythonExplorerPanel(self)
@@ -685,17 +704,19 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         logger.debug('OnAbout')
         plate = platform.platform()
 #         msg=u"\u00A9"
-        msg = u"""{} 
+        msg = f"""{TITLE} 
         
-Version : {} Release 
+Version : {VERSION} Release 
 Build : 0.1 Release 
 
 An advanced Database tool for developers, DBAs and analysts.
 This product includes software developed by other open source projects.
 \u00A9 BSD
 
-Plateform: {} 
-Python :{}""".format(TITLE, VERSION, plate, sys.version)
+Plateform: {plate} 
+wxpython: {wx.__version__}
+Python :{sys.version}"""
+# .format(TITLE, VERSION, plate, sys.version)
 #         msg=msg.unicode('utf-8')
         dlg = wx.MessageDialog(self, msg, TITLE,
                                wx.OK | wx.ICON_INFORMATION)

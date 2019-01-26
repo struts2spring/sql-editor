@@ -12,12 +12,13 @@ import wx
 # from src.view.table.CreateTable import CreateTableFrame
 import logging.config
 from src.view.constants import LOG_SETTINGS
+from src.view.views.file.explorer._filetree import FileTree
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
 
-class CreatingProjectExplorerPanel(wx.Panel):
+class CreatingProjectExplorerPanel(FileTree):
 
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)

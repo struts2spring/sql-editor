@@ -431,6 +431,19 @@ class FileTree(wx.TreeCtrl):
         nodes = self.GetSelections()
         files = [ self.GetPyData(node) for node in nodes ]
         return files
+    def GetSelectedFilesWithImage(self):
+        """Get a list of the selected files
+        @return: list of strings
+
+        """
+        logger.debug('GetSelectedFiles')
+        nodes = self.GetSelections()
+        files=[]
+        for node in nodes:
+            iconIndex=self.GetItemImage(node)
+            icon=self.GetImageList().GetBitmap(iconIndex)
+            files.append([self.GetPyData(node), icon])
+        return files
 
     def EnableLabelEditing(self, enable=True):
         """Enable/Disable label editing. This functionality is
