@@ -25,6 +25,7 @@ import datetime
 import logging.config
 from src.view.constants import LOG_SETTINGS
 from src.view.views.console.worksheet.tableInfoPanel import CreatingTableInfoPanel
+from wx.lib.pubsub import pub
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -606,7 +607,8 @@ class CreatingTreePanel(wx.Panel):
                 # Todo change icon to enable
                         selectedItemText = self.tree.GetItemText(self.tree.GetSelection())
                         self.setAutoCompleteText(selectedItemText)
-                        self.openWorksheet(sheetName="Worksheet")
+                        pub.sendMessage('onNewWorksheet', event=event)
+#                         self.openWorksheet(sheetName="Worksheet")
                 self.connDict[self.tree.GetItemText(self.tree.GetSelection())] = {
                     'isConnected':True,
                     'data':self.tree.GetItemData(self.tree.GetSelection())
@@ -639,7 +641,8 @@ class CreatingTreePanel(wx.Panel):
             # Todo change icon to dissable
     def onOpenSqlEditorTab(self, event):
         logger.debug('onOpenSqlEditorTab')
-        self.openWorksheet(sheetName="Worksheet")
+#         self.openWorksheet(sheetName="Worksheet")
+        pub.sendMessage('onNewWorksheet', event=event, extra1='onJavaPerspective')
 
     def openWorksheet(self, sheetName="tableName"):
         if hasattr(self.GetTopLevelParent(), '_mgr'):

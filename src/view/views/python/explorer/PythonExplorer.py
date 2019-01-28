@@ -37,9 +37,10 @@ class CreatingPythonExplorerPanel(FileTree):
         self._cpath = None
         # Setup
         self.SetupImageList()
-
-        self.AddWatchDirectory(r"C:\work\python_project\sql-editor")
-
+        try:
+            self.AddWatchDirectory(r"C:\work\python_project\sql-editor")
+        except:
+            pass
         self.Bind(wx.EVT_MENU, self.OnMenu)
 
     def AddWatchDirectory(self, dname):
