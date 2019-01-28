@@ -36,13 +36,14 @@ try:
 except ImportError:  # if it's not there locally, try the wxPython lib.
     import wx.lib.agw.aui as aui
     from wx.lib.agw.aui import aui_switcherdialog as ASD
-
+from wx.lib.pubsub import pub
 
 class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
     def __init__(self, parent, style=wx.DEFAULT_FRAME_STYLE | wx.MAXIMIZE , title=TITLE):
         super(EclipseMainFrame, self).__init__()
         logger.info("This is from Runner ")
+        pub.subscribe(self.onNewWorksheet, 'onNewWorksheet')
         self.startWebHelp()
 #         wx.Frame.__init__(self, parent, wx.ID_ANY, title, pos, size, style)
         wx.Frame.__init__(self, parent, wx.ID_ANY, title=title, style=style)

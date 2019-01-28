@@ -1060,7 +1060,7 @@ class PerspectiveManager(object):
                         [ID_INTERFACE, 'Interface', 'newint_wiz.png', None],
                         [ID_ENUM, 'Enum', 'newenum_wiz.png', None],
                         [ID_ANNOTATION, 'Annotation', 'newannotation_wiz.png', None],
-                        [ID_JAX_WS_HANDLER, 'JAX-WS Handler', None, None],
+                        [ID_JAX_WS_HANDLER, 'JAX-WS Handler', 'jax_ws.png', None],
                         ]
             elif event.Id == ID_CREATE_DYNAMIC_WEB_PROJECT:
                 baseList = [

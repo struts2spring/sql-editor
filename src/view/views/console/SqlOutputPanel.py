@@ -16,15 +16,17 @@ logger = logging.getLogger('extensive')
 
 class SqlConsoleOutputPanel(wx.Panel):
 
-    def __init__(self, parent, size=wx.DefaultSize):
-#         wx.Panel.__init__(self, parent, id=-1, size=size)
+    def __init__(self, parent, size=wx.DefaultSize, data=''):
         super().__init__(parent, id=-1, size=size)
+        wx.Panel.__init__(self, parent, id=-1, size=size)
         vBox = wx.BoxSizer(wx.VERTICAL)
 
         ####################################################################
         self.text = SqlStyleTextCtrl(self, -1)
 #         self.text.initKeyShortCut()
-        self.text.SetText('')
+        if not data:
+            data = ''
+        self.text.SetText(data)
         self.text.EmptyUndoBuffer()
         self.text.Colourise(0, -1)
 #         self.text.SetInitialSize(wx.Size(400, 400))
@@ -48,6 +50,6 @@ class SqlConsoleOutputPanel(wx.Panel):
 if __name__ == '__main__':
     app = wx.App(False)
     frame = wx.Frame(None)
-    panel = SqlConsoleOutputPanel(frame, size=(100, 100))
+    panel = SqlConsoleOutputPanel(frame, size=(100, 100), data='abc')
     frame.Show()
     app.MainLoop()
