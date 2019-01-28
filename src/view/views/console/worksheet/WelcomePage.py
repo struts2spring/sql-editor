@@ -19,7 +19,14 @@ logger = logging.getLogger('extensive')
 
 class WelcomePanel(wx.Panel):
     def __init__(self, parent, style=wx.TR_DEFAULT_STYLE | wx.BORDER_NONE):
+        super(WelcomePanel, self).__init__()
         wx.Panel.__init__(self, parent, style=style)
+        if wx.PlatformInformation.Get().GetOperatingSystemIdName() in ['Linux','Unix', 'OS/2']:
+            pass
+        elif wx.PlatformInformation.Get().GetOperatingSystemIdName() in ['DOS', 'Windows']:
+            self.startWebHelp()
+            
+        
         fileOperations=FileOperations()
         self.current = "http://localhost:5000"
         self.frame = self.GetTopLevelParent()
@@ -99,9 +106,24 @@ class WelcomePanel(wx.Panel):
 #         
 #         self.wv.SetPage(htmlData,"http://localhost:5000")
         self.SetSizer(sizer)
+        
 
-
-
+    def startWebHelp(self):
+        '''
+        This method start web server for eclipse help .
+        http://localhost:5000/
+        '''
+        try:
+            process = wx.Process(self)
+            process.Redirect()
+            dirPath = os.path.dirname(os.path.realpath(__file__))
+            filePath = os.path.join(dirPath, '..','..','..','..',  'web', 'HelpWeb.py')
+            logger.debug(dirPath)
+            cmd = f'python {filePath}'
+            pid = wx.Execute(cmd, wx.EXEC_ASYNC, process)
+            logger.debug(f'executing: {cmd} pid: {pid}')
+        except Exception as e:
+            logger.error(e)
     # WebView events
     def OnWebViewNavigating(self, evt):
         # this event happens prior to trying to get a resource
@@ -143,6 +165,8 @@ class WelcomePanel(wx.Panel):
 
     def OnOpenButton(self, event):
         url= self.current = self.location.GetValue()
+#         if url=='http://localhost:5000':
+#             self.startWebHelp()
         logger.debug('OnLocationSelect: %s\n' % url)
         self.wv.LoadURL(url)
 

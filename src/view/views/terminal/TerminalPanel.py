@@ -21,14 +21,20 @@ class CreateTerminalPanel(wx.Panel):
         # caught in the normal way...
         self.Bind(wx.EVT_END_PROCESS, self.OnProcessEnded)
 
-
         # Make the controls
         prompt = wx.StaticText(self, -1, 'Command line:')
-        self.cmd = wx.TextCtrl(self, -1, 'cmd')
+        print()
+        cmd = ''
+        if wx.PlatformInformation.Get().GetOperatingSystemIdName() in ['Linux','Unix', 'OS/2']:
+            cmd = 'bash'
+        elif wx.PlatformInformation.Get().GetOperatingSystemIdName() in ['DOS', 'Windows']:
+            cmd = 'cmd'
+        
+        self.cmd = wx.TextCtrl(self, -1, cmd)
         self.exBtn = wx.Button(self, -1, 'Execute')
 
         self.out = wx.TextCtrl(self, -1, '',
-                               style=wx.TE_MULTILINE|wx.TE_READONLY|wx.TE_RICH2)
+                               style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_RICH2)
 
         self.inp = wx.TextCtrl(self, -1, '', style=wx.TE_PROCESS_ENTER)
         self.sndBtn = wx.Button(self, -1, 'Send')
@@ -43,11 +49,10 @@ class CreateTerminalPanel(wx.Panel):
         self.Bind(wx.EVT_BUTTON, self.OnCloseStream, self.termBtn)
         self.Bind(wx.EVT_TEXT_ENTER, self.OnSendText, self.inp)
 
-
         # Do the layout
         box1 = wx.BoxSizer(wx.HORIZONTAL)
         box1.Add(prompt, 0, wx.ALIGN_CENTER)
-        box1.Add(self.cmd, 1, wx.ALIGN_CENTER|wx.LEFT|wx.RIGHT, 5)
+        box1.Add(self.cmd, 1, wx.ALIGN_CENTER | wx.LEFT | wx.RIGHT, 5)
         box1.Add(self.exBtn, 0)
 
         box2 = wx.BoxSizer(wx.HORIZONTAL)
@@ -56,13 +61,12 @@ class CreateTerminalPanel(wx.Panel):
         box2.Add(self.termBtn, 0, wx.LEFT, 5)
 
         sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(box1, 0, wx.EXPAND|wx.ALL, 10)
-        sizer.Add(self.out, 1, wx.EXPAND|wx.ALL, 10)
-        sizer.Add(box2, 0, wx.EXPAND|wx.ALL, 10)
+        sizer.Add(box1, 0, wx.EXPAND | wx.ALL, 10)
+        sizer.Add(self.out, 1, wx.EXPAND | wx.ALL, 10)
+        sizer.Add(box2, 0, wx.EXPAND | wx.ALL, 10)
 
         self.SetSizer(sizer)
         self.SetAutoLayout(True)
-
 
     def OnExecuteBtn(self, evt):
         cmd = self.cmd.GetValue()
@@ -79,7 +83,6 @@ class CreateTerminalPanel(wx.Panel):
         self.exBtn.Enable(False)
         self.inp.SetFocus()
 
-
     def OnSendText(self, evt):
         text = self.inp.GetValue()
         self.inp.SetValue('')
@@ -89,12 +92,11 @@ class CreateTerminalPanel(wx.Panel):
 
         self.inp.SetFocus()
 
-
     def OnCloseStream(self, evt):
         logger.debug('OnCloseStream\n')
-        #print("b4 CloseOutput")
+        # print("b4 CloseOutput")
         self.process.CloseOutput()
-        #print("after CloseOutput")
+        # print("after CloseOutput")
 
     def OnIdle(self, evt):
         if self.process is not None:
@@ -104,9 +106,8 @@ class CreateTerminalPanel(wx.Panel):
                 text = stream.read()
                 self.out.AppendText(text)
 
-
     def OnProcessEnded(self, evt):
-        logger.debug('OnProcessEnded, pid:%s,  exitCode: %s\n' %
+        logger.debug('OnProcessEnded, pid:%s,  exitCode: %s\n' % 
                        (evt.GetPid(), evt.GetExitCode()))
 
         stream = self.process.GetInputStream()
@@ -123,7 +124,6 @@ class CreateTerminalPanel(wx.Panel):
         self.cmd.Enable(True)
         self.exBtn.Enable(True)
 
-
     def ShutdownDemo(self):
         # Called when the demo application is switching to a new sample. Tell
         # the process to close (by closign its output stream) and then wait
@@ -133,10 +133,6 @@ class CreateTerminalPanel(wx.Panel):
             wx.MilliSleep(250)
             wx.Yield()
             self.process = None
-
-
-
-
 
 #----------------------------------------------------------------------
 
@@ -161,7 +157,6 @@ child process to exit its main loop.
 
 </body><html>
 """
-
 
 if __name__ == '__main__':
     app = wx.App(False)

@@ -43,7 +43,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
     def __init__(self, parent, style=wx.DEFAULT_FRAME_STYLE | wx.MAXIMIZE , title=TITLE):
         super(EclipseMainFrame, self).__init__()
         logger.info("This is from Runner ")
-        self.startWebHelp()
+
 #         wx.Frame.__init__(self, parent, wx.ID_ANY, title, pos, size, style)
         wx.Frame.__init__(self, parent, wx.ID_ANY, title=title, style=style)
 
@@ -65,7 +65,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
         self.bindingEvent()
         self._mgr.Update()
-
+#         wx.CallLater(13, self.startWebHelp)
     #---------------------------------------------
     def startWebHelp(self):
         '''
