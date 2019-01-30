@@ -7,7 +7,8 @@ import wx
 from wx import TreeCtrl
 
 import logging.config
-from src.view.constants import LOG_SETTINGS
+from src.view.constants import LOG_SETTINGS, ID_ROOT_REFERESH, ID_DISCONNECT_DB,\
+    ID_CONNECT_DB
 from src.view.util.FileOperationsUtil import FileOperations
 import os
 logging.config.dictConfig(LOG_SETTINGS)
@@ -19,7 +20,7 @@ class DataSource():
     def __init__(self, connectionName=None, filePath=None):
         self.connectionName = connectionName
         self.filePath = filePath
-        self.isConnectionOpen = True
+        self.isConnected = True
 
 
 class DataSourceTreeNode():
@@ -42,7 +43,7 @@ class DatabaseTree(TreeCtrl):
         # Attributes
         self._watch = list()  # this will contain list of database filePath
         self._il = None
-        self._editlabels = True
+        self._editlabels = False
 
         # Setup
         self.SetupImageList()
@@ -57,7 +58,16 @@ class DatabaseTree(TreeCtrl):
         self.Bind(wx.EVT_TREE_ITEM_MENU, self._OnMenu)
         self.Bind(wx.EVT_TREE_BEGIN_LABEL_EDIT, self._OnBeginEdit)
         self.Bind(wx.EVT_TREE_END_LABEL_EDIT, self._OnEndEdit)
-        
+#         self.Bind(wx.EVT_TREE_KEY_DOWN, self._onTreeKeyDown)
+#         self.Bind(wx.EVT_TREE_BEGIN_DRAG, self._onTreeBeginDrag)
+#         self.Bind(wx.EVT_TREE_ITEM_EXPANDED, self._onItemExpanded)
+#         self.Bind(wx.EVT_TREE_SEL_CHANGED, self.nSelChanged)
+# 
+#         self.Bind(wx.EVT_LEFT_DOWN, self.OnTreeLeftDown)
+#         self.Bind(wx.EVT_LEFT_DCLICK, self.OnTreeDoubleclick)
+#         self.Bind(wx.EVT_RIGHT_DOWN, self.OnTreeRightDown)
+#         self.Bind(wx.EVT_RIGHT_UP, self.OnTreeRightUp)
+
     def SetupImageList(self):
         """Setup/Refresh the control's ImageList.
         Override DoSetupImageList to customize the behavior of this method.
@@ -74,8 +84,9 @@ class DatabaseTree(TreeCtrl):
     def _OnGetToolTip(self, evt):
 #         logger.debug('_OnGetToolTip')
         item = evt.GetItem()
-        tt = self.DoGetToolTip(item)
-        if tt:
+        dataSourceTreeNode = self.GetItemData(item)
+        if dataSourceTreeNode:
+            tt = dataSourceTreeNode.dataSource.connectionName
             evt.ToolTip = tt
         else:
             evt.Skip()
@@ -83,7 +94,7 @@ class DatabaseTree(TreeCtrl):
     def _OnItemActivated(self, evt):
         logger.debug('_OnItemActivated')
         item = evt.GetItem()
-        self.DoItemActivated(item)
+        self.connectDatabase(item)
         evt.Skip()
 
     def _OnItemCollapsed(self, evt):
@@ -95,16 +106,70 @@ class DatabaseTree(TreeCtrl):
     def _OnItemExpanding(self, evt):
         logger.debug('_OnItemExpanding')
         item = evt.GetItem()
-        self.DoItemExpanding(item)
+#         self.DoItemExpanding(item)
         evt.Skip()
 
     def _OnMenu(self, evt):
         logger.debug('_OnMenu')
         try:
             item = evt.GetItem()
-            self.DoShowMenu(item)
-        except:
-            pass
+            
+            menu = self.createMenu()
+            self.PopupMenu(menu)
+            menu.Destroy()
+#             self.DoShowMenu(item)
+        except Exception as e :
+            logger.error(e)
+
+    def onRootRefresh(self, event):
+        logger.debug('onRootRefresh')
+
+    def createMenu(self):
+        logger.debug('createMenu')
+        menu = wx.Menu()
+        nodes = self.GetSelections()
+        if len(nodes) == 1 :
+            dataSourceTreeNode = self.GetItemData(nodes[0])
+            logger.debug(dataSourceTreeNode.dataSource.connectionName)
+            if dataSourceTreeNode.dataSource.isConnected:
+                def onDisconnectDb(event):
+                    logger.debug('inner onDisconnectDb')   
+                item1 = menu.Append(ID_DISCONNECT_DB, "Disconnect")
+                self.Bind(wx.EVT_MENU, lambda e: self.onDisconnectDb(e, dataSourceTreeNode, nodes[0]), item1)
+            else:
+                item2 = menu.Append(ID_CONNECT_DB, "Connect")
+                self.Bind(wx.EVT_MENU, lambda e:  self.onConnectDb(e, dataSourceTreeNode, nodes[0]), item2)
+        if len(nodes) == 2:
+            
+            bmp = wx.MenuItem(menu, wx.NewIdRef(), "Compare with each other")
+            bmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="database_refresh.png")))
+            compareMenu = menu.Append(bmp)
+        for node in nodes:
+            dataSourceTreeNode = self.GetItemData(node)
+            logger.debug(dataSourceTreeNode.dataSource.connectionName)
+            
+        refreshBmp = wx.MenuItem(menu, ID_ROOT_REFERESH, "&Refresh")
+        refreshBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="database_refresh.png")))
+        rootRefresh = menu.Append(refreshBmp)
+        
+        self.Bind(wx.EVT_MENU, self.onRootRefresh, rootRefresh)
+        return menu
+
+    def onDisconnectDb(self, event, dataSourceTreeNode, item):
+        logger.debug('onDisconnectDb')   
+#         selectedItem = self.GetSelections()
+#         dataSourceTreeNode = self.GetItemData(selectedItem)
+        dataSourceTreeNode.dataSource.isConnected=False
+        self.SetItemHasChildren(item, self.hasNodeChildren(dataSourceTreeNode))
+
+
+    def onConnectDb(self, event, dataSourceTreeNode, item):
+        logger.debug('onConnectDb')
+#         selectedItem = self.GetSelection()
+#         dataSourceTreeNode = self.GetItemData(selectedItem)
+        dataSourceTreeNode.dataSource.isConnected=True
+        self.SetItemHasChildren(item, self.hasNodeChildren(dataSourceTreeNode))
+            
 
     def _OnBeginEdit(self, evt):
         logger.debug('_OnBeginEdit')
@@ -243,26 +308,31 @@ class DatabaseTree(TreeCtrl):
         return child
     
     def hasNodeChildren(self, dataSourceTreeNode):
-        hasChildren=False
-        if dataSourceTreeNode.depth==0 and dataSourceTreeNode.dataSource.isConnectionOpen:
-            hasChildren=True
+        hasChildren = False
+        if dataSourceTreeNode.depth == 0 and dataSourceTreeNode.dataSource.isConnected:
+            hasChildren = True
         return hasChildren
 
     def getDataSourceTreeNodeImage(self, dataSourceTreeNode=None):
         '''
         return image count number in self.ImageList
         '''
-        imageIndex=self.iconsDictByImageName[dataSourceTreeNode.imageName]
+        imageIndex = self.iconsDictByImageName[dataSourceTreeNode.imageName]
         
         return imageIndex
 
-        
+    def connectDatabase(self):
+        logger.debug('connectDatabase')
+
+
 # Test
 if __name__ == '__main__':
     app = wx.App(False)
     f = wx.Frame(None)
     databaseTree = DatabaseTree(f)
-    dataSource=DataSource(connectionName="one",filePath=r'C:\Users\xbbntni\one.sqlite' )
+    dataSource = DataSource(connectionName="one", filePath=r'C:\Users\xbbntni\one.sqlite')
+    databaseTree.addWatchConnection(dataSource)
+    dataSource = DataSource(connectionName="two", filePath=r'C:\Users\xbbntni\two.sqlite')
     databaseTree.addWatchConnection(dataSource)
     
 #     drives = GetWindowsDrives()
