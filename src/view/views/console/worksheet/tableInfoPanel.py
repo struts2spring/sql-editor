@@ -78,6 +78,7 @@ class CreatingTableInfoPanel(wx.Panel):
         self.parent = parent
         if kw and 'tableName' in kw.keys():
             self.tableName = kw['tableName']
+            self.dataSourceTreeNode = kw['dataSourceTreeNode']
         vBox = wx.BoxSizer(wx.VERTICAL)
 
         ####################################################################
@@ -101,7 +102,7 @@ class CreatingTableInfoPanel(wx.Panel):
         # add following list of tabs
         listOfTabs = ['Columns', 'Indexes', 'Data', 'References', 'Triggers', 'SQL', 'ER diagram']
         for tabName in listOfTabs:
-            tableInfoPanel = CreatingTableInfoToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN, tableName=self.tableName, tabName=tabName)
+            tableInfoPanel = CreatingTableInfoToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN, tableName=self.tableName, tabName=tabName, dataSourceTreeNode=self.dataSourceTreeNode)
             self._nb.AddPage(tableInfoPanel, tabName)      
             self.Bind(aui.EVT_AUINOTEBOOK_TAB_RIGHT_DOWN, self.onTabRightDown, self._nb)
             self.Bind(aui.EVT_AUINOTEBOOK_BG_DCLICK, self.onBgDoubleClick, self._nb)  
@@ -132,6 +133,7 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
         self.tabName = kw['tabName']
+        self.dataSourceTreeNode = kw['dataSourceTreeNode']
         self.data = list()
         vBox = wx.BoxSizer(wx.VERTICAL)
         logger.debug(kw)
@@ -191,8 +193,8 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
         sqlData = None
         db = None
         try:
-            selectedItemText, dbFilePath = self.findingConnectionName()
-            db = ManageSqliteDatabase(connectionName=selectedItemText, databaseAbsolutePath=dbFilePath)
+#             selectedItemText, dbFilePath = self.findingConnectionName()
+            db = ManageSqliteDatabase(connectionName=self.dataSourceTreeNode.dataSource.connectionName, databaseAbsolutePath=self.dataSourceTreeNode.dataSource.filePath)
             result = db.sqlite_select(tableName="sqlite_master")
             for row in result:
                 # selection of table and table name

@@ -12,13 +12,14 @@ from src.view.constants import LOG_SETTINGS, ID_ROOT_REFERESH, ID_DISCONNECT_DB,
     ID_deleteWithDatabase
 from src.view.util.FileOperationsUtil import FileOperations
 import os
-from src.sqlite_executer.ConnectExecuteSqlite import ManageSqliteDatabase,\
+from src.sqlite_executer.ConnectExecuteSqlite import ManageSqliteDatabase, \
     SQLUtils, SQLExecuter
 
 from wx.lib.pubsub import pub
 from src.view.importing.importCsvExcel import ImportingCsvExcelFrame
 from src.view.table.CreateTable import CreatingTableFrame
 import datetime
+from src.view.views.console.worksheet.tableInfoPanel import CreatingTableInfoPanel
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -58,7 +59,6 @@ class DatabaseTree(TreeCtrl):
 
         # Setup
         self.SetupImageList()
-
         
         self.initialize()
         
@@ -80,6 +80,22 @@ class DatabaseTree(TreeCtrl):
 #         self.Bind(wx.EVT_RIGHT_DOWN, self.OnTreeRightDown)
 #         self.Bind(wx.EVT_RIGHT_UP, self.OnTreeRightUp)
 
+    def OnTreeDoubleclick(self, event):
+        logger.info("OnTreeDoubleclick")
+        pt = event.GetPosition();
+        itemId, flags = self.HitTest(pt)
+        dataSourceTreeNode = self.GetItemData(itemId)
+
+        if dataSourceTreeNode.depth == 2:
+            # Open a new tab in SQL execution Pane. It is for table info.
+            # TODO 
+            tableName = self.GetItemText(itemId)
+            self.openWorksheet(sheetName=tableName)
+
+#         if self.IsExpanded(itemId):
+#             self.Collapse(itemId)
+#         else:
+#             self.Expand(itemId)
     def SetupImageList(self):
         """Setup/Refresh the control's ImageList.
         Override DoSetupImageList to customize the behavior of this method.
@@ -109,7 +125,15 @@ class DatabaseTree(TreeCtrl):
         dataSourceTreeNode = self.GetItemData(itemId)
         if dataSourceTreeNode.depth == 0:
             self.onConnectDb(evt, self.GetSelections())
+        elif dataSourceTreeNode.depth == 2:
+            tableName = self.GetItemText(itemId)
+            self.openWorksheet(sheetName=tableName, dataSourceTreeNode=dataSourceTreeNode)
         evt.Skip()
+
+    def openWorksheet(self, sheetName="tableName", dataSourceTreeNode=None):
+        if hasattr(self.GetTopLevelParent(), '_mgr'):
+            tableInfo = CreatingTableInfoPanel(self, -1, style=wx.CLIP_CHILDREN | wx.BORDER_NONE, tableName=sheetName, dataSourceTreeNode=dataSourceTreeNode)
+            sqlExecutionTab = self.GetTopLevelParent()._mgr.addTabByWindow(window=tableInfo , imageName="script.png", captionName=sheetName, tabDirection=5)
 
     def _OnItemCollapsed(self, evt):
         logger.debug('_OnItemCollapsed')
@@ -209,13 +233,10 @@ class DatabaseTree(TreeCtrl):
         refreshBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="database_refresh.png")))
         rootRefresh = menu.Append(refreshBmp)
 
-
         infoMenuItem = wx.MenuItem(menu, ID_CONNECTION_PROPERTIES, "Properties")
         infoBmp = wx.ArtProvider.GetBitmap(wx.ART_INFORMATION, wx.ART_MENU, (16, 16)) 
         infoMenuItem.SetBitmap(infoBmp)     
         item4 = menu.Append(infoMenuItem)    
-    
- 
         
 #         refreshBmp = wx.MenuItem(menu, wx.ID_REFRESH, "&Refresh")
 #         refreshBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="database_refresh.png")))
@@ -255,7 +276,6 @@ class DatabaseTree(TreeCtrl):
             deleteWithDatabaseMenu = menu.Append(deleteWithDatabaseMenuItem) 
             self.Bind(wx.EVT_MENU, lambda e: self.onDeleteConnection(e, nodes), delMenu)
             self.Bind(wx.EVT_MENU, lambda e: self.onDeleteWithDatabaseTable(e, nodes), deleteWithDatabaseMenu)  
-                 
         
         self.Bind(wx.EVT_MENU, lambda e: self.onProperties(e, nodes), item4)
         
@@ -369,7 +389,7 @@ class DatabaseTree(TreeCtrl):
             self.SetItemHasChildren(itemId, self.hasNodeChildren(dataSourceTreeNode))
             # logic to connect
             self.deleteChildren(itemId)
-            dataSource=dataSourceTreeNode.dataSource
+            dataSource = dataSourceTreeNode.dataSource
             if os.path.isfile(dataSourceTreeNode.dataSource.filePath): 
                 dbObjects = ManageSqliteDatabase(connectionName=dataSourceTreeNode.dataSource.connectionName , databaseAbsolutePath=dataSourceTreeNode.dataSource.filePath).getObject()
                 
@@ -562,7 +582,7 @@ class DatabaseTree(TreeCtrl):
         self.AddRoot('root')
         self.SetItemData(self.RootItem, "root")   
         for db in dbList:
-            dataSource=DataSource(connectionName=db[1], filePath=db[2])
+            dataSource = DataSource(connectionName=db[1], filePath=db[2])
 #             dataSourceTreeNode = DataSourceTreeNode(depth=0, dataSource=dataSource, imageName='sqlite.png')
             self.addWatchConnection(dataSource=dataSource)
 #             self.appendNode(targetNode=self.RootItem, nodeLabel=dataSourceTreeNode.dataSource.connectionName, dataSourceTreeNode=dataSourceTreeNode)
@@ -582,7 +602,7 @@ class DatabaseTree(TreeCtrl):
         @return: new node
 
         """
-        logger.debug('AppendFileNode')
+#         logger.debug('AppendFileNode')
         img = self.getDataSourceTreeNodeImage(dataSourceTreeNode)
 #         name = dataSourceTreeNode.dataSource.connectionName
         child = self.AppendItem(targetNode, nodeLabel, img)
