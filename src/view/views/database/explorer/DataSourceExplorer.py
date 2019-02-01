@@ -5,8 +5,16 @@ Created on Jan 30, 2019
 '''
 
 import wx
+import ntpath
+from src.view.views.database.explorer.databaseTree import DatabaseTree
 
-from src.view.views.database.explorer._databaseTree import DatabaseTree
+from wx.lib.pubsub import pub
+import logging.config
+from src.view.constants import LOG_SETTINGS
+import os
+from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
+logging.config.dictConfig(LOG_SETTINGS)
+logger = logging.getLogger('extensive')
 
 class DataSourcePanel(wx.Panel):
     
@@ -27,7 +35,7 @@ class DataSourcePanel(wx.Panel):
 #         self.recreateTree()
         
         # add drop target
-#         self.SetDropTarget(DatabaseFileDropTarget(self))
+        self.SetDropTarget(DatabaseFileDropTarget(self))
     #         self.tree.SetExpansionState(self.expansionState)
 
         ####################################################################
@@ -37,7 +45,52 @@ class DataSourcePanel(wx.Panel):
         sizer.Add(vBox, 1, wx.EXPAND , 0)
         self.SetSizer(sizer)
 
+class DatabaseFileDropTarget(wx.FileDropTarget):
 
+    def __init__(self, dirwin):
+        wx.FileDropTarget.__init__(self)
+        self.dirwin = dirwin
+
+    def OnDropFiles(self, x, y, fileNams):
+        logger.debug("dropFiles {}".format(fileNams))
+        
+        try:
+            for fileAbsoluteName in fileNams:
+                if os.path.isdir(fileAbsoluteName):
+                    continue
+                logger.debug(fileAbsoluteName)
+                if self.isSQLite3(fileAbsoluteName):
+                    self.getConnectionName(filePath=fileAbsoluteName)
+                    sqlExecuter = SQLExecuter()
+                    obj = sqlExecuter.getObject()
+                    if len(obj[1]) == 0:
+                        sqlExecuter.createOpalTables()
+                    sqlExecuter.addNewConnectionRow(fileAbsoluteName, self.getConnectionName(filePath=fileAbsoluteName))
+                    self.dirwin.recreateTree()           
+        except Exception as ex:
+            logger.error(ex)
+              
+        return True
+
+    def getConnectionName(self, filePath=None):
+        head, tail = ntpath.split(filePath)
+        connectionName = "_".join(tail.split(sep=".")[:-1])
+        return connectionName
+    
+    def isSQLite3(self, fileName):
+        ''' this is to check a valid SQLite file dropped.
+        '''
+        from os.path import isfile, getsize
+    
+        if not isfile(fileName):
+            return False
+        if getsize(fileName) < 100:  # SQLite database file header is 100 bytes
+            return False
+    
+        with open(fileName, 'rb') as fd:
+            header = fd.read(100)
+    
+        return header[:16] == b'SQLite format 3\x00'
 if __name__ == '__main__':
     app = wx.App(False)
     f = wx.Frame(None)

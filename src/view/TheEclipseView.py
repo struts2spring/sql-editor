@@ -14,10 +14,10 @@ from src.view.perspective import PerspectiveManager
 from src.view.views.console.worksheet.WelcomePage import WelcomePanel
 from src.view.other.OtherView import OtherViewTreePanel, OtherViewTreeFrame
 from src.view.other.OtherPerspecitve import OtherPerspectiveTreeFrame
+from src.view.views.database.explorer.DataSourceExplorer import DataSourcePanel
 
 import logging.config
-from src.view.constants import LOG_SETTINGS
-from src.view.TreePanel import CreatingTreePanel
+# from src.view.TreePanel import CreatingTreePanel
 from src.view.views.python.explorer.PythonExplorer import CreatingPythonExplorerPanel
 from src.view.views.sql.history.HistoryListPanel import HistoryGrid
 from src.view.views.file.explorer import FileBrowserPanel
@@ -607,7 +607,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
             if name == "consoleOutput":
                 panel = SqlConsoleOutputPanel(self)
             elif name == "databaseNaviagor":
-                panel = CreatingTreePanel(self)
+                panel = DataSourcePanel(self)
             elif name == "pythonPackageExplorer":
                 panel = CreatingPythonExplorerPanel(self)
             elif name == "projectExplorerView":

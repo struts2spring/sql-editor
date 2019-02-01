@@ -3,7 +3,7 @@ import wx
 
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 from src.view.AutoCompleteTextCtrl import TextCtrlAutoComplete
-from src.view.TreePanel import CreatingTreePanel
+# from src.view.TreePanel import CreatingTreePanel
 from src.view.constants import *
 
 from wx.lib.agw.aui.aui_constants import actionDragFloatingPane, AUI_DOCK_NONE, \
@@ -30,6 +30,8 @@ from src.view.views.python.explorer.PythonExplorer import CreatingPythonExplorer
 from wx import py
 from src.view.views.java.explorer.JavaExplorer import CreatingJavaExplorerPanel
 from src.view.views.project.explorer.ProjectExplorer import CreatingProjectExplorerPanel
+
+from src.view.views.database.explorer.DataSourceExplorer import DataSourcePanel
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -829,7 +831,7 @@ class PerspectiveManager(object):
             if name == "consoleOutput":
                 panel = SqlConsoleOutputPanel(self)
             elif name == "databaseNaviagor":
-                panel = CreatingTreePanel(self)
+                panel = DataSourcePanel(self)
             elif name == "pythonPackageExplorer":
                 panel = CreatingPythonExplorerPanel(self)
             elif name == "projectExplorerView":
@@ -1208,7 +1210,8 @@ class PerspectiveManager(object):
     
     def creatingTreeCtrl(self):
         # Create a TreeCtrl
-        treePanel = CreatingTreePanel(self)
+#         treePanel = CreatingTreePanel(self)
+        treePanel=DataSourcePanel(self)
 
         return treePanel
     
