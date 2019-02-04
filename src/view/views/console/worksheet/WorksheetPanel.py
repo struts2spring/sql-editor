@@ -8,7 +8,7 @@ import os
 
 import wx.lib.agw.aui.auibook as aui
 
-from src.view.constants import ID_RUN, ID_TEXTCTRL_AUTO_COMPLETE
+from src.view.constants import ID_RUN, ID_TEXTCTRL_AUTO_COMPLETE, ID_SQL_LOG
 from wx import ID_SPELL_CHECK
 from src.view.views.console.worksheet.EditorPanel import CreatingEditorPanel
 from src.view.views.console.worksheet.ResultListPanel import CreateResultSheetTabPanel
@@ -21,6 +21,7 @@ from src.view.views.database.explorer.databaseTree import DataSourceTreeNode, \
     DataSource
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 from src.view.AutoCompleteTextCtrl import TextCtrlAutoComplete
+from wx.lib.pubsub import pub
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -324,7 +325,9 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
         tb1.AddTool(ID_executeScript, "Run Script  F9", bitmap=wx.Bitmap(os.path.join(path, "sql_script_exec.png")))
         tb1.AddSeparator()
         tb1.AddTool(ID_SPELL_CHECK, "Spelling check", wx.Bitmap(os.path.join(path, "abc.png")))
-        self.Bind(wx.EVT_MENU, self.executeSQL, id=ID_RUN)
+        
+        tb1.AddTool(ID_SQL_LOG, "Sql history", wx.Bitmap(os.path.join(path, "sql.png")))
+        
 #         tb1.AddLabelTool(id=ID_openConnection, label="Open Connection", shortHelp="Open Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "open.png")))
 #         tb1.AddLabelTool(id=ID_newConnection, label="Open Connection", shortHelp="Open Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "open.png")))
 #         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_INFORMATION))
@@ -334,8 +337,17 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
         
         return tb1     
     
+    def onSpellCheck(self, event):
+        logger.debug('onSpellCheck')
+
+    def onSqlLog(self, event):
+        logger.debug('onSqlLog')
+        pub.sendMessage('sqlLogView', event=event)      
+        
     def bindingEvent(self):
         self.Bind(wx.EVT_MENU, self.executeSQL, id=ID_RUN)
+        self.Bind(wx.EVT_MENU, self.onSpellCheck, id=ID_SPELL_CHECK)
+        self.Bind(wx.EVT_MENU, self.onSqlLog, id=ID_SQL_LOG)
 
     def executeSQL(self, event):
         logger.debug('CreatingWorksheetWithToolbarPanel.executeSQL')

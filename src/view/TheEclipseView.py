@@ -46,6 +46,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         logger.info("This is from Runner ")
 
         pub.subscribe(self.onNewWorksheet, 'onNewWorksheet')
+        pub.subscribe(self.onViewClick, 'sqlLogView')
 #         self.startWebHelp()
 #         wx.Frame.__init__(self, parent, wx.ID_ANY, title, pos, size, style)
         wx.Frame.__init__(self, parent, wx.ID_ANY, title=title, style=style)
