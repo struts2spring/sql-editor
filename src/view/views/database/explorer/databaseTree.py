@@ -122,13 +122,26 @@ class DatabaseTree(TreeCtrl):
     def _OnItemActivated(self, evt):
         logger.debug('_OnItemActivated')
         itemId = evt.GetItem()
+        nodes = self.GetSelections()
         dataSourceTreeNode = self.GetItemData(itemId)
         if dataSourceTreeNode.depth == 0:
-            self.onConnectDb(evt, self.GetSelections())
+            self.onConnectDb(evt, nodes)
+            self.connectingDatabase(evt, nodes)
+            
         elif dataSourceTreeNode.depth == 2:
             tableName = self.GetItemText(itemId)
             self.openWorksheet(sheetName=tableName, dataSourceTreeNode=dataSourceTreeNode)
         evt.Skip()
+        
+    def connectingDatabase(self, event=None, nodes=None):
+        '''
+            This method will open new worksheet
+        '''
+        for node in nodes:
+            dataSourceTreeNode = self.GetItemData(node)
+#                 logic to connect worksheet goes here
+#             for dataSourceTreeNode in dataSourceTreeNodeList:
+            pub.sendMessage('onNewWorksheet', event=event, dataSourceTreeNode=dataSourceTreeNode)        
 
     def openWorksheet(self, sheetName="tableName", dataSourceTreeNode=None):
         if hasattr(self.GetTopLevelParent(), '_mgr'):
@@ -258,10 +271,10 @@ class DatabaseTree(TreeCtrl):
                 self.Bind(wx.EVT_MENU, lambda e: self.onDisconnectDb(e, nodes), item1)
             elif self.isAllDisconnected(depth=0, nodes=nodes):         
                 item2 = menu.Append(ID_CONNECT_DB, "Connect")
-                self.Bind(wx.EVT_MENU, lambda e:  self.onConnectDb(e, nodes), item2)  
+                self.Bind(wx.EVT_MENU, lambda e:  self.onConnectDatabase(e, nodes), item2)  
             else: 
                 item2 = menu.Append(ID_CONNECT_DB, "Connect")
-                self.Bind(wx.EVT_MENU, lambda e:  self.onConnectDb(e, nodes), item2)  
+                self.Bind(wx.EVT_MENU, lambda e:  self.onConnectDatabase(e, nodes), item2)  
                 item1 = menu.Append(ID_DISCONNECT_DB, "Disconnect")
                 self.Bind(wx.EVT_MENU, lambda e: self.onDisconnectDb(e, nodes), item1)
                         
@@ -341,8 +354,9 @@ class DatabaseTree(TreeCtrl):
     
     def onOpenSqlEditorTab(self, event, nodes):
         logger.debug('onOpenSqlEditorTab')
-#         self.openWorksheet(sheetName="Worksheet")
-        pub.sendMessage('onNewWorksheet', event=event, extra1='onJavaPerspective')
+        for node in nodes:
+            dataSourceTreeNode = self.GetItemData(node)
+            pub.sendMessage('onNewWorksheet', event=event, dataSourceTreeNode=dataSourceTreeNode)
         
     def onProperties(self, event, nodes):
         if event.Id == ID_CONNECTION_PROPERTIES:
@@ -379,8 +393,16 @@ class DatabaseTree(TreeCtrl):
             dataSourceTreeNode.dataSource.isConnected = False
             self.SetItemHasChildren(node, self.hasNodeChildren(dataSourceTreeNode))
             self.DeleteChildren(node)
-
+            
+    def onConnectDatabase(self, event, nodes):
+        logger.debug('onConnectDatabase')
+        self.onConnectDb(event, nodes)
+        self.connectingDatabase(event, nodes)
+    
     def onConnectDb(self, event, nodes):
+        '''
+            this method have been used to expand database navigator tree.
+        '''
         logger.debug('onConnectDb')
         for node in nodes:
             itemId = node

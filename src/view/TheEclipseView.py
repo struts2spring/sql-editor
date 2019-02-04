@@ -361,7 +361,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
         self.Bind(wx.EVT_MENU, self.onOpenConnection, id=ID_openConnection)
         self.Bind(wx.EVT_MENU, self.onNewConnection, id=ID_newConnection)
-        self.Bind(wx.EVT_MENU, self.onNewWorksheet, id=ID_newWorksheet)
+        self.Bind(wx.EVT_MENU, lambda e: self.onNewWorksheet(e), id=ID_newWorksheet)
         self.Bind(wx.EVT_MENU, self.onPreferences, ID_PREFERENCES)
 
         self.Bind(wx.EVT_MENU, self.onViewClick, id=ID_OUTLINE)
@@ -498,7 +498,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         databaseNavTab.window.recreateTree()
         logger.debug("recreating database navigation tree.")
 
-    def onNewWorksheet(self, event):
+    def onNewWorksheet(self, event, dataSourceTreeNode=None):
         logger.debug('onNewWorksheet')
 #         all_panes = self._mgr.GetAllPanes()
         count = 0
@@ -507,7 +507,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                 countStr = pane.name.replace("Worksheet-", '')
                 count = int(countStr)
                 count += 1
-        self._mgr.addTabByWindow(self.getWorksheet(), imageName="script.png", captionName="Worksheet-{}".format(count), tabDirection=5)
+        self._mgr.addTabByWindow(self.getWorksheet(dataSourceTreeNode), imageName="script.png", captionName="Worksheet-{}".format(count), tabDirection=5)
 #         sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("centerPane")
 #         sqlExecutionTab.window.addTab("Worksheet")
 

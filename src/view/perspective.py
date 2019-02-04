@@ -1215,7 +1215,7 @@ class PerspectiveManager(object):
 
         return treePanel
     
-    def getWorksheet(self):
+    def getWorksheet(self, dataSourceTreeNode=None):
         worksheetPanel = CreatingWorksheetWithToolbarPanel(self, -1, style=wx.CLIP_CHILDREN | wx.BORDER_NONE)
         return worksheetPanel
     
