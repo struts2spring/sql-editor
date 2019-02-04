@@ -498,7 +498,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
     def refreshDatabaseNaviagtionTree(self):
         databaseNavTab = self.GetTopLevelParent()._mgr.GetPane("databaseNaviagor")
-        databaseNavTab.window.recreateTree()
+#         databaseNavTab.window.recreateTree()
         logger.debug("recreating database navigation tree.")
 
     def onNewWorksheet(self, event, dataSourceTreeNode=None):

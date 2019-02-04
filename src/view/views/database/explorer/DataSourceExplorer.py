@@ -66,7 +66,7 @@ class DatabaseFileDropTarget(wx.FileDropTarget):
                     if len(obj[1]) == 0:
                         sqlExecuter.createOpalTables()
                     sqlExecuter.addNewConnectionRow(fileAbsoluteName, self.getConnectionName(filePath=fileAbsoluteName))
-                    self.dirwin.recreateTree()           
+                    self.dirwin.tree.initialize()           
         except Exception as ex:
             logger.error(ex)
               

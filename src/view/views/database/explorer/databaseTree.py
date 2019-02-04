@@ -789,16 +789,20 @@ class DatabaseTree(TreeCtrl):
         self._editlabels = enable
         
     def initialize(self):
-        sqlExecuter = SQLExecuter()
-        self.DeleteAllItems()
-        dbList = sqlExecuter.getListDatabase()     
-        self.AddRoot('root')
-        self.SetItemData(self.RootItem, "root")   
-        for db in dbList:
-            dataSource = DataSource(connectionName=db[1], filePath=db[2])
-#             dataSourceTreeNode = DataSourceTreeNode(depth=0, dataSource=dataSource, imageName='sqlite.png')
-            self.addWatchConnection(dataSource=dataSource)
-#             self.appendNode(targetNode=self.RootItem, nodeLabel=dataSourceTreeNode.dataSource.connectionName, dataSourceTreeNode=dataSourceTreeNode)
+        try:
+            sqlExecuter = SQLExecuter()
+            dbList = sqlExecuter.getListDatabase()     
+            self.DeleteAllItems()
+            self._watch = []
+            self.AddRoot('root')
+            self.SetItemData(self.RootItem, "root")   
+            for db in dbList:
+                dataSource = DataSource(connectionName=db[1], filePath=db[2])
+    #             dataSourceTreeNode = DataSourceTreeNode(depth=0, dataSource=dataSource, imageName='sqlite.png')
+                self.addWatchConnection(dataSource=dataSource)
+        except Exception as e:
+            logger.error(e)
+    #             self.appendNode(targetNode=self.RootItem, nodeLabel=dataSourceTreeNode.dataSource.connectionName, dataSourceTreeNode=dataSourceTreeNode)
     
     def addWatchConnection(self, dataSource=None):
 
