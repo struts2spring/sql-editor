@@ -414,7 +414,7 @@ class MyAuiManager(aui.AuiManager):
             
         if not isPaneAdded:
             auiPanInfo = aui.AuiPaneInfo().Icon(FileOperations().getImageBitmap(imageName=imageName)).\
-                Name(name).Caption(captionName).LeftDockable(True).Dockable(True).Movable(True).MinSize(500, -1).CaptionVisible(visible=True).Direction(wx.TOP).\
+                Name(name).Caption(captionName).LeftDockable(True).Dockable(True).Movable(True).MinSize(100, -1).BestSize(200,-1).CaptionVisible(visible=True).Direction(wx.TOP).\
                 Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).CaptionVisible(visible=True)
             auiPanInfo.dock_direction = tabDirection
             self.AddPane(window, auiPanInfo)
@@ -557,7 +557,7 @@ class PerspectiveManager(object):
         # min size for the frame itself isn't completely done.
         # see the end up AuiManager.Update() for the test
         # code. For now, just hard code a frame minimum size
-        self.SetMinSize(wx.Size(400, 300))    
+        self.SetMinSize(wx.Size(100, 100))    
         self._perspectives = []
         
         # add a bunch of panes
@@ -953,22 +953,22 @@ class PerspectiveManager(object):
                 
         ###################################################################################################
         
-        if perspectiveName == 'database':
-            args = {}
-            if True:
-                args["colNames"] = ("col1", "col2")
-                args["multiChoices"] = [ ("Zoey", "WOW"), ("Alpha", "wxPython"),
-                                        ("Ceda", "Is"), ("Beta", "fantastic"),
-                                        ("zoebob", "!!")]
-                args["colFetch"] = 1
-            else:
-                args["choices"] = ["123", "cs", "cds", "Bob", "Marley", "Alpha"]
-            args["selectCallback"] = self.selectCallback   
-            self.dynamic_choices = list()
-            sqlExecuter = SQLExecuter()
-            dbList = sqlExecuter.getListDatabase()  
-            for db in dbList:
-                self.dynamic_choices.append(db[1])
+#         if perspectiveName == 'database':
+#             args = {}
+#             if True:
+#                 args["colNames"] = ("col1", "col2")
+#                 args["multiChoices"] = [ ("Zoey", "WOW"), ("Alpha", "wxPython"),
+#                                         ("Ceda", "Is"), ("Beta", "fantastic"),
+#                                         ("zoebob", "!!")]
+#                 args["colFetch"] = 1
+#             else:
+#                 args["choices"] = ["123", "cs", "cds", "Bob", "Marley", "Alpha"]
+#             args["selectCallback"] = self.selectCallback   
+#             self.dynamic_choices = list()
+#             sqlExecuter = SQLExecuter()
+#             dbList = sqlExecuter.getListDatabase()  
+#             for db in dbList:
+#                 self.dynamic_choices.append(db[1])
                
     #         self.dynamic_choices = [
     #                 'aardvark', 'abandon', 'acorn', 'acute', 'adore',
@@ -982,12 +982,12 @@ class PerspectiveManager(object):
     #                 'www.wxPython.org', 'www.osafoundation.org'
     #                 ]
     
-            self._ctrl = TextCtrlAutoComplete(toobar, id=ID_TEXTCTRL_AUTO_COMPLETE, size=(250, 20), **args)
-            self._ctrl.SetSize((250, 15))
-            self._ctrl.SetChoices(self.dynamic_choices)
-            self._ctrl.SetEntryCallback(self.setDynamicChoices)
-            self._ctrl.SetMatchFunction(self.match)
-            toobar.AddControl(self._ctrl) 
+#             self._ctrl = TextCtrlAutoComplete(toobar, id=ID_TEXTCTRL_AUTO_COMPLETE, size=(250, 20), **args)
+#             self._ctrl.SetSize((250, 15))
+#             self._ctrl.SetChoices(self.dynamic_choices)
+#             self._ctrl.SetEntryCallback(self.setDynamicChoices)
+#             self._ctrl.SetMatchFunction(self.match)
+#             toobar.AddControl(self._ctrl) 
 
         ###################################################################################################
 #         tb1.AddControl( self.choice ) 
@@ -1205,7 +1205,7 @@ class PerspectiveManager(object):
 
     def creatingFileExplorer(self):
         
-        fileBrowserPanel = FileBrowser(self, size=(500, 300))
+        fileBrowserPanel = FileBrowser(self, size=(200, 300))
         return fileBrowserPanel
     
     def creatingTreeCtrl(self):
@@ -1216,7 +1216,7 @@ class PerspectiveManager(object):
         return treePanel
     
     def getWorksheet(self, dataSourceTreeNode=None):
-        worksheetPanel = CreatingWorksheetWithToolbarPanel(self, -1, style=wx.CLIP_CHILDREN | wx.BORDER_NONE)
+        worksheetPanel = CreatingWorksheetWithToolbarPanel(self, -1, style=wx.CLIP_CHILDREN | wx.BORDER_NONE, dataSourceTreeNode=dataSourceTreeNode)
         return worksheetPanel
     
     def constructCenterPane(self):

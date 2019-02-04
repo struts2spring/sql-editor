@@ -8,7 +8,7 @@ import os
 
 import wx.lib.agw.aui.auibook as aui
 
-from src.view.constants import ID_RUN
+from src.view.constants import ID_RUN, ID_TEXTCTRL_AUTO_COMPLETE
 from wx import ID_SPELL_CHECK
 from src.view.views.console.worksheet.EditorPanel import CreatingEditorPanel
 from src.view.views.console.worksheet.ResultListPanel import CreateResultSheetTabPanel
@@ -17,17 +17,21 @@ from src.view.views.console.worksheet.tableInfoPanel import CreatingTableInfoPan
 
 import logging.config
 from src.view.constants import LOG_SETTINGS
+from src.view.views.database.explorer.databaseTree import DataSourceTreeNode, \
+    DataSource
+from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
+from src.view.AutoCompleteTextCtrl import TextCtrlAutoComplete
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
-
-
 ID_executeScript = wx.NewIdRef()
 
+
 class CreateWorksheetTabPanel(wx.Panel):
-    def __init__(self, parent=None, *args, style=wx.TR_DEFAULT_STYLE | wx.TR_HAS_VARIABLE_ROW_HEIGHT | wx.BORDER_NONE,**kw):
-        wx.Panel.__init__(self, parent, id=-1,style=style)
+
+    def __init__(self, parent=None, *args, style=wx.TR_DEFAULT_STYLE | wx.TR_HAS_VARIABLE_ROW_HEIGHT | wx.BORDER_NONE, **kw):
+        wx.Panel.__init__(self, parent, id=-1, style=style)
         self.parent = parent
         path = os.path.abspath(__file__)
         tail = None
@@ -58,18 +62,18 @@ class CreateWorksheetTabPanel(wx.Panel):
         
         self.__DoLayout()
 
-    def addTab(self, name='Start Page', worksheetPanel=None):
+    def addTab(self, name='Start Page', worksheetPanel=None, dataSourceTreeNode=None):
         if name == 'Start Page':
-            worksheetPanel=WelcomePanel(self._nb)
+            worksheetPanel = WelcomePanel(self._nb)
         elif name.startswith('tableInfo_'):
-            name=name.replace('tableInfo_','',1)
-            worksheetPanel= CreatingTableInfoPanel(self._nb, -1, style=wx.CLIP_CHILDREN |wx.BORDER_NONE, tableName=name)
+            name = name.replace('tableInfo_', '', 1)
+            worksheetPanel = CreatingTableInfoPanel(self._nb, -1, style=wx.CLIP_CHILDREN | wx.BORDER_NONE, tableName=name)
         elif name.startswith('Worksheet'):
-            worksheetPanel = CreatingWorksheetWithToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN|wx.BORDER_NONE)
+            worksheetPanel = CreatingWorksheetWithToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN | wx.BORDER_NONE , dataSourceTreeNode=dataSourceTreeNode)
 #             worksheetPanel.worksheetPanel.editorPanel
             name = 'Worksheet ' + str(len(self.GetPages(type(worksheetPanel))))
         elif name.startswith('openFileLoad'):
-            name=name.replace('openFileLoad','',1)
+            name = name.replace('openFileLoad', '', 1)
         self._nb.AddPage(worksheetPanel, name)
         self.SetCurrentPage(worksheetPanel)
         self.Bind(aui.EVT_AUINOTEBOOK_TAB_RIGHT_DOWN, self.onTabRightDown, self._nb)
@@ -80,6 +84,7 @@ class CreateWorksheetTabPanel(wx.Panel):
         logger.debug('onBgDoubleClick')
         name = 'Worksheet '
         self.addTab(name)
+
     def __DoLayout(self):
         """Layout the panel"""
         sizer = wx.BoxSizer(wx.VERTICAL)
@@ -129,13 +134,14 @@ class CreateWorksheetTabPanel(wx.Panel):
             logger.info('page deleted')
         npages = self._nb.GetPageCount()
         logger.debug("npages {}".format(npages))
+
     def onCloseOthersTabs(self, event=None, currentlySelectedPage=None):
         logger.debug("onCloseOthersTab")
         logger.debug("currentlySelectedPage %s", currentlySelectedPage)
         npages = self._nb.GetPageCount()
         
         for n in range(currentlySelectedPage, npages):
-            self._nb.DeletePage(currentlySelectedPage+1)
+            self._nb.DeletePage(currentlySelectedPage + 1)
         for n in range(0, currentlySelectedPage):
             self._nb.DeletePage(0)
         
@@ -149,15 +155,16 @@ class CreateWorksheetTabPanel(wx.Panel):
         npages = self._nb.GetPageCount()
         
         for n in range(currentlySelectedPage, npages):
-            self._nb.DeletePage(currentlySelectedPage+1)
+            self._nb.DeletePage(currentlySelectedPage + 1)
         logger.debug("onCloseRightTabs")
         logger.debug("currentlySelectedPage %s", currentlySelectedPage)
     
     def onCloseAllTabs(self, event):
         logger.debug("onCloseAllTabs")
 #         npages = self._nb.DeleteAllPages()
-        while self._nb.GetPageCount()!=0:
+        while self._nb.GetPageCount() != 0:
             self._nb.DeletePage(0)
+
 #         GetPageCount()
 #         for n in range(0, npages):
 #             page = self._nb.GetPage(n)
@@ -212,8 +219,10 @@ class CreateWorksheetTabPanel(wx.Panel):
 #         self.popmenu.Append(fileMenu)
 #         self.PopupMenu(self.popmenu, event.GetPosition())
 
+
 #         sizer.Fit(self)
 class CreatingStartPanel(wx.Panel):
+
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
@@ -235,10 +244,10 @@ class CreatingStartPanel(wx.Panel):
 
 
 class CreatingWorksheetWithToolbarPanel(wx.Panel):
-    def __init__(self, parent=None, *args, **kw):
+
+    def __init__(self, parent, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
-        self.parent = parent
-        
+        dataSourceTreeNode = kw['dataSourceTreeNode']
         vBox = wx.BoxSizer(wx.VERTICAL)
 
         ####################################################################
@@ -247,14 +256,43 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
         self.worksheetPanel.setResultData()
         self.bindingEvent()
         ####################################################################
-        vBox.Add(worksheetToolbar , 0, wx.EXPAND | wx.ALL, 0)
+        hBox11 = wx.BoxSizer(wx.HORIZONTAL)
+        hBox1 = wx.BoxSizer(wx.HORIZONTAL)
+        hBox2 = wx.BoxSizer(wx.HORIZONTAL)
+        hBox1.Add(worksheetToolbar, 1, wx.ALIGN_RIGHT, 0)
+        hBox2.Add(self.createDropdownToolbar(dataSourceTreeNode=dataSourceTreeNode), 0, wx.ALIGN_LEFT , 0)
+        hBox11.Add(hBox1 , 1, wx.ALIGN_RIGHT, 0)
+        hBox11.Add(hBox2 , 0, wx.ALIGN_LEFT, 0)
+        ####################################################################
+        vBox.Add(hBox11 , 0, wx.EXPAND | wx.ALL, 0)
         vBox.Add(self.worksheetPanel , 1, wx.EXPAND | wx.ALL, 0)
 #         vBox.Add(resultPanel , 1, wx.EXPAND | wx.ALL)
         sizer = wx.BoxSizer(wx.VERTICAL)
 #         sizer.Add(worksheetToolbar ,.9, wx.EXPAND | wx.ALL, 0)
         sizer.Add(vBox, 1, wx.EXPAND , 0)
         self.SetSizer(sizer)    
-        
+    
+    def createDropdownToolbar(self, dataSourceTreeNode=None):
+        tb2 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
+                         wx.TB_FLAT | wx.TB_NODIVIDER)
+        tb2.SetToolBitmapSize(wx.Size(16, 16))
+        self.dynamic_choices = list()
+        sqlExecuter = SQLExecuter()
+        dbList = sqlExecuter.getListDatabase()  
+        for db in dbList:
+            self.dynamic_choices.append(db[1])
+           
+        self._ctrl = TextCtrlAutoComplete(tb2, id=ID_TEXTCTRL_AUTO_COMPLETE, size=(250, 20), choices=self.dynamic_choices)
+#         self._ctrl.SetSize((250, 15))
+        self._ctrl.SetChoices(self.dynamic_choices)
+        self._ctrl.SetEntryCallback(self.dynamic_choices)
+#         self._ctrl.SetMatchFunction('_opal')
+        if dataSourceTreeNode:
+            self._ctrl.SetValue(dataSourceTreeNode.dataSource.connectionName)
+        tb2.AddControl(self._ctrl)
+        tb2.Realize() 
+        return tb2
+    
     def constructWorksheetToolBar(self):
         logger.debug("constructWorksheetToolBar")
         path = os.path.abspath(__file__)
@@ -282,7 +320,7 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
 #             playImage=wx.Bitmap(os.path.join("..", "images", "play.png"))
             
 #         playImage=wx.Bitmap(os.path.join(imageLocation, "sql_exec.png"))
-        tb1.AddTool(ID_RUN, "Run F5",wx.Bitmap(os.path.join(path, "webinar.png"))) 
+        tb1.AddTool(ID_RUN, "Run F5", wx.Bitmap(os.path.join(path, "webinar.png"))) 
         tb1.AddTool(ID_executeScript, "Run Script  F9", bitmap=wx.Bitmap(os.path.join(path, "sql_script_exec.png")))
         tb1.AddSeparator()
         tb1.AddTool(ID_SPELL_CHECK, "Spelling check", wx.Bitmap(os.path.join(path, "abc.png")))
@@ -298,6 +336,7 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
     
     def bindingEvent(self):
         self.Bind(wx.EVT_MENU, self.executeSQL, id=ID_RUN)
+
     def executeSQL(self, event):
         logger.debug('CreatingWorksheetWithToolbarPanel.executeSQL')
         self.GetTopLevelParent()
@@ -308,8 +347,10 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
 #         resultPanel.createDataViewCtrl(data=music,headerList=["Artist","Title","Genre"])
 #         resultPanel.setModel(music)
 #         resultPanel.Layout()
+
     
 class CreatingWorksheetPanel(wx.Panel):
+
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
@@ -318,7 +359,6 @@ class CreatingWorksheetPanel(wx.Panel):
         ####################################################################
         
 #         self._nb = wx.Notebook(self)
-
         
         ####################################################################
         self.data = dict()
@@ -362,19 +402,23 @@ class CreatingWorksheetPanel(wx.Panel):
             self.data = data
 #             self.data = music
             self.resultPanel.Layout()
+
     def getData(self):
         # Get the data from the ListCtrl sample to play with, converting it
         # from a dictionary to a list of lists, including the dictionary key
         # as the first element of each sublist.
 #         self.data=music
         return self.data
+
     
     #---------------------------------------------------------------------------
 if __name__ == '__main__':
     app = wx.App(False)
     frame = wx.Frame(None)
+    dataSource = DataSource(connectionName='employee_9_jan_2019', filePath=r'C:\Users\xbbntni\eclipse-workspace2\pyTrack\src\employee.sqlite')
+    dataSourceTreeNode = DataSourceTreeNode(depth=0, dataSource=dataSource, nodeLabel=None, imageName=None, children=None)
     panel = CreateWorksheetTabPanel(frame)
-    panel.addTab()
+    panel.addTab(name='Worksheet', dataSourceTreeNode=dataSourceTreeNode)
 #     panel.addTab("123")
     frame.Show()
     app.MainLoop()

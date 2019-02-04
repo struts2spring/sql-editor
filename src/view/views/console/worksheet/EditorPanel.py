@@ -999,7 +999,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         '''
         ##################################################################################
         sqlExecuter = SQLExecuter(database='_opal.sqlite')
-        textCtrl = self.GetTopLevelParent()._ctrl
+        textCtrl = self.GetGrandParent().GetGrandParent()._ctrl
         connectionName = textCtrl.GetValue()
         databaseAbsolutePath = sqlExecuter.getDbFilePath(connectionName)
         logger.debug("databaseAbsolutePath: %s", databaseAbsolutePath)

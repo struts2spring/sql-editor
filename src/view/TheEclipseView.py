@@ -38,6 +38,7 @@ except ImportError:  # if it's not there locally, try the wxPython lib.
     from wx.lib.agw.aui import aui_switcherdialog as ASD
 from wx.lib.pubsub import pub
 
+
 class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
     def __init__(self, parent, style=wx.DEFAULT_FRAME_STYLE | wx.MAXIMIZE , title=TITLE):
@@ -54,7 +55,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         icon.CopyFromBitmap(self.fileOperations.getImageBitmap(imageName="eclipse16.png"))
 
         self.SetIcon(icon)
-        self.SetMinSize(wx.Size(400, 300))
+        self.SetMinSize(wx.Size(100, 100))
         self.createMenuBar()
         self.createStatusBar()
 
@@ -67,6 +68,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
         self.bindingEvent()
         self._mgr.Update()
+
 #         wx.CallLater(13, self.startWebHelp)
     #---------------------------------------------
     def startWebHelp(self):

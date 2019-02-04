@@ -193,8 +193,8 @@ class TextCtrlAutoComplete (wx.TextCtrl, listmix.ColumnSorterMixin):
         logger.info('onEnteredText')
         try:
             text = event.GetString()
-            if self._entryCallback:
-                self._entryCallback()
+#             if self._entryCallback:
+#                 self._entryCallback()
             if not text:
                 # control is empty; hide dropdown if shown:
                 if self.dropdown.IsShown():

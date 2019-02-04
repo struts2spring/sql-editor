@@ -191,7 +191,7 @@ class DatabaseTree(TreeCtrl):
         dataSourceTreeNode = self.GetItemData(itemId)
         if dataSourceTreeNode.depth == 0:
             self.onConnectDb(evt, nodes)
-            self.connectingDatabase(evt, nodes)
+            self.connectingDatabase(event=evt, nodes=nodes)
             
         elif dataSourceTreeNode.depth == 2:
             tableName = self.GetItemText(itemId)
