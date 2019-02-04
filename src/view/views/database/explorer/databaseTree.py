@@ -118,6 +118,22 @@ class DatabaseTree(TreeCtrl):
         return modifiers + keyname
 
     #----------------------------------------------------------------------
+    def onDeleteKeyPress(self, event):
+        try:
+            nodes = self.GetSelections()
+            for node in nodes:
+                dataSourceTreeNode = self.GetItemData(node)
+                if dataSourceTreeNode.depth == 0:
+                    self.onDeleteConnection(event, nodes=[node])
+                elif dataSourceTreeNode.depth == 2:
+                    
+                    logger.debug("TODO delete table")
+                    self.onDeleteTable(event)
+                elif dataSourceTreeNode.depth == 4:
+                    logger.debug("TODO delete column")
+        except Exception as e:
+            logger.error(e, exc_info=True)
+            
     def onF2KeyPress(self, event):
         try:
             nodes = self.GetSelections()
@@ -258,11 +274,12 @@ class DatabaseTree(TreeCtrl):
             dataSourceTreeNode = self.GetItemData(nodes[0])
             logger.debug(dataSourceTreeNode.dataSource.connectionName)
             
-            if dataSourceTreeNode.dataSource.isConnected and dataSourceTreeNode.depth in (0, 1, 2):
-                importBmp = wx.MenuItem(menu, ID_IMPORT, "&Import CSV / Excel")
-                importBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="import.png")))
-                importMenu = menu.Append(importBmp) 
-                self.Bind(wx.EVT_MENU, lambda e: self.onImport(e, nodes), importMenu)
+            if dataSourceTreeNode.dataSource.isConnected and dataSourceTreeNode.depth in (0, 1, 2) :
+                if dataSourceTreeNode.depth == 1 and 'table' in self.GetItemText(nodes[0]):
+                    importBmp = wx.MenuItem(menu, ID_IMPORT, "&Import CSV / Excel")
+                    importBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="import.png")))
+                    importMenu = menu.Append(importBmp) 
+                    self.Bind(wx.EVT_MENU, lambda e: self.onImport(e, nodes), importMenu)
                 
                 if dataSourceTreeNode.depth == 0:
                     sqlEditorBmp = wx.MenuItem(menu, ID_newWorksheet, "SQL Editor in new Tab")
@@ -429,10 +446,12 @@ class DatabaseTree(TreeCtrl):
 
     def onDeleteTable(self, event, dataSourceTreeNode=None, node=None):
         logger.debug('onDeleteTable')
-        text = f"DROP TABLE '{dataSourceTreeNode.dataSource.connectionName}'"
-        dbObjects = ManageSqliteDatabase(connectionName=dataSourceTreeNode.dataSource.connectionName , databaseAbsolutePath=dataSourceTreeNode.dataSource.filePath).executeText(text)
-                
-        self.onRefresh(event, nodes=[node])
+        nodes = self.GetSelections()
+        for node in nodes:
+            dataSourceTreeNode = self.GetItemData(node)
+            text = "DROP TABLE '{}'".format(dataSourceTreeNode.nodeLabel)
+            dbObjects = ManageSqliteDatabase(connectionName=dataSourceTreeNode.dataSource.connectionName , databaseAbsolutePath=dataSourceTreeNode.dataSource.filePath).executeText(text)
+            self.Delete(node)
     
     def onEditTable(self, event, dataSourceTreeNode=None, node=None):
         logger.debug('onEditTable')
@@ -542,16 +561,14 @@ class DatabaseTree(TreeCtrl):
             frame = ImportingCsvExcelFrame(None, 'Import CSV Excel', dataSourceTreeNode.dataSource.connectionName)
             frame.Show()
 
-    def onDeleteConnection(self, event, nodes):
+    def onDeleteConnection(self, event, nodes=None):
         logger.debug('onDeleteConnection')
         for node in nodes:
             dataSourceTreeNode = self.GetItemData(node)
             logger.debug(dataSourceTreeNode.dataSource.connectionName)
-            self.sqlExecuter.removeConnctionRow(dataSourceTreeNode.dataSource.connectionName)
-            self.recreateTree()
-        selectedItemId = self.GetSelection()
-        selectedItemText = self.GetItemText(self.GetSelection())
-        logger.debug(selectedItemText)
+            SQLExecuter().removeConnctionRow(dataSourceTreeNode.dataSource.connectionName)
+            self.Delete(node)
+#         self.onRefresh(event, nodes)
 
     def onCompareDatabase(self, event, nodes):
         logger.debug('onCompareDatabase')   
@@ -597,8 +614,9 @@ class DatabaseTree(TreeCtrl):
                         child_itemId_0 = self.appendNode(targetNode=itemId, nodeLabel=dataSourceTreeNode.nodeLabel , dataSourceTreeNode=dataSourceTreeNode)
                         for v00 in v0:
                             for k1, v1 in v00.items():
-                                dataSourceTreeNode = DataSourceTreeNode(depth=2, dataSource=dataSource, nodeLabel=f'{k0} ( {len(v0)})', imageName=f"{k0}.png", children=None)
+#                                 dataSourceTreeNode = DataSourceTreeNode(depth=2, dataSource=dataSource, nodeLabel=f'{k0} ( {len(v0)})', imageName=f"{k0}.png", children=None)
                                 if k0 == 'table':
+                                    dataSourceTreeNode = DataSourceTreeNode(depth=2, dataSource=dataSource, nodeLabel=k1, imageName=f"{k0}.png", children=None)
                                     child_itemId_1 = self.appendNode(targetNode=child_itemId_0, nodeLabel=k1 , dataSourceTreeNode=dataSourceTreeNode)
     
                                     nodeLabel = 'Columns' + ' (' + str(len(v1)) + ')'
