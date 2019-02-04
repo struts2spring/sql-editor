@@ -9,7 +9,7 @@ from wx import TreeCtrl
 import logging.config
 from src.view.constants import LOG_SETTINGS, ID_ROOT_REFERESH, ID_DISCONNECT_DB, \
     ID_CONNECT_DB, ID_newWorksheet, ID_CONNECTION_PROPERTIES, ID_IMPORT, \
-    ID_deleteWithDatabase
+    ID_deleteWithDatabase, keyMap
 from src.view.util.FileOperationsUtil import FileOperations
 import os
 from src.sqlite_executer.ConnectExecuteSqlite import ManageSqliteDatabase, \
@@ -20,6 +20,7 @@ from src.view.importing.importCsvExcel import ImportingCsvExcelFrame
 from src.view.table.CreateTable import CreatingTableFrame
 import datetime
 from src.view.views.console.worksheet.tableInfoPanel import CreatingTableInfoPanel
+from src.view.schema.CreateSchemaViewer import CreateErDiagramFrame
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -79,6 +80,70 @@ class DatabaseTree(TreeCtrl):
 #         self.Bind(wx.EVT_LEFT_DCLICK, self.OnTreeDoubleclick)
 #         self.Bind(wx.EVT_RIGHT_DOWN, self.OnTreeRightDown)
 #         self.Bind(wx.EVT_RIGHT_UP, self.OnTreeRightUp)
+
+        self.Bind(wx.EVT_TREE_KEY_DOWN, self.onTreeKeyDown)
+
+    def onTreeKeyDown(self, event):
+        logger.debug('onTreeKeyDown')
+        keypress = self.GetKeyPress(event)
+        keycode = event.GetKeyCode()
+#         keyname = keyMap.get(keycode, None)
+        logger.debug(f'onTreeKeyDown keycode: {keycode}  keypress: {keypress}')
+        logger.debug(keypress == 'WXK_F2')
+        
+        if keypress == 'Ctrl+C':
+            self.onTreeCopy(event)
+        elif keypress == 'WXK_F2':
+            self.onF2KeyPress(event)
+        elif keypress == 'WXK_DELETE':
+            self.onDeleteKeyPress(event)
+        event.Skip()
+
+    def GetKeyPress(self, evt):
+        keycode = evt.GetKeyCode()
+        keyname = keyMap.get(keycode, None)
+        modifiers = ""
+        for mod, ch in ((evt.GetKeyEvent().ControlDown(), 'Ctrl+'),
+                        (evt.GetKeyEvent().AltDown(), 'Alt+'),
+                        (evt.GetKeyEvent().ShiftDown(), 'Shift+'),
+                        (evt.GetKeyEvent().MetaDown(), 'Meta+')):
+            if mod:
+                modifiers += ch
+    
+        if keyname is None:
+            if 27 < keycode < 256:
+                keyname = chr(keycode)
+            else:
+                keyname = "(%s)unknown" % keycode
+        return modifiers + keyname
+
+    #----------------------------------------------------------------------
+    def onF2KeyPress(self, event):
+        try:
+            nodes = self.GetSelections()
+            dataSourceTreeNode = self.GetItemData(nodes[0])
+            if dataSourceTreeNode.depth == 0:
+                self.onRenameConnection(event, dataSourceTreeNode=dataSourceTreeNode, node=nodes[0])
+            elif dataSourceTreeNode.depth == 2:
+                self.onRenameTable(event, dataSourceTreeNode=dataSourceTreeNode, node=nodes[0])
+            elif dataSourceTreeNode.depth == 4:
+                self.onRenameColumn(event, dataSourceTreeNode=dataSourceTreeNode, node=nodes[0])
+                
+        except Exception as e:
+            logger.error(e, exc_info=True)       
+
+    def onTreeCopy(self, event):
+        """"""
+        nodes = self.GetSelections()
+        self.dataObj = wx.TextDataObject()
+        self.dataObj.SetText(self.GetItemText(nodes[0]))
+        if not wx.TheClipboard.IsOpened():  # may crash, otherwise
+            wx.TheClipboard.Open()
+        try:
+            with wx.Clipboard.Get() as clipboard:
+                clipboard.SetData(self.dataObj)
+        except TypeError:
+            wx.MessageBox("Unable to open the clipboard", "Error")
 
     def OnTreeDoubleclick(self, event):
         logger.info("OnTreeDoubleclick")
@@ -172,7 +237,7 @@ class DatabaseTree(TreeCtrl):
         except Exception as e :
             logger.error(e)
 
-    def onRefresh(self, event, nodes):
+    def onRefresh(self, event, nodes=None):
         logger.debug('onRootRefresh')
         '''
         1. find current active connection.
@@ -193,19 +258,38 @@ class DatabaseTree(TreeCtrl):
             dataSourceTreeNode = self.GetItemData(nodes[0])
             logger.debug(dataSourceTreeNode.dataSource.connectionName)
             
-            if dataSourceTreeNode.dataSource.isConnected:
+            if dataSourceTreeNode.dataSource.isConnected and dataSourceTreeNode.depth in (0, 1, 2):
                 importBmp = wx.MenuItem(menu, ID_IMPORT, "&Import CSV / Excel")
                 importBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="import.png")))
                 importMenu = menu.Append(importBmp) 
                 self.Bind(wx.EVT_MENU, lambda e: self.onImport(e, nodes), importMenu)
                 
-                sqlEditorBmp = wx.MenuItem(menu, ID_newWorksheet, "SQL Editor in new Tab")
-                sqlEditorBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="script.png")))
-                item3 = menu.Append(sqlEditorBmp)
-                self.Bind(wx.EVT_MENU, lambda e: self.onOpenSqlEditorTab(e, nodes), item3)
-            
+                if dataSourceTreeNode.depth == 0:
+                    sqlEditorBmp = wx.MenuItem(menu, ID_newWorksheet, "SQL Editor in new Tab")
+                    sqlEditorBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="script.png")))
+                    item3 = menu.Append(sqlEditorBmp)
+                    self.Bind(wx.EVT_MENU, lambda e: self.onOpenSqlEditorTab(e, nodes), item3)
+                if dataSourceTreeNode.depth == 2:
+                    editTableBmp = wx.MenuItem(menu, wx.ID_ANY, "Edit table")
+                    editTableBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="table_edit.png")))
+                    editTableItem = menu.Append(editTableBmp) 
+                    
+        #             editTableItem = menu.Append(wx.ID_ANY, "Edit table ")
+                    renameTableItem = menu.Append(wx.ID_ANY, "Rename Table ")
+                    copyCreateTableItem = menu.Append(wx.ID_ANY, "Copy create table statement")
+        
+                    deleteTableBmp = wx.MenuItem(menu, wx.ID_ANY, "&Delete table ")
+                    deleteTableBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="table_delete.png")))
+                    deleteTableItem = menu.Append(deleteTableBmp)
+        
+                    self.Bind(wx.EVT_MENU, lambda e: self.onDeleteTable(e, dataSourceTreeNode=dataSourceTreeNode, node=nodes[0]), deleteTableItem)
+                    
+                    self.Bind(wx.EVT_MENU, lambda e: self.onEditTable(e, dataSourceTreeNode=dataSourceTreeNode, node=nodes[0]), editTableItem)
+                    self.Bind(wx.EVT_MENU, lambda e: self.onRenameTable(e, dataSourceTreeNode=dataSourceTreeNode, node=nodes[0]), renameTableItem)
+                    self.Bind(wx.EVT_MENU, self.onCopyCreateTableStatement, copyCreateTableItem)
+                    
             if dataSourceTreeNode.depth == 1:
-                item = nodes[0]
+                node = item = nodes[0]
                 if 'table' in self.GetItemText(item):
                     newTableBmp = wx.MenuItem(menu, wx.ID_ANY, "Create new table")
                     newTableBmp.SetBitmap(self.fileOperations.getImageBitmap(imageName="table_add.png"))
@@ -215,20 +299,28 @@ class DatabaseTree(TreeCtrl):
                     erDiagramItem = menu.Append(wx.ID_ANY, "Create ER diagram")
 #                     refreshTableItem = menu.Append(wx.ID_ANY, "Refresh  \tF5")
                     
-                    self.Bind(wx.EVT_MENU, lambda e: self.onNewTable(e, item), newTableItem)
+                    self.Bind(wx.EVT_MENU, lambda e: self.onNewTable(e, dataSourceTreeNode=dataSourceTreeNode, node=node), newTableItem)
                     
-                    self.Bind(wx.EVT_MENU, lambda e: self.onCreateErDiagramItem(e, item), erDiagramItem)
+                    self.Bind(wx.EVT_MENU, lambda e: self.onCreateErDiagramItem(e, dataSourceTreeNode=dataSourceTreeNode, node=node), erDiagramItem)
                     
 #                     self.Bind(wx.EVT_MENU, lambda e: self.onRefreshTable(e, item), refreshTableItem)
                     
                 if 'view' in self.GetItemText(item):
                     newViewItem = menu.Append(wx.ID_ANY, "Create new view")
 #                     item2 = menu.Append(wx.ID_ANY, "Refresh \tF5")
-                    self.Bind(wx.EVT_MENU, lambda e: self.onNewView(e, item), newViewItem)
+                    self.Bind(wx.EVT_MENU, lambda e: self.onNewView(e, dataSourceTreeNode=dataSourceTreeNode, node=item), newViewItem)
                 if 'index' in self.GetItemText(item) :
                     newIndexItem = menu.Append(wx.ID_ANY, "Create new index")
 #                     item2 = menu.Append(wx.ID_ANY, "Refresh \tF5")
-                    self.Bind(wx.EVT_MENU, lambda e: self.onNewIndex(e, item), newIndexItem)
+                    self.Bind(wx.EVT_MENU, lambda e: self.onNewIndex(e, dataSourceTreeNode=dataSourceTreeNode, node=item), newIndexItem)
+            elif dataSourceTreeNode.depth in (2, 3):
+                newColumnItem = menu.Append(wx.ID_ANY, "Add new column")
+                self.Bind(wx.EVT_MENU, lambda e: self.onNewColumn(e, dataSourceTreeNode=dataSourceTreeNode, node=node), newColumnItem)  
+            elif dataSourceTreeNode.depth == 4:
+                renameColumnItem = menu.Append(wx.ID_ANY, "Rename Column ")
+    #             item1 = menu.Append(wx.ID_ANY, "Create new column")
+    #             self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
+                self.Bind(wx.EVT_MENU, lambda e: self.onRenameColumn(e, dataSourceTreeNode=dataSourceTreeNode, node=node), renameColumnItem)                            
         if len(nodes) == 2:
             
             bmp = wx.MenuItem(menu, wx.NewIdRef(), "Compare with each other")
@@ -297,8 +389,92 @@ class DatabaseTree(TreeCtrl):
 
         self.Bind(wx.EVT_MENU, lambda e: self.onRefresh(e, nodes), rootRefresh)
         return menu
+
+    def onRenameColumn(self, event, dataSourceTreeNode=None, node=None):
+        logger.debug('onRenameColumn')
+        initialColumnName = self.GetItemText(node)
+        dlg = wx.TextEntryDialog(self, 'Rename column ' + initialColumnName, 'Rename column ' + initialColumnName, 'Python')
+        dlg.SetValue(initialColumnName)
+
+        if dlg.ShowModal() == wx.ID_OK:
+            logger.info('You entered: %s\n', dlg.GetValue())
+            if dlg.GetValue() != initialColumnName:
+                logger.info('update table execute')
+
+                if os.path.isfile(dataSourceTreeNode.dataSource.filePath):     
+                    '''
+                    First you rename the old table:
+                    ALTER TABLE orig_table_name RENAME TO tmp_table_name;
+                    Then create the new table, based on the old table but with the updated column name:
+                    Then copy the contents across from the original table.
+                    
+
+                    '''
+                    logger.debug("TODO logic for rename column goes here.")
+#                     dbObjects = ManageSqliteDatabase(connectionName=connectionName , databaseAbsolutePath=databaseAbsolutePath).executeText(text) 
+        dlg.Destroy()
+
+    def onCreateErDiagramItem(self, event, dataSourceTreeNode=None, node=None):
+        logger.debug('onCreateErDiagramItem')
+       
+        dbObjects = ManageSqliteDatabase(connectionName=dataSourceTreeNode.dataSource.connectionName , databaseAbsolutePath=dataSourceTreeNode.dataSource.filePath).getObject()   
+             
+        createErDiagramFrame = CreateErDiagramFrame(None)
+        createErDiagramFrame.setDbObjects(dbObjects=dbObjects)
+        createErDiagramFrame.Show()        
+
+    def onNewColumn(self, event, dataSourceTreeNode=None, node=None):
+        logger.debug('onNewColumn')
+        logger.debug("TODO add a new column")    
+
+    def onDeleteTable(self, event, dataSourceTreeNode=None, node=None):
+        logger.debug('onDeleteTable')
+        text = f"DROP TABLE '{dataSourceTreeNode.dataSource.connectionName}'"
+        dbObjects = ManageSqliteDatabase(connectionName=dataSourceTreeNode.dataSource.connectionName , databaseAbsolutePath=dataSourceTreeNode.dataSource.filePath).executeText(text)
+                
+        self.onRefresh(event, nodes=[node])
     
-    def onNewTable(self, event, node):
+    def onEditTable(self, event, dataSourceTreeNode=None, node=None):
+        logger.debug('onEditTable')
+
+    def onRenameConnection(self, event, dataSourceTreeNode=None, node=None):
+        logger.debug('onRenameConnection')
+        '''
+        1. disconnect Connection.
+        2. fire database conn alter connectionName
+        3. call init method to load all the connection
+        '''
+
+    def onRenameTable(self, event, dataSourceTreeNode=None, node=None):
+        logger.debug('onRenameTable')
+        oldTableName = initialTableName = self.GetItemText(node)
+        dlg = wx.TextEntryDialog(self, 'Rename table {} to'.format(initialTableName), 'Rename table {} '.format(initialTableName), 'Python')
+        dlg.SetValue(initialTableName)
+
+        if dlg.ShowModal() == wx.ID_OK:
+            logger.info('You entered: %s\n', dlg.GetValue())
+            if dlg.GetValue() != initialTableName:
+                logger.info('update table execute')
+                newTableName = dlg.GetValue()
+                if os.path.isfile(dataSourceTreeNode.dataSource.filePath):     
+                    '''
+                    First you rename the old table:
+                    '''
+                    logger.debug("TODO logic to rename table should go here.")
+#                     dropTableSql="DROP TABLE '{}'".format()
+                    alterTableSql = f"ALTER TABLE '{oldTableName}' RENAME TO {newTableName}"
+                    db = ManageSqliteDatabase(connectionName=dataSourceTreeNode.dataSource.connectionName , databaseAbsolutePath=dataSourceTreeNode.dataSource.filePath)
+                    try:
+                        db.executeText(alterTableSql)
+                    except Exception as e:
+                        self.consoleOutputLog(e)
+            self.onRefresh(event, nodes=[node])
+        dlg.Destroy()
+
+    def onCopyCreateTableStatement(self, event, dataSourceTreeNode=None, node=None):
+        logger.debug('onCopyCreateTableStatement')
+
+    def onNewTable(self, event, dataSourceTreeNode=None, node=None):
         logger.debug('onNewTable')
         connectionName = self.GetItemText(self.GetItemParent(node))
         
@@ -312,15 +488,12 @@ class DatabaseTree(TreeCtrl):
         tableFrame.Show()
 #         app.MainLoop()
         
-    def onNewView(self, event):
+    def onNewView(self, event, dataSourceTreeNode=None, node=None):
         logger.debug('onNewView')
 
 #         tableFrame = CreateTableFrame(None, 'Table creation')
-    def onNewColumn(self, event):
-        logger.debug('onNewColumn')
-        logger.debug("TODO add a new column")
 
-    def onNewIndex(self, event):
+    def onNewIndex(self, event, dataSourceTreeNode=None, node=None):
         logger.debug('onNewIndex')
         logger.debug("TODO add a new Index")   
 
@@ -376,8 +549,8 @@ class DatabaseTree(TreeCtrl):
             logger.debug(dataSourceTreeNode.dataSource.connectionName)
             self.sqlExecuter.removeConnctionRow(dataSourceTreeNode.dataSource.connectionName)
             self.recreateTree()
-        selectedItemId = self.tree.GetSelection()
-        selectedItemText = self.tree.GetItemText(self.tree.GetSelection())
+        selectedItemId = self.GetSelection()
+        selectedItemText = self.GetItemText(self.GetSelection())
         logger.debug(selectedItemText)
 
     def onCompareDatabase(self, event, nodes):
@@ -476,8 +649,8 @@ class DatabaseTree(TreeCtrl):
             newline = ""
         self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.AppendText("{}{} {}".format(newline, strftime, exception))
         
-    def onEditTable(self, event):
-        logger.debug('onEditTable')
+#     def onEditTable(self, event):
+#         logger.debug('onEditTable')
 
     def deleteChildren(self, itemId):
         '''
