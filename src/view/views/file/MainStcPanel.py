@@ -1953,7 +1953,7 @@ class MainStc(BaseStc):
 
         # Notify that lexer has changed
         pid = self.TopLevelParent.Id
-        logger.debug("[ed_stc][info] Lexer change notification for context %d" % pid)
+        logger.debug(f"file_ext:{file_ext} Lexer change notification for context {pid}" )
 #         ed_msg.PostMessage(ed_msg.EDMSG_UI_STC_LEXER,
 #                            (self.GetFileName(), self.GetLangId()), pid)
         return True

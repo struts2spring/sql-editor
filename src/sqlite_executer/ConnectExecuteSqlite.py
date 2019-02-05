@@ -425,20 +425,33 @@ class ManageSqliteDatabase():
             types = cur.execute("select distinct type from sqlite_master;").fetchall()
             databaseList = list()
             dbObjects = list()
+            selection=None
             for t in types:
                 tObjectArrayList = list()
-                query = "select tbl_name from sqlite_master where type='{}' order by tbl_name;".format(t[0])
+                if t[0]=='table':
+                    selection='tbl_name'
+                elif t[0]=='index':
+                    selection='name'
+                query = f"select {selection} from sqlite_master where type='{t[0]}' order by tbl_name;"
                 logger.debug(query)
                 tObjectList = cur.execute(query).fetchall()
                 tableColumnList = list()
                 for tObj in tObjectList:
-                    if t[0] == 'table' or t[0] == 'index':
+                    if t[0] == 'table':
                         tableColumnsOrIndexesSql = "PRAGMA {}_info('{}');".format(t[0], tObj[0])
                         tableColumnsOrIndexesList = cur.execute(tableColumnsOrIndexesSql).fetchall()
                         tableColumnsOrIndexes = list()
                         for objChild in tableColumnsOrIndexesList:
                             tableColumnsOrIndexes.append(objChild)
                         tableColumnList.append({tObj[0]: tableColumnsOrIndexes})
+                    if t[0] == 'index':
+                        tableColumnsOrIndexesSql = "PRAGMA {}_info('{}');".format(t[0], tObj[0])
+                        tableColumnsOrIndexesList = cur.execute(tableColumnsOrIndexesSql).fetchall()
+                        tableColumnsOrIndexes = list()
+                        for objChild in tableColumnsOrIndexesList:
+                            tableColumnsOrIndexes.append(objChild[2])
+                        tableColumnList.append({tObj[0]: tableColumnsOrIndexes})
+                        
                     if t[0] == 'view':
                         tableColumnList.append({tObj[0]: []})
                         logger.debug('view')

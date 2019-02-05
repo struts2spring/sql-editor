@@ -281,7 +281,13 @@ keyMap = {
     wx.WXK_NUMPAD_DECIMAL : "WXK_NUMPAD_DECIMAL",
     wx.WXK_NUMPAD_DIVIDE : "WXK_NUMPAD_DIVIDE"
     }
-
+if 'wxMac' in wx.PlatformInfo:
+    keyMap[wx.WXK_RAW_CONTROL] = 'WXK_RAW_CONTROL'
+    keyMap[wx.WXK_CONTROL] = "WXK_CONTROL"
+    keyMap[wx.WXK_COMMAND] = "WXK_COMMAND"
+else:
+    keyMap[wx.WXK_COMMAND] = "WXK_COMMAND"
+    keyMap[wx.WXK_CONTROL] = "WXK_CONTROL"
 LOG_SETTINGS = {
 'version': 1,
 'handlers': {

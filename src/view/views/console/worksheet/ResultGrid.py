@@ -12,6 +12,7 @@ import string
 import  wx.grid as gridlib
 import logging.config
 from src.view.constants import LOG_SETTINGS
+from src.view.util.FileOperationsUtil import FileOperations
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -190,8 +191,8 @@ class MyCellEditor(gridlib.PyGridCellEditor):
 class ResultDataGrid(gridlib.Grid):
 
     def __init__(self, parent, model=None, data=None):
-        gridlib.Grid.__init__(self, parent, -1,style=wx.BORDER_NONE)
-
+        gridlib.Grid.__init__(self, parent, -1, style=wx.BORDER_NONE)
+        self.fileOperations = FileOperations()
         self.CreateGrid(0, 0)
         self.Bind(gridlib.EVT_GRID_CELL_RIGHT_CLICK, self.showGridCellPopupMenu)
         self.Bind(gridlib.EVT_GRID_LABEL_RIGHT_CLICK, self.showHeaderPopupMenu)
@@ -432,25 +433,33 @@ class ResultDataGrid(gridlib.Grid):
             
     def rowPopup(self, row, evt):
         """(row, evt) -> display a popup menu when a row label is right clicked"""
+        menu = wx.Menu()
         appendID = wx.NewIdRef()
         deleteID = wx.NewIdRef()
-        x = self.GetRowSize(row)/2
-
+        x = self.GetRowSize(row) / 2
+        
+        appendRowItem = wx.MenuItem(menu, appendID, "Append Row")
+        appendRowItem.SetBitmap(self.fileOperations.getImageBitmap(imageName="row_add.png"))
+        appendItemMenu = menu.Append(appendRowItem) 
+#         self.Bind(wx.EVT_MENU, lambda e: self.onCopySelection(e), copyItemMenu)
+        
         if not self.GetSelectedRows():
             self.SelectRow(row)
 
-        menu = wx.Menu()
         xo, yo = evt.GetPosition()
-        menu.Append(appendID, "Append Row")
+#         menu.Append(appendID, "Append Row")
         menu.Append(deleteID, "Delete Row(s)")
 
         def append(event, self=self, row=row):
-            self._table.AppendRow(row)
+            logger.debug(row)
+            self.AppendRow(row)
             self.Reset()
 
         def delete(event, self=self, row=row):
+            logger.debug(row)
             rows = self.GetSelectedRows()
-            self._table.DeleteRows(rows)
+            self.DeleteRows(rows)
+#             self.DeleteRows(pos=0, numRows=1, updateLabels=True)
             self.Reset()
 
         self.Bind(wx.EVT_MENU, append, id=appendID)
@@ -462,7 +471,7 @@ class ResultDataGrid(gridlib.Grid):
     def colPopup(self, col, evt):
         """(col, evt) -> display a popup menu when a column label is
         right clicked"""
-        x = self.GetColSize(col)/2
+        x = self.GetColSize(col) / 2
         menu = wx.Menu()
         copyHeaderId = wx.NewIdRef()
         sortID = wx.NewIdRef()
@@ -470,11 +479,10 @@ class ResultDataGrid(gridlib.Grid):
         xo, yo = evt.GetPosition()
         self.SelectCol(col)
         cols = self.GetSelectedCols()
-        header=self.GetColLabelValue(col)
+        header = self.GetColLabelValue(col)
         self.Refresh()
         menu.Append(copyHeaderId, "Copy Selected Header")
         menu.Append(sortID, "Sort Column")
-        
         
 #         self.header = header
 #         item = wx.MenuItem(self, wx.NewIdRef(), "Sort...")
@@ -493,6 +501,7 @@ class ResultDataGrid(gridlib.Grid):
         def sort(event, self=self, col=col):
             logger.info('started sorting')
             pass
+
 #             self._table.SortColumn(col)
 #             self.Reset()
         def copyColumnName(event, self=self, header=header):
@@ -506,6 +515,7 @@ class ResultDataGrid(gridlib.Grid):
                 wx.MessageBox("Unable to open the clipboard", "Error")
 #             self.header = header
             pass
+
         self.Bind(wx.EVT_MENU, copyColumnName, id=copyHeaderId)
 
         if len(cols) == 1:
@@ -514,6 +524,7 @@ class ResultDataGrid(gridlib.Grid):
         self.PopupMenu(menu)
         menu.Destroy()
         return
+
 #----------------------------------------------------------------------
     def showGridCellPopupMenu(self, event):
         """
@@ -523,19 +534,41 @@ class ResultDataGrid(gridlib.Grid):
         self.PopupMenu(menu, event.GetPosition())
         menu.Destroy()
 
+
 class GridCellPopupMenu(wx.Menu):
 
     def __init__(self, header=None):
         wx.Menu.__init__(self)
+        self.fileOperations = FileOperations()
+        
+        copyItem = wx.MenuItem(self, wx.NewIdRef(), "Copy")
+        copyItem.SetBitmap(self.fileOperations.getImageBitmap(imageName="copy_edit_co.png"))
+        copyItemMenu = self.Append(copyItem) 
+        self.Bind(wx.EVT_MENU, lambda e: self.onCopySelection(e), copyItemMenu)
+        
+        pasteItem = wx.MenuItem(self, wx.NewIdRef(), "Paste")
+        pasteItem.SetBitmap(self.fileOperations.getImageBitmap(imageName="paste_edit.png"))
+        pasteItemMenu = self.Append(pasteItem) 
+        self.Bind(wx.EVT_MENU, lambda e: self.onPasteSelection(e), pasteItemMenu)
 
-        item = wx.MenuItem(self, wx.NewIdRef(), "Export...")
-        self.Append(item)
-        self.Bind(wx.EVT_MENU, self.onExport, item)
+        exportItem = wx.MenuItem(self, wx.NewIdRef(), "Export...")
+        exportItem.SetBitmap(self.fileOperations.getImageBitmap(imageName="table_export.png"))
+        exportItemMenu = self.Append(exportItem)
+        self.Bind(wx.EVT_MENU, self.onExport, exportItemMenu)
 
-        item = wx.MenuItem(self, wx.NewIdRef(), "Count rows")
-        self.Append(item)
-        self.Bind(wx.EVT_MENU, self.countRows, item)
+        resultSetCountItem = wx.MenuItem(self, wx.NewIdRef(), "Count rows")
+        resultSetCountItem.SetBitmap(self.fileOperations.getImageBitmap(imageName="resultset_count.png"))
+        resultSetCountItemMenu = self.Append(resultSetCountItem)
+        self.Bind(wx.EVT_MENU, self.countRows, resultSetCountItemMenu)
 
+    def onPasteSelection(self, event):
+        logger.info('onPasteSelection')
+#         print "Item Two selected in the %s window" % self.WinName
+        pass
+    def onCopySelection(self, event):
+        logger.info('onCopySelection')
+#         print "Item Two selected in the %s window" % self.WinName
+        pass
     def onExport(self, event):
         logger.info('onExport')
 #         print "Item Two selected in the %s window" % self.WinName
@@ -545,6 +578,7 @@ class GridCellPopupMenu(wx.Menu):
         logger.info('countRows')
 #         print "Item Three selected in the %s window"%self.WinName
 #         copyValue = self.GetColLabelValue(event.GetCol())
+
               
 class GridHeaderPopupMenu(wx.Menu):
 
@@ -574,7 +608,7 @@ class GridHeaderPopupMenu(wx.Menu):
         col -> sort the data based on the column indexed by col
         """
         logger.debug('OnSortColumn')
-        col =  event.GetCol()
+        col = event.GetCol()
         name = self.colnames[col]
         _data = []
 

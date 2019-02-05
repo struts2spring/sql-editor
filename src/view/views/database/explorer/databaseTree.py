@@ -82,22 +82,69 @@ class DatabaseTree(TreeCtrl):
 #         self.Bind(wx.EVT_RIGHT_UP, self.OnTreeRightUp)
 
         self.Bind(wx.EVT_TREE_KEY_DOWN, self.onTreeKeyDown)
+        self.Bind(wx.EVT_CHAR, self.OnChar)
+        
+        self.accel_tbl = wx.AcceleratorTable([(wx.ACCEL_CTRL, ord('C'), wx.ID_COPY),
+                                              (wx.ACCEL_CTRL, ord('V'), wx.ID_PASTE),
+                                              (wx.ACCEL_ALT, ord('X'), wx.ID_PASTE),
+                                              (wx.ACCEL_SHIFT|wx.ACCEL_ALT, ord('Y'), wx.ID_PASTE)
+                                             ])
+        self.SetAcceleratorTable(self.accel_tbl)
+        self.Bind(wx.EVT_MENU, self.onTreeCopy, id=wx.ID_COPY)
+        
+    def OnChar(self, evt):
+        logger.debug('OnChar')
+        
+        modifiers, keyname = self.LogKeyEvent("Char", evt)
+        if keyname == 'Ctrl+C':
+            self.onTreeCopy(evt)
+
+    def LogKeyEvent(self, evType, evt):
+        keycode = evt.GetKeyCode()
+        keyname = keyMap.get(keycode, None)
+
+        if keyname is None:
+            if keycode < 256:
+                if keycode == 0:
+                    keyname = "NUL"
+                elif keycode < 27:
+                    char_keycode = chr(ord('A') + keycode - 1)
+                    keyname = f"Ctrl+{char_keycode}"
+                else:
+                    keyname = u"\"%s\"" % chr(keycode)
+            else:
+                keyname = u"(%s)" % keycode
+
+        modifiers = ""
+        for mod, ch in [(evt.ControlDown(), 'C'),
+                        (evt.AltDown(), 'A'),
+                        (evt.ShiftDown(), 'S'),
+                        (evt.MetaDown(), 'M'),
+                        (evt.RawControlDown(), 'R'), ]:
+            if mod:
+                modifiers += ch
+            else:
+                modifiers += '-'
+        logger.debug(modifiers + keyname)
+        return modifiers, keyname
 
     def onTreeKeyDown(self, event):
         logger.debug('onTreeKeyDown')
-        keypress = self.GetKeyPress(event)
-        keycode = event.GetKeyCode()
+        self.LogKeyEvent('KeyDown', event.GetKeyEvent())
+#         keypress = self.GetKeyPress(event)
+#         keycode = event.GetKeyCode()
 #         keyname = keyMap.get(keycode, None)
-        logger.debug(f'onTreeKeyDown keycode: {keycode}  keypress: {keypress}')
-        logger.debug(keypress == 'WXK_F2')
-        
-        if keypress == 'Ctrl+C':
-            self.onTreeCopy(event)
-        elif keypress == 'WXK_F2':
-            self.onF2KeyPress(event)
-        elif keypress == 'WXK_DELETE':
-            self.onDeleteKeyPress(event)
-        event.Skip()
+#         logger.debug(f'onTreeKeyDown keycode: {keycode}  keypress: {keypress} keyname: {keyname}')
+# #         logger.debug(keypress == 'WXK_F2')
+#         
+# #         if keypress == 'Ctrl+C':
+# #             pass
+# #             self.onTreeCopy(event)
+#         if keypress == 'WXK_F2':
+#             self.onF2KeyPress(event)
+#         elif keypress == 'WXK_DELETE':
+#             self.onDeleteKeyPress(event)
+#         event.Skip()
 
     def GetKeyPress(self, evt):
         keycode = evt.GetKeyCode()
@@ -109,12 +156,30 @@ class DatabaseTree(TreeCtrl):
                         (evt.GetKeyEvent().MetaDown(), 'Meta+')):
             if mod:
                 modifiers += ch
-    
-        if keyname is None:
-            if 27 < keycode < 256:
-                keyname = chr(keycode)
             else:
-                keyname = "(%s)unknown" % keycode
+                modifiers += '-'
+#         if keyname is None:
+#             if keycode < 256:
+#                 if keycode == 0:
+#                     keyname = "NUL"
+#                 elif keycode < 27:
+#                     char_keycode=chr(ord('A') + keycode-1)
+#                     keyname = f"Ctrl-{char_keycode}" % (ord('A') + keycode - 1)
+#                 else:
+#                     keyname = u"\"%s\"" % keycode
+#             else:
+#                 keyname = u"(%s)" % keycode    
+        if keyname is None:
+            if keycode == 0:
+                keyname = "NUL"
+            elif  27 < keycode < 256  :
+                keyname = chr(keycode)
+            elif  keycode < 27 :
+                keyname = chr(ord('A') + keycode - 1)
+                logger.debug(keyname)
+            else:
+                keyname = f"({chr(keycode)})unknown"
+        logger.debug(f'modifiers:{modifiers},keyname:{keyname}')
         return modifiers + keyname
 
     #----------------------------------------------------------------------
@@ -150,16 +215,22 @@ class DatabaseTree(TreeCtrl):
 
     def onTreeCopy(self, event):
         """"""
+        logger.debug('onTreeCopy')
         nodes = self.GetSelections()
+        nodeTexts = []
+        for node in nodes:
+            nodeTexts.append(self.GetItemText(node))
+        
         self.dataObj = wx.TextDataObject()
-        self.dataObj.SetText(self.GetItemText(nodes[0]))
-        if not wx.TheClipboard.IsOpened():  # may crash, otherwise
-            wx.TheClipboard.Open()
-        try:
-            with wx.Clipboard.Get() as clipboard:
-                clipboard.SetData(self.dataObj)
-        except TypeError:
+        self.dataObj.SetText("\n".join(nodeTexts))
+        if wx.TheClipboard.Open():
+            wx.TheClipboard.SetData(self.dataObj)
+            wx.TheClipboard.Close()
+        else:
             wx.MessageBox("Unable to open the clipboard", "Error")
+#         if wx.TheClipboard.Open():
+#             wx.TheClipboard.SetData(wx.TextDataObject("\n".join(nodeTexts)))
+#             wx.TheClipboard.Close()
 
     def OnTreeDoubleclick(self, event):
         logger.info("OnTreeDoubleclick")

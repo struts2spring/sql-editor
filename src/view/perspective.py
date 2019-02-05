@@ -795,12 +795,36 @@ class PerspectiveManager(object):
         s = viewToolbar.window.GetMinSize()
         viewToolbar.BestSize(s)
         
-        for pane in self._mgr.GetAllPanes():
-            if pane.window:
-                if not (isinstance(pane.window, aui.AuiToolBar) or pane.dock_direction == 5):
+        allowedInstanceForProspective=[
+#             SqlConsoleOutputPanel,
+            py.shell.Shell,
+            CreatingPythonExplorerPanel,
+            DataSourcePanel,
+            CreatingJavaExplorerPanel,
+            FileBrowser,
+            ]
+        
+        if self.selectedPerspectiveName == 'database':
+            allowedInstanceForProspective.remove(DataSourcePanel)
+        elif self.selectedPerspectiveName == 'python':
+            allowedInstanceForProspective.remove(CreatingPythonExplorerPanel)
+            allowedInstanceForProspective.remove(py.shell.Shell)
+        elif self.selectedPerspectiveName == 'java':
+            allowedInstanceForProspective.remove(CreatingJavaExplorerPanel)
+        elif self.selectedPerspectiveName == 'resource':
+            allowedInstanceForProspective.remove(FileBrowser)
+        elif self.selectedPerspectiveName == 'java':
+            allowedInstanceForProspective.remove(CreatingJavaExplorerPanel)
+        elif self.selectedPerspectiveName == 'git':
+            allowedInstanceForProspective.remove(CreatingJavaExplorerPanel)
+               
+#         for pane in self._mgr.GetAllPanes():
+#             if pane.window:
+#                 for instance in allowedInstanceForProspective :
+#                     if isinstance(pane.window, instance):
+#                         self._mgr.ClosePane(pane)
 #                     pane.window.Destroy()
     #                         pane.DestroyOnClose(True)
-                    self._mgr.ClosePane(pane)
         if self.selectedPerspectiveName == 'database':
             self.openPanel(name="consoleOutput", imageName="console_view.png", captionName="Console", tabDirection=3)
             self.openPanel(name="databaseNaviagor", imageName="folder_database.png", captionName="Database Navigator", tabDirection=4)
@@ -818,6 +842,14 @@ class PerspectiveManager(object):
 #         else:
 #             databaseNaviagorPane = self._mgr.GetPane("databaseNaviagor")
 #             databaseNaviagorPane.Show(False)
+        for pane in self._mgr.GetAllPanes():
+            if pane.window:
+                for instance in allowedInstanceForProspective :
+                    if isinstance(pane.window, instance):
+                        self._mgr.ClosePane(pane)        
+        for pane in self._mgr.GetAllPanes():
+            if pane.window:
+                logger.debug(f'pane.window:{pane.window}, pane.window.IsShown():{pane.window.IsShown()}')
         
         self._mgr.Update()  
         
