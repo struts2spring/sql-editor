@@ -53,6 +53,7 @@ class DatabaseTree(TreeCtrl):
                                              wx.TR_MULTIPLE | 
                                              wx.TR_EDIT_LABELS | wx.BORDER_NONE):
         super(DatabaseTree, self).__init__(parent, style=style)
+        self.sqlExecuter = SQLExecuter()
         # Attributes
         self._watch = list()  # this will contain list of database filePath
         self._il = None
@@ -87,7 +88,7 @@ class DatabaseTree(TreeCtrl):
         self.accel_tbl = wx.AcceleratorTable([(wx.ACCEL_CTRL, ord('C'), wx.ID_COPY),
                                               (wx.ACCEL_CTRL, ord('V'), wx.ID_PASTE),
                                               (wx.ACCEL_ALT, ord('X'), wx.ID_PASTE),
-                                              (wx.ACCEL_SHIFT|wx.ACCEL_ALT, ord('Y'), wx.ID_PASTE)
+                                              (wx.ACCEL_SHIFT | wx.ACCEL_ALT, ord('Y'), wx.ID_PASTE)
                                              ])
         self.SetAcceleratorTable(self.accel_tbl)
         self.Bind(wx.EVT_MENU, self.onTreeCopy, id=wx.ID_COPY)
@@ -98,6 +99,10 @@ class DatabaseTree(TreeCtrl):
         modifiers, keyname = self.LogKeyEvent("Char", evt)
         if keyname == 'Ctrl+C':
             self.onTreeCopy(evt)
+        elif keyname == 'WXK_F2':
+            self.onF2KeyPress(evt)
+        elif keyname == 'WXK_DELETE':
+            self.onDeleteKeyPress(evt)
 
     def LogKeyEvent(self, evType, evt):
         keycode = evt.GetKeyCode()
@@ -130,21 +135,21 @@ class DatabaseTree(TreeCtrl):
 
     def onTreeKeyDown(self, event):
         logger.debug('onTreeKeyDown')
-        self.LogKeyEvent('KeyDown', event.GetKeyEvent())
-#         keypress = self.GetKeyPress(event)
-#         keycode = event.GetKeyCode()
-#         keyname = keyMap.get(keycode, None)
-#         logger.debug(f'onTreeKeyDown keycode: {keycode}  keypress: {keypress} keyname: {keyname}')
-# #         logger.debug(keypress == 'WXK_F2')
+#         self.LogKeyEvent('KeyDown', event.GetKeyEvent())
+        keypress = self.GetKeyPress(event)
+        keycode = event.GetKeyCode()
+        keyname = keyMap.get(keycode, None)
+        logger.debug(f'onTreeKeyDown keycode: {keycode}  keypress: {keypress} keyname: {keyname}')
+#         logger.debug(keypress == 'WXK_F2')
 #         
 # #         if keypress == 'Ctrl+C':
 # #             pass
 # #             self.onTreeCopy(event)
-#         if keypress == 'WXK_F2':
-#             self.onF2KeyPress(event)
-#         elif keypress == 'WXK_DELETE':
-#             self.onDeleteKeyPress(event)
-#         event.Skip()
+        if keypress == 'WXK_F2':
+            self.onF2KeyPress(event)
+        elif keypress == 'WXK_DELETE':
+            self.onDeleteKeyPress(event)
+        event.Skip()
 
     def GetKeyPress(self, evt):
         keycode = evt.GetKeyCode()
@@ -478,6 +483,24 @@ class DatabaseTree(TreeCtrl):
         self.Bind(wx.EVT_MENU, lambda e: self.onRefresh(e, nodes), rootRefresh)
         return menu
 
+    def onDeleteWithDatabaseTable(self, event, nodes=None):
+        logger.debug('onDeleteWithDatabaseTable')
+#         self.onDeleteConnection(event)
+        ##################################################################################
+#         sqlExecuter = SQLExecuter(database='_opal.sqlite')
+#         selectedItemId = self.tree.GetSelection()
+#         dbFilePath = sqlExecuter.getDbFilePath(selectedItemText)
+#         logger.debug("dbFilePath: %s", dbFilePath)
+        fileOperations = FileOperations()
+        for node in nodes:
+            selectedItemText = self.GetItemText(node)
+            dataSourceTreeNode = self.GetItemData(node)
+            fileRemoved = fileOperations.removeFile(filename=dataSourceTreeNode.dataSource.filePath)
+            if selectedItemText and fileRemoved:
+                self.sqlExecuter.removeConnctionRow(selectedItemText)
+        self.initialize()
+        ##################################################################################
+
     def onRenameColumn(self, event, dataSourceTreeNode=None, node=None):
         logger.debug('onRenameColumn')
         initialColumnName = self.GetItemText(node)
@@ -706,7 +729,7 @@ class DatabaseTree(TreeCtrl):
                                     dataSourceTreeNode = DataSourceTreeNode(depth=3, dataSource=dataSource, nodeLabel=f'{k0} ( {len(v1)})', imageName=f"index.png", children=None)
                                     child_itemId2_1 = self.appendNode(targetNode=child_itemId_0, nodeLabel=k1 , dataSourceTreeNode=dataSourceTreeNode)
                                 elif k0 == 'view':
-                                    dataSourceTreeNode = DataSourceTreeNode(depth=3, dataSource=dataSource, nodeLabel=f'{k0} ( {len(v1)})', imageName=f"index.png", children=None)
+                                    dataSourceTreeNode = DataSourceTreeNode(depth=3, dataSource=dataSource, nodeLabel=f'{k0} ( {len(v1)})', imageName=f"view.png", children=None)
                                     child_itemId3_1 = self.appendNode(targetNode=child_itemId_0, nodeLabel=k1 , dataSourceTreeNode=dataSourceTreeNode)
              
                                 for v2 in v1:
@@ -861,8 +884,7 @@ class DatabaseTree(TreeCtrl):
         
     def initialize(self):
         try:
-            sqlExecuter = SQLExecuter()
-            dbList = sqlExecuter.getListDatabase()     
+            dbList = self.sqlExecuter.getListDatabase()     
             self.DeleteAllItems()
             self._watch = []
             self.AddRoot('root')

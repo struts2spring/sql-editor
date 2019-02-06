@@ -236,7 +236,7 @@ class CreateNewConncetionWixard(wx.Panel):
             databaseFileName=connectionName.replace(" ","_")+".sqlite"
             databasefile=os.path.join(page2.dbb.GetValue(), databaseFileName)
             self.createNewDatabase(connectionName=connectionName, databaseAbsolutePath=databasefile)
-            self.GetTopLevelParent()._mgr.GetPane("databaseNaviagor").window.recreateTree()
+            self.GetTopLevelParent()._mgr.GetPane("databaseNaviagor").window.tree.initialize()
         else:
             wx.MessageBox("Create new connection was cancelled", "Create new connection")
     
