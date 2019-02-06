@@ -448,7 +448,12 @@ class ResultDataGrid(gridlib.Grid):
 
         xo, yo = evt.GetPosition()
 #         menu.Append(appendID, "Append Row")
-        menu.Append(deleteID, "Delete Row(s)")
+
+        deleteRowsItem = wx.MenuItem(menu, deleteID, "Delete Row(s)")
+        deleteRowsItem.SetBitmap(self.fileOperations.getImageBitmap(imageName="row_delete.png"))
+        deleteItemMenu = menu.Append(deleteRowsItem) 
+
+#         menu.Append(deleteID, "Delete Row(s)")
 
         def append(event, self=self, row=row):
             logger.debug(row)
@@ -481,8 +486,17 @@ class ResultDataGrid(gridlib.Grid):
         cols = self.GetSelectedCols()
         header = self.GetColLabelValue(col)
         self.Refresh()
-        menu.Append(copyHeaderId, "Copy Selected Header")
-        menu.Append(sortID, "Sort Column")
+        
+        copyHeaderItem = wx.MenuItem(menu, copyHeaderId, "Copy Selected Header")
+        copyHeaderItem.SetBitmap(self.fileOperations.getImageBitmap(imageName="copy_edit_co.png"))
+        copyHeaderMenu = menu.Append(copyHeaderItem) 
+        
+        sortHeaderItem = wx.MenuItem(menu, sortID, "Sort Column")
+        sortHeaderItem.SetBitmap(self.fileOperations.getImageBitmap(imageName="sort.png"))
+        sortHeaderMenu = menu.Append(sortHeaderItem) 
+        
+#         menu.Append(copyHeaderId, "Copy Selected Header")
+#         menu.Append(sortID, "Sort Column")
         
 #         self.header = header
 #         item = wx.MenuItem(self, wx.NewIdRef(), "Sort...")
@@ -496,10 +510,11 @@ class ResultDataGrid(gridlib.Grid):
         def delete(event, self=self, col=col):
             cols = self.GetSelectedCols()
             self._table.DeleteCols(cols)
+            logger.info('TODO delete')
             self.Reset()
 
         def sort(event, self=self, col=col):
-            logger.info('started sorting')
+            logger.info('TODO started sorting')
             pass
 
 #             self._table.SortColumn(col)
