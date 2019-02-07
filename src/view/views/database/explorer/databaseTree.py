@@ -706,7 +706,10 @@ class DatabaseTree(TreeCtrl):
                     logger.debug(f'{key}:{group}')
                     groupList = list(group)
                     nodeLabel = f'{key} ( {len(groupList)})'
-                    dataSourceTreeNode = DataSourceTreeNode(depth=1, dataSource=dataSource, nodeLabel=nodeLabel, imageName=f"folder.png", children=None)
+                    imageName = f"folder.png"
+                    if key in ['view', 'table']:
+                        imageName = f"folder_{key}.png"
+                    dataSourceTreeNode = DataSourceTreeNode(depth=1, dataSource=dataSource, nodeLabel=nodeLabel, imageName=imageName, children=None)
                     tableNode = self.appendNode(targetNode=itemId, nodeLabel=dataSourceTreeNode.nodeLabel , dataSourceTreeNode=dataSourceTreeNode)
                     for sqlTypeObject in groupList:
                         dataSourceTreeNode = DataSourceTreeNode(depth=2, dataSource=dataSource, nodeLabel=f'{sqlTypeObject.name}', imageName=f"{sqlTypeObject.type}.png", children=None)
@@ -714,8 +717,11 @@ class DatabaseTree(TreeCtrl):
                         if sqlTypeObject.type == 'table':
                             dataSourceTreeNode = DataSourceTreeNode(depth=3, dataSource=dataSource, nodeLabel=nodeLabel, imageName=f"folder.png", children=None)
                             child1_1 = self.appendNode(targetNode=child_itemId_1, nodeLabel=f'Columns ({len(sqlTypeObject.columns)})', dataSourceTreeNode=dataSourceTreeNode) 
+                            dataSourceTreeNode = DataSourceTreeNode(depth=3, dataSource=dataSource, nodeLabel=nodeLabel, imageName=f"folder.png", children=None)
                             child1_2 = self.appendNode(targetNode=child_itemId_1, nodeLabel='Unique Keys', dataSourceTreeNode=dataSourceTreeNode) 
+                            dataSourceTreeNode = DataSourceTreeNode(depth=3, dataSource=dataSource, nodeLabel=nodeLabel, imageName=f"folder.png", children=None)
                             child1_3 = self.appendNode(targetNode=child_itemId_1, nodeLabel='Foreign Keys', dataSourceTreeNode=dataSourceTreeNode) 
+                            dataSourceTreeNode = DataSourceTreeNode(depth=3, dataSource=dataSource, nodeLabel=nodeLabel, imageName=f"folder.png", children=None)
                             child1_4 = self.appendNode(targetNode=child_itemId_1, nodeLabel='References', dataSourceTreeNode=dataSourceTreeNode) 
                             for column in sqlTypeObject.columns:
 
@@ -790,6 +796,7 @@ class DatabaseTree(TreeCtrl):
         
         imageNameList = ['database.png',
             'database_category.png',
+            'folder_table.png',
             'folder_view.png',
             'folder.png',
             'table.png',
@@ -920,8 +927,11 @@ class DatabaseTree(TreeCtrl):
         '''
         return image count number in self.ImageList
         '''
-        imageIndex = self.iconsDictByImageName[dataSourceTreeNode.imageName]
-        
+        try:
+            imageIndex = self.iconsDictByImageName[dataSourceTreeNode.imageName]
+        except Exception as e:
+            logger.error(e)
+            imageIndex = 0
         return imageIndex
 
     def connectDatabase(self):
