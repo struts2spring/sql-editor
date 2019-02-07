@@ -28,7 +28,7 @@ class SqlType():
         self.tbl_name = tbl_name
         self.rootpage = rootpage
         self.sql = sql
-        self.columns=None
+        self.columns = None
 
         
 class Column():
@@ -39,11 +39,13 @@ class Column():
     @param nullable: 
     '''
 
-    def __init__(self, sequence, name, dataType, nullable):
+    def __init__(self, sequence, name, dataType, nullable, defultValue, primaryKey):
         self.sequence = sequence
         self.name = name
         self.dataType = dataType
         self.nullable = nullable
+        self.defultValue = defultValue
+        self.primaryKey = primaryKey
 
         
 class IndexInfo():
@@ -135,7 +137,7 @@ class SQLExecuter():
                 cur = self.conn.cursor() 
                 rows = cur.execute(f"pragma table_info('{tableName}')").fetchall()
                 for row in rows:
-                    columns.append(Column(row[0], row[1], row[2], row[3]))
+                    columns.append(Column(row[0], row[1], row[2], row[3], row[4], row[5]))
         except Exception as e:
             logger.error(e, exc_info=True)
             self.conn.rollback()
@@ -529,7 +531,7 @@ class ManageSqliteDatabase():
                 for typeObject in queryResult:
                     sqlType = SqlType(type=typeObject[0], name=typeObject[1], tbl_name=typeObject[2], rootpage=typeObject[3], sql=typeObject[4])
                     if sqlType.type == 'table':
-                        sqlType.columns=self.getColumns(sqlType.name)
+                        sqlType.columns = self.getColumns(sqlType.name)
                     sqlTypeObjectList.append(sqlType)
                     logger.debug(typeObject)
                 
@@ -684,7 +686,7 @@ class ManageSqliteDatabase():
                 cur = self.conn.cursor() 
                 rows = cur.execute(f"pragma table_info('{tableName}')").fetchall()
                 for row in rows:
-                    columns.append(Column(row[0], row[1], row[2], row[3]))
+                    columns.append(Column(row[0], row[1], row[2], row[3], row[4], row[5]))
         except Exception as e:
             logger.error(e, exc_info=True)
             self.conn.rollback()

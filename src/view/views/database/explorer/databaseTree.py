@@ -718,14 +718,8 @@ class DatabaseTree(TreeCtrl):
                             child1_3 = self.appendNode(targetNode=child_itemId_1, nodeLabel='Foreign Keys', dataSourceTreeNode=dataSourceTreeNode) 
                             child1_4 = self.appendNode(targetNode=child_itemId_1, nodeLabel='References', dataSourceTreeNode=dataSourceTreeNode) 
                             for column in sqlTypeObject.columns:
-                                imageName="textfield.png"
-                                if column.dataType in ['INTEGER', 'INT']:
-                                    imageName='column.png'
-                                elif column.dataType in ['INTEGER', 'INT']:
-                                    imageName="string.png"
-                                elif column.dataType in ['VARCHAR', 'CHAR', 'REAL', 'TEXT']:
-                                    imageName="textfield.png"
-                                dataSourceTreeNode = DataSourceTreeNode(depth=4, dataSource=dataSource, nodeLabel=f'{column.name}', imageName=imageName, children=None)
+
+                                dataSourceTreeNode = DataSourceTreeNode(depth=4, dataSource=dataSource, nodeLabel=f'{column.name}', imageName=self.getColumnImageName(column), children=None)
                                 child_itemId_1_0 = self.appendNode(targetNode=child1_1, nodeLabel=f'{column.name}' , dataSourceTreeNode=dataSourceTreeNode)
                 
             else:
@@ -737,6 +731,16 @@ class DatabaseTree(TreeCtrl):
                 self.GetTopLevelParent().statusbar.SetForegroundColour(wx.RED) 
                 self.GetTopLevelParent().statusbar.SetStatusText(updateStatus, 1)
                 logger.error(updateStatus)
+
+    def getColumnImageName(self, column):
+        imageName = "string.png"
+        if column.primaryKey == 1:
+            imageName = 'key.png'
+        elif column.dataType in ['INTEGER', 'INT']:
+            imageName = "column.png"
+        elif column.dataType in ['VARCHAR', 'CHAR', 'REAL', 'TEXT']:
+            imageName = "textfield.png"
+        return imageName
 
     def consoleOutputLog(self, exception=None):
         now = datetime.datetime.now()
