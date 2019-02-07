@@ -62,8 +62,8 @@ class DatabaseFileDropTarget(wx.FileDropTarget):
                 if self.isSQLite3(fileAbsoluteName):
                     self.getConnectionName(filePath=fileAbsoluteName)
                     sqlExecuter = SQLExecuter()
-                    obj = sqlExecuter.getObject()
-                    if len(obj[1]) == 0:
+                    sqlTypeObjectList = sqlExecuter.getSqlObjects()
+                    if len(sqlTypeObjectList) == 0:
                         sqlExecuter.createOpalTables()
                     sqlExecuter.addNewConnectionRow(fileAbsoluteName, self.getConnectionName(filePath=fileAbsoluteName))
                     self.dirwin.tree.initialize()           

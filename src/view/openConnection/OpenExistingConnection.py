@@ -144,8 +144,8 @@ class CreateButtonPanel(wx.Panel):
     def onOkClick(self, event):
         logger.debug('onOkClick')
         sqlExecuter=SQLExecuter()
-        obj=sqlExecuter.getObject()
-        if len(obj[1])==0:
+        sqlTypeObjectList = sqlExecuter.getSqlObjects()
+        if len(sqlTypeObjectList) == 0:
             sqlExecuter.createOpalTables()
         sqlExecuter.addNewConnectionRow(self.GetParent().CreateOpenConnectionPanel.filePath, self.GetParent().CreateOpenConnectionPanel.connectionNameText.GetValue())
 #         data = self.GetTopLevelParent().createImportingCsvPanel.data

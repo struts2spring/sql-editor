@@ -17,6 +17,56 @@ logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
 
+class SqlType():
+    '''
+    defining sql type for table, view, index, trigger
+    '''
+
+    def __init__(self, type=None, name=None, tbl_name=None, rootpage=None, sql=None):
+        self.type = type
+        self.name = name
+        self.tbl_name = tbl_name
+        self.rootpage = rootpage
+        self.sql = sql
+        self.columns=None
+
+        
+class Column():
+    '''
+    @param sequence: 
+    @param name: 
+    @param dataType: 
+    @param nullable: 
+    '''
+
+    def __init__(self, sequence, name, dataType, nullable):
+        self.sequence = sequence
+        self.name = name
+        self.dataType = dataType
+        self.nullable = nullable
+
+        
+class IndexInfo():
+    '''
+    @param  sequence: A sequence number assigned to each index for internal tracking purposes.
+    @param name : The name of the index.
+    @param unique: "1" if the index is UNIQUE and "0" if not
+    @param origin: 
+        "c" if the index was created by a CREATE INDEX statement, 
+        "u" if the index was created by a UNIQUE constraint, or 
+        "pk" if the index was created by a PRIMARY KEY constraint.
+    @param partialIndex: "1" if the index is a partial index and "0" if not.
+
+    '''
+
+    def __init__(self, sequence, name, unique, origin, partialIndex):
+        self.sequence = sequence
+        self.name = name
+        self.unique = unique
+        self.origin = origin
+        self.partialIndex = partialIndex
+
+
 class SQLExecuter():
     '''
     '''
@@ -77,6 +127,21 @@ class SQLExecuter():
             
         return returnRows
     
+    def getColumns(self, tableName=None):
+        logger.debug(f'tableName: {tableName}')
+        columns = list()
+        try:
+            with self.conn:    
+                cur = self.conn.cursor() 
+                rows = cur.execute(f"pragma table_info('{tableName}')").fetchall()
+                for row in rows:
+                    columns.append(Column(row[0], row[1], row[2], row[3]))
+        except Exception as e:
+            logger.error(e, exc_info=True)
+            self.conn.rollback()
+            raise e
+        return columns
+    
     def getColumn(self, tableName=None):
         logger.debug('tableName: %s', tableName)
         try:
@@ -132,6 +197,7 @@ class SQLExecuter():
     
     def createOpalTables(self):
         '''
+        This table is for internal use of editor.
         '''
         err = 'success'
         sqlScript = '''
@@ -220,78 +286,107 @@ class SQLExecuter():
         except Exception as e:
             logger.error(e, exc_info=True)
 
-    def getObject(self):
-    
-        con = None
-        
+    def getSqlObjects(self):
+        '''
+        return list of SqlType object
+        '''
+        sqlTypeObjectList = []
         try:
-#             self.connection = sqlite3.connect('_opal.sqlite')
-            
             cur = self.conn.cursor()    
             cur.execute('SELECT SQLITE_VERSION()')
+            sqliteVersion = cur.fetchone()
+            logger.debug(f"SQLite version: {sqliteVersion[0]}")
             
-            data = cur.fetchone()
-            
-            logger.debug("SQLite version: %s" % data)   
-            cur.execute("select tbl_name from sqlite_master where type='table';")
-            types = cur.execute("select distinct type from sqlite_master;").fetchall()
-            databaseList = list()
-            dbObjects = list()
-#             logger.debug types
-            for t in types:
-#                 logger.debug t[0], type(t)
-                tObjectArrayList = list()
-                query = "select tbl_name from sqlite_master where type='{}' order by tbl_name;".format(t[0])
+            sqliteTypes = cur.execute("select distinct type from sqlite_master;").fetchall()
+            for sqliteType in sqliteTypes:
+                query = f"""select * from sqlite_master where type='{sqliteType[0]}' 
+                    AND name NOT LIKE 'sqlite_%' 
+                    AND name != 'SAMPLE' ;
+                """
                 logger.debug(query)
-                tObjectList = cur.execute(query).fetchall()
-                tableColumnList = list()
-                for tObj in tObjectList:
-                    if t[0] == 'table' or t[0] == 'index':
-                        tableColumnsOrIndexesSql = "PRAGMA {}_info('{}');".format(t[0], tObj[0])
-                        logger.debug(tableColumnsOrIndexesSql)
-                        tableColumnsOrIndexesList = cur.execute(tableColumnsOrIndexesSql).fetchall()
-#                         logger.debug objChildList
-                        tableColumnsOrIndexes = list()
-                        for objChild in tableColumnsOrIndexesList:
-                            tableColumnsOrIndexes.append(objChild)
-#                             logger.debug objChild
-                        tableColumnList.append([tObj[0], tableColumnsOrIndexes])
-                    if t[0] == 'view':
-                        tableColumnList.append([tObj[0], []])
-                        logger.debug('view')
-                        
-#                     if t[0] == 'index':
-#                         tablesHavingIndexesSql = "PRAGMA " + t[0] + "_info(%s);" % tObj[0]
-#                         tablesHavingIndexesList = cur.execute(tablesHavingIndexesSql).fetchall()
-#                         logger.debug tablesHavingIndexesSql
-#                         for tableHavingIndexes in tablesHavingIndexesList:
-#                             tableIndexesSql = "PRAGMA " + t[0] + "_list(%s);" % tObj[0]
-# #                         logger.debug objChildList
-#                         tableColumnsOrIndexes = list()
-#                         for objChild in tableColumnsOrIndexesList:
-#                             tableColumnsOrIndexes.append(objChild)
-                        
-#                         logger.debug tableColumnList
-#                 tObjectArrayList.append(tableColumnList)
-#                 logger.debug tObjectArrayList
-                dbObjects.append((t[0], tableColumnList))
-            logger.debug(dbObjects)
-#                 dbObjects.append(tObjectArrayList)
-#             logger.debug dbObjects
-#             logger.debug cur.fetchallDict()
-#             for row in cur.execute("select tbl_name from sqlite_master where type='table';"):
-#                 logger.debug row                
-            
-#             data = cur.fetchone()
+                queryResult = cur.execute(query).fetchall()
+                for typeObject in queryResult:
+                    sqlType = SqlType(type=typeObject[0], name=typeObject[1], tbl_name=typeObject[2], rootpage=typeObject[3], sql=typeObject[4])
+                    sqlTypeObjectList.append(sqlType)
+                    logger.debug(typeObject)
+                
         except sqlite3.Error as e:
             logger.error(e, exc_info=True)
         finally:
             pass
-#             if self.conn:
-#                 self.conn.close()
-        databaseList.append('_opal')
-        databaseList.append(dbObjects)
-        return databaseList
+        return sqlTypeObjectList
+
+#     def getObject(self):
+#     
+#         con = None
+#         
+#         try:
+# #             self.connection = sqlite3.connect('_opal.sqlite')
+#             cur = self.conn.cursor()    
+#             cur.execute('SELECT SQLITE_VERSION()')
+#             
+#             data = cur.fetchone()
+#             
+#             logger.debug("SQLite version: %s" % data)   
+#             cur.execute("select tbl_name from sqlite_master where type='table' AND name NOT LIKE 'sqlite_%';")
+#             types = cur.execute("select distinct type from sqlite_master;").fetchall()
+#             databaseList = list()
+#             dbObjects = list()
+# #             logger.debug types
+#             for sqliteType in types:
+# #                 logger.debug t[0], type(t)
+#                 tObjectArrayList = list()
+#                 query = f"select tbl_name from sqlite_master where type='{sqliteType[0]}' order by tbl_name AND name NOT LIKE 'sqlite_%' AND name!='SAMPLE' ;"
+#                 logger.debug(query)
+#                 tObjectList = cur.execute(query).fetchall()
+#                 tableColumnList = list()
+#                 for tObj in tObjectList:
+#                     if sqliteType[0] == 'table' or sqliteType[0] == 'index':
+#                         tableColumnsOrIndexesSql = "PRAGMA {}_info('{}');".format(sqliteType[0], tObj[0])
+#                         logger.debug(tableColumnsOrIndexesSql)
+#                         tableColumnsOrIndexesList = cur.execute(tableColumnsOrIndexesSql).fetchall()
+# #                         logger.debug objChildList
+#                         tableColumnsOrIndexes = list()
+#                         for objChild in tableColumnsOrIndexesList:
+#                             tableColumnsOrIndexes.append(objChild)
+# #                             logger.debug objChild
+#                         tableColumnList.append([tObj[0], tableColumnsOrIndexes])
+#                     if sqliteType[0] == 'view':
+#                         tableColumnList.append([tObj[0], []])
+#                         logger.debug('view')
+#                         
+# #                     if t[0] == 'index':
+# #                         tablesHavingIndexesSql = "PRAGMA " + t[0] + "_info(%s);" % tObj[0]
+# #                         tablesHavingIndexesList = cur.execute(tablesHavingIndexesSql).fetchall()
+# #                         logger.debug tablesHavingIndexesSql
+# #                         for tableHavingIndexes in tablesHavingIndexesList:
+# #                             tableIndexesSql = "PRAGMA " + t[0] + "_list(%s);" % tObj[0]
+# # #                         logger.debug objChildList
+# #                         tableColumnsOrIndexes = list()
+# #                         for objChild in tableColumnsOrIndexesList:
+# #                             tableColumnsOrIndexes.append(objChild)
+#                         
+# #                         logger.debug tableColumnList
+# #                 tObjectArrayList.append(tableColumnList)
+# #                 logger.debug tObjectArrayList
+#                 dbObjects.append((sqliteType[0], tableColumnList))
+#             logger.debug(dbObjects)
+# #                 dbObjects.append(tObjectArrayList)
+# #             logger.debug dbObjects
+# #             logger.debug cur.fetchallDict()
+# #             for row in cur.execute("select tbl_name from sqlite_master where type='table';"):
+# #                 logger.debug row                
+#             
+# #             data = cur.fetchone()
+#         except sqlite3.Error as e:
+#             logger.error(e, exc_info=True)
+#         finally:
+#             pass
+# #             if self.conn:
+# #                 self.conn.close()
+#         databaseList.append('_opal')
+#         databaseList.append(dbObjects)
+#         return databaseList
     
     def getListDatabase(self):
         '''
@@ -401,15 +496,50 @@ class ManageSqliteDatabase():
         self.connectionName = connectionName
  
     def createTable(self):
-        sql = '''
-        CREATE TABLE  if not exists ABC
+        sqlScript = '''
+        CREATE TABLE  if not exists SAMPLE
           (
-            id INTEGER PRIMARY KEY
+            id INTEGER primary key
         );
+        CREATE VIEW SAMPLE_V AS SELECT ID FROM SAMPLE;
         '''
         cur = self.conn.cursor() 
-        cur.execute(sql)
-        
+        rows = cur.executescript(sqlScript).fetchall()
+        logger.debug(cur.description)
+
+    def getSqlObjects(self):
+        '''
+        @return list of SqlType object [ table, view, index, trigger] from the given sqlite database path
+        '''
+        sqlTypeObjectList = []
+        try:
+            cur = self.conn.cursor()    
+            cur.execute('SELECT SQLITE_VERSION()')
+            sqliteVersion = cur.fetchone()
+            logger.debug(f"SQLite version: {sqliteVersion[0]}")
+            
+            sqliteTypes = cur.execute("select distinct type from sqlite_master;").fetchall()
+            for sqliteType in sqliteTypes:
+                query = f"""select * from sqlite_master where type='{sqliteType[0]}' 
+                    AND name NOT LIKE 'sqlite_%' 
+                    AND name != 'SAMPLE' ;
+                """
+                logger.debug(query)
+                queryResult = cur.execute(query).fetchall()
+                for typeObject in queryResult:
+                    sqlType = SqlType(type=typeObject[0], name=typeObject[1], tbl_name=typeObject[2], rootpage=typeObject[3], sql=typeObject[4])
+                    if sqlType.type == 'table':
+                        sqlType.columns=self.getColumns(sqlType.name)
+                    sqlTypeObjectList.append(sqlType)
+                    logger.debug(typeObject)
+                
+        except sqlite3.Error as e:
+            logger.error(e, exc_info=True)
+        finally:
+            if self.conn:
+                self.conn.close()
+        return sqlTypeObjectList
+
     def getObject(self):
         '''
         @return: Method returns all database object [ table, view, index] from the given sqlite database path
@@ -425,37 +555,42 @@ class ManageSqliteDatabase():
             types = cur.execute("select distinct type from sqlite_master;").fetchall()
             databaseList = list()
             dbObjects = list()
-            selection=None
-            for t in types:
+            selection = None
+            for sqliteType in types:
                 tObjectArrayList = list()
-                if t[0]=='table':
-                    selection='tbl_name'
-                elif t[0]=='index':
-                    selection='name'
-                query = f"select {selection} from sqlite_master where type='{t[0]}' order by tbl_name;"
+                if sqliteType[0] == 'table':
+                    selection = 'tbl_name'
+                elif sqliteType[0] == 'index':
+                    selection = 'name'
+                elif sqliteType[0] == 'trigger':
+                    selection = 'name'
+                query = f"select {selection} from sqlite_master where type='{sqliteType[0]}' order by tbl_name AND name NOT LIKE 'sqlite_%' AND name!='SAMPLE' ;"
                 logger.debug(query)
                 tObjectList = cur.execute(query).fetchall()
                 tableColumnList = list()
                 for tObj in tObjectList:
-                    if t[0] == 'table':
-                        tableColumnsOrIndexesSql = "PRAGMA {}_info('{}');".format(t[0], tObj[0])
+                    if sqliteType[0] == 'table':
+                        tableColumnsOrIndexesSql = "PRAGMA {}_info('{}');".format(sqliteType[0], tObj[0])
                         tableColumnsOrIndexesList = cur.execute(tableColumnsOrIndexesSql).fetchall()
                         tableColumnsOrIndexes = list()
                         for objChild in tableColumnsOrIndexesList:
                             tableColumnsOrIndexes.append(objChild)
                         tableColumnList.append({tObj[0]: tableColumnsOrIndexes})
-                    if t[0] == 'index':
-                        tableColumnsOrIndexesSql = "PRAGMA {}_info('{}');".format(t[0], tObj[0])
+                    if sqliteType[0] == 'index':
+                        tableColumnsOrIndexesSql = "PRAGMA {}_info('{}');".format(sqliteType[0], tObj[0])
                         tableColumnsOrIndexesList = cur.execute(tableColumnsOrIndexesSql).fetchall()
                         tableColumnsOrIndexes = list()
                         for objChild in tableColumnsOrIndexesList:
                             tableColumnsOrIndexes.append(objChild[2])
                         tableColumnList.append({tObj[0]: tableColumnsOrIndexes})
                         
-                    if t[0] == 'view':
+                    if sqliteType[0] == 'view':
                         tableColumnList.append({tObj[0]: []})
                         logger.debug('view')
-                dbObjects.append({t[0]: tableColumnList})
+                    if sqliteType[0] == 'trigger':
+                        tableColumnList.append({tObj[0]: []})
+                        logger.debug('trigger')
+                dbObjects.append({sqliteType[0]: tableColumnList})
         except sqlite3.Error as e:
             logger.error(e, exc_info=True)
             sys.exit(1)
@@ -474,10 +609,10 @@ class ManageSqliteDatabase():
         try:
             with self.conn:    
                 cur = self.conn.cursor() 
-                listOfSqls = text.strip().lower().split(';')
-                if len(listOfSqls) > 1 and not text.strip().lower().startswith('select'):
+
+                if text.count(';') > 1 :
                     cur.executescript(text)
-                elif text.strip().lower().startswith(('update','drop','alter')):
+                elif text.strip().lower().startswith(('update', 'drop', 'alter')):
                     cur.execute(text)
                 else:
                     rows = cur.execute(text).fetchall()
@@ -541,6 +676,21 @@ class ManageSqliteDatabase():
                     returnRows.append(row)
         return returnRows
     
+    def getColumns(self, tableName=None):
+        logger.debug(f'tableName: {tableName}')
+        columns = list()
+        try:
+            with self.conn:    
+                cur = self.conn.cursor() 
+                rows = cur.execute(f"pragma table_info('{tableName}')").fetchall()
+                for row in rows:
+                    columns.append(Column(row[0], row[1], row[2], row[3]))
+        except Exception as e:
+            logger.error(e, exc_info=True)
+            self.conn.rollback()
+            raise e
+        return columns   
+    
     def getColumn(self, tableName=None):
         try:
             with self.conn:    
@@ -568,7 +718,8 @@ if __name__ == "__main__":
 #     print(tableName)
     
 #########################################################################################
-#     sqlExecuter = SQLExecuter(database='_opal.sqlite')
+    sqlExecuter = SQLExecuter(database='_opal.sqlite')
+    sqlExecuter.getSqlObjects()
 #     sqlExecuter = SQLExecuter(database='_opal.sqlite')
 # #     sqlExecuter.getDbFilePath('database_sqlite_1')
 #     sqlExecuter.addNewConnectionRow(dbFilePath=r"c:\soft\4.sqlite", connectionName='4')
@@ -595,9 +746,9 @@ if __name__ == "__main__":
 ##########################################################################################
             
 #     logger.debug(dbList)
-    connectionName="emp"
-    sqlExecuter=SQLExecuter()
-    databaseAbsolutePath=sqlExecuter.getDbFilePath(connectionName=connectionName)
-    db=ManageSqliteDatabase(connectionName=connectionName ,databaseAbsolutePath=databaseAbsolutePath)
-    result=db.sqlite_select(tableName="sqlite_master")
-    logger.debug(result)
+#     connectionName="emp"
+#     sqlExecuter=SQLExecuter()
+#     databaseAbsolutePath=sqlExecuter.getDbFilePath(connectionName=connectionName)
+#     db=ManageSqliteDatabase(connectionName=connectionName ,databaseAbsolutePath=databaseAbsolutePath)
+#     result=db.sqlite_select(tableName="sqlite_master")
+#     logger.debug(result)

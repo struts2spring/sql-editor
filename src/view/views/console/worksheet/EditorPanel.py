@@ -47,8 +47,7 @@ keylist = {
     '-'     :stc.STC_KEY_SUBTRACT,
     '/'     :stc.STC_KEY_DIVIDE,
 }
-demoText = """select * from table_name;
-"""
+demoText = """select * from table_name;"""
 
 if wx.Platform == '__WXMSW__':
     faces = { 'times': 'Consolas',

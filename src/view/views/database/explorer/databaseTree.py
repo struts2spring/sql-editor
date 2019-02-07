@@ -21,6 +21,7 @@ from src.view.table.CreateTable import CreatingTableFrame
 import datetime
 from src.view.views.console.worksheet.tableInfoPanel import CreatingTableInfoPanel
 from src.view.schema.CreateSchemaViewer import CreateErDiagramFrame
+import itertools
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -697,52 +698,36 @@ class DatabaseTree(TreeCtrl):
             self.deleteChildren(itemId)
             dataSource = dataSourceTreeNode.dataSource
             if os.path.isfile(dataSourceTreeNode.dataSource.filePath): 
-                dbObjects = ManageSqliteDatabase(connectionName=dataSourceTreeNode.dataSource.connectionName , databaseAbsolutePath=dataSourceTreeNode.dataSource.filePath).getObject()
+                manageSqliteDatabase = ManageSqliteDatabase(connectionName=dataSourceTreeNode.dataSource.connectionName , databaseAbsolutePath=dataSourceTreeNode.dataSource.filePath)
+                sqlTypeObjectList = manageSqliteDatabase.getSqlObjects()
                 
-                for dbObject in dbObjects[1]:
-                    for k0, v0 in dbObject.items():
-                        logger.debug("k0 : %s, v0: %s", k0, v0)
-                        nodeLabel = f'{k0} ( {len(v0)})'
-                        dataSourceTreeNode = DataSourceTreeNode(depth=1, dataSource=dataSource, nodeLabel=nodeLabel, imageName=f"folder.png", children=None)
-                         
-                        child_itemId_0 = self.appendNode(targetNode=itemId, nodeLabel=dataSourceTreeNode.nodeLabel , dataSourceTreeNode=dataSourceTreeNode)
-                        for v00 in v0:
-                            for k1, v1 in v00.items():
-#                                 dataSourceTreeNode = DataSourceTreeNode(depth=2, dataSource=dataSource, nodeLabel=f'{k0} ( {len(v0)})', imageName=f"{k0}.png", children=None)
-                                if k0 == 'table':
-                                    dataSourceTreeNode = DataSourceTreeNode(depth=2, dataSource=dataSource, nodeLabel=k1, imageName=f"{k0}.png", children=None)
-                                    child_itemId_1 = self.appendNode(targetNode=child_itemId_0, nodeLabel=k1 , dataSourceTreeNode=dataSourceTreeNode)
-    
-                                    nodeLabel = 'Columns' + ' (' + str(len(v1)) + ')'
-                                    dataSourceTreeNode = DataSourceTreeNode(depth=3, dataSource=dataSource, nodeLabel=nodeLabel, imageName=f"columns.png", children=None)
-                                    child_itemId1_1 = self.appendNode(targetNode=child_itemId_1, nodeLabel=nodeLabel, dataSourceTreeNode=dataSourceTreeNode) 
-                                    
-                                    dataSourceTreeNode = DataSourceTreeNode(depth=3, dataSource=dataSource, nodeLabel=f'Unique Keys', imageName=f"columns.png", children=None)
-                                    child_itemId1_2 = self.appendNode(targetNode=child_itemId_1, nodeLabel='Unique Keys', dataSourceTreeNode=dataSourceTreeNode) 
-                                    
-                                    dataSourceTreeNode = DataSourceTreeNode(depth=3, dataSource=dataSource, nodeLabel=f'Foreign Keys', imageName=f"columns.png", children=None)
-                                    child_itemId1_3 = self.appendNode(targetNode=child_itemId_1, nodeLabel='Foreign Keys', dataSourceTreeNode=dataSourceTreeNode) 
-                                    
-                                    dataSourceTreeNode = DataSourceTreeNode(depth=3, dataSource=dataSource, nodeLabel=f'References', imageName=f"columns.png", children=None)
-                                    child_itemId1_4 = self.appendNode(targetNode=child_itemId_1, nodeLabel='References', dataSourceTreeNode=dataSourceTreeNode)
-                                elif k0 == 'index':
-                                    dataSourceTreeNode = DataSourceTreeNode(depth=3, dataSource=dataSource, nodeLabel=f'{k0} ( {len(v1)})', imageName=f"index.png", children=None)
-                                    child_itemId2_1 = self.appendNode(targetNode=child_itemId_0, nodeLabel=k1 , dataSourceTreeNode=dataSourceTreeNode)
-                                elif k0 == 'view':
-                                    dataSourceTreeNode = DataSourceTreeNode(depth=3, dataSource=dataSource, nodeLabel=f'{k0} ( {len(v1)})', imageName=f"view.png", children=None)
-                                    child_itemId3_1 = self.appendNode(targetNode=child_itemId_0, nodeLabel=k1 , dataSourceTreeNode=dataSourceTreeNode)
-             
-                                for v2 in v1:
-                                    if k0 == 'table':
-                                        imageName = "textfield.png"  # setting VARCHAR image
-                                        if v2[5] == 1:
-                                            imageName = "key.png"  # setting primary key image
-                                        elif v2[5] == 0 and v2[2] in ['INTEGER', 'INT']:
-                                            imageName = "column.png"  # setting INTEGER image
-                                            
-                                        nodeLabel = v2[1]
-                                        dataSourceTreeNode = DataSourceTreeNode(depth=4, dataSource=dataSource, nodeLabel=nodeLabel, imageName=imageName, children=None)
-                                        child_itemId2 = self.appendNode(targetNode=child_itemId1_1, nodeLabel=nodeLabel, dataSourceTreeNode=dataSourceTreeNode)
+#                 group for table , view, index and trigger type
+                for key, group in itertools.groupby(sqlTypeObjectList, key=lambda sqlTypeObj:sqlTypeObj.type):
+                    logger.debug(f'{key}:{group}')
+                    groupList = list(group)
+                    nodeLabel = f'{key} ( {len(groupList)})'
+                    dataSourceTreeNode = DataSourceTreeNode(depth=1, dataSource=dataSource, nodeLabel=nodeLabel, imageName=f"folder.png", children=None)
+                    tableNode = self.appendNode(targetNode=itemId, nodeLabel=dataSourceTreeNode.nodeLabel , dataSourceTreeNode=dataSourceTreeNode)
+                    for sqlTypeObject in groupList:
+                        dataSourceTreeNode = DataSourceTreeNode(depth=2, dataSource=dataSource, nodeLabel=f'{sqlTypeObject.name}', imageName=f"{sqlTypeObject.type}.png", children=None)
+                        child_itemId_1 = self.appendNode(targetNode=tableNode, nodeLabel=f'{sqlTypeObject.name}' , dataSourceTreeNode=dataSourceTreeNode)
+                        if sqlTypeObject.type == 'table':
+                            dataSourceTreeNode = DataSourceTreeNode(depth=3, dataSource=dataSource, nodeLabel=nodeLabel, imageName=f"folder.png", children=None)
+                            child1_1 = self.appendNode(targetNode=child_itemId_1, nodeLabel=f'Columns ({len(sqlTypeObject.columns)})', dataSourceTreeNode=dataSourceTreeNode) 
+                            child1_2 = self.appendNode(targetNode=child_itemId_1, nodeLabel='Unique Keys', dataSourceTreeNode=dataSourceTreeNode) 
+                            child1_3 = self.appendNode(targetNode=child_itemId_1, nodeLabel='Foreign Keys', dataSourceTreeNode=dataSourceTreeNode) 
+                            child1_4 = self.appendNode(targetNode=child_itemId_1, nodeLabel='References', dataSourceTreeNode=dataSourceTreeNode) 
+                            for column in sqlTypeObject.columns:
+                                imageName="textfield.png"
+                                if column.dataType in ['INTEGER', 'INT']:
+                                    imageName='column.png'
+                                elif column.dataType in ['INTEGER', 'INT']:
+                                    imageName="string.png"
+                                elif column.dataType in ['VARCHAR', 'CHAR', 'REAL', 'TEXT']:
+                                    imageName="textfield.png"
+                                dataSourceTreeNode = DataSourceTreeNode(depth=4, dataSource=dataSource, nodeLabel=f'{column.name}', imageName=imageName, children=None)
+                                child_itemId_1_0 = self.appendNode(targetNode=child1_1, nodeLabel=f'{column.name}' , dataSourceTreeNode=dataSourceTreeNode)
+                
             else:
                 updateStatus = f"Unable to connect '{ dataSourceTreeNode.dataSource.filePath } , No such file. "
                 self.consoleOutputLog(updateStatus)

@@ -245,8 +245,8 @@ class CreateNewConncetionWixard(wx.Panel):
             manageSqliteDatabase = ManageSqliteDatabase(databaseAbsolutePath=databaseAbsolutePath, connectionName=connectionName)
             manageSqliteDatabase.createTable()
             sqlExecuter = SQLExecuter()
-            obj = sqlExecuter.getObject()
-            if len(obj[1]) == 0:
+            sqlTypeObjectList = sqlExecuter.getSqlObjects()
+            if len(sqlTypeObjectList) == 0:
                 sqlExecuter.createOpalTables()
             sqlExecuter.addNewConnectionRow(databaseAbsolutePath, connectionName)
         except OperationalError as err:
