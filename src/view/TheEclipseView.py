@@ -511,6 +511,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                 count = int(countStr)
                 count += 1
         self._mgr.addTabByWindow(self.getWorksheet(dataSourceTreeNode), imageName="script.png", captionName="Worksheet-{}".format(count), tabDirection=5)
+        
 #         sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("centerPane")
 #         sqlExecutionTab.window.addTab("Worksheet")
 
