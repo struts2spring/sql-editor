@@ -287,19 +287,18 @@ class DatabaseTree(TreeCtrl):
         itemId = evt.GetItem()
         nodes = self.GetSelections()
         dataSourceTreeNode = self.GetItemData(itemId)
-        if dataSourceTreeNode.depth == 0:
+        if dataSourceTreeNode.nodeType == 'connection':
             self.onConnectDb(evt, nodes)
             self.connectingDatabase(event=evt, nodes=nodes)
             
-        elif dataSourceTreeNode.depth == 2:
-            if dataSourceTreeNode.sqlType.type == 'table':
-                self.openWorksheet(sheetName=dataSourceTreeNode.sqlType.name, dataSourceTreeNode=dataSourceTreeNode)
-            if dataSourceTreeNode.sqlType.type == 'view':
-                # TODO : need to write a view panel
-                pass
-            if dataSourceTreeNode.sqlType.type == 'trigger':
-                # TODO : need to write a trigger panel
-                pass
+        if dataSourceTreeNode.nodeType == 'table':
+            self.openWorksheet(sheetName=dataSourceTreeNode.sqlType.name, dataSourceTreeNode=dataSourceTreeNode)
+        if dataSourceTreeNode.nodeType == 'view':
+            # TODO : need to write a view panel
+            pass
+        if dataSourceTreeNode.nodeType == 'trigger':
+            # TODO : need to write a trigger panel
+            pass
         evt.Skip()
         
     def connectingDatabase(self, event=None, nodes=None):
@@ -460,7 +459,7 @@ class DatabaseTree(TreeCtrl):
 #         if self.isAllNodeOfGivenDepth(depth=0, nodes=nodes):
         if dataSourceTreeNode.nodeType == 'connection':        
             menu.AppendSeparator()
-            if self.isAllConnected( nodes=nodes):
+            if self.isAllConnected(nodes=nodes):
     
                 def onDisconnectDb(event):
                     logger.debug('inner onDisconnectDb')   
@@ -721,33 +720,33 @@ class DatabaseTree(TreeCtrl):
                     imageName = f"folder.png"
                     if key in ['view', 'table']:
                         imageName = f"folder_{key}.png"
-                    dataSourceTreeNode = DataSourceTreeNode( dataSource=dataSource, nodeLabel=nodeLabel, imageName=imageName, children=None, nodeType=f'folder_{key}')
+                    dataSourceTreeNode = DataSourceTreeNode(dataSource=dataSource, nodeLabel=nodeLabel, imageName=imageName, children=None, nodeType=f'folder_{key}')
                     
                     tableNode = self.appendNode(targetNode=itemId, nodeLabel=dataSourceTreeNode.nodeLabel , dataSourceTreeNode=dataSourceTreeNode)
                     for sqlTypeObject in groupList:
-                        dataSourceTreeNode = DataSourceTreeNode( dataSource=dataSource, nodeLabel=f'{sqlTypeObject.name}', imageName=f"{sqlTypeObject.type}.png", children=None, nodeType=f"{sqlTypeObject.type}")
+                        dataSourceTreeNode = DataSourceTreeNode(dataSource=dataSource, nodeLabel=f'{sqlTypeObject.name}', imageName=f"{sqlTypeObject.type}.png", children=None, nodeType=f"{sqlTypeObject.type}")
                         dataSourceTreeNode.setSqlType(sqlTypeObject)
                         child_itemId_1 = self.appendNode(targetNode=tableNode, nodeLabel=f'{sqlTypeObject.name}' , dataSourceTreeNode=dataSourceTreeNode)
                         if sqlTypeObject.type == 'table':
                             
-                            dataSourceTreeNode = DataSourceTreeNode( dataSource=dataSource, nodeLabel=nodeLabel, imageName=f"folder.png", children=None, nodeType="folder_column")
+                            dataSourceTreeNode = DataSourceTreeNode(dataSource=dataSource, nodeLabel=nodeLabel, imageName=f"folder.png", children=None, nodeType="folder_column")
                             dataSourceTreeNode.setSqlType(sqlTypeObject)
                             child1_1 = self.appendNode(targetNode=child_itemId_1, nodeLabel=f'Columns ({len(sqlTypeObject.columns)})', dataSourceTreeNode=dataSourceTreeNode) 
                             
-                            dataSourceTreeNode = DataSourceTreeNode( dataSource=dataSource, nodeLabel=nodeLabel, imageName=f"folder.png", children=None, nodeType="folder_unique_key")
+                            dataSourceTreeNode = DataSourceTreeNode(dataSource=dataSource, nodeLabel=nodeLabel, imageName=f"folder.png", children=None, nodeType="folder_unique_key")
                             dataSourceTreeNode.setSqlType(sqlTypeObject)
                             child1_2 = self.appendNode(targetNode=child_itemId_1, nodeLabel='Unique Keys', dataSourceTreeNode=dataSourceTreeNode) 
                             
-                            dataSourceTreeNode = DataSourceTreeNode( dataSource=dataSource, nodeLabel=nodeLabel, imageName=f"folder.png", children=None, nodeType="folder_foreign_key")
+                            dataSourceTreeNode = DataSourceTreeNode(dataSource=dataSource, nodeLabel=nodeLabel, imageName=f"folder.png", children=None, nodeType="folder_foreign_key")
                             dataSourceTreeNode.setSqlType(sqlTypeObject)
                             child1_3 = self.appendNode(targetNode=child_itemId_1, nodeLabel='Foreign Keys', dataSourceTreeNode=dataSourceTreeNode) 
                             
-                            dataSourceTreeNode = DataSourceTreeNode( dataSource=dataSource, nodeLabel=nodeLabel, imageName=f"folder.png", children=None, nodeType="folder_references")
+                            dataSourceTreeNode = DataSourceTreeNode(dataSource=dataSource, nodeLabel=nodeLabel, imageName=f"folder.png", children=None, nodeType="folder_references")
                             dataSourceTreeNode.setSqlType(sqlTypeObject)
                             child1_4 = self.appendNode(targetNode=child_itemId_1, nodeLabel='References', dataSourceTreeNode=dataSourceTreeNode) 
                             for column in sqlTypeObject.columns:
 
-                                dataSourceTreeNode = DataSourceTreeNode( dataSource=dataSource, nodeLabel=f'{column.name}', imageName=self.getColumnImageName(column), children=None, nodeType="column")
+                                dataSourceTreeNode = DataSourceTreeNode(dataSource=dataSource, nodeLabel=f'{column.name}', imageName=self.getColumnImageName(column), children=None, nodeType="column")
                                 dataSourceTreeNode.setSqlType(sqlTypeObject)
                                 child_itemId_1_0 = self.appendNode(targetNode=child1_1, nodeLabel=f'{column.name}' , dataSourceTreeNode=dataSourceTreeNode)
                 
