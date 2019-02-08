@@ -248,6 +248,16 @@ class SQLExecuter():
         insert into dbms (dbms_name, vendor, jdbc_driver,driver_path) values (  'H2','H2','org.h2.Driver','/lib');
         insert into dbms (dbms_name, vendor, jdbc_driver,driver_path) values (  'HSQLDB','HSQLDB','org.hsqldb.jdbc.JDBCDriver','/lib');
         
+        
+        CREATE TABLE project_setting (id INTEGER PRIMARY KEY autoincrement,
+        name TEXT , 
+        description TEXT , 
+        value TEXT );
+        insert into project_setting values(1,'MAX_RECENT_WORKSPACES','maximum number of workspaces','10');
+        insert into project_setting values(2,'SHOW_RECENT_WORKSPACES','RECENT_WORKSPACES','user.home/workspace');
+        insert into project_setting values(3,'SHOW_RECENT_WORKSPACES','show recent workspace at startup','false');
+        insert into project_setting values(4,'SHOW_WORKSPACE_SELECTION_DIALOG','show workspace selection dialog startup','false');
+        insert into project_setting values(5,'default_workspace','show default workspace first startup','user.home/workspace');
        
         '''
         try:
