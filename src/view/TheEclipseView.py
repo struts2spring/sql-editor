@@ -107,22 +107,27 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
     def onCloseTab(self, event=None, currentlySelectedPage=None):
         logger.debug("onCloseTab")
         logger.debug("currentlySelectedPage %s", currentlySelectedPage)
+        # TODO:  need to work
 
     def onCloseOthersTabs(self, event=None, currentlySelectedPage=None):
-        logger.debug("onCloseTab")
+        logger.debug("onCloseOthersTabs")
         logger.debug("currentlySelectedPage %s", currentlySelectedPage)
+        # TODO:  need to work
 
     def onCloseLeftTabs(self, event=None, currentlySelectedPage=None):
-        logger.debug("onCloseTab")
+        logger.debug("onCloseLeftTabs")
         logger.debug("currentlySelectedPage %s", currentlySelectedPage)
+        # TODO:  need to work
 
     def onCloseRightTabs(self, event=None, currentlySelectedPage=None):
-        logger.debug("onCloseTab")
+        logger.debug("onCloseRightTabs")
         logger.debug("currentlySelectedPage %s", currentlySelectedPage)
+        # TODO:  need to work
 
     def onCloseAllTabs(self, event=None, currentlySelectedPage=None):
-        logger.debug("onCloseTab")
+        logger.debug("onCloseAllTabs")
         logger.debug("currentlySelectedPage %s", currentlySelectedPage)
+        # TODO:  need to work
 
     def startWebHelp(self):
         '''

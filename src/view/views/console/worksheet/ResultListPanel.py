@@ -2,6 +2,7 @@
 import wx
 import wx.dataview as dv
 from src.view.views.console.worksheet.ResultGrid import ResultDataGrid
+from src.view.util.FileOperationsUtil import FileOperations
 try:
     from agw import aui
     from agw.aui import aui_switcherdialog as ASD
@@ -293,7 +294,7 @@ class CreatingResultWithToolbarPanel(wx.Panel):
         self.parent = parent
         self.data=list()
         vBox = wx.BoxSizer(wx.VERTICAL)
-
+        self.fileOperations = FileOperations()
         ####################################################################
         self.topResultToolbar = self.constructTopResultToolBar()
         self.bottomResultToolbar=wx.StatusBar(self)
@@ -329,18 +330,18 @@ class CreatingResultWithToolbarPanel(wx.Panel):
 #         self.statusbar.SetStatusText('This goes in your statusbar')
         return self.statusbar   
     def constructTopResultToolBar(self):
-        path = os.path.abspath(__file__)
-        tail = None
-#         head, tail = os.path.split(path)
-#         print('createAuiManager',head, tail )
-        try:
-            while tail != 'src':
-                path = os.path.abspath(os.path.join(path, '..',))
-                head, tail = os.path.split(path)
-        except Exception as e:
-            logger.error(e, exc_info=True)
-        print('------------------------------------------------------------------------->',path)
-        path = os.path.abspath(os.path.join(path, "images"))        
+#         path = os.path.abspath(__file__)
+#         tail = None
+# #         head, tail = os.path.split(path)
+# #         print('createAuiManager',head, tail )
+#         try:
+#             while tail != 'src':
+#                 path = os.path.abspath(os.path.join(path, '..',))
+#                 head, tail = os.path.split(path)
+#         except Exception as e:
+#             logger.error(e, exc_info=True)
+#         print('------------------------------------------------------------------------->',path)
+#         path = os.path.abspath(os.path.join(path, "images"))        
         # create some toolbars
         tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
                          wx.TB_FLAT | wx.TB_NODIVIDER)
@@ -351,8 +352,8 @@ class CreatingResultWithToolbarPanel(wx.Panel):
 # 
 #         elif "view" == os.path.split(os.getcwd())[-1:][0]:
 #             imageLocation = os.path.join("..", "images")
-        tb1.AddTool(ID_RUN, "Pin", wx.Bitmap(os.path.join(path, "pin2_green.png")))
-        tb1.AddTool(ID_EXECUTE_SCRIPT, "Result refresh", wx.Bitmap(os.path.join(path, "resultset_refresh.png")))
+        tb1.AddTool(ID_RUN, "Pin", self.fileOperations.getImageBitmap(imageName="pin2_green.png"))
+        tb1.AddTool(ID_EXECUTE_SCRIPT, "Result refresh", self.fileOperations.getImageBitmap(imageName="resultset_refresh.png"))
         tb1.AddSeparator()
 
         tb1.Realize()
@@ -370,18 +371,7 @@ class CreateResultSheetTabPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
-        path = os.path.abspath(__file__)
-        tail = None
-#         head, tail = os.path.split(path)
-#         print('createAuiManager',head, tail )
-        try:
-            while tail != 'src':
-                path = os.path.abspath(os.path.join(path, '..',))
-                head, tail = os.path.split(path)
-        except Exception as e:
-            logger.error(e, exc_info=True)
-        print('------------------------------------------------------------------------->',path)
-        path = os.path.abspath(os.path.join(path, "images"))
+        self.fileOperations = FileOperations()
                 
         # Attributes
         self._nb = aui.AuiNotebook(self)
@@ -391,7 +381,7 @@ class CreateResultSheetTabPanel(wx.Panel):
 #         elif "view" == os.path.split(os.getcwd())[-1:][0]:
 #         imageLocation = os.path.join(path)
         imgList = wx.ImageList(16, 16)
-        imgList.Add(wx.Bitmap(os.path.join(path, "sql_script.png")))
+        imgList.Add(self.fileOperations.getImageBitmap("sql_script.png"))
         
         self._nb.AssignImageList(imgList) 
         
