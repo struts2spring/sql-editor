@@ -63,7 +63,8 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 #         self.creatingTreeCtrl()
 
         try:
-            PerspectiveManager.__init__(self)
+            self.perspective = PerspectiveManager.__init__(self)
+            self.Bind(aui.EVT_AUINOTEBOOK_TAB_RIGHT_DOWN, self.onTabRightup1, self.perspective)
         except Exception as e:
             logger.error(e, exc_info=True)
 
@@ -72,6 +73,57 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
 #         wx.CallLater(13, self.startWebHelp)
     #---------------------------------------------
+    def onTabRightup1(self, event):
+        logger.debug('rightdown PopUp')
+        currentlySelectedPage = event.GetSelection()
+        logger.debug("onTabRightDown: currentlySelectedPage %s", currentlySelectedPage)
+        
+        pos = self.ScreenToClient(wx.GetMousePosition())
+        self.popupmenu = wx.Menu()
+        popupList = [
+            {'label':'Close', 'icon':wx.ART_CLOSE, "eventMethod": lambda event: self.onCloseTab(event, currentlySelectedPage)},
+            {'label':'Close Others', 'icon':wx.ART_CLOSE, "eventMethod":lambda event: self.onCloseOthersTabs(event, currentlySelectedPage)},
+            {'label':"Close Other tabs to the left", 'icon':wx.ART_CLOSE, "eventMethod":lambda event: self.onCloseLeftTabs(event, currentlySelectedPage)},
+            {'label':'Close Other tabs to the right', 'icon':wx.ART_CLOSE, "eventMethod":lambda event: self.onCloseRightTabs(event, currentlySelectedPage)},
+            {'label':'Close &All', 'icon':wx.ART_CLOSE, "eventMethod":self.onCloseAllTabs}
+            ]
+        for popupRow in popupList:
+            itemId = wx.ID_ANY
+            item = wx.MenuItem(self.popupmenu, itemId, popupRow['label'])
+            item.SetBitmap(wx.ArtProvider.GetBitmap(popupRow['icon'], wx.ART_MENU, (16, 16)))
+            self.popupmenu.Append(item)
+            self.Bind(wx.EVT_MENU, popupRow['eventMethod'], item)
+#             deleteMenuItem = wx.MenuItem(menu, wx.ID_DELETE, "Delete \t Delete")
+#             delBmp = wx.ArtProvider.GetBitmap(wx.ART_DELETE, wx.ART_MENU, (16, 16))
+#             deleteMenuItem.SetBitmap(delBmp)
+#             delMenu = menu.AppendItem(deleteMenuItem)
+# #             self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
+#             
+#             
+#             self.Bind(wx.EVT_MENU, self.onOpenSqlEditorTab, item3)
+            
+        self.PopupMenu(self.popupmenu, pos)
+
+    def onCloseTab(self, event=None, currentlySelectedPage=None):
+        logger.debug("onCloseTab")
+        logger.debug("currentlySelectedPage %s", currentlySelectedPage)
+
+    def onCloseOthersTabs(self, event=None, currentlySelectedPage=None):
+        logger.debug("onCloseTab")
+        logger.debug("currentlySelectedPage %s", currentlySelectedPage)
+
+    def onCloseLeftTabs(self, event=None, currentlySelectedPage=None):
+        logger.debug("onCloseTab")
+        logger.debug("currentlySelectedPage %s", currentlySelectedPage)
+
+    def onCloseRightTabs(self, event=None, currentlySelectedPage=None):
+        logger.debug("onCloseTab")
+        logger.debug("currentlySelectedPage %s", currentlySelectedPage)
+
+    def onCloseAllTabs(self, event=None, currentlySelectedPage=None):
+        logger.debug("onCloseTab")
+        logger.debug("currentlySelectedPage %s", currentlySelectedPage)
+
     def startWebHelp(self):
         '''
         This method start web server for eclipse help .

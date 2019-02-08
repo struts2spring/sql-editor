@@ -90,7 +90,6 @@ else:
              }
 
 
-
 class SqlStyleTextCtrl(stc.StyledTextCtrl):
     fold_symbols = 2
 
@@ -217,6 +216,16 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         self.Bind(stc.EVT_STC_MARGINCLICK, self.OnMarginClick)
         self.Bind(wx.EVT_KEY_DOWN, self.OnKeyPressed)
         self.Bind(wx.EVT_KEY_UP, self.OnKeyUp)
+        
+        self.accel_tbl = wx.AcceleratorTable([
+                                        (wx.ACCEL_CTRL, ord('C'), wx.ID_COPY),
+                                        (wx.ACCEL_CTRL, ord('V'), wx.ID_PASTE),
+#                                         (wx.ACCEL_ALT, ord('X'), wx.ID_PASTE),
+#                                         (wx.ACCEL_SHIFT | wx.ACCEL_ALT, ord('Y'), wx.ID_PASTE)
+                                     ])
+        self.SetAcceleratorTable(self.accel_tbl)
+        self.Bind(wx.EVT_MENU, lambda e:self.Paste(e), id=wx.ID_PASTE)
+        self.Bind(wx.EVT_MENU, lambda e:self.copyClipboard(e), id=wx.ID_COPY)
 
     def registerAllImages(self):
         path = os.path.abspath(__file__)
@@ -259,7 +268,8 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
     def Redo(self, *args, **kwargs):
         return stc.StyledTextCtrl.Redo(self, *args, **kwargs)
 
-    def Paste(self):
+    def Paste(self, event):
+        logger.debug('Paste')
         success = False
         do = wx.TextDataObject()
         if wx.TheClipboard.Open():
@@ -270,22 +280,23 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 #             if not self.execplugin('on_paste', self, do.GetText()):
             stc.StyledTextCtrl.Paste(self) 
                 
-    def copyClipboard(self, text=None):
+    def copyClipboard(self, event):
         """"""
-        logger.debug("copyClipboard: %s", text)
+        text = self.GetSelectedText()
+        logger.debug(f"copyClipboard: {text}")
         if self.SelectionIsRectangle():
             self.selection_column_mode = True
         else:
             self.selection_column_mode = False
         stc.StyledTextCtrl.Copy(self)
-#         self.dataObj = wx.TextDataObject()
-#         self.dataObj.SetText(text)
-#         
-#         try:
-#             with wx.Clipboard.Get() as clipboard:
-#                 clipboard.SetData(self.dataObj)
-#         except TypeError:
-#             wx.MessageBox("Unable to open the clipboard", "Error")            
+        
+        self.dataObj = wx.TextDataObject()
+        self.dataObj.SetText(text)
+        if wx.TheClipboard.Open():
+            wx.TheClipboard.SetData(self.dataObj)
+            wx.TheClipboard.Close()
+        else:
+            wx.MessageBox("Unable to open the clipboard", "Error")
     
     def OnKeyUp(self, event):
         if self.CallTipActive():
@@ -301,27 +312,27 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 logger.debug(self.GetSelectionNEnd())
             else:
                 logger.debug(self.CurLine[0])
-                completeText=self.GetText()
+                completeText = self.GetText()
                 line = self.GetCurrentLine()
                 lineText, column = self.GetCurLine()
-                completeTextArray=completeText.split('\n')
-                lineText=lineText.rstrip()
-                replaceText=lineText
+                completeTextArray = completeText.split('\n')
+                lineText = lineText.rstrip()
+                replaceText = lineText
                 if lineText.startswith('-- '):
-                    replaceText=lineText.replace('-- ','')
+                    replaceText = lineText.replace('-- ', '')
                 else:
-                    replaceText='-- '+lineText
-                completeTextArray[line]=replaceText
+                    replaceText = '-- ' + lineText
+                completeTextArray[line] = replaceText
                 self.SetText('\n'.join(completeTextArray))
                 print(completeText)
 #                 self.MoveCaretInsideView()
 #                 self.SetText()
         
-        elif event.ControlDown() and  key == 67:
-            logger.debug('ctrl+C %s', self.GetSelectedText())
-            self.copyClipboard(text=self.GetSelectedText())    
-            if key == 86:
-                self.Paste()
+#         elif event.ControlDown() and  key == 67:
+#             logger.debug('ctrl+C %s', self.GetSelectedText())
+#             self.copyClipboard(text=self.GetSelectedText())    
+#             if key == 86:
+#                 self.Paste()
 
         elif event.ControlDown() and  key == 76:
             logger.debug('ctrl+L %s', self.GetSelectedText())
@@ -337,7 +348,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 lineNumber = dlg.lineNumberText.GetValue()
                 logger.debug("You pressed OK %s", lineNumber)
                 if lineNumber != '':
-                    self.GotoLine(int(lineNumber)-1)
+                    self.GotoLine(int(lineNumber) - 1)
                 
             else:
                 logger.debug("You pressed Cancel\n")
@@ -393,8 +404,11 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             logger.debug(selectedText)
             # lineNo = self.GetCurrentLine()
             lineText, column = self.GetCurLine()
-            if selectedText != None:
-                self.AddText(lineText)
+            if selectedText != None and selectedText !='':
+                self.AddText(f'\n{selectedText}')
+            else:
+                self.AddText(f'\n{lineText}')
+                
             
         elif event.ControlDown() and event.ShiftDown() and key == 70:
             logger.debug('ctrl+Shtft+F: format code')
@@ -481,7 +495,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         textstring = self.GetRange(0, end).lower()
         findstring = evt.GetFindString().lower()
         replaceTxt = ""
-        #print(repr(evt.GetFindString()), repr(self.findData.GetFindString()))
+        # print(repr(evt.GetFindString()), repr(self.findData.GetFindString()))
         map = {
             wx.wxEVT_COMMAND_FIND : "FIND",
             wx.wxEVT_COMMAND_FIND_NEXT : "FIND_NEXT",
@@ -528,8 +542,8 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
     #                 self.finddlg = None
             self.ShowPosition(loc)
             self.SetSelection(loc, loc + len(findstring))
-            self.SetText(self.GetText()[:loc]+evt.GetReplaceString()+self.GetText()[loc+len(findstring):])
-            #TODO : need to be workd
+            self.SetText(self.GetText()[:loc] + evt.GetReplaceString() + self.GetText()[loc + len(findstring):])
+            # TODO : need to be workd
         if et in [wx.wxEVT_COMMAND_FIND_REPLACE_ALL]:
             # replaceTxt = "Replace text: %s" % evt.GetReplaceString()
             self.SetText(re.sub(findstring, evt.GetReplaceString(), self.GetText(), flags=re.I)) 
@@ -566,15 +580,10 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             self.ShowPosition(loc)
             self.SetSelection(loc, loc + len(findstring))
 
-
-        logger.info("%s -- Find text: %s   Replace text: %s  Flags: %d  \n" %
+        logger.info("%s -- Find text: %s   Replace text: %s  Flags: %d  \n" % 
                        (evtType, evt.GetFindString(), replaceTxt, evt.GetFlags()))
-        
 
 #         findstring = self.finddata.GetFindString().lower()
-
-    
-        
 
     def OnFindClose(self, evt):
         logger.info("FindReplaceDialog closing...\n")
@@ -949,14 +958,14 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 if selectedItemText:
                     self.updateSqlLog(sqlText, duration, connectionName=selectedItemText)
                 
-                creatingWorksheetPanel=self.GetGrandParent().GetParent()
+                creatingWorksheetPanel = self.GetGrandParent().GetParent()
                 creatingWorksheetPanel.setResultData(data=sqlOutput)
 #                 creatingWorksheetPanel = self.GetTopLevelParent()._mgr.GetPane("centerPane").window.GetChildren()[0].GetCurrentPage().Children[1]
 #                 creatingWorksheetPanel.setResultData(data=sqlOutput)
                 resultListPanel = self.GetGrandParent().Children[1]
         #         if sqlOutput:
                 if sqlOutput and resultListPanel._nb.GetCurrentPage():
-                    resultListPanel._nb.GetCurrentPage().bottomResultToolbar.SetStatusText('Count: {}'.format(len(sqlOutput)-1))
+                    resultListPanel._nb.GetCurrentPage().bottomResultToolbar.SetStatusText('Count: {}'.format(len(sqlOutput) - 1))
                     resultListPanel._nb.GetCurrentPage().resultPanel.addData(data=sqlOutput)
         except TypeError as te:
             logger.error(te, exc_info=True)

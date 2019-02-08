@@ -32,6 +32,7 @@ from src.view.views.java.explorer.JavaExplorer import CreatingJavaExplorerPanel
 from src.view.views.project.explorer.ProjectExplorer import CreatingProjectExplorerPanel
 
 from src.view.views.database.explorer.DataSourceExplorer import DataSourcePanel
+from wx.lib.agw.aui import auibook
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -377,8 +378,9 @@ class MyAuiManager(aui.AuiManager):
     
     def __init__(self, managed_window=None, agwFlags=None):
 
-        super().__init__(managed_window=managed_window, agwFlags=agwFlags)
-    
+        super(MyAuiManager, self).__init__(managed_window=managed_window, agwFlags=agwFlags)
+
+
     def addTabByWindow(self, window=None ,icon=None,  imageName="script.png", name=None, captionName=None, tabDirection=5):
         '''
         This method always create a new tab for the window.
@@ -551,6 +553,7 @@ class PerspectiveManager(object):
         # tell FrameManager to manage this frame
         self._mgr = MyAuiManager()
         self._mgr.SetManagedWindow(self)
+        
         # set up default notebook style
         self._notebook_style = aui.AUI_NB_DEFAULT_STYLE | wx.BORDER_NONE
         self._notebook_theme = 1      
