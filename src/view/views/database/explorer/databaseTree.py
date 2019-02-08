@@ -37,13 +37,14 @@ class DataSource():
 
 class DataSourceTreeNode():
     
-    def __init__(self, depth=None, dataSource=None, nodeLabel=None, imageName=None, children=None):
+    def __init__(self, depth=None, dataSource=None, nodeLabel=None, imageName=None, children=None, sqlType=None, nodeType=None):
         self.depth = depth
         self.dataSource = dataSource
         self.imageName = imageName
         self.nodeLabel = nodeLabel
         self.children = children
-        self.sqlType = None
+        self.sqlType = sqlType
+        self.nodeType = nodeType
 
     def setSqlType(self, sqlType=None):
         self.sqlType = sqlType
@@ -291,8 +292,14 @@ class DatabaseTree(TreeCtrl):
             self.connectingDatabase(event=evt, nodes=nodes)
             
         elif dataSourceTreeNode.depth == 2:
-            if dataSourceTreeNode.sqlType.type=='table':
+            if dataSourceTreeNode.sqlType.type == 'table':
                 self.openWorksheet(sheetName=dataSourceTreeNode.sqlType.name, dataSourceTreeNode=dataSourceTreeNode)
+            if dataSourceTreeNode.sqlType.type == 'view':
+                # TODO : need to write a view panel
+                pass
+            if dataSourceTreeNode.sqlType.type == 'trigger':
+                # TODO : need to write a trigger panel
+                pass
         evt.Skip()
         
     def connectingDatabase(self, event=None, nodes=None):
@@ -355,19 +362,19 @@ class DatabaseTree(TreeCtrl):
             dataSourceTreeNode = self.GetItemData(nodes[0])
             logger.debug(dataSourceTreeNode.dataSource.connectionName)
             
-            if dataSourceTreeNode.dataSource.isConnected and dataSourceTreeNode.depth in (0, 1, 2) :
-                if dataSourceTreeNode.depth == 1 and 'table' in self.GetItemText(nodes[0]):
+            if dataSourceTreeNode.dataSource.isConnected :
+                if dataSourceTreeNode.nodeType in ('table', 'folder_table') :  # and 'table' in self.GetItemText(nodes[0])
                     importBmp = wx.MenuItem(menu, ID_IMPORT, "&Import CSV / Excel")
                     importBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="import.png")))
                     importMenu = menu.Append(importBmp) 
                     self.Bind(wx.EVT_MENU, lambda e: self.onImport(e, nodes), importMenu)
                 
-                if dataSourceTreeNode.depth == 0:
+                if dataSourceTreeNode.nodeType == 'connection':
                     sqlEditorBmp = wx.MenuItem(menu, ID_newWorksheet, "SQL Editor in new Tab")
                     sqlEditorBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="script.png")))
                     item3 = menu.Append(sqlEditorBmp)
                     self.Bind(wx.EVT_MENU, lambda e: self.onOpenSqlEditorTab(e, nodes), item3)
-                if dataSourceTreeNode.depth == 2:
+                if dataSourceTreeNode.nodeType == 'table':
                     editTableBmp = wx.MenuItem(menu, wx.ID_ANY, "Edit table")
                     editTableBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="table_edit.png")))
                     editTableItem = menu.Append(editTableBmp) 
@@ -385,36 +392,36 @@ class DatabaseTree(TreeCtrl):
                     self.Bind(wx.EVT_MENU, lambda e: self.onEditTable(e, dataSourceTreeNode=dataSourceTreeNode, node=nodes[0]), editTableItem)
                     self.Bind(wx.EVT_MENU, lambda e: self.onRenameTable(e, dataSourceTreeNode=dataSourceTreeNode, node=nodes[0]), renameTableItem)
                     self.Bind(wx.EVT_MENU, self.onCopyCreateTableStatement, copyCreateTableItem)
-                    
-            if dataSourceTreeNode.depth == 1:
+                        
+#             if dataSourceTreeNode.depth == 1:
                 node = item = nodes[0]
-                if 'table' in self.GetItemText(item):
-                    newTableBmp = wx.MenuItem(menu, wx.ID_ANY, "Create new table")
-                    newTableBmp.SetBitmap(self.fileOperations.getImageBitmap(imageName="table_add.png"))
-                    newTableItem = menu.Append(newTableBmp)                 
-                    
-    #                 newTableItem = menu.Append(wx.ID_ANY, "Create new table")
-                    erDiagramItem = menu.Append(wx.ID_ANY, "Create ER diagram")
+            if dataSourceTreeNode.nodeType == 'folder_table':
+                newTableBmp = wx.MenuItem(menu, wx.ID_ANY, "Create new table")
+                newTableBmp.SetBitmap(self.fileOperations.getImageBitmap(imageName="table_add.png"))
+                newTableItem = menu.Append(newTableBmp)                 
+                
+#                 newTableItem = menu.Append(wx.ID_ANY, "Create new table")
+                erDiagramItem = menu.Append(wx.ID_ANY, "Create ER diagram")
 #                     refreshTableItem = menu.Append(wx.ID_ANY, "Refresh  \tF5")
-                    
-                    self.Bind(wx.EVT_MENU, lambda e: self.onNewTable(e, dataSourceTreeNode=dataSourceTreeNode, node=node), newTableItem)
-                    
-                    self.Bind(wx.EVT_MENU, lambda e: self.onCreateErDiagramItem(e, dataSourceTreeNode=dataSourceTreeNode, node=node), erDiagramItem)
-                    
+                
+                self.Bind(wx.EVT_MENU, lambda e: self.onNewTable(e, dataSourceTreeNode=dataSourceTreeNode, node=node), newTableItem)
+                
+                self.Bind(wx.EVT_MENU, lambda e: self.onCreateErDiagramItem(e, dataSourceTreeNode=dataSourceTreeNode, node=node), erDiagramItem)
+                
 #                     self.Bind(wx.EVT_MENU, lambda e: self.onRefreshTable(e, item), refreshTableItem)
-                    
-                if 'view' in self.GetItemText(item):
-                    newViewItem = menu.Append(wx.ID_ANY, "Create new view")
+                
+            if dataSourceTreeNode.nodeType == 'folder_view':
+                newViewItem = menu.Append(wx.ID_ANY, "Create new view")
 #                     item2 = menu.Append(wx.ID_ANY, "Refresh \tF5")
-                    self.Bind(wx.EVT_MENU, lambda e: self.onNewView(e, dataSourceTreeNode=dataSourceTreeNode, node=item), newViewItem)
-                if 'index' in self.GetItemText(item) :
-                    newIndexItem = menu.Append(wx.ID_ANY, "Create new index")
+                self.Bind(wx.EVT_MENU, lambda e: self.onNewView(e, dataSourceTreeNode=dataSourceTreeNode, node=item), newViewItem)
+            if dataSourceTreeNode.nodeType == 'folder_index':
+                newIndexItem = menu.Append(wx.ID_ANY, "Create new index")
 #                     item2 = menu.Append(wx.ID_ANY, "Refresh \tF5")
-                    self.Bind(wx.EVT_MENU, lambda e: self.onNewIndex(e, dataSourceTreeNode=dataSourceTreeNode, node=item), newIndexItem)
-            elif dataSourceTreeNode.depth in (2, 3):
-                newColumnItem = menu.Append(wx.ID_ANY, "Add new column")
-                self.Bind(wx.EVT_MENU, lambda e: self.onNewColumn(e, dataSourceTreeNode=dataSourceTreeNode, node=node), newColumnItem)  
-            elif dataSourceTreeNode.depth == 4:
+                self.Bind(wx.EVT_MENU, lambda e: self.onNewIndex(e, dataSourceTreeNode=dataSourceTreeNode, node=item), newIndexItem)
+            elif dataSourceTreeNode.nodeType in ('folder_column', 'table'):
+                    newColumnItem = menu.Append(wx.ID_ANY, "Add new column")
+                    self.Bind(wx.EVT_MENU, lambda e: self.onNewColumn(e, dataSourceTreeNode=dataSourceTreeNode, node=node), newColumnItem)  
+            elif dataSourceTreeNode.nodeType in ('column') :
                 renameColumnItem = menu.Append(wx.ID_ANY, "Rename Column ")
     #             item1 = menu.Append(wx.ID_ANY, "Create new column")
     #             self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
@@ -426,11 +433,11 @@ class DatabaseTree(TreeCtrl):
             compareMenu = menu.Append(bmp)
             self.Bind(wx.EVT_MENU, lambda e:  self.onCompareDatabase(e, nodes), compareMenu)
             
-        for node in nodes:
-            dataSourceTreeNode = self.GetItemData(node)
-            logger.debug(dataSourceTreeNode.dataSource.connectionName)
-            if dataSourceTreeNode.depth == 0:
-                dataSourceTreeNode = self.GetItemData(node)
+#         for node in nodes:
+#             dataSourceTreeNode = self.GetItemData(node)
+#             logger.debug(dataSourceTreeNode.dataSource.connectionName)
+#             if dataSourceTreeNode.depth == 0:
+#                 dataSourceTreeNode = self.GetItemData(node)
                      
         refreshBmp = wx.MenuItem(menu, ID_ROOT_REFERESH, "&Refresh \tF5")
         refreshBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="database_refresh.png")))
@@ -450,16 +457,17 @@ class DatabaseTree(TreeCtrl):
 #             item7.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "index.png"))))
 #             menu.AppendItem(item7)
         
-        if self.isAllNodeOfGivenDepth(depth=0, nodes=nodes):
+#         if self.isAllNodeOfGivenDepth(depth=0, nodes=nodes):
+        if dataSourceTreeNode.nodeType == 'connection':        
             menu.AppendSeparator()
-            if self.isAllConnected(depth=0, nodes=nodes):
-
+            if self.isAllConnected( nodes=nodes):
+    
                 def onDisconnectDb(event):
                     logger.debug('inner onDisconnectDb')   
-
+    
                 item1 = menu.Append(ID_DISCONNECT_DB, "Disconnect")
                 self.Bind(wx.EVT_MENU, lambda e: self.onDisconnectDb(e, nodes), item1)
-            elif self.isAllDisconnected(depth=0, nodes=nodes):         
+            elif self.isAllDisconnected(nodes=nodes):         
                 item2 = menu.Append(ID_CONNECT_DB, "Connect")
                 self.Bind(wx.EVT_MENU, lambda e:  self.onConnectDatabase(e, nodes), item2)  
             else: 
@@ -467,7 +475,7 @@ class DatabaseTree(TreeCtrl):
                 self.Bind(wx.EVT_MENU, lambda e:  self.onConnectDatabase(e, nodes), item2)  
                 item1 = menu.Append(ID_DISCONNECT_DB, "Disconnect")
                 self.Bind(wx.EVT_MENU, lambda e: self.onDisconnectDb(e, nodes), item1)
-                        
+            
             deleteMenuItem = wx.MenuItem(menu, wx.ID_DELETE, "Delete reference \t Delete")
             delBmp = wx.ArtProvider.GetBitmap(wx.ART_DELETE, wx.ART_MENU, (16, 16))
             deleteMenuItem.SetBitmap(delBmp)
@@ -615,20 +623,20 @@ class DatabaseTree(TreeCtrl):
         logger.debug('onNewIndex')
         logger.debug("TODO add a new Index")   
 
-    def isAllConnected(self, depth=0, nodes=None):
+    def isAllConnected(self, nodes=None):
         allConnected = True
         for node in nodes:
             dataSourceTreeNode = self.GetItemData(node)
-            if not dataSourceTreeNode.dataSource.isConnected:
+            if not dataSourceTreeNode.dataSource.isConnected and dataSourceTreeNode.nodeType == 'connection':
                 allConnected = False
                 break
         return allConnected
 
-    def isAllDisconnected(self, depth=0, nodes=None):
+    def isAllDisconnected(self, nodes=None):
         allDisconnected = True
         for node in nodes:
             dataSourceTreeNode = self.GetItemData(node)
-            if  dataSourceTreeNode.dataSource.isConnected:
+            if  dataSourceTreeNode.dataSource.isConnected and dataSourceTreeNode.nodeType == 'connection':
                 allDisconnected = False
                 break
         return allDisconnected
@@ -713,28 +721,34 @@ class DatabaseTree(TreeCtrl):
                     imageName = f"folder.png"
                     if key in ['view', 'table']:
                         imageName = f"folder_{key}.png"
-                    dataSourceTreeNode = DataSourceTreeNode(depth=1, dataSource=dataSource, nodeLabel=nodeLabel, imageName=imageName, children=None)
+                    dataSourceTreeNode = DataSourceTreeNode( dataSource=dataSource, nodeLabel=nodeLabel, imageName=imageName, children=None, nodeType=f'folder_{key}')
+                    
                     tableNode = self.appendNode(targetNode=itemId, nodeLabel=dataSourceTreeNode.nodeLabel , dataSourceTreeNode=dataSourceTreeNode)
                     for sqlTypeObject in groupList:
-                        dataSourceTreeNode = DataSourceTreeNode(depth=2, dataSource=dataSource, nodeLabel=f'{sqlTypeObject.name}', imageName=f"{sqlTypeObject.type}.png", children=None)
+                        dataSourceTreeNode = DataSourceTreeNode( dataSource=dataSource, nodeLabel=f'{sqlTypeObject.name}', imageName=f"{sqlTypeObject.type}.png", children=None, nodeType=f"{sqlTypeObject.type}")
                         dataSourceTreeNode.setSqlType(sqlTypeObject)
                         child_itemId_1 = self.appendNode(targetNode=tableNode, nodeLabel=f'{sqlTypeObject.name}' , dataSourceTreeNode=dataSourceTreeNode)
                         if sqlTypeObject.type == 'table':
-                            dataSourceTreeNode = DataSourceTreeNode(depth=3, dataSource=dataSource, nodeLabel=nodeLabel, imageName=f"folder.png", children=None)
+                            
+                            dataSourceTreeNode = DataSourceTreeNode( dataSource=dataSource, nodeLabel=nodeLabel, imageName=f"folder.png", children=None, nodeType="folder_column")
                             dataSourceTreeNode.setSqlType(sqlTypeObject)
                             child1_1 = self.appendNode(targetNode=child_itemId_1, nodeLabel=f'Columns ({len(sqlTypeObject.columns)})', dataSourceTreeNode=dataSourceTreeNode) 
-                            dataSourceTreeNode = DataSourceTreeNode(depth=3, dataSource=dataSource, nodeLabel=nodeLabel, imageName=f"folder.png", children=None)
+                            
+                            dataSourceTreeNode = DataSourceTreeNode( dataSource=dataSource, nodeLabel=nodeLabel, imageName=f"folder.png", children=None, nodeType="folder_unique_key")
                             dataSourceTreeNode.setSqlType(sqlTypeObject)
                             child1_2 = self.appendNode(targetNode=child_itemId_1, nodeLabel='Unique Keys', dataSourceTreeNode=dataSourceTreeNode) 
-                            dataSourceTreeNode = DataSourceTreeNode(depth=3, dataSource=dataSource, nodeLabel=nodeLabel, imageName=f"folder.png", children=None)
+                            
+                            dataSourceTreeNode = DataSourceTreeNode( dataSource=dataSource, nodeLabel=nodeLabel, imageName=f"folder.png", children=None, nodeType="folder_foreign_key")
                             dataSourceTreeNode.setSqlType(sqlTypeObject)
                             child1_3 = self.appendNode(targetNode=child_itemId_1, nodeLabel='Foreign Keys', dataSourceTreeNode=dataSourceTreeNode) 
-                            dataSourceTreeNode = DataSourceTreeNode(depth=3, dataSource=dataSource, nodeLabel=nodeLabel, imageName=f"folder.png", children=None)
+                            
+                            dataSourceTreeNode = DataSourceTreeNode( dataSource=dataSource, nodeLabel=nodeLabel, imageName=f"folder.png", children=None, nodeType="folder_references")
                             dataSourceTreeNode.setSqlType(sqlTypeObject)
                             child1_4 = self.appendNode(targetNode=child_itemId_1, nodeLabel='References', dataSourceTreeNode=dataSourceTreeNode) 
                             for column in sqlTypeObject.columns:
 
-                                dataSourceTreeNode = DataSourceTreeNode(depth=4, dataSource=dataSource, nodeLabel=f'{column.name}', imageName=self.getColumnImageName(column), children=None)
+                                dataSourceTreeNode = DataSourceTreeNode( dataSource=dataSource, nodeLabel=f'{column.name}', imageName=self.getColumnImageName(column), children=None, nodeType="column")
+                                dataSourceTreeNode.setSqlType(sqlTypeObject)
                                 child_itemId_1_0 = self.appendNode(targetNode=child1_1, nodeLabel=f'{column.name}' , dataSourceTreeNode=dataSourceTreeNode)
                 
             else:
@@ -907,7 +921,7 @@ class DatabaseTree(TreeCtrl):
         logger.debug('AddWatchConnection')
         if dataSource.filePath not in self._watch:
             self._watch.append(dataSource.filePath)
-            dataSourceTreeNode = DataSourceTreeNode(depth=0, dataSource=dataSource, imageName='sqlite.png')
+            dataSourceTreeNode = DataSourceTreeNode(depth=0, dataSource=dataSource, imageName='sqlite.png', nodeType='connection')
             return self.appendNode(targetNode=self.RootItem, nodeLabel=dataSourceTreeNode.dataSource.connectionName, dataSourceTreeNode=dataSourceTreeNode)
 
     def appendNode(self, targetNode=None, nodeLabel=None, dataSourceTreeNode=None):
