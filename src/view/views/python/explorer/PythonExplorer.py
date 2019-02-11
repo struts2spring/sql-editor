@@ -21,6 +21,7 @@ from src.view.views.file.explorer.FileBrowserPanel import FileBrowser, \
     FileBrowserMimeManager
 import time
 from src.view.util.common.fileutil import IsHidden, GetFileName
+from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -35,6 +36,7 @@ class CreatingPythonExplorerPanel(FileTree):
         self.isClosing = False
         self.syncTimer = wx.Timer(self)
         self._cpath = None
+        self.sqlExecuter = SQLExecuter()
         # Setup
         self.SetupImageList()
         try:
@@ -52,8 +54,10 @@ class CreatingPythonExplorerPanel(FileTree):
 
         """
         logger.debug('AddWatchDirectory')
-        assert os.path.exists(dname), "Path(%s) doesn't exist!" % dname
+#         assert os.path.exists(dname), "Path(%s) doesn't exist!" % dname
         childNode = None
+        
+        dname = r"c:\1\sql_editor"
         if dname not in self._watch:
 
             self._watch.append(dname)
@@ -136,7 +140,7 @@ class CreatingPythonExplorerPanel(FileTree):
 
         shouldDisplay = True
         dname = GetFileName(path)
-        if dname.startswith('.') or dname in ['__pycache__' ,'build', 'dist'] or '.egg-info' in dname :
+        if dname.startswith('.') or dname in ['__pycache__' , 'build', 'dist'] or '.egg-info' in dname :
             shouldDisplay = False
         return shouldDisplay
 
@@ -229,6 +233,7 @@ class CreatingPythonExplorerPanel(FileTree):
         except OSError:
             pass
         return files
+
     def DoBeginEdit(self, item):
         """Handle when an item is requested to be edited"""
         d = None
@@ -327,13 +332,12 @@ class CreatingPythonExplorerPanel(FileTree):
         """
         to_open = list()
         for fileWithImage in filesWithImage:
-            fname=fileWithImage[0]
+            fname = fileWithImage[0]
             try:
                 res = os.stat(fname)[0]
                 # isRegularFile or IsDirectory
                 if stat.S_ISREG(res):
                     to_open.append(fileWithImage)
-
 
                 elif  stat.S_ISDIR(res):
                     # TODO: need to think on it.
@@ -351,20 +355,19 @@ class CreatingPythonExplorerPanel(FileTree):
                 mainStc.SetText(FileOperations().readFile(filePath=fileWithImage[0]))
                 mainStc.ConfigureLexer(file_ext)
                 mainStc.SetModified(False)
-                imageName=self._mime.getFileImageNameByExtension(file_ext)
-                (name, captionName)=self.getTitleString(stc=mainStc,path=fileWithImage[0])
+                imageName = self._mime.getFileImageNameByExtension(file_ext)
+                (name, captionName) = self.getTitleString(stc=mainStc, path=fileWithImage[0])
                 mainStc.SetSavePoint()
-                icon=fileWithImage[1]
+                icon = fileWithImage[1]
 #                     imageName=self.iconsDictIndex[extensionName]
-                self.GetTopLevelParent()._mgr.addTabByWindow(window=mainStc,icon=icon, imageName=imageName,name=name+'-'+captionName, captionName=name, tabDirection=5)
+                self.GetTopLevelParent()._mgr.addTabByWindow(window=mainStc, icon=icon, imageName=imageName, name=name + '-' + captionName, captionName=name, tabDirection=5)
 #                     centerPaneTab.window.addTab(name='openFileLoad'+fileName, worksheetPanel=stc)
 
 #         win = wx.GetApp().GetActiveWindow()
 #         if win:
 #             win.GetNotebook().OnDrop(to_open)
 
-
-    def getTitleString(self,stc=None, path=None):
+    def getTitleString(self, stc=None, path=None):
         """Get the title string to display in the MainWindows title bar
         @return: (unicode) string
 
@@ -379,6 +382,7 @@ class CreatingPythonExplorerPanel(FileTree):
         if stc.GetModify() and not title.startswith(u'*'):
             title = u"*" + title
         return title, path
+
     def OnCompareItems(self, item1, item2):
         """Handle SortItems"""
         data = self.GetPyData(item1)
@@ -654,7 +658,7 @@ class FileBrowserMimeManager():
                 logger.error(e, exc_info=True)
         for imageName in ['fileType_filter.png', 'folder.png', 'folder_view.png', 'harddisk.png', 'usb.png', 'stop.png',
                           'java.png', 'python_module.png', 'xml.png', 'python.png', 'java.png', 'jar_file.png', 'markdown.png',
-                          'yaml.png','spec.png' ]:
+                          'yaml.png', 'spec.png' ]:
             imglist.Add(self.fileOperations.getImageBitmap(imageName=imageName))
             self.iconsDictIndex[imageName] = count
             count += 1
@@ -714,7 +718,7 @@ class FileBrowserMimeManager():
     def getFileImageNameByExtension(self, fileExtension=None):
         if fileExtension:
             if '.' not in fileExtension:
-                fileExtension='.'+fileExtension
+                fileExtension = '.' + fileExtension
         imageName = None
 
         if fileExtension in self.fileImageExtensionDict.keys():

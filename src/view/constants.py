@@ -58,6 +58,12 @@ ID_CLOSE_PROJECT = wx.NewIdRef()
 ID_CLEAN = wx.NewIdRef()
 ID_BUILD_AUTO = wx.NewIdRef()
 
+ID_SELECT_SQL = wx.NewIdRef()
+ID_INSERT_SQL = wx.NewIdRef()
+ID_UPDATE_SQL = wx.NewIdRef()
+ID_DELETE_SQL = wx.NewIdRef()
+
+
 ID_NEW_PROJECT = wx.NewIdRef()
 ID_EXAMPLE_MENU = wx.NewIdRef()
 ID_OTHER_MENU = wx.NewIdRef()

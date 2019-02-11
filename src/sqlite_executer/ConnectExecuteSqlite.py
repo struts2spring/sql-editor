@@ -703,6 +703,32 @@ class ManageSqliteDatabase():
             raise e
         return columns   
     
+    def getUpdateForTable(self, tableName=None):
+        return ''
+
+    def getDeleteForTable(self, tableName=None):
+        return ''
+
+    def getInsertForTable(self, tableName=None):
+        columns = self.getColumns(tableName)
+        columnsNameText = ",".join([f"'{column.name}'" for column in columns])
+        columnsValueList = []
+        for column in columns:
+            if column.dataType.lower() in ('int', 'integer', 'numeric'):
+                columnsValueList.append('0')
+            else:
+                columnsValueList.append("''")
+        columnsValueText = ",".join(columnsValueList)
+        insertSql = f'''INSERT OR REPLACE INTO "{tableName}" ({columnsNameText}) \nVALUES ({columnsValueText});'''
+        return insertSql
+
+    def getSelectForTable(self, tableName=None):
+        columns = self.getColumns(tableName)
+        columnsNameText = ",".join([f"{column.name}" for column in columns])
+
+        selectSql = f'''SELECT {columnsNameText} \nFROM '{tableName}'; '''
+        return selectSql
+    
     def getColumn(self, tableName=None):
         try:
             with self.conn:    

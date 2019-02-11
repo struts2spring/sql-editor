@@ -128,18 +128,19 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         pos = self.ScreenToClient(wx.GetMousePosition())
         self.popupmenu = wx.Menu()
         popupList = [
-            {'label':'Close', 'icon':wx.ART_CLOSE, "eventMethod": lambda event: onCloseTab(event, pageInfo)},
-            {'label':'Close Others', 'icon':wx.ART_CLOSE, "eventMethod":lambda event: onCloseOthersTabs(event, pageInfo)},
-            {'label':"Close Other tabs to the left", 'icon':wx.ART_CLOSE, "eventMethod":lambda event: onCloseLeftTabs(event, pageInfo)},
-            {'label':'Close Other tabs to the right', 'icon':wx.ART_CLOSE, "eventMethod":lambda event: onCloseRightTabs(event, pageInfo)},
-            {'label':'Close &All', 'icon':wx.ART_CLOSE, "eventMethod":lambda event: onCloseAllTabs(event, pageInfo)}
+            {'label':'Close', 'icon':self.fileOperations.getImageBitmap(imageName="close.png"), "eventMethod": lambda event: onCloseTab(event, pageInfo)},
+            {'label':'Close Others', 'icon':self.fileOperations.getImageBitmap(imageName="close.png"), "eventMethod":lambda event: onCloseOthersTabs(event, pageInfo)},
+            {'label':"Close Other tabs to the left", 'icon':self.fileOperations.getImageBitmap(imageName="close.png"), "eventMethod":lambda event: onCloseLeftTabs(event, pageInfo)},
+            {'label':'Close Other tabs to the right', 'icon':self.fileOperations.getImageBitmap(imageName="close.png"), "eventMethod":lambda event: onCloseRightTabs(event, pageInfo)},
+            {'label':'Close &All', 'icon':self.fileOperations.getImageBitmap(imageName="close.png"), "eventMethod":lambda event: onCloseAllTabs(event, pageInfo)}
+            
             ]
 
             # TODO:  need to work
         for popupRow in popupList:
             itemId = wx.ID_ANY
             item = wx.MenuItem(self.popupmenu, itemId, popupRow['label'])
-            item.SetBitmap(wx.ArtProvider.GetBitmap(popupRow['icon'], wx.ART_MENU, (16, 16)))
+            item.SetBitmap(popupRow['icon'])
             self.popupmenu.Append(item)
             self.Bind(wx.EVT_MENU, popupRow['eventMethod'], item)
 #             deleteMenuItem = wx.MenuItem(menu, wx.ID_DELETE, "Delete \t Delete")
@@ -728,6 +729,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                 panel.Show()
             pane.dock_direction = tabDirection
             pane.Show(True)
+        self._mgr.Update()
 
     def onOtherView(self, event):
         logger.debug('onOtherView')

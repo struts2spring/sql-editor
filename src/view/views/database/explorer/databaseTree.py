@@ -9,7 +9,8 @@ from wx import TreeCtrl
 import logging.config
 from src.view.constants import LOG_SETTINGS, ID_ROOT_REFERESH, ID_DISCONNECT_DB, \
     ID_CONNECT_DB, ID_newWorksheet, ID_CONNECTION_PROPERTIES, ID_IMPORT, \
-    ID_deleteWithDatabase, keyMap
+    ID_deleteWithDatabase, keyMap, ID_EXPORT, ID_SELECT_SQL, ID_INSERT_SQL, ID_UPDATE_SQL, \
+    ID_DELETE_SQL
 from src.view.util.FileOperationsUtil import FileOperations
 import os
 from src.sqlite_executer.ConnectExecuteSqlite import ManageSqliteDatabase, \
@@ -21,6 +22,9 @@ from src.view.table.CreateTable import CreatingTableFrame
 import datetime
 from src.view.views.console.worksheet.tableInfoPanel import CreatingTableInfoPanel
 from src.view.schema.CreateSchemaViewer import CreateErDiagramFrame
+
+from src.view.views.database.explorer.GenerateSql import GenerateSqlFrame
+
 import itertools
 
 logging.config.dictConfig(LOG_SETTINGS)
@@ -363,10 +367,15 @@ class DatabaseTree(TreeCtrl):
             
             if dataSourceTreeNode.dataSource.isConnected :
                 if dataSourceTreeNode.nodeType in ('table', 'folder_table') :  # and 'table' in self.GetItemText(nodes[0])
-                    importBmp = wx.MenuItem(menu, ID_IMPORT, "&Import CSV / Excel")
+                    importBmp = wx.MenuItem(menu, ID_IMPORT, "&Import Data")
                     importBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="import.png")))
                     importMenu = menu.Append(importBmp) 
                     self.Bind(wx.EVT_MENU, lambda e: self.onImport(e, nodes), importMenu)
+                    
+                    exportBmp = wx.MenuItem(menu, ID_EXPORT, "&Export Data")
+                    exportBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="export.png")))
+                    exportMenu = menu.Append(exportBmp) 
+                    self.Bind(wx.EVT_MENU, lambda e: self.onExport(e, nodes), exportMenu)
                 
                 if dataSourceTreeNode.nodeType == 'connection':
                     sqlEditorBmp = wx.MenuItem(menu, ID_newWorksheet, "SQL Editor in new Tab")
@@ -374,6 +383,26 @@ class DatabaseTree(TreeCtrl):
                     item3 = menu.Append(sqlEditorBmp)
                     self.Bind(wx.EVT_MENU, lambda e: self.onOpenSqlEditorTab(e, nodes), item3)
                 if dataSourceTreeNode.nodeType == 'table':
+                    secondLevelMenuItem = wx.Menu()
+#                     generateBmp = wx.MenuItem(menu, wx.ID_ANY, "Generate SQL")
+#                     generateBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="table_edit.png")))
+#                     generateItem = menu.Append(generateBmp)
+
+                    secondLevelMenuList = [
+                                            [ID_SELECT_SQL, "SELECT"],
+                                            [ID_INSERT_SQL, "INSERT"],
+                                            [ID_UPDATE_SQL, "UPDATE"],
+                                            [ID_DELETE_SQL, "DELETE"],
+                                            
+                                        ]
+                    for secondLevelMenu in secondLevelMenuList:
+                        menuItem = wx.MenuItem(secondLevelMenuItem, secondLevelMenu[0], secondLevelMenu[1]) 
+                        menuItem.SetBitmap(self.fileOperations.getImageBitmap(imageName="textfield.png"))
+                        secondLevelMenuItem.Append(menuItem)
+                        self.Bind(wx.EVT_MENU, lambda e: self.onGenerateSql(e, dataSourceTreeNode), id=secondLevelMenu[0])
+                    
+                    menu.Append(-1, "Generate SQL", secondLevelMenuItem)
+                    
                     editTableBmp = wx.MenuItem(menu, wx.ID_ANY, "Edit table")
                     editTableBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="table_edit.png")))
                     editTableItem = menu.Append(editTableBmp) 
@@ -394,7 +423,7 @@ class DatabaseTree(TreeCtrl):
                         
 #             if dataSourceTreeNode.depth == 1:
                 node = item = nodes[0]
-            if dataSourceTreeNode.nodeType == 'folder_table':
+            if dataSourceTreeNode.nodeType in ('folder_table', 'table'):
                 newTableBmp = wx.MenuItem(menu, wx.ID_ANY, "Create new table")
                 newTableBmp.SetBitmap(self.fileOperations.getImageBitmap(imageName="table_add.png"))
                 newTableItem = menu.Append(newTableBmp)                 
@@ -494,6 +523,23 @@ class DatabaseTree(TreeCtrl):
 
         self.Bind(wx.EVT_MENU, lambda e: self.onRefresh(e, nodes), rootRefresh)
         return menu
+
+    def onGenerateSql(self, event, dataSourceTreeNode=None):
+        logger.debug('onGenerateSql')
+        sqlText = ''
+        manageSqliteDatabase = ManageSqliteDatabase(connectionName=dataSourceTreeNode.dataSource.connectionName ,
+                                                    databaseAbsolutePath=dataSourceTreeNode.dataSource.filePath)
+        if event.Id == ID_SELECT_SQL:
+            sqlText = manageSqliteDatabase.getSelectForTable(dataSourceTreeNode.nodeLabel)
+        if event.Id == ID_INSERT_SQL:
+            sqlText = manageSqliteDatabase.getInsertForTable(dataSourceTreeNode.nodeLabel)
+        if event.Id == ID_UPDATE_SQL:
+            sqlText = manageSqliteDatabase.getUpdateForTable(dataSourceTreeNode.nodeLabel)
+        if event.Id == ID_DELETE_SQL:
+            sqlText = manageSqliteDatabase.getDeleteForTable(dataSourceTreeNode.nodeLabel)
+        logger.debug(f'{sqlText}')
+        frame = GenerateSqlFrame(None, 'Generate Sql',size=(513, 441), sqlText=sqlText)
+        frame.Show()
 
     def onDeleteWithDatabaseTable(self, event, nodes=None):
         logger.debug('onDeleteWithDatabaseTable')
@@ -660,6 +706,9 @@ class DatabaseTree(TreeCtrl):
         if event.Id == ID_CONNECTION_PROPERTIES:
             logger.debug('onProperties')
         
+    def onExport(self, event, nodes):
+        logger.debug('onExport')
+
     def onImport(self, event, nodes):
         logger.debug('onImport')
         for node in nodes:
