@@ -75,18 +75,67 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
     #---------------------------------------------
     def onTabRightup1(self, event):
         logger.debug('rightdown PopUp')
+        _mgr = self._mgr
         currentlySelectedPage = event.GetSelection()
         logger.debug("onTabRightDown: currentlySelectedPage %s", currentlySelectedPage)
+        pageInfo = event.GetEventObject().GetPageInfo(currentlySelectedPage)
         
+        def onCloseTab(event=None, pageInfo=None):
+            logger.debug("onCloseTab")
+            logger.debug("currentlySelectedPage %s", pageInfo)
+            self._mgr.ClosePane(self._mgr.GetPaneByWidget(pageInfo.window))
+#             self._mgr.Update()
+            # TODO:  need to work
+    
+        def onCloseOthersTabs(event=None, pageInfo=None):
+            logger.debug("onCloseOthersTabs")
+            logger.debug("currentlySelectedPage %s", currentlySelectedPage)
+            for pane in _mgr.GetAllPanes():
+                selectedPane=_mgr.GetPaneByWidget(pageInfo.window)
+                if selectedPane.dock_direction==pane.dock_direction and selectedPane.window.GetId() != pane.window.GetId():
+                    _mgr.ClosePane(pane)
+            _mgr.Update()
+            # TODO:  need to work
+    
+        def onCloseLeftTabs(event=None, pageInfo=None):
+            logger.debug("onCloseLeftTabs")
+            logger.debug("currentlySelectedPage %s", currentlySelectedPage)
+            for pane in _mgr.GetAllPanes():
+                selectedPane=_mgr.GetPaneByWidget(pageInfo.window)
+                if selectedPane.dock_direction==pane.dock_direction and selectedPane.dock_pos > pane.dock_pos:
+                    _mgr.ClosePane(pane)
+            _mgr.Update()
+            # TODO:  need to work
+    
+        def onCloseRightTabs(event=None, pageInfo=None):
+            logger.debug("onCloseRightTabs")
+            logger.debug("currentlySelectedPage %s", currentlySelectedPage)
+            for pane in _mgr.GetAllPanes():
+                selectedPane=_mgr.GetPaneByWidget(pageInfo.window)
+                if selectedPane.dock_direction==pane.dock_direction and selectedPane.dock_pos < pane.dock_pos:
+                    _mgr.ClosePane(pane)
+            _mgr.Update()
+            # TODO:  need to work
+    
+        def onCloseAllTabs(event=None, pageInfo=None):
+            logger.debug("onCloseAllTabs")
+            logger.debug("currentlySelectedPage %s", currentlySelectedPage)
+            for pane in _mgr.GetAllPanes():
+                selectedPane=_mgr.GetPaneByWidget(pageInfo.window)
+                if selectedPane.dock_direction==pane.dock_direction:
+                    _mgr.ClosePane(pane)
+            _mgr.Update()
         pos = self.ScreenToClient(wx.GetMousePosition())
         self.popupmenu = wx.Menu()
         popupList = [
-            {'label':'Close', 'icon':wx.ART_CLOSE, "eventMethod": lambda event: self.onCloseTab(event, currentlySelectedPage)},
-            {'label':'Close Others', 'icon':wx.ART_CLOSE, "eventMethod":lambda event: self.onCloseOthersTabs(event, currentlySelectedPage)},
-            {'label':"Close Other tabs to the left", 'icon':wx.ART_CLOSE, "eventMethod":lambda event: self.onCloseLeftTabs(event, currentlySelectedPage)},
-            {'label':'Close Other tabs to the right', 'icon':wx.ART_CLOSE, "eventMethod":lambda event: self.onCloseRightTabs(event, currentlySelectedPage)},
-            {'label':'Close &All', 'icon':wx.ART_CLOSE, "eventMethod":self.onCloseAllTabs}
+            {'label':'Close', 'icon':wx.ART_CLOSE, "eventMethod": lambda event: onCloseTab(event, pageInfo)},
+            {'label':'Close Others', 'icon':wx.ART_CLOSE, "eventMethod":lambda event: onCloseOthersTabs(event, pageInfo)},
+            {'label':"Close Other tabs to the left", 'icon':wx.ART_CLOSE, "eventMethod":lambda event: onCloseLeftTabs(event, pageInfo)},
+            {'label':'Close Other tabs to the right', 'icon':wx.ART_CLOSE, "eventMethod":lambda event: onCloseRightTabs(event, pageInfo)},
+            {'label':'Close &All', 'icon':wx.ART_CLOSE, "eventMethod":lambda event: onCloseAllTabs(event, pageInfo)}
             ]
+
+            # TODO:  need to work
         for popupRow in popupList:
             itemId = wx.ID_ANY
             item = wx.MenuItem(self.popupmenu, itemId, popupRow['label'])
@@ -103,31 +152,6 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 #             self.Bind(wx.EVT_MENU, self.onOpenSqlEditorTab, item3)
             
         self.PopupMenu(self.popupmenu, pos)
-
-    def onCloseTab(self, event=None, currentlySelectedPage=None):
-        logger.debug("onCloseTab")
-        logger.debug("currentlySelectedPage %s", currentlySelectedPage)
-        # TODO:  need to work
-
-    def onCloseOthersTabs(self, event=None, currentlySelectedPage=None):
-        logger.debug("onCloseOthersTabs")
-        logger.debug("currentlySelectedPage %s", currentlySelectedPage)
-        # TODO:  need to work
-
-    def onCloseLeftTabs(self, event=None, currentlySelectedPage=None):
-        logger.debug("onCloseLeftTabs")
-        logger.debug("currentlySelectedPage %s", currentlySelectedPage)
-        # TODO:  need to work
-
-    def onCloseRightTabs(self, event=None, currentlySelectedPage=None):
-        logger.debug("onCloseRightTabs")
-        logger.debug("currentlySelectedPage %s", currentlySelectedPage)
-        # TODO:  need to work
-
-    def onCloseAllTabs(self, event=None, currentlySelectedPage=None):
-        logger.debug("onCloseAllTabs")
-        logger.debug("currentlySelectedPage %s", currentlySelectedPage)
-        # TODO:  need to work
 
     def startWebHelp(self):
         '''

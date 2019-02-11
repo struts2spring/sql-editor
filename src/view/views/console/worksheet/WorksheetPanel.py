@@ -22,6 +22,7 @@ from src.view.views.database.explorer.databaseTree import DataSourceTreeNode, \
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 from src.view.AutoCompleteTextCtrl import TextCtrlAutoComplete
 from wx.lib.pubsub import pub
+from src.view.util.FileOperationsUtil import FileOperations
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -250,7 +251,7 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
         wx.Panel.__init__(self, parent, id=-1)
         dataSourceTreeNode = kw['dataSourceTreeNode']
         vBox = wx.BoxSizer(wx.VERTICAL)
-
+        self.fileOperations = FileOperations()
         ####################################################################
         worksheetToolbar = self.constructWorksheetToolBar()
         self.worksheetPanel = CreatingWorksheetPanel(self)
@@ -296,43 +297,18 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
     
     def constructWorksheetToolBar(self):
         logger.debug("constructWorksheetToolBar")
-        path = os.path.abspath(__file__)
-        tail = None
-#         head, tail = os.path.split(path)
-#         print('createAuiManager',head, tail )
-        try:
-            while tail != 'src':
-                path = os.path.abspath(os.path.join(path, '..',))
-                head, tail = os.path.split(path)
-        except Exception as e:
-            logger.error(e, exc_info=True)
-        path = os.path.abspath(os.path.join(path, "images"))
-                
         # create some toolbars
         tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
                          wx.TB_FLAT | wx.TB_NODIVIDER)
         tb1.SetToolBitmapSize(wx.Size(16, 16))
-#         playImage = None
-#         if "worksheet" == os.path.split(os.getcwd())[-1:][0]:
-#             imageLocation = os.path.join("..", "..", "images")
-# #             playImage=wx.Bitmap(os.path.join("..","..", "images", "play.png"))
-#         elif "view" == os.path.split(os.getcwd())[-1:][0]:
-#             imageLocation = os.path.join("..", "images")
-#             playImage=wx.Bitmap(os.path.join("..", "images", "play.png"))
-            
-#         playImage=wx.Bitmap(os.path.join(imageLocation, "sql_exec.png"))
-        tb1.AddTool(ID_RUN, "Run F5", wx.Bitmap(os.path.join(path, "webinar.png"))) 
-        tb1.AddTool(ID_executeScript, "Run Script  F9", bitmap=wx.Bitmap(os.path.join(path, "sql_script_exec.png")))
+
+        tb1.AddTool(ID_RUN, "Run", self.fileOperations.getImageBitmap("webinar.png"), shortHelp="Run   (Ctrl+Enter)") 
+        tb1.AddTool(ID_executeScript, "Run Script  F9", self.fileOperations.getImageBitmap("sql_script_exec.png"), shortHelp="Run Script  F9")
         tb1.AddSeparator()
-        tb1.AddTool(ID_SPELL_CHECK, "Spelling check", wx.Bitmap(os.path.join(path, "abc.png")))
+        tb1.AddTool(ID_SPELL_CHECK, "Spelling check", self.fileOperations.getImageBitmap("abc.png"), shortHelp="Spelling check")
         
-        tb1.AddTool(ID_SQL_LOG, "Sql history", wx.Bitmap(os.path.join(path, "sql.png")))
+        tb1.AddTool(ID_SQL_LOG, "Sql history", self.fileOperations.getImageBitmap("sql.png"), shortHelp="Sql history")
         
-#         tb1.AddLabelTool(id=ID_openConnection, label="Open Connection", shortHelp="Open Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "open.png")))
-#         tb1.AddLabelTool(id=ID_newConnection, label="Open Connection", shortHelp="Open Connection", bitmap=wx.Bitmap(os.path.join("..", "images", "open.png")))
-#         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_INFORMATION))
-#         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_WARNING))
-#         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_MISSING_IMAGE))
         tb1.Realize()
         
         return tb1     
