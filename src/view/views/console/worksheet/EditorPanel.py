@@ -920,12 +920,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         
         ##################################################################################
         selectedItemText, dbFilePath = self.findingConnectionName()
-#         sqlExecuter = SQLExecuter(database='_opal.sqlite')
-#         textCtrl = self.GetTopLevelParent()._ctrl
-#         selectedItemText = textCtrl.GetValue()
-#         dbFilePath = sqlExecuter.getDbFilePath(selectedItemText)
-#         logger.debug("dbFilePath: %s", dbFilePath)
-        
+
         ##################################################################################
         logger.debug('executeSQL: %s' , sqlText)
         try:
@@ -939,9 +934,12 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                     now = datetime.datetime.now()
                     strftime = now.strftime("%Y-%m-%d %H:%M:%S")
                     newline = "\n"
-                    if self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.Value.strip() == "":
-                        newline = ""
-                    self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.AppendText("{}{} {}".format(newline, strftime, oe))
+                    try:
+                        if self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.Value.strip() == "":
+                            newline = ""
+                        self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.AppendText("{}{} {}".format(newline, strftime, oe))
+                    except Exception as e:
+                        pass
 #                     self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window.text.AppendText("\n" + str(oe))
                 except Exception as e:
                     logger.error(e, exc_info=True)
@@ -957,7 +955,10 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 duration = endTime - startTime
                 if selectedItemText:
                     self.updateSqlLog(sqlText, duration, connectionName=selectedItemText)
-                
+                    
+                if self.GetGrandParent().GetParent().resultPanel._nb.GetCurrentPage().pin:
+                    logger.debug('adding a new tab')
+                    self.GetGrandParent().GetParent().resultPanel.addTab()
                 creatingWorksheetPanel = self.GetGrandParent().GetParent()
                 creatingWorksheetPanel.setResultData(data=sqlOutput)
 #                 creatingWorksheetPanel = self.GetTopLevelParent()._mgr.GetPane("centerPane").window.GetChildren()[0].GetCurrentPage().Children[1]
@@ -967,6 +968,10 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 if sqlOutput and resultListPanel._nb.GetCurrentPage():
                     resultListPanel._nb.GetCurrentPage().bottomResultToolbar.SetStatusText('Count: {}'.format(len(sqlOutput) - 1))
                     resultListPanel._nb.GetCurrentPage().resultPanel.addData(data=sqlOutput)
+#                 else:
+#                     # logic to add a new tab in result
+#                     logger.debug('adding a new tab')
+#                     self.GetGrandParent().GetParent().resultPanel.addTab()
         except TypeError as te:
             logger.error(te, exc_info=True)
             if not dbFilePath:

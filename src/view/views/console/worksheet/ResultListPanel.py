@@ -3,6 +3,7 @@ import wx
 import wx.dataview as dv
 from src.view.views.console.worksheet.ResultGrid import ResultDataGrid
 from src.view.util.FileOperationsUtil import FileOperations
+from wx import ITEM_CHECK
 try:
     from agw import aui
     from agw.aui import aui_switcherdialog as ASD
@@ -10,9 +11,9 @@ except ImportError:  # if it's not there locally, try the wxPython lib.
     import wx.lib.agw.aui as aui
     from wx.lib.agw.aui import aui_switcherdialog as ASD
 import os
-from src.view.constants import ID_RUN,ID_EXECUTE_SCRIPT, ID_RESULT_REFRESH,\
-    ID_ROW_ADD, ID_ROW_DELETE, ID_RESULT_NEXT, ID_RESULT_PREVIOUS,\
-    ID_APPLY_CHANGE, ID_RESULT_FIRST, ID_RESULT_LAST
+from src.view.constants import ID_EXECUTE_SCRIPT, ID_RESULT_REFRESH, \
+    ID_ROW_ADD, ID_ROW_DELETE, ID_RESULT_NEXT, ID_RESULT_PREVIOUS, \
+    ID_APPLY_CHANGE, ID_RESULT_FIRST, ID_RESULT_LAST, ID_PIN, ID_RUN
 import logging.config
 from src.view.constants import LOG_SETTINGS
 
@@ -33,7 +34,9 @@ logger = logging.getLogger('extensive')
 # For this example our data is stored in a simple list of lists.  In
 # real life you can use whatever you want or need to hold your data.
 
+
 class ResultModel(dv.PyDataViewIndexListModel):
+
     def __init__(self, data):
         dv.PyDataViewIndexListModel.__init__(self, len(data))
         self.data = data
@@ -59,19 +62,18 @@ class ResultModel(dv.PyDataViewIndexListModel):
 
     # Report the number of rows in the model
     def GetCount(self):
-        #print('GetCount')
+        # print('GetCount')
         return len(self.data)
     
     # Called to check if non-standard attributes should be used in the
     # cell at (row, col)
     def GetAttrByRow(self, row, col, attr):
-        ##print('GetAttrByRow: (%d, %d)' % (row, col))
+        # #print('GetAttrByRow: (%d, %d)' % (row, col))
         if col == 3:
             attr.SetColour('gray')
             attr.SetBold(True)
             return True
         return False
-
 
     # This is called to assist with sorting the data in the view.  The
     # first two args are instances of the DataViewItem class, so we
@@ -80,15 +82,14 @@ class ResultModel(dv.PyDataViewIndexListModel):
     # data set and comparing them.  The return value is -1, 0, or 1,
     # just like Python's cmp() function.
     def Compare(self, item1, item2, col, ascending):
-        if not ascending: # swap sort order?
+        if not ascending:  # swap sort order?
             item2, item1 = item1, item2
         row1 = self.GetRow(item1)
         row2 = self.GetRow(item2)
         if col == 0:
-            return (int(self.data[row1][col])> int(self.data[row2][col])) -(int(self.data[row1][col])< int(self.data[row2][col]))
+            return (int(self.data[row1][col]) > int(self.data[row2][col])) - (int(self.data[row1][col]) < int(self.data[row2][col]))
         else:
-            return (int(self.data[row1][col])> int(self.data[row2][col])) -(int(self.data[row1][col])< int(self.data[row2][col]))
-
+            return (int(self.data[row1][col]) > int(self.data[row2][col])) - (int(self.data[row1][col]) < int(self.data[row2][col]))
         
     def DeleteRows(self, rows):
         # make a copy since we'll be sorting(mutating) the list
@@ -102,24 +103,23 @@ class ResultModel(dv.PyDataViewIndexListModel):
             # notify the view(s) using this model that it has been removed
             self.RowDeleted(row)
             
-            
     def AddRow(self, value):
         # update data structure
         self.data.append(value)
         # notify views
         self.RowAppended()
-
         
             
 class ResultPanel(wx.Panel):
-    def __init__(self, parent,model=None, data=None):
+
+    def __init__(self, parent, model=None, data=None):
         wx.Panel.__init__(self, parent, -1)
-        self.data=data
+        self.data = data
         # Create a dataview control
         self.dvc = dv.DataViewCtrl(self,
                                    style=wx.BORDER_THEME
-                                   | dv.DV_ROW_LINES # nice alternating bg colors
-                                   #| dv.DV_HORIZ_RULES
+                                   | dv.DV_ROW_LINES  # nice alternating bg colors
+                                   # | dv.DV_HORIZ_RULES
                                    | dv.DV_VERT_RULES
                                    | dv.DV_MULTIPLE
                                    )
@@ -130,9 +130,7 @@ class ResultPanel(wx.Panel):
 #         else:
 #             self.model = model            
 
-
 #         self.createDataViewCtrl()
-
 
         # set the Sizer property (same as SetSizer)
         self.Sizer = wx.BoxSizer(wx.VERTICAL) 
@@ -150,19 +148,20 @@ class ResultPanel(wx.Panel):
 #         btnbox.Add(b1, 0, wx.LEFT|wx.RIGHT, 5)
 #         btnbox.Add(b2, 0, wx.LEFT|wx.RIGHT, 5)
 #         btnbox.Add(b3, 0, wx.LEFT|wx.RIGHT, 5)
-        self.Sizer.Add(self.constructBottomResultToolBar(), 0, wx.TOP|wx.BOTTOM, 5)
+        self.Sizer.Add(self.constructBottomResultToolBar(), 0, wx.TOP | wx.BOTTOM, 5)
 
         # Bind some events so we can see what the DVC sends us
         self.Bind(dv.EVT_DATAVIEW_ITEM_EDITING_DONE, self.OnEditingDone, self.dvc)
         self.Bind(dv.EVT_DATAVIEW_ITEM_VALUE_CHANGED, self.OnValueChanged, self.dvc)
 
-    def setModel(self, model=None,data=None):
+    def setModel(self, model=None, data=None):
         # Create an instance of our simple model...
         if model is None:
             self.model = ResultModel(data)
         else:
             self.model = model      
-    def createDataViewCtrl(self,data=None, headerList=None):
+
+    def createDataViewCtrl(self, data=None, headerList=None):
 
         # ...and associate it with the dataview control.  Models can
         # be shared between multiple DataViewCtrls, so this does not
@@ -171,7 +170,7 @@ class ResultPanel(wx.Panel):
         # need to hold a reference to it either, but we do for this
         # example so we can fiddle with the model from the widget
         # inspector or whatever.
-        self.setModel( data=data)
+        self.setModel(data=data)
         self.dvc.AssociateModel(self.model)
 
         # Now we create some columns.  The second parameter is the
@@ -180,7 +179,7 @@ class ResultPanel(wx.Panel):
         # using the same model that show different columns of data, or
         # that they can be in a different order than in the model.
         for header in headerList:
-            self.dvc.AppendTextColumn(header,  1, width=170, mode=dv.DATAVIEW_CELL_EDITABLE)
+            self.dvc.AppendTextColumn(header, 1, width=170, mode=dv.DATAVIEW_CELL_EDITABLE)
 #         self.dvc.AppendTextColumn("Title",   2, width=260, mode=dv.DATAVIEW_CELL_EDITABLE)
 #         self.dvc.AppendTextColumn("Genre",   3, width=80,  mode=dv.DATAVIEW_CELL_EDITABLE)
 
@@ -233,7 +232,6 @@ class ResultPanel(wx.Panel):
 #                  'genre %d' % id]
 #         self.model.AddRow(value)
 #         pass
-                
 
     def OnEditingDone(self, evt):
         print("OnEditingDone\n")
@@ -244,7 +242,7 @@ class ResultPanel(wx.Panel):
     def constructBottomResultToolBar(self):
         
         # create some toolbars
-        tb1 =  aui.AuiToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
+        tb1 = aui.AuiToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
                          wx.TB_FLAT | wx.TB_NODIVIDER)
         tb1.SetToolBitmapSize(wx.Size(16, 16))
         path = os.path.abspath(__file__)
@@ -289,15 +287,17 @@ class ResultPanel(wx.Panel):
 
 #         sizer.Fit(self)
 class CreatingResultWithToolbarPanel(wx.Panel):
+
     def __init__(self, parent=None, *args, **kw):
-        wx.Panel.__init__(self, parent, id=-1, style=wx.CLIP_CHILDREN|wx.BORDER_NONE)
+        wx.Panel.__init__(self, parent, id=-1, style=wx.CLIP_CHILDREN | wx.BORDER_NONE)
         self.parent = parent
-        self.data=list()
+        self.data = list()
+        self.pin = False
         vBox = wx.BoxSizer(wx.VERTICAL)
         self.fileOperations = FileOperations()
         ####################################################################
         self.topResultToolbar = self.constructTopResultToolBar()
-        self.bottomResultToolbar=wx.StatusBar(self)
+        self.bottomResultToolbar = wx.StatusBar(self)
         self.bottomResultToolbar.SetStatusText('Count: {}'.format(len(self.getData())))
 #         self.bottomResultToolbar = self.constructBottomResultToolBar()
 #         self.resultPanel = ResultPanel(self, data=self.getData())
@@ -329,6 +329,7 @@ class CreatingResultWithToolbarPanel(wx.Panel):
         self.statusbar = wx.StatusBar(self).Create(self)
 #         self.statusbar.SetStatusText('This goes in your statusbar')
         return self.statusbar   
+
     def constructTopResultToolBar(self):
 #         path = os.path.abspath(__file__)
 #         tail = None
@@ -352,22 +353,31 @@ class CreatingResultWithToolbarPanel(wx.Panel):
 # 
 #         elif "view" == os.path.split(os.getcwd())[-1:][0]:
 #             imageLocation = os.path.join("..", "images")
-        tb1.AddTool(ID_RUN, "Pin", self.fileOperations.getImageBitmap(imageName="pin2_green.png"))
-        tb1.AddTool(ID_EXECUTE_SCRIPT, "Result refresh", self.fileOperations.getImageBitmap(imageName="resultset_refresh.png"))
+        tb1.AddTool(ID_PIN, "Pin", self.fileOperations.getImageBitmap(imageName="pin2_green.png"), shortHelp="Pin", kind=ITEM_CHECK)
+        tb1.AddTool(ID_RUN, "Result refresh", self.fileOperations.getImageBitmap(imageName="resultset_refresh.png"), shortHelp="Refresh")
+        
+        self.Bind(wx.EVT_MENU, self.onPinClick, id=ID_PIN)
         tb1.AddSeparator()
 
         tb1.Realize()
         
         return tb1     
-  
+
+    def onPinClick(self, event):
+        logger.debug(f'onPinClick:{self.pin}')
+        self.pin = not self.pin
+
     def getData(self):
         # Get the data from the ListCtrl sample to play with, converting it
         # from a dictionary to a list of lists, including the dictionary key
         # as the first element of each sublist.
 #         self.data=music
         return self.data
+
+
 #---------------------------------------------------------------------------
 class CreateResultSheetTabPanel(wx.Panel):
+
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
@@ -392,10 +402,11 @@ class CreateResultSheetTabPanel(wx.Panel):
         self.__DoLayout()
         
     def addTab(self, name='Start Page'):
-        resultSheetPanel = CreatingResultWithToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN|wx.BORDER_NONE)
+        resultSheetPanel = CreatingResultWithToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN | wx.BORDER_NONE)
 #             worksheetPanel.worksheetPanel.editorPanel
-        name='ResultSheet '
-        self._nb.AddPage(resultSheetPanel, name)      
+        name = 'ResultSheet '
+        self._nb.AddPage(resultSheetPanel, name)
+        self._nb.SetSelectionToWindow(resultSheetPanel)
         self.Bind(aui.EVT_AUINOTEBOOK_TAB_RIGHT_DOWN, self.onTabRightDown, self._nb)
         self.Bind(aui.EVT_AUINOTEBOOK_BG_DCLICK, self.onBgDoubleClick, self._nb)  
         self.Bind(aui.EVT_AUINOTEBOOK_PAGE_CLOSE, self.onCloseClick, self._nb)  
@@ -407,12 +418,13 @@ class CreateResultSheetTabPanel(wx.Panel):
         self.SetAutoLayout(True)
         self.SetSizer(sizer)
         self.Layout()
+
     def SetCurrentPage(self, page):
         """
         Set the current page to the page given
         """
         n = self._nb.GetPageIndex(page)
-        if n!=-1:
+        if n != -1:
             self._nb.SetSelection(n)
             return True
         return False    
@@ -421,8 +433,8 @@ class CreateResultSheetTabPanel(wx.Panel):
         """
         Get the current active Page page
         """
-        num  = self._nb.GetSelection()
-        if num==-1:
+        num = self._nb.GetSelection()
+        if num == -1:
             page = None
         else:
             page = self._nb.GetPage(num)
@@ -434,27 +446,27 @@ class CreateResultSheetTabPanel(wx.Panel):
         """
         npages = self._nb.GetPageCount()
         res = []
-        for n in range(0,npages):
+        for n in range(0, npages):
             page = self._nb.GetPage(n)
             if isinstance(page, page_type):
                 res.append(page)
         return res                
-    def onTabRightDown(self,event):
+
+    def onTabRightDown(self, event):
         logger.debug('onTabRightDown')
         
-    def onBgDoubleClick(self,event):
+    def onBgDoubleClick(self, event):
         logger.debug('onBgDoubleClick')
         
-    def onCloseClick(self,event):
+    def onCloseClick(self, event):
         logger.debug('onCloseClick')
         self.GetCurrentPage()
+
 
 #---------------------------------------------------------------------------
 if __name__ == '__main__':
     app = wx.App(False)
     frame = wx.Frame(None)
-    
-    
 
 #     panel = ResultPanel(frame, data=musicdata)
     panel = CreateResultSheetTabPanel(frame)
