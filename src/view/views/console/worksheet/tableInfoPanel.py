@@ -208,14 +208,9 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
             logger.error(e, exc_info=True)
             
         if tabName == 'Columns':
-            if not tableData:
-                tableData = {
-                            0:("#", "Name", "Datatype", "PRIMARY KEY", "Nullable", "Unique", "Auto increment", "Default data", "Description")
-                        }
             resultPanel = ResultDataGrid(self, data=None)
-            sqlParser = SqlParser()
-            tableData = sqlParser.getColumn(createSql=sqlData)
-            resultPanel.addData(tableData)
+            rows=db.executeText(f"pragma table_info('{tableName}');")
+            resultPanel.addData(rows)
         elif tabName == 'Indexes':
             resultPanel = ResultDataGrid(self, data=None)
             
