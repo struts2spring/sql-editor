@@ -33,10 +33,11 @@ class SqlType():
         
 class Column():
     '''
-    @param sequence: 
-    @param name: 
-    @param dataType: 
-    @param nullable: 
+    @param sequence: int 
+    @param name: text
+    @param dataType: text
+    @param nullable: 0 or 1
+    @param primaryKey: 0 or 1 for primary key
     '''
 
     def __init__(self, sequence, name, dataType, nullable, defultValue, primaryKey):
@@ -130,12 +131,12 @@ class SQLExecuter():
         return returnRows
     
     def getColumns(self, tableName=None):
-        logger.debug(f'tableName: {tableName}')
+        logger.debug(f'tableName: `{tableName}`')
         columns = list()
         try:
             with self.conn:    
                 cur = self.conn.cursor() 
-                rows = cur.execute(f"pragma table_info('{tableName}')").fetchall()
+                rows = cur.execute(f"pragma table_info(`{tableName}`)").fetchall()
                 for row in rows:
                     columns.append(Column(row[0], row[1], row[2], row[3], row[4], row[5]))
         except Exception as e:
@@ -149,7 +150,7 @@ class SQLExecuter():
         try:
             with self.conn:    
                 cur = self.conn.cursor() 
-                sql = "SELECT name, sql FROM sqlite_master WHERE type='table' AND name = '" + tableName + "';"
+                sql = f"SELECT name, sql FROM sqlite_master WHERE type='table' AND name = `{tableName}`;"
                 rows = cur.execute(sql).fetchall()
                 tableCreateStmt = rows[0][1]
                 match = re.findall(r'[^[]*\[([^]]*)\]', tableCreateStmt)
@@ -311,9 +312,7 @@ class SQLExecuter():
             
             sqliteTypes = cur.execute("select distinct type from sqlite_master;").fetchall()
             for sqliteType in sqliteTypes:
-                query = f"""select * from sqlite_master where type='{sqliteType[0]}' 
-                    AND name NOT LIKE 'sqlite_%' 
-                    AND name != 'SAMPLE' ;
+                query = f"""select * from sqlite_master where type`{sqliteType[0]}` \nAND name NOT LIKE 'sqlite_%' \nAND name != 'SAMPLE' ;
                 """
                 logger.debug(query)
                 queryResult = cur.execute(query).fetchall()
@@ -328,77 +327,6 @@ class SQLExecuter():
             pass
         return sqlTypeObjectList
 
-#     def getObject(self):
-#     
-#         con = None
-#         
-#         try:
-# #             self.connection = sqlite3.connect('_opal.sqlite')
-#             cur = self.conn.cursor()    
-#             cur.execute('SELECT SQLITE_VERSION()')
-#             
-#             data = cur.fetchone()
-#             
-#             logger.debug("SQLite version: %s" % data)   
-#             cur.execute("select tbl_name from sqlite_master where type='table' AND name NOT LIKE 'sqlite_%';")
-#             types = cur.execute("select distinct type from sqlite_master;").fetchall()
-#             databaseList = list()
-#             dbObjects = list()
-# #             logger.debug types
-#             for sqliteType in types:
-# #                 logger.debug t[0], type(t)
-#                 tObjectArrayList = list()
-#                 query = f"select tbl_name from sqlite_master where type='{sqliteType[0]}' order by tbl_name AND name NOT LIKE 'sqlite_%' AND name!='SAMPLE' ;"
-#                 logger.debug(query)
-#                 tObjectList = cur.execute(query).fetchall()
-#                 tableColumnList = list()
-#                 for tObj in tObjectList:
-#                     if sqliteType[0] == 'table' or sqliteType[0] == 'index':
-#                         tableColumnsOrIndexesSql = "PRAGMA {}_info('{}');".format(sqliteType[0], tObj[0])
-#                         logger.debug(tableColumnsOrIndexesSql)
-#                         tableColumnsOrIndexesList = cur.execute(tableColumnsOrIndexesSql).fetchall()
-# #                         logger.debug objChildList
-#                         tableColumnsOrIndexes = list()
-#                         for objChild in tableColumnsOrIndexesList:
-#                             tableColumnsOrIndexes.append(objChild)
-# #                             logger.debug objChild
-#                         tableColumnList.append([tObj[0], tableColumnsOrIndexes])
-#                     if sqliteType[0] == 'view':
-#                         tableColumnList.append([tObj[0], []])
-#                         logger.debug('view')
-#                         
-# #                     if t[0] == 'index':
-# #                         tablesHavingIndexesSql = "PRAGMA " + t[0] + "_info(%s);" % tObj[0]
-# #                         tablesHavingIndexesList = cur.execute(tablesHavingIndexesSql).fetchall()
-# #                         logger.debug tablesHavingIndexesSql
-# #                         for tableHavingIndexes in tablesHavingIndexesList:
-# #                             tableIndexesSql = "PRAGMA " + t[0] + "_list(%s);" % tObj[0]
-# # #                         logger.debug objChildList
-# #                         tableColumnsOrIndexes = list()
-# #                         for objChild in tableColumnsOrIndexesList:
-# #                             tableColumnsOrIndexes.append(objChild)
-#                         
-# #                         logger.debug tableColumnList
-# #                 tObjectArrayList.append(tableColumnList)
-# #                 logger.debug tObjectArrayList
-#                 dbObjects.append((sqliteType[0], tableColumnList))
-#             logger.debug(dbObjects)
-# #                 dbObjects.append(tObjectArrayList)
-# #             logger.debug dbObjects
-# #             logger.debug cur.fetchallDict()
-# #             for row in cur.execute("select tbl_name from sqlite_master where type='table';"):
-# #                 logger.debug row                
-#             
-# #             data = cur.fetchone()
-#         except sqlite3.Error as e:
-#             logger.error(e, exc_info=True)
-#         finally:
-#             pass
-# #             if self.conn:
-# #                 self.conn.close()
-#         databaseList.append('_opal')
-#         databaseList.append(dbObjects)
-#         return databaseList
     
     def getListDatabase(self):
         '''
@@ -417,7 +345,7 @@ class SQLExecuter():
     def getDbFilePath(self, connectionName=None):
         dbFilePath = None
         if connectionName:
-            sqlScript = "select db_file_path from conns where connection_name= '{}'".format(connectionName)
+            sqlScript = f"select db_file_path from conns where connection_name= '{connectionName}'"
             cur = self.conn.cursor()   
             rows = cur.execute(sqlScript).fetchone()
             if rows:
@@ -486,8 +414,8 @@ class SQLUtils():
         except Exception as e:
             count -= 1
             logger.error(e, exc_info=True)      
-        importStatus = "Total rows {} / {} inserted.".format(count, len(sqlList) - 1)
-        logger.info("Total rows {} / {} inserted.".format(count, len(sqlList) - 1))
+        importStatus = f"Total rows {count} / {len(sqlList) - 1} inserted."
+        logger.info(f"Total rows {count} / {len(sqlList) - 1} inserted.")
         return importStatus
 
 
@@ -656,7 +584,7 @@ class ManageSqliteDatabase():
         for row in rows:
             cols = ', '.join('"{}"'.format(col) for col in row.keys())
             vals = ', '.join(':{}'.format(col) for col in row.keys())
-            sql = 'INSERT INTO "{0}" ({1}) VALUES ({2})'.format(table, cols, vals)
+            sql = f'INSERT INTO "{table}" ({cols}) VALUES ({vals});'
             
             self.conn.cursor().execute(sql, row)
         self.conn.commit()
@@ -666,7 +594,7 @@ class ManageSqliteDatabase():
             for row in rows:
                 cols = ', '.join('"{}"'.format(col) for col in row.keys())
                 vals = ', '.join(':{}'.format(col) for col in row.keys())
-                sql = 'INSERT OR REPLACE INTO "{0}" ({1}) VALUES ({2})'.format(table, cols, vals)
+                sql = f'INSERT OR REPLACE INTO "{table}" ({cols}) VALUES ({vals});'
                 self.conn.cursor().execute(sql, row)
             self.conn.commit()
         # Catch the exception
@@ -682,7 +610,7 @@ class ManageSqliteDatabase():
         if tableName:
             with self.conn:    
                 cur = self.conn.cursor() 
-                cur.execute("SELECT * FROM {}".format(tableName))
+                cur.execute(f"SELECT * FROM {tableName};")
                 rows = cur.fetchall()
                 for row in rows:
                     returnRows.append(row)
@@ -694,7 +622,7 @@ class ManageSqliteDatabase():
         try:
             with self.conn:    
                 cur = self.conn.cursor() 
-                rows = cur.execute(f"pragma table_info('{tableName}')").fetchall()
+                rows = cur.execute(f"pragma table_info('{tableName}');").fetchall()
                 for row in rows:
                     columns.append(Column(row[0], row[1], row[2], row[3], row[4], row[5]))
         except Exception as e:
@@ -704,36 +632,65 @@ class ManageSqliteDatabase():
         return columns   
     
     def getUpdateForTable(self, tableName=None):
-        return ''
+        columns = self.getColumns(tableName)
+        columnsNameText = ''
+        whereClause = None
+        for column in columns:
+            if column.primaryKey:
+                whereClauseValue = None
+                if column.dataType.lower() in ('int', 'integer', 'numeric'):
+                    whereClauseValue = 0
+                else:
+                    whereClauseValue = ''
+                whereClause = f'\nWHERE `{column.name}`={whereClauseValue}'
+            if column.dataType.lower() in ('int', 'integer', 'numeric'):
+                columnsNameText += f', `{column.name}`=0'
+#                 columnsValueList.append('0')
+            else:
+                columnsNameText += f", `{column.name}`=''"
+        columnsNameText = columnsNameText[1:]
+        sql = f'''UPDATE `{tableName}` \nSET {columnsNameText} {whereClause};'''
+        return sql
 
     def getDeleteForTable(self, tableName=None):
-        return ''
+        whereClause = None
+        columns = self.getColumns(tableName)
+        for column in columns:
+            if column.primaryKey:
+                whereClauseValue = None
+                if column.dataType.lower() in ('int', 'integer', 'numeric'):
+                    whereClauseValue = 0
+                else:
+                    whereClauseValue = ''
+                whereClause = f'\nWHERE `{column.name}`={whereClauseValue}'
+        sql = f'DELETE FROM `{tableName}` {whereClause};'
+        return sql
 
     def getInsertForTable(self, tableName=None):
         columns = self.getColumns(tableName)
-        columnsNameText = ",".join([f"'{column.name}'" for column in columns])
+        columnsNameText = ",".join([f"`{column.name}`" for column in columns])
         columnsValueList = []
         for column in columns:
             if column.dataType.lower() in ('int', 'integer', 'numeric'):
                 columnsValueList.append('0')
             else:
-                columnsValueList.append("''")
+                columnsValueList.append("NULL")
         columnsValueText = ",".join(columnsValueList)
-        insertSql = f'''INSERT OR REPLACE INTO "{tableName}" ({columnsNameText}) \nVALUES ({columnsValueText});'''
+        insertSql = f'''INSERT OR REPLACE INTO `{tableName}` ({columnsNameText}) \nVALUES ({columnsValueText});'''
         return insertSql
 
     def getSelectForTable(self, tableName=None):
         columns = self.getColumns(tableName)
-        columnsNameText = ",".join([f"{column.name}" for column in columns])
+        columnsNameText = ", ".join([f"`{column.name}`" for column in columns])
 
-        selectSql = f'''SELECT {columnsNameText} \nFROM '{tableName}'; '''
+        selectSql = f'''SELECT {columnsNameText} \nFROM `{tableName}`; '''
         return selectSql
     
     def getColumn(self, tableName=None):
         try:
             with self.conn:    
                 cur = self.conn.cursor() 
-                sql = "SELECT name, sql FROM sqlite_master WHERE type='table' AND name = '{}';".format(tableName)
+                sql = f"SELECT name, sql FROM sqlite_master WHERE type=`table` AND name = `{tableName}`;"
                 rows = cur.execute(sql).fetchall()
                 tableCreateStmt = rows[0][1]
                 match = re.findall(r'[^[]*\[([^]]*)\]', tableCreateStmt)

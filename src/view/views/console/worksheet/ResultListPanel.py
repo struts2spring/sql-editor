@@ -344,17 +344,19 @@ class CreatingResultWithToolbarPanel(wx.Panel):
 #         print('------------------------------------------------------------------------->',path)
 #         path = os.path.abspath(os.path.join(path, "images"))        
         # create some toolbars
-        tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
-                         wx.TB_FLAT | wx.TB_NODIVIDER)
-        tb1.SetToolBitmapSize(wx.Size(16, 16))
+        tb1 = aui.AuiToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize, agwStyle=aui.AUI_TB_DEFAULT_STYLE | aui.AUI_TB_OVERFLOW)
+        tb1.SetToolBitmapSize(wx.Size(42, 42))
+#         tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
+#                          wx.TB_FLAT | wx.TB_NODIVIDER)
+#         tb1.SetToolBitmapSize(wx.Size(16, 16))
 #         playImage = None
 #         if "worksheet" == os.path.split(os.getcwd())[-1:][0]:
 #             imageLocation = os.path.join("..", "..", "images")
 # 
 #         elif "view" == os.path.split(os.getcwd())[-1:][0]:
 #             imageLocation = os.path.join("..", "images")
-        tb1.AddTool(ID_PIN, "Pin", self.fileOperations.getImageBitmap(imageName="pin2_green.png"), shortHelp="Pin", kind=ITEM_CHECK)
-        tb1.AddTool(ID_RUN, "Result refresh", self.fileOperations.getImageBitmap(imageName="resultset_refresh.png"), shortHelp="Refresh")
+        tb1.AddSimpleTool(ID_PIN, "Pin", self.fileOperations.getImageBitmap(imageName="pin2_green.png"), short_help_string="Pin", kind=ITEM_CHECK)
+        tb1.AddSimpleTool(ID_RUN, "Result refresh", self.fileOperations.getImageBitmap(imageName="resultset_refresh.png"), short_help_string="Refresh")
         
         self.Bind(wx.EVT_MENU, self.onPinClick, id=ID_PIN)
         tb1.AddSeparator()

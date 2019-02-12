@@ -23,7 +23,12 @@ from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 from src.view.AutoCompleteTextCtrl import TextCtrlAutoComplete
 from wx.lib.pubsub import pub
 from src.view.util.FileOperationsUtil import FileOperations
-
+try:
+    from agw import aui
+    from agw.aui import aui_switcherdialog as ASD
+except ImportError:  # if it's not there locally, try the wxPython lib.
+    import wx.lib.agw.aui as aui
+    from wx.lib.agw.aui import aui_switcherdialog as ASD
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
@@ -298,16 +303,16 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
     def constructWorksheetToolBar(self):
         logger.debug("constructWorksheetToolBar")
         # create some toolbars
-        tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
-                         wx.TB_FLAT | wx.TB_NODIVIDER)
-        tb1.SetToolBitmapSize(wx.Size(16, 16))
-
-        tb1.AddTool(ID_RUN, "Run", self.fileOperations.getImageBitmap("webinar.png"), shortHelp="Run   (Ctrl+Enter)") 
-        tb1.AddTool(ID_executeScript, "Run Script  F9", self.fileOperations.getImageBitmap("sql_script_exec.png"), shortHelp="Run Script  F9")
-        tb1.AddSeparator()
-        tb1.AddTool(ID_SPELL_CHECK, "Spelling check", self.fileOperations.getImageBitmap("abc.png"), shortHelp="Spelling check")
+        tb1 = aui.AuiToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize, agwStyle=aui.AUI_TB_DEFAULT_STYLE | aui.AUI_TB_OVERFLOW)
         
-        tb1.AddTool(ID_SQL_LOG, "Sql history", self.fileOperations.getImageBitmap("sql.png"), shortHelp="Sql history")
+        tb1.SetToolBitmapSize(wx.Size(42, 42))
+
+        tb1.AddSimpleTool(ID_RUN, "Run", self.fileOperations.getImageBitmap("webinar.png"), short_help_string="Run   (Ctrl+Enter)") 
+        tb1.AddSimpleTool(ID_executeScript, "Run Script  F9", self.fileOperations.getImageBitmap("sql_script_exec.png"), short_help_string="Run Script  F9")
+        tb1.AddSeparator()
+        tb1.AddSimpleTool(ID_SPELL_CHECK, "Spelling check", self.fileOperations.getImageBitmap("abc.png"), short_help_string="Spelling check")
+        
+        tb1.AddSimpleTool(ID_SQL_LOG, "Sql history", self.fileOperations.getImageBitmap("sql.png"), short_help_string="Sql history")
         
         tb1.Realize()
         

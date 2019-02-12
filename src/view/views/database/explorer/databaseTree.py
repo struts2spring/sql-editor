@@ -408,11 +408,15 @@ class DatabaseTree(TreeCtrl):
                     editTableItem = menu.Append(editTableBmp) 
                     
         #             editTableItem = menu.Append(wx.ID_ANY, "Edit table ")
-                    renameTableItem = menu.Append(wx.ID_ANY, "Rename Table ")
+                    copyItemBmp = wx.MenuItem(menu,wx.ID_COPY, "Copy \tCtrl+C")
+                    copyItemBmp.SetBitmap(self.fileOperations.getImageBitmap(imageName="copy_edit_co.png"))
+                    copyItemItem = menu.Append(copyItemBmp)
+                    
+                    renameTableItem = menu.Append(wx.ID_ANY, "Rename Table \tF2")
                     copyCreateTableItem = menu.Append(wx.ID_ANY, "Copy create table statement")
         
-                    deleteTableBmp = wx.MenuItem(menu, wx.ID_ANY, "&Delete table ")
-                    deleteTableBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="table_delete.png")))
+                    deleteTableBmp = wx.MenuItem(menu, wx.ID_ANY, "&Delete table \tDelete")
+                    deleteTableBmp.SetBitmap(self.fileOperations.getImageBitmap(imageName="table_delete.png"))
                     deleteTableItem = menu.Append(deleteTableBmp)
         
                     self.Bind(wx.EVT_MENU, lambda e: self.onDeleteTable(e, dataSourceTreeNode=dataSourceTreeNode, node=nodes[0]), deleteTableItem)
@@ -450,9 +454,10 @@ class DatabaseTree(TreeCtrl):
                     newColumnItem = menu.Append(wx.ID_ANY, "Add new column")
                     self.Bind(wx.EVT_MENU, lambda e: self.onNewColumn(e, dataSourceTreeNode=dataSourceTreeNode, node=node), newColumnItem)  
             elif dataSourceTreeNode.nodeType in ('column') :
-                renameColumnItem = menu.Append(wx.ID_ANY, "Rename Column ")
-    #             item1 = menu.Append(wx.ID_ANY, "Create new column")
-    #             self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
+                copyColumnItem = menu.Append(wx.ID_COPY, "Copy \tCtrl+C")
+                copyColumnItem.SetBitmap(self.fileOperations.getImageBitmap(imageName="copy_edit_co.png"))
+                renameColumnItem = menu.Append(wx.ID_ANY, "Rename Column \tF2")
+                self.Bind(wx.EVT_MENU, lambda e: self.onColumnCopy(e, dataSourceTreeNode=dataSourceTreeNode, node=node), copyColumnItem)
                 self.Bind(wx.EVT_MENU, lambda e: self.onRenameColumn(e, dataSourceTreeNode=dataSourceTreeNode, node=node), renameColumnItem)                            
         if len(nodes) == 2:
             
@@ -538,7 +543,7 @@ class DatabaseTree(TreeCtrl):
         if event.Id == ID_DELETE_SQL:
             sqlText = manageSqliteDatabase.getDeleteForTable(dataSourceTreeNode.nodeLabel)
         logger.debug(f'{sqlText}')
-        frame = GenerateSqlFrame(None, 'Generate Sql',size=(513, 441), sqlText=sqlText)
+        frame = GenerateSqlFrame(self, 'Generate Sql', size=(513, 441), sqlText=sqlText)
         frame.Show()
 
     def onDeleteWithDatabaseTable(self, event, nodes=None):
@@ -559,6 +564,22 @@ class DatabaseTree(TreeCtrl):
         self.initialize()
         ##################################################################################
 
+    def onColumnCopy(self, event, dataSourceTreeNode=None, node=None):
+        logger.debug('onColumnCopy')
+        logger.debug('onTreeCopy')
+        nodes = self.GetSelections()
+        nodeTexts = []
+        for node in nodes:
+            nodeTexts.append(self.GetItemText(node))
+        
+        self.dataObj = wx.TextDataObject()
+        self.dataObj.SetText("\n".join(nodeTexts))
+        if wx.TheClipboard.Open():
+            wx.TheClipboard.SetData(self.dataObj)
+            wx.TheClipboard.Close()
+        else:
+            wx.MessageBox("Unable to open the clipboard", "Error")
+            
     def onRenameColumn(self, event, dataSourceTreeNode=None, node=None):
         logger.debug('onRenameColumn')
         initialColumnName = self.GetItemText(node)

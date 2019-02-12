@@ -43,9 +43,10 @@ class GenerateSqlPanel(wx.Panel):
 
 class GenerateSqlFrame(wx.Frame):
 
-    def __init__(self, parent, title, size=(313, 441), sqlText='asfd'):
+    def __init__(self, parent, title, size=(313, 441), sqlText='asfd', style=wx.DEFAULT_FRAME_STYLE | wx.FRAME_FLOAT_ON_PARENT):
         wx.Frame.__init__(self, parent, -1, title, size=size,
-                          style=wx.DEFAULT_FRAME_STYLE | wx.NO_FULL_REPAINT_ON_RESIZE)
+                          style=style)
+        self.ToggleWindowStyle(wx.STAY_ON_TOP)
         self.Bind(wx.EVT_CLOSE, self.OnCloseFrame)
         self.SetMinSize((100, 100))
         sizer = wx.BoxSizer(wx.VERTICAL)        
