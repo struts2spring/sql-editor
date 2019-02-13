@@ -9,6 +9,7 @@ import wx
 import wx.stc as stc
 # from src.view.images import images
 import os, re
+from wx.lib.pubsub import pub
 # import string
 
 # from src.SqlBeautifier.sqlbeautifier import SqlBeautifierCommand
@@ -1075,7 +1076,7 @@ class CreatingEditorPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
-        
+#         pub.subscribe(self.__OnCellChange, 'OnCellChange')
         vBox = wx.BoxSizer(wx.VERTICAL)
         self.findData = wx.FindReplaceData()
         ####################################################################
@@ -1096,6 +1097,9 @@ class CreatingEditorPanel(wx.Panel):
         sizer.Add(vBox, 1, wx.EXPAND , 0)
         self.SetSizer(sizer)
 
+#     def __OnCellChange(self, sqlType=None):
+#         logger.debug(f'__OnCellChange {sqlType}')
+#         self.sstc.SetText(sqlType.getCreateSql())
 
 if __name__ == '__main__':
     app = wx.App(False)

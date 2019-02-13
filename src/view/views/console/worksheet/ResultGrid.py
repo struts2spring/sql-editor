@@ -194,6 +194,7 @@ class ResultDataGrid(gridlib.Grid):
         gridlib.Grid.__init__(self, parent, -1, style=wx.BORDER_NONE)
         self.fileOperations = FileOperations()
         self.CreateGrid(0, 0)
+        self.RowLabelSize = 32
         self.Bind(gridlib.EVT_GRID_CELL_RIGHT_CLICK, self.showGridCellPopupMenu)
         self.Bind(gridlib.EVT_GRID_LABEL_RIGHT_CLICK, self.showHeaderPopupMenu)
         self.Bind(wx.EVT_KEY_DOWN, self.OnKey)

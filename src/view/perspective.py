@@ -7,7 +7,8 @@ from src.view.AutoCompleteTextCtrl import TextCtrlAutoComplete
 from src.view.constants import *
 
 from wx.lib.agw.aui.aui_constants import actionDragFloatingPane, AUI_DOCK_NONE, \
-    ITEM_NORMAL, ITEM_CHECK, ITEM_RADIO, ID_RESTORE_FRAME
+    ITEM_NORMAL, ITEM_CHECK, ITEM_RADIO, ID_RESTORE_FRAME, \
+    AUI_BUTTON_STATE_NORMAL, AUI_BUTTON_STATE_PRESSED
 from src.view.views.file.explorer.FileBrowserPanel import FileBrowser
 from src.view.views.console.SqlOutputPanel import SqlConsoleOutputPanel
 from src.view.views.console.worksheet.WorksheetPanel import CreateWorksheetTabPanel, \
@@ -59,6 +60,7 @@ class EclipseAuiToolbar(aui.AuiToolBar):
         print(extra1)
         if extra2:
             print(extra2)
+
     def __onUpdatePageText(self, data, extra1, extra2=None):
         # no longer need to access data through message.data.
         logger.info('EclipseAuiToolbar.onUpdatePageText')
@@ -380,8 +382,7 @@ class MyAuiManager(aui.AuiManager):
 
         super(MyAuiManager, self).__init__(managed_window=managed_window, agwFlags=agwFlags)
 
-
-    def addTabByWindow(self, window=None ,icon=None,  imageName="script.png", name=None, captionName=None, tabDirection=5):
+    def addTabByWindow(self, window=None , icon=None, imageName="script.png", name=None, captionName=None, tabDirection=5):
         '''
         This method always create a new tab for the window.
         tabDirection=2 is the right 
@@ -397,7 +398,7 @@ class MyAuiManager(aui.AuiManager):
 #             logger.debug(pane.dock_direction_get())
             if pane.dock_direction_get() == tabDirection:  # adding to center tab
                 if not icon:
-                    icon=FileOperations().getImageBitmap(imageName=imageName)
+                    icon = FileOperations().getImageBitmap(imageName=imageName)
                 auiPanInfo = aui.AuiPaneInfo().Icon(icon).\
                     Name(name).Caption(captionName).LeftDockable(True).Direction(wx.TOP).\
                     Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).CaptionVisible(visible=True)
@@ -416,7 +417,7 @@ class MyAuiManager(aui.AuiManager):
             
         if not isPaneAdded:
             auiPanInfo = aui.AuiPaneInfo().Icon(FileOperations().getImageBitmap(imageName=imageName)).\
-                Name(name).Caption(captionName).LeftDockable(True).Dockable(True).Movable(True).MinSize(100, -1).BestSize(200,-1).CaptionVisible(visible=True).Direction(wx.TOP).\
+                Name(name).Caption(captionName).LeftDockable(True).Dockable(True).Movable(True).MinSize(100, -1).BestSize(200, -1).CaptionVisible(visible=True).Direction(wx.TOP).\
                 Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).CaptionVisible(visible=True)
             auiPanInfo.dock_direction = tabDirection
             self.AddPane(window, auiPanInfo)
@@ -533,14 +534,15 @@ class PerspectiveManager(object):
         logger.info('PerspectiveManager.__onUpdatePageText')
         viewToolbar = self._mgr.GetPane("viewToolbar")
         print(extra1)
-        toolSave=viewToolbar.window.FindTool(ID_SAVE)
-        toolSaveAll=viewToolbar.window.FindTool(ID_SAVE_ALL)
-        toolSaveAll.state =aui.AUI_BUTTON_STATE_NORMAL 
-        toolSave.state =aui.AUI_BUTTON_STATE_NORMAL 
+        toolSave = viewToolbar.window.FindTool(ID_SAVE)
+        toolSaveAll = viewToolbar.window.FindTool(ID_SAVE_ALL)
+        toolSaveAll.state = aui.AUI_BUTTON_STATE_NORMAL 
+        toolSave.state = aui.AUI_BUTTON_STATE_NORMAL 
         logger.info(toolSave.state)
         self._mgr.Update()  
         if extra2:
             print(extra2)
+
     def __onObjectAdded(self, data, extra1, extra2=None):
         # no longer need to access data through message.data.
         print('PerspectiveManager', repr(data), 'is added')
@@ -798,7 +800,7 @@ class PerspectiveManager(object):
         s = viewToolbar.window.GetMinSize()
         viewToolbar.BestSize(s)
         
-        allowedInstanceForProspective=[
+        allowedInstanceForProspective = [
 #             SqlConsoleOutputPanel,
             py.shell.Shell,
             CreatingPythonExplorerPanel,
@@ -920,48 +922,46 @@ class PerspectiveManager(object):
             self.selectedPerspectiveName = 'resource'
             self.viewToolBarByPerspective(self.selectedPerspectiveName)            
 
-
-
     def constructViewToolBar(self, toobar=None, perspectiveName='python'):
         # create some toolbars
 #         tb1 = aui.AuiToolBar(self, -1, agwStyle=aui.AUI_TB_DEFAULT_STYLE | wx.NO_BORDER)
         if toobar == None:
             self._ctrl = None
             toobar = EclipseAuiToolbar(self)
-        
+        # id, leble, imageName, lebel, method,setToolDropdown , list of perspective, initial state(disable/enable ), kind=wx.ITEM_CHECK
         tools = [
-            (ID_NEW, "New", "new_con.png", 'New', self.onNewMenu, True, ['resource', 'python', 'java', 'debug', 'java ee'], True),
+            (ID_NEW, "New", "new_con.png", 'New', self.onNewMenu, True, ['resource', 'python', 'java', 'debug', 'java ee'], True, wx.ITEM_NORMAL),
             (),
-            (ID_SAVE, "Save (Ctrl+S)", "save.png", 'Save (Ctrl+S)', self.onSave, False, ['resource', 'python', 'java', 'debug', 'java ee'], False),
-            (ID_SAVE_ALL, "Save All (Ctrl+Shift+S)", "saveall_edit.png", 'Save All (Ctrl+Shift+S)', self.onSaveAll, False, ['resource', 'python', 'java', 'debug', 'java ee'], False),
-            (ID_BUILD_ALL, "Build All (Ctrl+B)", "build_exec.png", "Build All (Ctrl+B)", None, False, [ 'python', 'java', 'java ee'], True),
-            (ID_TERMINAL, "Open a Terminal", "linux_terminal.png", "Open a Terminal (Ctrl+Shift+Alt+T)", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug', 'java ee'], True),
+            (ID_SAVE, "Save (Ctrl+S)", "save.png", 'Save (Ctrl+S)', self.onSave, False, ['resource', 'python', 'java', 'debug', 'java ee'], False, wx.ITEM_NORMAL),
+            (ID_SAVE_ALL, "Save All (Ctrl+Shift+S)", "saveall_edit.png", 'Save All (Ctrl+Shift+S)', self.onSaveAll, False, ['resource', 'python', 'java', 'debug', 'java ee'], False, wx.ITEM_NORMAL),
+            (ID_BUILD_ALL, "Build All (Ctrl+B)", "build_exec.png", "Build All (Ctrl+B)", None, False, [ 'python', 'java', 'java ee'], True, wx.ITEM_NORMAL),
+            (ID_TERMINAL, "Open a Terminal", "linux_terminal.png", "Open a Terminal (Ctrl+Shift+Alt+T)", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug', 'java ee'], True, wx.ITEM_NORMAL),
             (),
-            (ID_SKIP_ALL_BREAKPOINTS, "Skip All Breakpoints (Ctrl+Alt+B)", "skip_brkp.png", "Skip All Breakpoints (Ctrl+Alt+B)", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug', 'java ee'], True),
-            (ID_NEW_JAVA_PACKAGE, "New Java Package", "newpack_wiz.png", "New Java Package", self.onOpenTerminal, False, ['resource', 'java'], True),
-            (ID_NEW_JAVA_CLASS, "New Java Class", "newclass_wiz.png", "New Java Class", self.onOpenTerminal, True, ['resource', 'java'], True),
-            (ID_RESUME_DEBUG, "Resume", "resume_co.png", "Resume", self.onOpenTerminal, False, ['debug', 'java ee'], False),
-            (ID_SUSPEND_DEBUG, "Suspend", "suspend_co.png", "Suspend", self.onOpenTerminal, False, ['debug', 'java ee'], False),
-            (ID_TERMNATE_DEBUG, "Terminate", "terminatedlaunch_obj.png", "Terminate", self.onOpenTerminal, False, ['debug', 'java ee'], False),
-            (ID_DISCONNECT_DEBUG, "Disconnect", "disconnect_co.png", "Disconnect", self.onOpenTerminal, False, ['debug', 'java ee'], False),
-            (ID_STEP_INTO_DEBUG, "Step Into", "stepinto_co.png", "Step Into", self.onOpenTerminal, False, ['debug', 'java ee'], False),
-            (ID_STEP_OVER_DEBUG, "Step Over", "stepover_co.png", "Step Over", self.onOpenTerminal, False, ['debug', 'java ee'], False),
-            (ID_STEP_RETURN_DEBUG, "Step Return", "stepreturn_co.png", "Step Return", self.onOpenTerminal, False, ['debug', 'java ee'], False),
+            (ID_SKIP_ALL_BREAKPOINTS, "Skip All Breakpoints (Ctrl+Alt+B)", "skip_brkp.png", "Skip All Breakpoints (Ctrl+Alt+B)", self.onSkipAllBreakPoints, False, ['resource', 'python', 'java', 'debug', 'java ee'], True, wx.ITEM_CHECK),
+            (ID_NEW_JAVA_PACKAGE, "New Java Package", "newpack_wiz.png", "New Java Package", self.onOpenTerminal, False, ['resource', 'java'], True, wx.ITEM_NORMAL),
+            (ID_NEW_JAVA_CLASS, "New Java Class", "newclass_wiz.png", "New Java Class", self.onOpenTerminal, True, ['resource', 'java'], True, wx.ITEM_NORMAL),
+            (ID_RESUME_DEBUG, "Resume", "resume_co.png", "Resume", self.onOpenTerminal, False, ['debug', 'java ee'], False, wx.ITEM_NORMAL),
+            (ID_SUSPEND_DEBUG, "Suspend", "suspend_co.png", "Suspend", self.onOpenTerminal, False, ['debug', 'java ee'], False, wx.ITEM_NORMAL),
+            (ID_TERMNATE_DEBUG, "Terminate", "terminatedlaunch_obj.png", "Terminate", self.onOpenTerminal, False, ['debug', 'java ee'], False, wx.ITEM_NORMAL),
+            (ID_DISCONNECT_DEBUG, "Disconnect", "disconnect_co.png", "Disconnect", self.onOpenTerminal, False, ['debug', 'java ee'], False, wx.ITEM_NORMAL),
+            (ID_STEP_INTO_DEBUG, "Step Into", "stepinto_co.png", "Step Into", self.onOpenTerminal, False, ['debug', 'java ee'], False, wx.ITEM_NORMAL),
+            (ID_STEP_OVER_DEBUG, "Step Over", "stepover_co.png", "Step Over", self.onOpenTerminal, False, ['debug', 'java ee'], False, wx.ITEM_NORMAL),
+            (ID_STEP_RETURN_DEBUG, "Step Return", "stepreturn_co.png", "Step Return", self.onOpenTerminal, False, ['debug', 'java ee'], False, wx.ITEM_NORMAL),
             
             (),
-            (ID_DEBUG_AS_MENU, "Debug As...", "debug_exc.png", "Debug As...", self.onOpenTerminal, True, ['python', 'java', 'debug', 'java ee'], True),
-            (ID_RUN_AS_MENU, "Run As...", "run_exc.png", "Run As...", self.onRunAsMenu, True, ['python', 'java', 'debug', 'java ee'], True),
-            (ID_CREATE_DYNAMIC_WEB_PROJECT, "Create a Dynamic Web Project", "create_dynamic_web_project.png", "Create a Dynamic Web Project", self.onRunAsMenu, True, ['java ee'], True),
-            (ID_CREATE_NEW_SERVLET, "Create a New Servlet", "create_new_servlet.png", "Create a New Servlet", self.onRunAsMenu, True, ['java ee'], True),
-            (ID_OPEN_TYPE, "Open Type", "opentype.png", "Open Type", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug'], True),
-            (ID_OPEN_TASK, "Open Task (Ctrl+F12)", "open_task.png", "Open Task (Ctrl+F12)", self.onOpenTask, False, ['resource', 'python', 'java', 'debug'], True),
-            (ID_SEARCH, "Search", "searchres.png", "Search", self.onOpenSearch, True, ['resource', 'python', 'java', 'debug'], True),
-            (ID_LAST_EDIT, "Last Edit Location", "last_edit_pos.png", "Last Edit Location", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug'], True),
-            (ID_BACKWARD, "Back", "backward_nav.png", "Back", self.onOpenTerminal, True, ['python', 'java', 'debug'], True),
-            (ID_FORWARD, "Forward", "forward_nav.png", "Forward", self.onOpenTerminal, True, ['python', 'java', 'debug'], False),
-            (ID_newConnection, "New Connection", "connect.png", "New Connection", None, False, ['database'], True),
-            (ID_openConnection, "Open Connection", "database_connect.png", 'Open Connection', None, False, ['database'], True),
-            (ID_newWorksheet, "Script", "script.png", 'Open a new script worksheet', None, False, ['database'], True),
+            (ID_DEBUG_AS_MENU, "Debug As...", "debug_exc.png", "Debug As...", self.onOpenTerminal, True, ['python', 'java', 'debug', 'java ee'], True, wx.ITEM_NORMAL),
+            (ID_RUN_AS_MENU, "Run As...", "run_exc.png", "Run As...", self.onRunAsMenu, True, ['python', 'java', 'debug', 'java ee'], True, wx.ITEM_NORMAL),
+            (ID_CREATE_DYNAMIC_WEB_PROJECT, "Create a Dynamic Web Project", "create_dynamic_web_project.png", "Create a Dynamic Web Project", self.onRunAsMenu, True, ['java ee'], True, wx.ITEM_NORMAL),
+            (ID_CREATE_NEW_SERVLET, "Create a New Servlet", "create_new_servlet.png", "Create a New Servlet", self.onRunAsMenu, True, ['java ee'], True, wx.ITEM_NORMAL),
+            (ID_OPEN_TYPE, "Open Type", "opentype.png", "Open Type", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug'], True, wx.ITEM_NORMAL),
+            (ID_OPEN_TASK, "Open Task (Ctrl+F12)", "open_task.png", "Open Task (Ctrl+F12)", self.onOpenTask, False, ['resource', 'python', 'java', 'debug'], True, wx.ITEM_NORMAL),
+            (ID_SEARCH, "Search", "searchres.png", "Search", self.onOpenSearch, True, ['resource', 'python', 'java', 'debug'], True, wx.ITEM_NORMAL),
+            (ID_LAST_EDIT, "Last Edit Location", "last_edit_pos.png", "Last Edit Location", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug'], True, wx.ITEM_NORMAL),
+            (ID_BACKWARD, "Back", "backward_nav.png", "Back", self.onOpenTerminal, True, ['python', 'java', 'debug'], True, wx.ITEM_NORMAL),
+            (ID_FORWARD, "Forward", "forward_nav.png", "Forward", self.onOpenTerminal, True, ['python', 'java', 'debug'], False, wx.ITEM_NORMAL),
+            (ID_newConnection, "New Connection", "connect.png", "New Connection", None, False, ['database'], True, wx.ITEM_NORMAL),
+            (ID_openConnection, "Open Connection", "database_connect.png", 'Open Connection', None, False, ['database'], True, wx.ITEM_NORMAL),
+            (ID_newWorksheet, "Script", "script.png", 'Open a new script worksheet', None, False, ['database'], True, wx.ITEM_NORMAL),
 #             (wx.ID_PREFERENCES, "Preferences", "preference.png", 'Preference', None),
             ]
         
@@ -976,7 +976,13 @@ class PerspectiveManager(object):
             elif perspectiveName in tool[6]:
                 logger.debug(tool)
                 state = tool[7]
-                toolItem = toobar.AddSimpleTool(tool[0], tool[1], self.fileOperations.getImageBitmap(imageName=tool[2]), short_help_string=tool[3])
+                if tool[8]==wx.ITEM_CHECK:
+                    toolItem = toobar.AddToggleTool(tool[0],  self.fileOperations.getImageBitmap(imageName=tool[2]),wx.NullBitmap, toggle=True,short_help_string=tool[3])
+                    toolItem.__setattr__('toggle', False)
+                    toolItem.SetState(AUI_BUTTON_STATE_NORMAL)
+                    toolItem.SetKind(wx.ITEM_CHECK)
+                elif tool[8]==wx.ITEM_NORMAL:
+                    toolItem = toobar.AddSimpleTool(tool[0], tool[1], self.fileOperations.getImageBitmap(imageName=tool[2]), short_help_string=tool[3], kind=tool[8])
                 if state:
                     toolItem.state &= ~aui.AUI_BUTTON_STATE_DISABLED
                 else:
@@ -1039,7 +1045,27 @@ class PerspectiveManager(object):
         return toobar
     
     def onOpenTerminal(self, event):
-        logger.debug('onOpenTerminal')
+        logger.debug(f'onOpenTerminal {event.Id}')
+
+    def onSkipAllBreakPoints(self, event):
+        logger.debug(f'onSkipAllBreakPoints {event.Id}')
+        event.GetEventObject()._tip_item
+#         event.GetEventObject()._tip_item.__setattr__(toggle,False)
+        if event.GetEventObject()._tip_item.toggle:
+#             event.GetEventObject()._tip_item.SetBitmap(event.GetEventObject()._tip_item.GetBitmap())
+            event.GetEventObject()._tip_item.SetState(AUI_BUTTON_STATE_NORMAL)
+        else: 
+            event.GetEventObject()._tip_item.SetState(AUI_BUTTON_STATE_PRESSED)
+            
+        event.GetEventObject()._tip_item.toggle = not event.GetEventObject()._tip_item.toggle
+        event.GetEventObject().GetToolToggled(event.GetEventObject()._tip_item.GetId())
+#         event.GetEventObject().GetToolToggled(event.GetEventObject()._tip_item.GetId())
+        event.GetEventObject().Refresh(True)
+        event.GetEventObject().Update()
+#         if event.GetEventObject()._tip_item.GetState() != AUI_BUTTON_STATE_NORMAL:
+#             event.GetEventObject()._tip_item.SetState(AUI_BUTTON_STATE_NORMAL)
+#         else:
+#             event.GetEventObject()._tip_item.SetState(AUI_BUTTON_STATE_PRESSED)
     
     def onOpenTask(self, event):
         logger.debug('onOpenTask')
@@ -1093,7 +1119,7 @@ class PerspectiveManager(object):
                 baseList = [
                         [],
                         [ID_JUNIT_TEST_CASE, 'Junit Test Case', "new_testcase.png", None],
-                        [ID_CLASS, 'Class',  'newclass_wiz.png', None],
+                        [ID_CLASS, 'Class', 'newclass_wiz.png', None],
                         [ID_INTERFACE, 'Interface', 'newint_wiz.png', None],
                         [ID_ENUM, 'Enum', 'newenum_wiz.png', None],
                         [ID_ANNOTATION, 'Annotation', 'newannotation_wiz.png', None],
@@ -1157,14 +1183,14 @@ class PerspectiveManager(object):
                         +baseList[1:],
                     "java ee": 
                         [
-                            [ID_MAVEN_PROJECT, 'Maven Project', 'maven_project.png', None], 
-                            [ID_ENTERPRISE_APP_PROJECT, 'Enterprise Application Project', 'enterprise_app.png', None], 
-                            [ID_DYNAMIC_WEB_PROJECT, 'Dynamic Web Project', 'create_dynamic_web_project.png', None], 
-                            [ID_EJB_PROJECT, 'EJB Project', 'ejb_project.png', None], 
-                            [ID_CONNECTER_PROJECT, 'Connecter Project',  'connecter_prj.png', None], 
-                            [ID_APP_CLIENT_PROJECT, 'Application Client Project', 'app_client_prj.png', None], 
-                            [ID_STATIC_WEB_PROJECT, 'Static Web Project', 'static_web_project.png', None], 
-                            [ID_JPA_PROJECT, 'JPA Project', 'jpa_orm_mapping.png', None], 
+                            [ID_MAVEN_PROJECT, 'Maven Project', 'maven_project.png', None],
+                            [ID_ENTERPRISE_APP_PROJECT, 'Enterprise Application Project', 'enterprise_app.png', None],
+                            [ID_DYNAMIC_WEB_PROJECT, 'Dynamic Web Project', 'create_dynamic_web_project.png', None],
+                            [ID_EJB_PROJECT, 'EJB Project', 'ejb_project.png', None],
+                            [ID_CONNECTER_PROJECT, 'Connecter Project', 'connecter_prj.png', None],
+                            [ID_APP_CLIENT_PROJECT, 'Application Client Project', 'app_client_prj.png', None],
+                            [ID_STATIC_WEB_PROJECT, 'Static Web Project', 'static_web_project.png', None],
+                            [ID_JPA_PROJECT, 'JPA Project', 'jpa_orm_mapping.png', None],
                          
                          ] + 
                         baseList[0:1] + 
@@ -1204,7 +1230,7 @@ class PerspectiveManager(object):
                     "database": baseList
                     }            
                 
-                baseList=menuItemList[self.selectedPerspectiveName]
+                baseList = menuItemList[self.selectedPerspectiveName]
                     
             menuItemList = {
                 self.selectedPerspectiveName: baseList
@@ -1222,8 +1248,6 @@ class PerspectiveManager(object):
 
             # make sure the button is "un-stuck"
             tb.SetToolSticky(event.GetId(), False)    
-
-
 
     def createMenuByPerspective(self, menuItemList=None, perspectiveName='python'):
             
@@ -1246,7 +1270,7 @@ class PerspectiveManager(object):
     def creatingTreeCtrl(self):
         # Create a TreeCtrl
 #         treePanel = CreatingTreePanel(self)
-        treePanel=DataSourcePanel(self)
+        treePanel = DataSourcePanel(self)
 
         return treePanel
     

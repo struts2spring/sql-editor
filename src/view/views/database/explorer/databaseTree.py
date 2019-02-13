@@ -18,7 +18,7 @@ from src.sqlite_executer.ConnectExecuteSqlite import ManageSqliteDatabase, \
 
 from wx.lib.pubsub import pub
 from src.view.importing.importCsvExcel import ImportingCsvExcelFrame
-from src.view.table.CreateTable import CreatingTableFrame
+from src.view.table.CreateTable import CreateTableFrame
 import datetime
 from src.view.views.console.worksheet.tableInfoPanel import CreatingTableInfoPanel
 from src.view.schema.CreateSchemaViewer import CreateErDiagramFrame
@@ -672,7 +672,7 @@ class DatabaseTree(TreeCtrl):
         
         newTableName = SQLUtils().definingTableName(connectionName)
         
-        tableFrame = CreatingTableFrame(None, 'Table creation', connectionName, newTableName)
+        tableFrame = CreateTableFrame(None, Title='Table creation', size=(1000, 600))
 #         frame = CreateTableFrame(None, 'table creation')
     
 #         tableDict = dict()

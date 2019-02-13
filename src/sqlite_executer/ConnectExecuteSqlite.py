@@ -30,6 +30,34 @@ class SqlType():
         self.sql = sql
         self.columns = None
 
+    def getCreateSql(self):
+        
+        columnText = ''
+        for column in self.columns:
+            primaryKeyText = ''
+            if str(column.primaryKey) == "1":
+                primaryKeyText = ' PRIMARY KEY'
+            autoIncrementText = ''
+            if str(column.autoIncrement) == "1":
+                autoIncrementText = ' AUTOINCREMENT'
+            nullableText = ''
+            if str(column.nullable) == "1":
+                nullableText = ' NOT NULL'
+            uniqueText = ''
+            if str(column.unique) == "1":
+                uniqueText = ' UNIQUE'
+            defultValueText = ''
+            if column.defultValue and str(column.primaryKey) == "0" and str(column.autoIncrement) == "0":
+                defultValueText = f'DEFAULT {column.defultValue}'
+            columnText += f"\n`{column.name}` {column.dataType}{primaryKeyText}{nullableText}{autoIncrementText}{uniqueText}{defultValueText}," 
+        columnText = columnText[:-1]
+        sql = f'CREATE TABLE IF NOT EXISTS `{self.name}` ({columnText});'
+        return sql
+
+    def __repr__(self):
+        return f'''SqlType(type={self.type}, name={self.name},tbl_name={self.tbl_name},rootpage={self.rootpage} 
+                    ,sql={self.sql},columns={self.columns})'''
+
         
 class Column():
     '''
@@ -40,13 +68,23 @@ class Column():
     @param primaryKey: 0 or 1 for primary key
     '''
 
-    def __init__(self, sequence, name, dataType, nullable, defultValue, primaryKey):
+    def __init__(self, sequence, name, dataType, nullable, defultValue, primaryKey, unique=0, description=None, autoIncrement=0):
         self.sequence = sequence
         self.name = name
         self.dataType = dataType
         self.nullable = nullable
         self.defultValue = defultValue
         self.primaryKey = primaryKey
+        self.unique = unique
+        self.description = description
+        self.autoIncrement = autoIncrement
+
+    def __setattr__(self, name, value):
+        self.__dict__[name] = value
+
+    def __repr__(self):
+        return f'''Column(sequence={self.sequence}, name={self.name},dataType={self.dataType},nullable={self.nullable} 
+                    ,defultValue={self.defultValue},primaryKey={self.primaryKey},unique={self.unique}, description={self.description},autoIncrement={self.autoIncrement})'''
 
         
 class IndexInfo():
@@ -326,7 +364,6 @@ class SQLExecuter():
         finally:
             pass
         return sqlTypeObjectList
-
     
     def getListDatabase(self):
         '''
