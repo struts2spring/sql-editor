@@ -22,9 +22,11 @@ from src.view.views.file.explorer.FileBrowserPanel import FileBrowser, \
 import time
 from src.view.util.common.fileutil import IsHidden, GetFileName
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
+from wx.lib.pubsub import pub
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
+
 
 
 class CreatingPythonExplorerPanel(FileTree):
@@ -120,8 +122,11 @@ class CreatingPythonExplorerPanel(FileTree):
 
         """
         logger.debug('DoItemActivated')
-
+        filePathWithIconList=self.GetSelectedFilesWithImage()
         self.OpenFiles(self.GetSelectedFilesWithImage())
+        for filePathWithIcon in filePathWithIconList:
+            pub.sendMessage('addFileToHistory', path=filePathWithIcon[0])
+            
 
     def DoItemCollapsed(self, item):
         """Handle when an item is collapsed"""

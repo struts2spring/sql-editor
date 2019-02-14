@@ -433,7 +433,7 @@ class FileTree(wx.TreeCtrl):
         return files
     def GetSelectedFilesWithImage(self):
         """Get a list of the selected files
-        @return: list of strings
+        @return: list of [filePath, icon]
 
         """
         logger.debug('GetSelectedFiles')

@@ -162,6 +162,7 @@ class MainStc(BaseStc):
     def OnUpdatePageText(self,event):
         logger.debug('OnUpdatePageText')
         pub.sendMessage('onUpdatePageText', data=42, extra1='onJavaPerspective')
+        
     #---- Protected Member Functions ----#
 
     def _BuildMacro(self):
