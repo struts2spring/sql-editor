@@ -401,7 +401,8 @@ class MyAuiManager(aui.AuiManager):
                     icon = FileOperations().getImageBitmap(imageName=imageName)
                 auiPanInfo = aui.AuiPaneInfo().Icon(icon).\
                     Name(name).Caption(captionName).LeftDockable(True).Direction(wx.TOP).\
-                    Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).CaptionVisible(visible=True)
+                    Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).MinSize(200, -1)\
+                    .BestSize(200, -1).CaptionVisible(visible=True)
                 targetTab = pane
                 if not pane.HasNotebook():
                     self.CreateNotebookBase(self._panes, pane)
@@ -417,7 +418,7 @@ class MyAuiManager(aui.AuiManager):
             
         if not isPaneAdded:
             auiPanInfo = aui.AuiPaneInfo().Icon(FileOperations().getImageBitmap(imageName=imageName)).\
-                Name(name).Caption(captionName).LeftDockable(True).Dockable(True).Movable(True).MinSize(100, -1).BestSize(200, -1).CaptionVisible(visible=True).Direction(wx.TOP).\
+                Name(name).Caption(captionName).LeftDockable(True).Dockable(True).Movable(True).MinSize(200, -1).BestSize(200, -1).CaptionVisible(visible=True).Direction(wx.TOP).\
                 Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).CaptionVisible(visible=True)
             auiPanInfo.dock_direction = tabDirection
             self.AddPane(window, auiPanInfo)
@@ -524,7 +525,7 @@ class PerspectiveManager(object):
 
         """
         super(PerspectiveManager, self).__init__()
-
+        self.toolbarItems={}
         self.createAuiManager()
         pub.subscribe(self.__onObjectAdded, 'perspectiveClicked')
         pub.subscribe(self.__onUpdatePageText, 'onUpdatePageText')
@@ -792,6 +793,11 @@ class PerspectiveManager(object):
         item = perspectiveToolbar.window.getToolBarItemById(id)   
         perspectiveToolbar.window.EnableTool(item, True) 
     
+    
+    
+#     def hideTools(self,viewToolbar.window, perspectiveName):
+#         pass
+    
     def viewToolBarByPerspective(self, perspectiveName):
         viewToolbar = self._mgr.GetPane("viewToolbar")
         
@@ -965,76 +971,42 @@ class PerspectiveManager(object):
 #             (wx.ID_PREFERENCES, "Preferences", "preference.png", 'Preference', None),
             ]
         
+
+        if len(self.toolbarItems) ==0:
+            for tool in tools:
+                
+                if len(tool) == 0:
+                    toobar.AddSeparator()
+    #             elif perspectiveName in tool[6]:
+                else:
+                    logger.debug(tool)
+                    state = tool[7]
+                    if tool[8]==wx.ITEM_CHECK:
+                        toolItem = toobar.AddToggleTool(tool[0],  self.fileOperations.getImageBitmap(imageName=tool[2]),wx.NullBitmap, toggle=True,short_help_string=tool[3])
+                        toolItem.__setattr__('toggle', False)
+                        toolItem.SetState(AUI_BUTTON_STATE_NORMAL)
+                        toolItem.SetKind(wx.ITEM_CHECK)
+                    elif tool[8]==wx.ITEM_NORMAL:
+                        toolItem = toobar.AddSimpleTool(tool[0], tool[1], self.fileOperations.getImageBitmap(imageName=tool[2]), short_help_string=tool[3], kind=tool[8])
+                    if state:
+                        toolItem.state &= ~aui.AUI_BUTTON_STATE_DISABLED
+                    else:
+                        toolItem.state |= aui.AUI_BUTTON_STATE_DISABLED
+                    if tool[4]:
+                        self.Bind(wx.EVT_MENU, tool[4], tool[0])
+                    if tool[5]:
+                        toobar.SetToolDropDown(tool[0], tool[5])
+        ##############################################################                  
+        for tool in toobar._items:
+            self.toolbarItems[tool.GetId()]=tool
+            
         toobar._items.clear()
         if self._ctrl:
             self._ctrl.Hide()
-        
         for tool in tools:
-            
-            if len(tool) == 0:
-                toobar.AddSeparator()
-            elif perspectiveName in tool[6]:
-                logger.debug(tool)
-                state = tool[7]
-                if tool[8]==wx.ITEM_CHECK:
-                    toolItem = toobar.AddToggleTool(tool[0],  self.fileOperations.getImageBitmap(imageName=tool[2]),wx.NullBitmap, toggle=True,short_help_string=tool[3])
-                    toolItem.__setattr__('toggle', False)
-                    toolItem.SetState(AUI_BUTTON_STATE_NORMAL)
-                    toolItem.SetKind(wx.ITEM_CHECK)
-                elif tool[8]==wx.ITEM_NORMAL:
-                    toolItem = toobar.AddSimpleTool(tool[0], tool[1], self.fileOperations.getImageBitmap(imageName=tool[2]), short_help_string=tool[3], kind=tool[8])
-                if state:
-                    toolItem.state &= ~aui.AUI_BUTTON_STATE_DISABLED
-                else:
-                    toolItem.state |= aui.AUI_BUTTON_STATE_DISABLED
-                if tool[4]:
-                    self.Bind(wx.EVT_MENU, tool[4], tool[0])
-                if tool[5]:
-                    toobar.SetToolDropDown(tool[0], tool[5])
-                
-        ###################################################################################################
-        
-#         if perspectiveName == 'database':
-#             args = {}
-#             if True:
-#                 args["colNames"] = ("col1", "col2")
-#                 args["multiChoices"] = [ ("Zoey", "WOW"), ("Alpha", "wxPython"),
-#                                         ("Ceda", "Is"), ("Beta", "fantastic"),
-#                                         ("zoebob", "!!")]
-#                 args["colFetch"] = 1
-#             else:
-#                 args["choices"] = ["123", "cs", "cds", "Bob", "Marley", "Alpha"]
-#             args["selectCallback"] = self.selectCallback   
-#             self.dynamic_choices = list()
-#             sqlExecuter = SQLExecuter()
-#             dbList = sqlExecuter.getListDatabase()  
-#             for db in dbList:
-#                 self.dynamic_choices.append(db[1])
-               
-    #         self.dynamic_choices = [
-    #                 'aardvark', 'abandon', 'acorn', 'acute', 'adore',
-    #                 'aegis', 'ascertain', 'asteroid',
-    #                 'beautiful', 'bold', 'classic',
-    #                 'daring', 'dazzling', 'debonair', 'definitive',
-    #                 'effective', 'elegant',
-    #                 'http://python.org', 'http://www.google.com',
-    #                 'fabulous', 'fantastic', 'friendly', 'forgiving', 'feature',
-    #                 'sage', 'scarlet', 'scenic', 'seaside', 'showpiece', 'spiffy',
-    #                 'www.wxPython.org', 'www.osafoundation.org'
-    #                 ]
-    
-#             self._ctrl = TextCtrlAutoComplete(toobar, id=ID_TEXTCTRL_AUTO_COMPLETE, size=(250, 20), **args)
-#             self._ctrl.SetSize((250, 15))
-#             self._ctrl.SetChoices(self.dynamic_choices)
-#             self._ctrl.SetEntryCallback(self.setDynamicChoices)
-#             self._ctrl.SetMatchFunction(self.match)
-#             toobar.AddControl(self._ctrl) 
+            if len(tool) != 0 and perspectiveName in tool[6]:
+                toobar._items.append(self.toolbarItems[tool[0]])
 
-        ###################################################################################################
-#         tb1.AddControl( self.choice ) 
-#         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_INFORMATION))
-#         tb1.AddLabelTool(103, "Test"t1 = wx.TextCtrl(self, -1, "Test it out and see", size=(125, -1)), wx.ArtProvider_GetBitmap(wx.ART_WARNING))
-#         tb1.AddLabelTool(103, "Test", wx.ArtProvider_GetBitmap(wx.ART_MISSING_IMAGE))
         toobar.Realize()
         self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onRunDebugAsDropDown, id=ID_NEW)
         self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onRunDebugAsDropDown, id=ID_RUN_AS_MENU)
