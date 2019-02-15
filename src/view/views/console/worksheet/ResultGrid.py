@@ -436,9 +436,14 @@ class ResultDataGrid(gridlib.Grid):
         """(row, evt) -> display a popup menu when a row label is right clicked"""
         menu = wx.Menu()
         self=self
+        copyID = wx.NewIdRef()
         appendID = wx.NewIdRef()
         deleteID = wx.NewIdRef()
         x = self.GetRowSize(row) / 2
+        
+        copyRowItem = wx.MenuItem(menu, copyID, "Copy Row")
+        copyRowItem.SetBitmap(self.fileOperations.getImageBitmap(imageName="copy_edit_co.png"))
+        copyItemMenu = menu.Append(copyRowItem) 
         
         appendRowItem = wx.MenuItem(menu, appendID, "Append Row")
         appendRowItem.SetBitmap(self.fileOperations.getImageBitmap(imageName="row_add.png"))
@@ -457,6 +462,38 @@ class ResultDataGrid(gridlib.Grid):
 
 #         menu.Append(deleteID, "Delete Row(s)")
 
+        def copy(event, self=self, row=row):
+            logger.debug(row)
+#             self.AppendRows(row)
+
+            selection = self.get_selection()
+            if not selection:
+                return []
+            start_row, start_col, end_row, end_col = selection
+    
+            data = u''
+    
+            rows = range(start_row, end_row + 1)
+            for row in rows:
+                columns = range(start_col, end_col + 1)
+                for idx, column in enumerate(columns, 1):
+                    if idx == len(columns):
+                        # if we are at the last cell of the row, add new line instead
+                        data += self.GetCellValue(row, column) + "\n"
+                    else:
+                        data += self.GetCellValue(row, column) + "\t"
+    
+            text_data_object = wx.TextDataObject()
+            text_data_object.SetText(data)
+    
+            if wx.TheClipboard.Open():
+                wx.TheClipboard.SetData(text_data_object)
+                wx.TheClipboard.Close()
+            else:
+                wx.MessageBox("Can't open the clipboard", "Warning")
+
+
+
         def append(event, self=self, row=row):
             logger.debug(row)
 #             self.AppendRows(row)
@@ -469,12 +506,52 @@ class ResultDataGrid(gridlib.Grid):
                 self.DeleteRows(pos=row, numRows=1, updateLabels=True)
 #             self.DeleteRows(pos=0, numRows=1, updateLabels=True)
 
+        self.Bind(wx.EVT_MENU, lambda e:copy(e, row=1), id=copyID)
         self.Bind(wx.EVT_MENU, lambda e:append(e, row=1), id=appendID)
         self.Bind(wx.EVT_MENU, lambda e:delete(e, row=[0]), id=deleteID)
         self.PopupMenu(menu)
         menu.Destroy()
         return
-    
+    def get_selection(self):
+        """
+        Returns selected range's start_row, start_col, end_row, end_col
+        If there is no selection, returns selected cell's start_row=end_row, start_col=end_col
+        """
+        if not len(self.GetSelectionBlockTopLeft()):
+            selected_columns = self.GetSelectedCols()
+            selected_rows = self.GetSelectedRows()
+            if selected_columns:
+                start_col = selected_columns[0]
+                end_col = selected_columns[-1]
+                start_row = 0
+                end_row = self.GetNumberRows() - 1
+            elif selected_rows:
+                start_row = selected_rows[0]
+                end_row = selected_rows[-1]
+                start_col = 0
+                end_col = self.GetNumberCols() - 1
+            else:
+                start_row = end_row = self.GetGridCursorRow()
+                start_col = end_col = self.GetGridCursorCol()
+        elif len(self.GetSelectionBlockTopLeft()) > 1:
+            wx.MessageBox("Multiple selections are not supported", "Warning")
+            return []
+        else:
+            start_row, start_col = self.GetSelectionBlockTopLeft()[0]
+            end_row, end_col = self.GetSelectionBlockBottomRight()[0]
+
+        return [start_row, start_col, end_row, end_col]
+
+    def get_selected_cells(self):
+        # returns a list of selected cells
+        selection = self.get_selection()
+        if not selection:
+            return
+
+        start_row, start_col, end_row, end_col = selection
+        for row in range(start_row, end_row + 1):
+            for col in range(start_col, end_col + 1):
+                yield [row, col]    
     def colPopup(self, col, evt):
         """(col, evt) -> display a popup menu when a column label is
         right clicked"""
@@ -548,7 +625,7 @@ class ResultDataGrid(gridlib.Grid):
         """
         Create and display a popup menu on right-click event
         """
-        menu = GridCellPopupMenu()
+        menu = GridCellPopupMenu(self)
         self.PopupMenu(menu, event.GetPosition())
         menu.Destroy()
 
@@ -586,6 +663,7 @@ class GridCellPopupMenu(wx.Menu):
 
     def onCopySelection(self, event):
         logger.info('onCopySelection')
+        self.GetWindow().copy()
 #         print "Item Two selected in the %s window" % self.WinName
         pass
 

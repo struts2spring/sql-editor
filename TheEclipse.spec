@@ -1,14 +1,12 @@
 # -*- mode: python -*-
-import os
 
 block_cipher = None
 
-filelist= [(os.path.join('src','images',file), "src\images") for file in os.listdir(os.path.join('src','images')) if file.endswith('.png')]
 
 a = Analysis(['src\\TheEclipse.py'],
-             pathex=['c:\\1\\sql_editor'],
+             pathex=['C:\\1\\sql_editor'],
              binaries=[],
-             datas=filelist,
+             datas=[],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
@@ -17,7 +15,8 @@ a = Analysis(['src\\TheEclipse.py'],
              win_private_assemblies=False,
              cipher=block_cipher,
              noarchive=False)
-pyz = PYZ(a.pure, a.zipped_data,cipher=block_cipher)
+pyz = PYZ(a.pure, a.zipped_data,
+             cipher=block_cipher)
 exe = EXE(pyz,
           a.scripts,
           a.binaries,
@@ -25,7 +24,7 @@ exe = EXE(pyz,
           a.datas,
           [],
           name='TheEclipse',
-          debug=True,
+          debug=False,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
