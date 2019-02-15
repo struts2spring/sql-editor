@@ -338,30 +338,31 @@ class ResultDataGrid(gridlib.Grid):
     def copy(self):
         logger.info("Copy method")
         # Number of rows and cols
-        rows = self.GetSelectionBlockBottomRight()[0][0] - self.GetSelectionBlockTopLeft()[0][0] + 1
-        cols = self.GetSelectionBlockBottomRight()[0][1] - self.GetSelectionBlockTopLeft()[0][1] + 1
-        
-        # data variable contain text that must be set in the clipboard
-        data = ''
-        
-        # For each cell in selected range append the cell value in the data variable
-        # Tabs '\t' for cols and '\r' for rows
-        for r in range(rows):
-            for c in range(cols):
-                data = data + str(self.GetCellValue(self.GetSelectionBlockTopLeft()[0][0] + r, self.GetSelectionBlockTopLeft()[0][1] + c))
-                if c < cols - 1:
-                    data = data + '\t'
-            data = data + '\n'
-        # Create text data object
-        clipboard = wx.TextDataObject()
-        # Set data object value
-        clipboard.SetText(data)
-        # Put the data in the clipboard
-        if wx.TheClipboard.Open():
-            wx.TheClipboard.SetData(clipboard)
-            wx.TheClipboard.Close()
-        else:
-            wx.MessageBox("Can't open the clipboard", "Error")
+        if len(self.GetSelectionBlockBottomRight())>0:
+            rows = self.GetSelectionBlockBottomRight()[0][0] - self.GetSelectionBlockTopLeft()[0][0] + 1
+            cols = self.GetSelectionBlockBottomRight()[0][1] - self.GetSelectionBlockTopLeft()[0][1] + 1
+            
+            # data variable contain text that must be set in the clipboard
+            data = ''
+            
+            # For each cell in selected range append the cell value in the data variable
+            # Tabs '\t' for cols and '\r' for rows
+            for r in range(rows):
+                for c in range(cols):
+                    data = data + str(self.GetCellValue(self.GetSelectionBlockTopLeft()[0][0] + r, self.GetSelectionBlockTopLeft()[0][1] + c))
+                    if c < cols - 1:
+                        data = data + '\t'
+                data = data + '\n'
+            # Create text data object
+            clipboard = wx.TextDataObject()
+            # Set data object value
+            clipboard.SetText(data)
+            # Put the data in the clipboard
+            if wx.TheClipboard.Open():
+                wx.TheClipboard.SetData(clipboard)
+                wx.TheClipboard.Close()
+            else:
+                wx.MessageBox("Can't open the clipboard", "Error")
             
     def paste(self):
         logger.info("Paste method")
@@ -658,14 +659,13 @@ class GridCellPopupMenu(wx.Menu):
 
     def onPasteSelection(self, event):
         logger.info('onPasteSelection')
+        self.GetWindow().paste()
 #         print "Item Two selected in the %s window" % self.WinName
-        pass
 
     def onCopySelection(self, event):
         logger.info('onCopySelection')
         self.GetWindow().copy()
 #         print "Item Two selected in the %s window" % self.WinName
-        pass
 
     def onExport(self, event):
         logger.info('onExport')
@@ -673,7 +673,14 @@ class GridCellPopupMenu(wx.Menu):
         pass
 
     def countRows(self, event):
-        logger.info('countRows')
+        logger.info(f'countRows: {self.GetWindow().GetNumberRows()}')
+        dlg = wx.MessageDialog(self.GetWindow(), f'Row count :  {self.GetWindow().GetNumberRows()}',
+                       'Row Count',
+                       wx.OK | wx.ICON_INFORMATION
+                       #wx.YES_NO | wx.NO_DEFAULT | wx.CANCEL | wx.ICON_INFORMATION
+                       )
+        dlg.ShowModal()
+        dlg.Destroy()
 #         print "Item Three selected in the %s window"%self.WinName
 #         copyValue = self.GetColLabelValue(event.GetCol())
 

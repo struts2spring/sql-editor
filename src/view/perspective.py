@@ -938,8 +938,8 @@ class PerspectiveManager(object):
         tools = [
             (ID_NEW, "New", "new_con.png", 'New', self.onNewMenu, True, ['resource', 'python', 'java', 'debug', 'java ee'], True, wx.ITEM_NORMAL),
             (),
-            (ID_SAVE, "Save (Ctrl+S)", "save.png", 'Save (Ctrl+S)', self.onSave, False, ['resource', 'python', 'java', 'debug', 'java ee'], False, wx.ITEM_NORMAL),
-            (ID_SAVE_ALL, "Save All (Ctrl+Shift+S)", "saveall_edit.png", 'Save All (Ctrl+Shift+S)', self.onSaveAll, False, ['resource', 'python', 'java', 'debug', 'java ee'], False, wx.ITEM_NORMAL),
+            (ID_SAVE, "Save (Ctrl+S)", "save.png", 'Save (Ctrl+S)', self.onSave, False, ['resource', 'python', 'java', 'debug', 'java ee','database'], False, wx.ITEM_NORMAL),
+            (ID_SAVE_ALL, "Save All (Ctrl+Shift+S)", "saveall_edit.png", 'Save All (Ctrl+Shift+S)', self.onSaveAll, False, ['resource', 'python', 'java', 'debug', 'java ee','database'], False, wx.ITEM_NORMAL),
             (ID_BUILD_ALL, "Build All (Ctrl+B)", "build_exec.png", "Build All (Ctrl+B)", None, False, [ 'python', 'java', 'java ee'], True, wx.ITEM_NORMAL),
             (ID_TERMINAL, "Open a Terminal", "linux_terminal.png", "Open a Terminal (Ctrl+Shift+Alt+T)", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug', 'java ee'], True, wx.ITEM_NORMAL),
             (),
