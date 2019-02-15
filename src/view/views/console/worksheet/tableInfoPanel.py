@@ -45,7 +45,7 @@ SQL Tab:
 
 class CreatingTableInfoFrame(wx.Frame):
     
-    def __init__(self, parent, title):
+    def __init__(self, parent, title, **kw):
         wx.Frame.__init__(self, parent, -1, title, size=(500, 200),
                           style=wx.DEFAULT_FRAME_STYLE | wx.NO_FULL_REPAINT_ON_RESIZE)
         self.Bind(wx.EVT_CLOSE, self.OnCloseFrame)
@@ -55,7 +55,7 @@ class CreatingTableInfoFrame(wx.Frame):
         # self.buttonPanel = CreateButtonPanel(self)
         ####################################################################
         
-        self.creatingTableInfoPanel = CreatingTableInfoPanel(self)
+        self.creatingTableInfoPanel = CreatingTableInfoPanel(self, kw)
         ####################################################################
         
         sizer.Add(self.creatingTableInfoPanel, 1, wx.EXPAND)
@@ -76,6 +76,7 @@ class CreatingTableInfoPanel(wx.Panel):
         wx.Panel.__init__(self, parent, id=-1)
         self.tableName = 'Unknown'
         self.parent = parent
+        self.dataSourceTreeNode = None
         if kw and 'tableName' in kw.keys():
             self.tableName = kw['tableName']
             self.dataSourceTreeNode = kw['dataSourceTreeNode']
@@ -132,6 +133,7 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
+        self.fileOperations = FileOperations()
         self.tabName = kw['tabName']
         self.dataSourceTreeNode = kw['dataSourceTreeNode']
         self.data = list()
@@ -160,27 +162,57 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
         
     def constructTopResultToolBar(self, tabName=None):
         
-        fileOperations = FileOperations()
         # create some toolbars
         tb1 = aui.AuiToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize, agwStyle=aui.AUI_TB_DEFAULT_STYLE | aui.AUI_TB_OVERFLOW)
         
         tb1.SetToolBitmapSize(wx.Size(42, 42))
 
         if tabName == 'Data':
-            tb1.AddSimpleTool(ID_SAVE_ROW, "Save", fileOperations.getImageBitmap(imageName="save_to_database.png"), short_help_string='Save to database')
-            tb1.AddSeparator()
-            
-            tb1.AddSimpleTool(ID_REFRESH_ROW, "Result refresh", fileOperations.getImageBitmap(imageName="resultset_refresh.png"), short_help_string='Refresh data')
-            tb1.AddSimpleTool(ID_ADD_ROW, "Add a new row", fileOperations.getImageBitmap(imageName="row_add.png"), short_help_string='Add new row')
-            tb1.AddSimpleTool(ID_DUPLICATE_ROW, "Duplicate current row", fileOperations.getImageBitmap(imageName="row_copy.png"), short_help_string='Duplicate current row')
-            tb1.AddSimpleTool(ID_DELETE_ROW, "Delete current row", fileOperations.getImageBitmap(imageName="row_delete.png"), short_help_string='Delete current row')
-            tb1.AddSeparator()
+            tools = [
+                (ID_SAVE_ROW, "Save", "save_to_database.png", 'Save (Ctrl+S)', self.onSave),
+                (),
+                (ID_REFRESH_ROW, "Result refresh", "resultset_refresh.png", 'Result refresh \tF5', self.onRefresh),
+                (ID_ADD_ROW, "Add a new row", "row_add.png", 'Add a new row', self.onAddRow),
+                (ID_DUPLICATE_ROW, "Duplicate selected row", "row_copy.png", 'Duplicate selected row', self.onDuplicateRow),
+                (ID_DELETE_ROW, "Delete selected row", "row_delete.png", 'Delete selected row', self.onDeleteRow),
+                ]
+            for tool in tools:
+                if len(tool) == 0:
+                    tb1.AddSeparator()
+                else:
+                    logger.debug(tool)
+                    toolItem = tb1.AddSimpleTool(tool[0], tool[1], self.fileOperations.getImageBitmap(imageName=tool[2]), short_help_string=tool[3])
+#             tb1.AddSimpleTool(ID_SAVE_ROW, "Save", fileOperations.getImageBitmap(imageName="save_to_database.png"), short_help_string='Save to database')
+#             tb1.AddSeparator()
+#             
+#             tb1.AddSimpleTool(ID_REFRESH_ROW, "Result refresh", fileOperations.getImageBitmap(imageName="resultset_refresh.png"), short_help_string='Refresh data')
+#             tb1.AddSimpleTool(ID_ADD_ROW, "Add a new row", fileOperations.getImageBitmap(imageName="row_add.png"), short_help_string='Add new row')
+#             tb1.AddSimpleTool(ID_DUPLICATE_ROW, "Duplicate current row", fileOperations.getImageBitmap(imageName="row_copy.png"), short_help_string='Duplicate current row')
+#             tb1.AddSimpleTool(ID_DELETE_ROW, "Delete current row", fileOperations.getImageBitmap(imageName="row_delete.png"), short_help_string='Delete current row')
+#             tb1.AddSeparator()
             
 #         tb1.AddTool(ID_RUN, "Pin", fileOperations.getImageBitmap(imageName="pin2_green.png"))
 
         tb1.Realize()
         
         return tb1     
+
+    def onSave(self):
+        logger.debug('onSave')
+
+    def onRefresh(self):
+        logger.debug('onRefresh')
+
+    def onAddRow(self):
+        logger.debug('onAddRow')
+        self.G
+        self.AppendRows()
+
+    def onDuplicateRow(self):
+        logger.debug('onDuplicateRow')
+
+    def onDeleteRow(self):
+        logger.debug('onDeleteRow')
 
     def getPanelByTabName(self, tableName=None, tabName=None):
         toolbar = self.constructTopResultToolBar()
@@ -209,7 +241,7 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
             
         if tabName == 'Columns':
             resultPanel = ResultDataGrid(self, data=None)
-            rows=db.executeText(f"pragma table_info('{tableName}');")
+            rows = db.executeText(f"pragma table_info('{tableName}');")
             resultPanel.addData(rows)
         elif tabName == 'Indexes':
             resultPanel = ResultDataGrid(self, data=None)
@@ -266,6 +298,7 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
 if __name__ == '__main__':
     
     app = wx.App(False)
-    frame = CreatingTableInfoFrame(None, 'Open Existing Connection')
+    sqlExecuter = SQLExecuter(database='_opal.sqlite')
+    frame = CreatingTableInfoFrame(None, 'Open Existing Connection', dataSourceTreeNode=None)
     frame.Show()
     app.MainLoop()

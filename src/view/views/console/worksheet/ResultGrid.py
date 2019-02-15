@@ -435,6 +435,7 @@ class ResultDataGrid(gridlib.Grid):
     def rowPopup(self, row, evt):
         """(row, evt) -> display a popup menu when a row label is right clicked"""
         menu = wx.Menu()
+        self=self
         appendID = wx.NewIdRef()
         deleteID = wx.NewIdRef()
         x = self.GetRowSize(row) / 2
@@ -458,18 +459,18 @@ class ResultDataGrid(gridlib.Grid):
 
         def append(event, self=self, row=row):
             logger.debug(row)
-            self.AppendRow(row)
-            self.Reset()
+#             self.AppendRows(row)
+            self.AppendRows(numRows=1, updateLabels=True)
 
         def delete(event, self=self, row=row):
             logger.debug(row)
             rows = self.GetSelectedRows()
-            self.DeleteRows(rows)
+            for row in rows:
+                self.DeleteRows(pos=row, numRows=1, updateLabels=True)
 #             self.DeleteRows(pos=0, numRows=1, updateLabels=True)
-            self.Reset()
 
-        self.Bind(wx.EVT_MENU, append, id=appendID)
-        self.Bind(wx.EVT_MENU, delete, id=deleteID)
+        self.Bind(wx.EVT_MENU, lambda e:append(e, row=1), id=appendID)
+        self.Bind(wx.EVT_MENU, lambda e:delete(e, row=[0]), id=deleteID)
         self.PopupMenu(menu)
         menu.Destroy()
         return
@@ -515,8 +516,9 @@ class ResultDataGrid(gridlib.Grid):
             self.Reset()
 
         def sort(event, self=self, col=col):
-            logger.info('TODO started sorting')
-            pass
+            logger.info(f'TODO started sorting{col}: {self.IsSortOrderAscending()} :{self.GetSortingColumn()}')
+            self.IsSortOrderAscending()
+            self.SetSortingColumn(col, ascending=True)
 
 #             self._table.SortColumn(col)
 #             self.Reset()
@@ -535,7 +537,7 @@ class ResultDataGrid(gridlib.Grid):
         self.Bind(wx.EVT_MENU, copyColumnName, id=copyHeaderId)
 
         if len(cols) == 1:
-            self.Bind(wx.EVT_MENU, sort, id=sortID)
+            self.Bind(wx.EVT_MENU, lambda e:sort(e, col=cols[0]), id=sortID)
 
         self.PopupMenu(menu)
         menu.Destroy()
@@ -581,10 +583,12 @@ class GridCellPopupMenu(wx.Menu):
         logger.info('onPasteSelection')
 #         print "Item Two selected in the %s window" % self.WinName
         pass
+
     def onCopySelection(self, event):
         logger.info('onCopySelection')
 #         print "Item Two selected in the %s window" % self.WinName
         pass
+
     def onExport(self, event):
         logger.info('onExport')
 #         print "Item Two selected in the %s window" % self.WinName
