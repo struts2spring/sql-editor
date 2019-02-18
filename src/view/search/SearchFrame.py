@@ -21,10 +21,10 @@ logger = logging.getLogger('extensive')
 
 class SearchPanelsFrame(wx.Frame):
 
-    def __init__(self, parent, id=wx.ID_ANY, Title="", pos=wx.DefaultPosition,
+    def __init__(self, parent, Id=wx.ID_ANY, Title="", pos=wx.DefaultPosition,
              size=wx.DefaultSize, style=wx.DEFAULT_FRAME_STYLE | wx.SUNKEN_BORDER|wx.STAY_ON_TOP):
 
-        wx.Frame.__init__(self, parent, id, Title, pos, size, style)
+        wx.Frame.__init__(self, parent, Id, Title, pos, size, style)
         
         self.fileOperations = FileOperations()
 #         pub.subscribe(self.__OnCellChange, 'OnCellChange')
