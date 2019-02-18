@@ -26,6 +26,7 @@ from wx import py
 from src.view.views.console.SqlOutputPanel import SqlConsoleOutputPanel
 from src.view.views.java.explorer.JavaExplorer import CreatingJavaExplorerPanel
 from src.view.views.project.explorer.ProjectExplorer import CreatingProjectExplorerPanel
+from src.view.search.SearchFrame import SearchPanelsFrame
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -92,8 +93,8 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
             logger.debug("onCloseOthersTabs")
             logger.debug("currentlySelectedPage %s", currentlySelectedPage)
             for pane in _mgr.GetAllPanes():
-                selectedPane=_mgr.GetPaneByWidget(pageInfo.window)
-                if selectedPane.dock_direction==pane.dock_direction and selectedPane.window.GetId() != pane.window.GetId():
+                selectedPane = _mgr.GetPaneByWidget(pageInfo.window)
+                if selectedPane.dock_direction == pane.dock_direction and selectedPane.window.GetId() != pane.window.GetId():
                     _mgr.ClosePane(pane)
             _mgr.Update()
             # TODO:  need to work
@@ -102,8 +103,8 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
             logger.debug("onCloseLeftTabs")
             logger.debug("currentlySelectedPage %s", currentlySelectedPage)
             for pane in _mgr.GetAllPanes():
-                selectedPane=_mgr.GetPaneByWidget(pageInfo.window)
-                if selectedPane.dock_direction==pane.dock_direction and selectedPane.dock_pos > pane.dock_pos:
+                selectedPane = _mgr.GetPaneByWidget(pageInfo.window)
+                if selectedPane.dock_direction == pane.dock_direction and selectedPane.dock_pos > pane.dock_pos:
                     _mgr.ClosePane(pane)
             _mgr.Update()
             # TODO:  need to work
@@ -112,8 +113,8 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
             logger.debug("onCloseRightTabs")
             logger.debug("currentlySelectedPage %s", currentlySelectedPage)
             for pane in _mgr.GetAllPanes():
-                selectedPane=_mgr.GetPaneByWidget(pageInfo.window)
-                if selectedPane.dock_direction==pane.dock_direction and selectedPane.dock_pos < pane.dock_pos:
+                selectedPane = _mgr.GetPaneByWidget(pageInfo.window)
+                if selectedPane.dock_direction == pane.dock_direction and selectedPane.dock_pos < pane.dock_pos:
                     _mgr.ClosePane(pane)
             _mgr.Update()
             # TODO:  need to work
@@ -122,10 +123,11 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
             logger.debug("onCloseAllTabs")
             logger.debug("currentlySelectedPage %s", currentlySelectedPage)
             for pane in _mgr.GetAllPanes():
-                selectedPane=_mgr.GetPaneByWidget(pageInfo.window)
-                if selectedPane.dock_direction==pane.dock_direction:
+                selectedPane = _mgr.GetPaneByWidget(pageInfo.window)
+                if selectedPane.dock_direction == pane.dock_direction:
                     _mgr.ClosePane(pane)
             _mgr.Update()
+
         pos = self.ScreenToClient(wx.GetMousePosition())
         self.popupmenu = wx.Menu()
         popupList = [
@@ -222,6 +224,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         # id, name, None, imageName, methodName, enable, perspecitveNameList
         menuItemList = [
             ("&File", [
+                    [wx.ID_NEW, 'New \tAlt+Shift+N', None, None, False, ['Python', 'database']],
                     [ID_openConnection, 'Open Database connection \tCtrl+O', None, None, False, ['database']],
                     [wx.ID_REFRESH, 'Refresh \tF5', None, "refresh.png", False, ['Python']],
                     [],
@@ -232,7 +235,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                     [ID_SAVE_AS, 'Save As...', None, "saveas_edit.png", False, ['Python']],
                     [ID_SAVE_ALL, 'Save All \tCtrl+Shift+S', None, "saveall_edit.png", False, ['Python']],
                     [],
-                    [ID_RECENT_FILES, 'Recent Files',  [
+                    [ID_RECENT_FILES, 'Recent Files', [
                                                 [wx.ID_CLEAR, 'Clear History', None, None],
                                             ], None, False, ['Python']],
                     [ID_IMPORT, 'Import', None, "import_prj.png", False, ['Python']],
@@ -258,7 +261,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                 ]),
             ("&Search", [
                     [ID_SEARCH_MENU, 'Search \tCtrl+H', None, 'searchres.png'],
-                    [ID_SEARCH_FILE, 'File', None, 'search_history.png']
+                    [ID_SEARCH_FILE, 'File...', None, 'search_history.png']
                 ]),
             ("&Navigate", [
                     [ID_OPEN_TYPE, 'Open Type', None, 'opentype.png'],
@@ -385,13 +388,13 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                                             secondLevelMenuItem.AppendSeparator()
                                         else:
                                             self.appendLeafToMenu(secondLevelMenu[0], attacheTo=secondLevelMenuItem, menuName=secondLevelMenu[1], imageName=secondLevelMenu[2])
-                                            if secondLevelMenu[0]==wx.ID_CLEAR:
+                                            if secondLevelMenu[0] == wx.ID_CLEAR:
                                                 print('got')
                                     firstLevleMenuItem = firstLevelMenu.Append(-1, showViewMenu[1], secondLevelMenuItem)
                                     firstLevleMenuItem.SetBitmap(self.fileOperations.getImageBitmap(imageName=showViewMenu[2]))
                                 else:
                                     self.appendLeafToMenu(showViewMenu[0], attacheTo=firstLevelMenu, menuName=showViewMenu[1], imageName=showViewMenu[2])
-                                    if showViewMenu[0]==wx.ID_CLEAR:
+                                    if showViewMenu[0] == wx.ID_CLEAR:
                                         print('got-----------------------')
                                         self.filehistory = wx.FileHistory()
                                         self.filehistory.UseMenu(firstLevelMenu)
@@ -410,11 +413,9 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         self.disableInitial(menuBar=mb)
         self.SetMenuBar(mb)
         
-        
 #         self.addFileToHistory(r'C:\Users\xbbntni\Downloads\1.txt')
 #         self.addFileToHistory(r'C:\Users\xbbntni\Downloads\India-Technology-NPS-New-Subscriber.pdf')
 #         self.addFileToHistory(r'C:\Users\xbbntni\Downloads\India-Technology-NPS-Exiting.pdf')
-
 
     def addFileToHistory(self, path):
         self.filehistory.AddFileToHistory(path)
@@ -466,6 +467,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         self.Bind(wx.EVT_MENU, self.onNewConnection, id=ID_newConnection)
         self.Bind(wx.EVT_MENU, lambda e: self.onNewWorksheet(e), id=ID_newWorksheet)
         self.Bind(wx.EVT_MENU, self.onPreferences, ID_PREFERENCES)
+        self.Bind(wx.EVT_MENU, self.onFileSearch, ID_SEARCH_FILE)
 
         self.Bind(wx.EVT_MENU, self.onViewClick, id=ID_OUTLINE)
         self.Bind(wx.EVT_MENU, self.onViewClick, id=ID_SQL_LOG)
@@ -496,10 +498,9 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
             wx.EVT_MENU_RANGE, self.OnFileHistory, id=wx.ID_FILE1, id2=wx.ID_FILE9
             )
         
-        
     def Cleanup(self, *args):
         logger.debug('Cleanup')
-        for i in range( self.filehistory.GetCount()+1):
+        for i in range(self.filehistory.GetCount() + 1):
             try:
                 logger.debug(f'removing : {i}')
                 self.filehistory.RemoveFileFromHistory(i)
@@ -512,10 +513,11 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         # get the file based on the menu ID
         fileNum = evt.GetId() - wx.ID_FILE1
         path = self.filehistory.GetHistoryFile(fileNum)
-        logger.debug(f"You selected {path}" )
+        logger.debug(f"You selected {path}")
 
         # add it back to the history so it will be moved up the list
         self.filehistory.AddFileToHistory(path)
+
     def enableButtons(self, buttonIds=[], enable=True):
         viewToolbar = self.GetTopLevelParent()._mgr.GetPane("viewToolbar")
         for buttonId in buttonIds:
@@ -688,6 +690,11 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         logger.debug('onPerspectiveToolbar')
         sqlLogTab = self.GetTopLevelParent()._mgr.GetPane("perspectiveToolbar").Show()
         self.GetTopLevelParent()._mgr.Update()
+
+    def onFileSearch(self, event):
+        logger.debug('onFileSearch')
+        frame = SearchPanelsFrame(None, size=(800, 400))
+        frame.CenterOnScreen()
 
     def onViewClick(self, event):
         logger.debug('onViewClick')
