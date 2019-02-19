@@ -452,6 +452,9 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         return attacheTo
 
     def bindingEvent(self):
+        
+
+        
         self.Bind(wx.EVT_MENU, self.OnExit, id=wx.ID_EXIT)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
         self.Bind(wx.EVT_MENU, self.OnExit, id=wx.ID_EXIT)
@@ -497,6 +500,12 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         self.Bind(
             wx.EVT_MENU_RANGE, self.OnFileHistory, id=wx.ID_FILE1, id2=wx.ID_FILE9
             )
+        self.accel_tbl = wx.AcceleratorTable([(wx.ACCEL_CTRL, ord('H'), ID_SEARCH_FILE),
+#                                       (wx.ACCEL_CTRL, ord('V'), wx.ID_PASTE),
+#                                       (wx.ACCEL_ALT, ord('X'), wx.ID_PASTE),
+#                                       (wx.ACCEL_SHIFT | wx.ACCEL_ALT, ord('Y'), wx.ID_PASTE)
+                                     ])
+        self.SetAcceleratorTable(self.accel_tbl)
         
     def Cleanup(self, *args):
         logger.debug('Cleanup')

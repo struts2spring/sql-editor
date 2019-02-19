@@ -124,7 +124,7 @@ class CreateFileSearchPanel(wx.Panel):
 
         vBoxFileName = wx.BoxSizer(wx.VERTICAL)
         fileNamePatternLabel = wx.StaticText(self, label='File name patterns (separated by comma):')
-        wildFileNameTextLabel = wx.StaticText(self, label='(*= any string, ?= any character, \= escape for literals: *?\)')
+        wildFileNameTextLabel = wx.StaticText(self, label='(*= any string, ?= any character, !x= excluding x)')
         self.initialFileNameList = []
         fileNameCb = wx.ComboBox(self, wx.NewIdRef(), "", (90, 50),
                          (160, -1), self.initialFileNameList,
