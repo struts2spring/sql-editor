@@ -27,6 +27,7 @@ from src.view.views.console.SqlOutputPanel import SqlConsoleOutputPanel
 from src.view.views.java.explorer.JavaExplorer import CreatingJavaExplorerPanel
 from src.view.views.project.explorer.ProjectExplorer import CreatingProjectExplorerPanel
 from src.view.search.SearchFrame import SearchPanelsFrame
+from src.view.views.file.MainStcPanel import MainStc
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -75,6 +76,10 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
 #         wx.CallLater(13, self.startWebHelp)
     #---------------------------------------------
+    def updateTitle(self, title=None):
+        logger.debug(f'updateTitle: {title}')
+        self.SetTitle(f'{TITLE}-{title}')
+    
     def onTabRightup1(self, event):
         logger.debug('rightdown PopUp')
         _mgr = self._mgr
@@ -231,7 +236,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                     [ID_CLOSE, 'Close \tCtrl+W', None, None, False, ['Python']],
                     [ID_CLOSE_ALL, 'Close All \tCtrl+Shift+W', None, None, False, ['Python']],
                     [],
-                    [ID_SAVE, 'Save \tCtrl+S', None, "save.png", False, ['Python']],
+                    [ID_SAVE, 'Save \tCtrl+S', None, "save.png", True, ['Python']],
                     [ID_SAVE_AS, 'Save As...', None, "saveas_edit.png", False, ['Python']],
                     [ID_SAVE_ALL, 'Save All \tCtrl+Shift+S', None, "saveall_edit.png", False, ['Python']],
                     [],
@@ -417,11 +422,15 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 #         self.addFileToHistory(r'C:\Users\xbbntni\Downloads\India-Technology-NPS-New-Subscriber.pdf')
 #         self.addFileToHistory(r'C:\Users\xbbntni\Downloads\India-Technology-NPS-Exiting.pdf')
 
+
+
     def addFileToHistory(self, path):
         self.filehistory.AddFileToHistory(path)
 
     def disableInitial(self, menuBar=None):
-        itemIdList = [ID_SAVE, ID_SAVE_ALL, wx.ID_UNDO, wx.ID_REDO, wx.ID_CUT, wx.ID_COPY, wx.ID_PASTE]
+        itemIdList = [
+#             ID_SAVE, 
+            ID_SAVE_ALL, wx.ID_UNDO, wx.ID_REDO, wx.ID_CUT, wx.ID_COPY, wx.ID_PASTE]
         for itemId in itemIdList:
             it = menuBar.FindItemById(itemId)
             it.Enable(False)
@@ -452,8 +461,6 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         return attacheTo
 
     def bindingEvent(self):
-        
-
         
         self.Bind(wx.EVT_MENU, self.OnExit, id=wx.ID_EXIT)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
@@ -500,12 +507,14 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         self.Bind(
             wx.EVT_MENU_RANGE, self.OnFileHistory, id=wx.ID_FILE1, id2=wx.ID_FILE9
             )
-        self.accel_tbl = wx.AcceleratorTable([(wx.ACCEL_CTRL, ord('H'), ID_SEARCH_FILE),
-#                                       (wx.ACCEL_CTRL, ord('V'), wx.ID_PASTE),
-#                                       (wx.ACCEL_ALT, ord('X'), wx.ID_PASTE),
-#                                       (wx.ACCEL_SHIFT | wx.ACCEL_ALT, ord('Y'), wx.ID_PASTE)
-                                     ])
-        self.SetAcceleratorTable(self.accel_tbl)
+#         self.accel_tbl = wx.AcceleratorTable([
+#             (wx.ACCEL_CTRL, ord('H'), ID_SEARCH_FILE),
+#             (wx.ACCEL_CTRL, ord('S'), ID_SAVE),
+# #                                       (wx.ACCEL_CTRL, ord('V'), wx.ID_PASTE),
+# #                                       (wx.ACCEL_ALT, ord('X'), wx.ID_PASTE),
+# #                                       (wx.ACCEL_SHIFT | wx.ACCEL_ALT, ord('Y'), wx.ID_PASTE)
+#                                      ])
+#         self.SetAcceleratorTable(self.accel_tbl)
         
     def Cleanup(self, *args):
         logger.debug('Cleanup')
@@ -552,6 +561,10 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
     def onSave(self, event):
         logger.debug('onSave1')
         # disabling button
+        window=self.GetTopLevelParent().FindFocus()
+        if isinstance(window, MainStc):
+            logger.debug('MainStc window')
+            window.SaveFile()
         self.enableButtons(buttonIds=[ID_SAVE], enable=False)
         # changing title : removing start mark
 
@@ -565,6 +578,10 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
         """
         logger.debug('onSaveAs')
+        window=self.GetTopLevelParent().FindFocus()
+        if isinstance(window, MainStc):
+            logger.debug('MainStc window')
+            window.SaveFile()
         #     def OnSaveAs(self, evt, title=u'', page=None):
 #         if page:
 #             ctrl = page

@@ -61,9 +61,9 @@ class EclipseAuiToolbar(aui.AuiToolBar):
         if extra2:
             print(extra2)
 
-    def __onUpdatePageText(self, data, extra1, extra2=None):
+    def __onUpdatePageText(self, filePath, extra1, extra2=None):
         # no longer need to access data through message.data.
-        logger.info('EclipseAuiToolbar.onUpdatePageText')
+        logger.info(f'EclipseAuiToolbar.onUpdatePageText {filePath}')
         print(extra1)
         if extra2:
             print(extra2)
@@ -529,10 +529,18 @@ class PerspectiveManager(object):
         self.createAuiManager()
         pub.subscribe(self.__onObjectAdded, 'perspectiveClicked')
         pub.subscribe(self.__onUpdatePageText, 'onUpdatePageText')
+        self.accel_tbl = wx.AcceleratorTable([
+            (wx.ACCEL_CTRL, ord('S'), ID_SAVE),
+            (wx.ACCEL_CTRL, ord('H'), ID_SEARCH_FILE),
+#                                       (wx.ACCEL_CTRL, ord('V'), wx.ID_PASTE),
+#                                       (wx.ACCEL_ALT, ord('X'), wx.ID_PASTE),
+#                                       (wx.ACCEL_SHIFT | wx.ACCEL_ALT, ord('Y'), wx.ID_PASTE)
+                                     ])
+        self.SetAcceleratorTable(self.accel_tbl)
 
-    def __onUpdatePageText(self, data, extra1, extra2=None):
+    def __onUpdatePageText(self, filePath, extra1, extra2=None):
         # no longer need to access data through message.data.
-        logger.info('PerspectiveManager.__onUpdatePageText')
+        logger.info(f'PerspectiveManager.__onUpdatePageText: {filePath}')
         viewToolbar = self._mgr.GetPane("viewToolbar")
         print(extra1)
         toolSave = viewToolbar.window.FindTool(ID_SAVE)
@@ -540,6 +548,7 @@ class PerspectiveManager(object):
         toolSaveAll.state = aui.AUI_BUTTON_STATE_NORMAL 
         toolSave.state = aui.AUI_BUTTON_STATE_NORMAL 
         logger.info(toolSave.state)
+        self.updateTitle(title=filePath)
         self._mgr.Update()  
         if extra2:
             print(extra2)

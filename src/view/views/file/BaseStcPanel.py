@@ -666,7 +666,7 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
         @return: full path name of document
 
         """
-        return self.file.getPath()
+        return self.file.GetPath()
 
     def GetIndentChar(self):
         """Gets the indentation char used in document

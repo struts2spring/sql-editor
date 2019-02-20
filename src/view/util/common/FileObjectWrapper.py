@@ -9,9 +9,10 @@ from src.view.constants import LOG_SETTINGS
 
 from src.view.util.common.FileImpl import FileObjectBaseImpl
 from src.view.util.common.FileChecker import FileTypeChecker
-from _io import StringIO
+from io import StringIO
 import sys
 from src.view.util.common.fileutil import GetFileModTime, GetFileSize
+import os
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
@@ -77,13 +78,14 @@ class FileObject(FileObjectBaseImpl):
         self.encoding = None
         self.bom = None
         self._mcallback = list()
-        self.__buffer = None
+        self._buffer = None
         self._raw = False  # Raw bytes?
         self._fuzzy_enc = False
         self._job = None  # async file read job
         
     def _SanitizeBOM(self, bstring):
         """Remove byte order marks that get automatically added by some codecs"""
+        bstring = bytes(bstring, 'utf-8')
         for enc in ('utf-8', 'utf-32', 'utf-16'):
             bmark = BOM.get(enc)
             if bstring.startswith(bmark):
@@ -106,10 +108,12 @@ class FileObject(FileObjectBaseImpl):
 
     def _ResetBuffer(self):
         logger.debug("[ed_txt][info] Resetting buffer")
-        if self.__buffer is not None:
-            self.__buffer.close()
-            del self.__buffer
-        self.__buffer = StringIO()
+        if self._buffer is not None:
+            self._buffer.flush()
+            del self._buffer
+        self._buffer = StringIO()
+#         self.__setattr__('__buffer',io.StringIO)
+
     def AddModifiedCallback(self, callback):
         """Set modified callback method
         @param callback: callable
@@ -141,10 +145,10 @@ class FileObject(FileObjectBaseImpl):
         @return: unicode or str
 
         """
-        assert self.__buffer is not None, "No buffer!"
+        assert self._buffer is not None, "No buffer!"
         assert self.encoding is not None, "Encoding Not Set!"
 
-        bytes_value = self.__buffer.getvalue()
+        bytes_value = self._buffer.getvalue()
         ustr = u""
         try:
             if not self._fuzzy_enc or not FileObject._Checker.IsBinaryBytes(bytes_value):
@@ -197,7 +201,7 @@ class FileObject(FileObjectBaseImpl):
         if not self._raw and '\0' in ustr:
             # Return the raw bytes to put into the buffer
             logger.debug("[ed_txt][info] DecodeText - joining nul terminators")
-            ustr = '\0'.join(bytes_value)+'\0'
+            ustr = '\0'.join(bytes_value) + '\0'
             self._raw = True
 
         if self._raw:
@@ -262,8 +266,8 @@ class FileObject(FileObjectBaseImpl):
 
         """
         bOk = True
-        txt = self.__buffer.read(8)
-        self.__buffer.seek(0)
+        txt = self._buffer.read(8)
+        self._buffer.seek(0)
 #         if not IsUnicode(txt):
 #             # Already a string so nothing to do
 #             return bOk
@@ -274,16 +278,16 @@ class FileObject(FileObjectBaseImpl):
         encs.insert(0, self.encoding)
         cenc = self.encoding
 
-        readsize = min(self.__buffer.len, 4096)
+        readsize = min(self._buffer.len, 4096)
         for enc in encs:
-            self.__buffer.seek(0)
+            self._buffer.seek(0)
             try:
-                tmpchars = self.__buffer.read(readsize)
+                tmpchars = self._buffer.read(readsize)
                 while len(tmpchars):
                     tmpchars.encode(enc)
-                    tmpchars = self.__buffer.read(readsize)
+                    tmpchars = self._buffer.read(readsize)
                 self.encoding = enc
-                self.__buffer.seek(0)
+                self._buffer.seek(0)
                 self.ClearLastError()
             except LookupError as msg:
                 logger.debug("[ed_txt][err] Invalid encoding: %s" % enc)
@@ -301,10 +305,10 @@ class FileObject(FileObjectBaseImpl):
 
         # logger.debug if the encoding changed due to encoding errors
         if self.encoding != cenc:
-            logger.debug("[ed_txt][warn] Used encoding %s differs from original %s" %\
+            logger.debug("[ed_txt][warn] Used encoding %s differs from original %s" % \
                 (self.encoding, cenc))
 
-        self.__buffer.seek(0)
+        self._buffer.seek(0)
         return bOk
 
     def FireModified(self):
@@ -329,7 +333,7 @@ class FileObject(FileObjectBaseImpl):
 
         """
         if self.encoding is None:
-            self.encoding=DEFAULT_ENCODING
+            self.encoding = DEFAULT_ENCODING
             # Guard against early entry
 #             return Profile_Get('ENCODING', default=DEFAULT_ENCODING)
         return self.encoding
@@ -357,7 +361,7 @@ class FileObject(FileObjectBaseImpl):
 
     def IsReadOnly(self):
         """Return as read only when file is read only or if raw bytes"""
-        return super(FileObject, self).IsReadOnly() or self.IsRawBytes()
+        return super().IsReadOnly() or self.IsRawBytes()
 
     def Read(self, chunk=512):
         """Get the contents of the file as a string, automatically handling
@@ -382,7 +386,7 @@ class FileObject(FileObjectBaseImpl):
             logger.debug("[ed_txt][info] Read - Start reading")
             tmp = self.Handle.read(chunk)
             while len(tmp):
-                self.__buffer.write(tmp)
+                self._buffer.write(tmp)
                 tmp = self.Handle.read(chunk)
             logger.debug("[ed_txt][info] Read - End reading")
 
@@ -420,7 +424,7 @@ class FileObject(FileObjectBaseImpl):
         if self.DoOpen('rb'):
             # Throttle yielded text to reduce event over head
             filesize = GetFileSize(self.Path)
-            throttle = max(chunk, filesize/100)
+            throttle = max(chunk, filesize / 100)
 
             self.DetectEncoding()
             try:
@@ -499,56 +503,58 @@ class FileObject(FileObjectBaseImpl):
 
         # Check if a magic comment was added or changed
         self._ResetBuffer()
-        self.__buffer.write(value)
-        self.__buffer.seek(0)
-        enc = CheckMagicComment([ self.__buffer.readline() for x in range(2) ])
-        self.__buffer.seek(0)
+        self._buffer.write(value)
+        self._buffer.seek(0)
+        enc = CheckMagicComment([ self._buffer.readline() for x in range(2) ])
+        self._buffer.seek(0)
 
         # Update encoding if necessary
-        if enc is not None:
-            logger.debug("[ed_txt][info] Write: found magic comment: %s" % enc)
-            self.encoding = enc
+#         if enc is not None:
+#             logger.debug("[ed_txt][info] Write: found magic comment: %s" % enc)
+#             self.encoding = enc
 
         # Encode to byte string
         # Do before opening file so that encoding failures don't cause file
         # data to get lost!
-        if self.EncodeText():
-            logger.debug("[ed_txt][info] Write Successful test encode with %s" % self.Encoding)
+#         if self.EncodeText():
 
             # Open and write the file
-            if self.DoOpen('wb'):
-                logger.debug("[ed_txt][info] Opened %s, writing as %s" % (self.Path, self.Encoding))
+        if self.DoOpen('wb'):
                 
-                if self.HasBom():
-                    logger.debug("[ed_txt][info] Adding BOM back to text")
-                    self.Handle.write(self.bom)
+            if self.HasBom():
+                logger.debug("Adding BOM back to text")
+                self.Handle.write(self.bom)
 
-                # Write the file to disk
-                chunk = min(self.__buffer.len, 4096)
-                buffer_read = self.__buffer.read
-                filewrite = self.Handle.write
-                fileflush = self.Handle.flush
-                sanitize = self._SanitizeBOM
+            # Write the file to disk
+            self._buffer.seek(0, os.SEEK_END)
+            chunk = min(self._buffer.tell(), 4096)
+            self._buffer.seek(0)
+            buffer_read = self._buffer.read
+            filewrite = self.Handle.write
+            fileflush = self.Handle.flush
+            sanitize = self._SanitizeBOM
+            tmp = buffer_read(chunk)
+            while len(tmp):
+                tmp_bytes = sanitize(tmp)
+                filewrite(tmp_bytes)
+                fileflush()
                 tmp = buffer_read(chunk)
-                while len(tmp):
-                    tmp_bytes = sanitize(tmp.encode(self.Encoding))
-                    filewrite(tmp_bytes)
-                    fileflush()
-                    tmp = buffer_read(chunk)
 
-                self._ResetBuffer() # Free buffer
-                self.Close()
-                logger.debug("[ed_txt][info] %s was written successfully" % self.Path)
-            else:
-                self._ResetBuffer()
-                raise (WriteError, self.GetLastError())
+            self._ResetBuffer()  # Free buffer
+            self.Close()
+            logger.debug("[ed_txt][info] %s was written successfully" % self.Path)
+        else:
+            self._ResetBuffer()
+            raise (WriteError, self.GetLastError())
 
         logger.debug("[ed_txt][info] Write - Complete: %s - Time: %d" % 
             (self.Path, time.time() - ctime))
 #-----------------------------------------------------------------------------#
 
+
 class FileReadJob(object):
     """Job for running an async file read in a background thread"""
+
     def __init__(self, receiver, task, *args, **kwargs):
         """Create the thread
         @param receiver: Window to receive events
@@ -571,7 +577,7 @@ class FileReadJob(object):
         """Read the text"""
         evt = FileLoadEvent(edEVT_FILE_LOAD, wx.ID_ANY, None, FL_STATE_START)
         wx.PostEvent(self.receiver, evt)
-        time.sleep(.75) # give ui a chance to get ready
+        time.sleep(.75)  # give ui a chance to get ready
 
         count = 1
         for txt in self._task(*self._args, **self._kwargs):
@@ -592,10 +598,14 @@ class FileReadJob(object):
 
 #-----------------------------------------------------------------------------#
 
+
 edEVT_FILE_LOAD = wx.NewEventType()
 EVT_FILE_LOAD = wx.PyEventBinder(edEVT_FILE_LOAD, 1)
+
+
 class FileLoadEvent(wx.PyEvent):
     """Event to signal that a chunk of text haes been read"""
+
     def __init__(self, etype, eid, value=None, state=FL_STATE_READING):
         """Creates the event object"""
         super(FileLoadEvent, self).__init__(eid, etype)
@@ -637,6 +647,7 @@ class FileLoadEvent(wx.PyEvent):
         """
         self._prog = progress
 
+
 #-----------------------------------------------------------------------------#
 # Utility Function
 def CheckBom(line):
@@ -654,6 +665,7 @@ def CheckBom(line):
             has_bom = enc
             break
     return has_bom
+
 
 def CheckMagicComment(lines):
     """Try to decode the given text on the basis of a magic
@@ -676,6 +688,7 @@ def CheckMagicComment(lines):
 
     logger.debug("[ed_txt][info] MagicComment is %s" % enc)
     return enc
+
 
 def DecodeString(string, encoding=None):
     """Decode the given string to Unicode using the provided
@@ -735,6 +748,7 @@ def FallbackReader(fname):
 
     return (None, None)
 
+
 def GuessEncoding(fname, sample):
     """Attempt to guess an encoding
     @param fname: filename
@@ -754,6 +768,7 @@ def GuessEncoding(fname, sample):
         except Exception as msg:
             continue
     return None
+
 
 def GetEncodings():
     """Get a list of possible encodings to try from the locale information
@@ -785,7 +800,7 @@ def GetEncodings():
         pass
     encodings.append(sys.getfilesystemencoding())
     encodings.append('utf-16')
-    encodings.append('utf-16-le') # for files without BOM...
+    encodings.append('utf-16-le')  # for files without BOM...
     encodings.append('latin-1')
 
     # Normalize all names

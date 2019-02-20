@@ -304,6 +304,7 @@ class FileBrowser(FileTree):
                 mainStc.SetSavePoint()
                 fileName=os.path.split(path)[-1]
                 file_ext=fileName.split('.')[-1]
+                mainStc.SetFileName(path)
                 mainStc.SetText(FileOperations().readFile(filePath=path))
                 mainStc.ConfigureLexer(file_ext)
 #                     imageName=self.iconsDictIndex[extensionName]

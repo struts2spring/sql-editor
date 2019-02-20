@@ -16,6 +16,7 @@ import logging.config
 import os
 
 from src.view.constants import LOG_SETTINGS
+from wx.lib.pubsub import pub
 import wx.stc
 
 from src.view.util.common.FileObjectWrapper import EVT_FILE_LOAD, \
@@ -27,7 +28,8 @@ from src.view.util.common.ed_marker import Bookmark
 from src.view.util.common.fileutil import GetFileSize, GetFileModTime
 from src.view.util.syntax.syntax import SYNTAX_IDS, GetExtFromId
 from src.view.views.file.BaseStcPanel import BaseStc, MARK_MARGIN, FOLD_MARGIN
-from wx.lib.pubsub import pub
+
+
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -86,7 +88,7 @@ class MainStc(BaseStc):
     @summary: Subclass of wx.stc.StyledTextCtrl and L{StyleManager}. Manages the documents display and input.
     """
 
-    def __init__(self, parent, id_=wx.ID_ANY, pos=wx.DefaultPosition, size=wx.DefaultSize, style=0, use_dt=True):
+    def __init__(self, parent, id_=wx.ID_ANY, pos=wx.DefaultPosition, size=wx.DefaultSize, style=0, use_dt=True, text=None):
         """Initializes a control and sets the default objects for
         Tracking events that occur in the control.
         @param parent: Parent Window
@@ -106,7 +108,10 @@ class MainStc(BaseStc):
                           wx.stc.STC_CMD_ZOOMOUT)
         self.CmdKeyAssign(ord('+'), wx.stc.STC_SCMOD_CTRL | \
                           wx.stc.STC_SCMOD_SHIFT, wx.stc.STC_CMD_ZOOMIN)
+        
 
+        if text:
+            self.SetText(text)
         #---- Drop Target ----#
 #         if use_dt and hasattr(parent, 'OnDrop'):
 #             self.SetDropTarget(DropTargetFT(self, None, parent.OnDrop))
@@ -161,7 +166,11 @@ class MainStc(BaseStc):
 
     def OnUpdatePageText(self,event):
         logger.debug('OnUpdatePageText')
-        pub.sendMessage('onUpdatePageText', data=42, extra1='onJavaPerspective')
+        pane=self.GetTopLevelParent()._mgr.GetPaneByWidget(self.GetTopLevelParent().FindFocus())
+        if not pane.caption.startswith('*'):
+            pane.caption=f'*{pane.caption}'
+            self.GetTopLevelParent()._mgr.Update()
+        pub.sendMessage('onUpdatePageText', filePath=self.file._path, extra1='onJavaPerspective')
         
     #---- Protected Member Functions ----#
 
@@ -671,9 +680,7 @@ class MainStc(BaseStc):
         ctrl_down = evt.ControlDown()
         cmd_down = evt.CmdDown()
 
-        if self.key_handler.PreProcessKey(k_code, ctrl_down,
-                                          cmd_down, shift_down,
-                                          alt_down):
+        if self.key_handler.PreProcessKey(k_code, ctrl_down, cmd_down, shift_down, alt_down):
             return
 
         if wx.Platform == '__WXMAC__' and self._MacHandleKey(k_code, shift_down,
@@ -1895,7 +1902,7 @@ class MainStc(BaseStc):
                 else:
                     break
 
-    def SaveFile(self, path):
+    def SaveFile(self, path=None):
         """Save buffers contents to disk
         @param path: path of file to save
         @return: whether file was written or not
@@ -1903,11 +1910,12 @@ class MainStc(BaseStc):
         """
         result = True
         try:
-            tlw_id = self.TopLevelParent.Id
+#             tlw_id = self.TopLevelParent.Id
 #             ed_msg.PostMessage(ed_msg.EDMSG_FILE_SAVE, (path, self.GetLangId()), tlw_id)
-            self.File.SetPath(path)
-            logger.debug("[ed_stc][info] Writing file %s, with encoding %s" % \
-                     (path, self.File.GetEncoding()))
+            if path:
+                self.File.SetPath(path)
+
+            logger.debug(f"Writing file {self.File._path}, with encoding {self.File.GetEncoding()}")
 
 #             if _PGET('AUTO_TRIM_WS', 'bool', False):
 #                 self.TrimWhitespace()
@@ -1926,14 +1934,19 @@ class MainStc(BaseStc):
                     self.File.Write(txt)
         except Exception as msg:
             result = False
-            logger.debug("[ed_stc][err] There was an error saving %s" % path)
-            logger.debug("[ed_stc][err] ERROR: %s" % str(msg))
+            logger.error(f"There was an error saving {path}" )
+            logger.error(f"{msg}")
 
         if result:
             self.SetSavePoint()
-            self.SetModTime(GetFileModTime(path))
+            self.SetModTime(GetFileModTime(self.File._path))
             self.File.FireModified()
-            self.SetFileName(path)
+            self.FireModified()
+            self.SetFileName(self.File._path)
+            pane=self.GetTopLevelParent()._mgr.GetPaneByWidget(self.GetTopLevelParent().FindFocus())
+            if pane.caption.startswith('*'):
+                pane.caption=pane.caption[1:]
+                self.GetTopLevelParent()._mgr.Update()
 
 #         wx.CallAfter(ed_msg.PostMessage,
 #                      ed_msg.EDMSG_FILE_SAVED,

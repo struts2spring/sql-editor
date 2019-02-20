@@ -354,10 +354,13 @@ class CreatingPythonExplorerPanel(FileTree):
         if hasattr(self.GetTopLevelParent(), '_mgr'):
 
             for fileWithImage in to_open:
-                mainStc = MainStc(self)
+                filePath=fileWithImage[0]
                 fileName = os.path.split(fileWithImage[0])[-1]
                 file_ext = fileName.split('.')[-1]
-                mainStc.SetText(FileOperations().readFile(filePath=fileWithImage[0]))
+                mainStc = MainStc(self, text=FileOperations().readFile(filePath=fileWithImage[0]))
+                mainStc.SetFileName(filePath)
+                mainStc.SetModTime(os.path.getmtime(filePath))
+#                 mainStc.SetText(FileOperations().readFile(filePath=fileWithImage[0]))
                 mainStc.ConfigureLexer(file_ext)
                 mainStc.SetModified(False)
                 imageName = self._mime.getFileImageNameByExtension(file_ext)
@@ -365,7 +368,7 @@ class CreatingPythonExplorerPanel(FileTree):
                 mainStc.SetSavePoint()
                 icon = fileWithImage[1]
 #                     imageName=self.iconsDictIndex[extensionName]
-                self.GetTopLevelParent()._mgr.addTabByWindow(window=mainStc, icon=icon, imageName=imageName, name=name + '-' + captionName, captionName=name, tabDirection=5)
+                self.GetTopLevelParent()._mgr.addTabByWindow(window=mainStc, icon=icon, imageName=imageName, name=f'{name}-{captionName}', captionName=name, tabDirection=5)
 #                     centerPaneTab.window.addTab(name='openFileLoad'+fileName, worksheetPanel=stc)
 
 #         win = wx.GetApp().GetActiveWindow()
