@@ -104,7 +104,10 @@ class CreatingTableInfoPanel(wx.Panel):
         listOfTabs = ['Columns', 'Indexes', 'Data', 'References', 'Triggers', 'SQL', 'ER diagram']
         for tabName in listOfTabs:
             tableInfoPanel = CreatingTableInfoToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN, tableName=self.tableName, tabName=tabName, dataSourceTreeNode=self.dataSourceTreeNode)
-            self._nb.AddPage(tableInfoPanel, tabName)      
+            try:
+                self._nb.AddPage(tableInfoPanel, tabName)  
+            except Exception as e:
+                logger.error(e)    
             self.Bind(aui.EVT_AUINOTEBOOK_TAB_RIGHT_DOWN, self.onTabRightDown, self._nb)
             self.Bind(aui.EVT_AUINOTEBOOK_BG_DCLICK, self.onBgDoubleClick, self._nb)  
             self.Bind(aui.EVT_AUINOTEBOOK_PAGE_CLOSE, self.onCloseClick, self._nb)          
