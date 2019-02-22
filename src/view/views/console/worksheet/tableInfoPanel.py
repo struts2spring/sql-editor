@@ -74,7 +74,7 @@ class CreatingTableInfoPanel(wx.Panel):
 
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
-        self.tableName = 'Unknown'
+        self.tableName = None
         self.parent = parent
         self.dataSourceTreeNode = None
         if kw and 'tableName' in kw.keys():
@@ -140,9 +140,12 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
         vBox = wx.BoxSizer(wx.VERTICAL)
         logger.debug(kw)
         ####################################################################
+        # adding new rows to the list on click of add button
+#         self.newRows={}
+        ####################################################################
 #         self.topResultToolbar = self.constructTopResultToolBar()
         self.bottomResultToolbar = wx.StatusBar(self)
-        resultPanel, toolbar = self.getPanelByTabName(tableName=kw['tableName'], tabName=kw['tabName'])
+        self.resultPanel, self.toolbar = self.getPanelByTabName(tableName=kw['tableName'], tabName=kw['tabName'])
 #         self.resultPanel = ResultPanel(self, data=None)
         self.bottomResultToolbar.SetStatusText("some text")
 #         self.bottomResultToolbar = self.constructBottomResultToolBar()
@@ -150,9 +153,9 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
 #         bottomResultToolbar = self.constructBottomResultToolBar()
         
         ####################################################################
-        vBox.Add(toolbar , 0, wx.EXPAND | wx.ALL, 0)
+        vBox.Add(self.toolbar , 0, wx.EXPAND | wx.ALL, 0)
 #         vBox.Add(self.resultPanel , 1, wx.EXPAND | wx.ALL, 0)
-        vBox.Add(resultPanel , 1, wx.EXPAND | wx.ALL)
+        vBox.Add(self.resultPanel , 1, wx.EXPAND | wx.ALL)
         vBox.Add(self.bottomResultToolbar , 0, wx.EXPAND | wx.ALL, 0)
 #         vBox.Add(bottomResultToolbar , 0, wx.EXPAND | wx.ALL, 0)
         sizer = wx.BoxSizer(wx.VERTICAL)
@@ -182,6 +185,8 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
                 else:
                     logger.debug(tool)
                     toolItem = tb1.AddSimpleTool(tool[0], tool[1], self.fileOperations.getImageBitmap(imageName=tool[2]), short_help_string=tool[3])
+                    if tool[4]:
+                        self.Bind(wx.EVT_MENU, tool[4], id=tool[0])
 #             tb1.AddSimpleTool(ID_SAVE_ROW, "Save", fileOperations.getImageBitmap(imageName="save_to_database.png"), short_help_string='Save to database')
 #             tb1.AddSeparator()
 #             
@@ -197,22 +202,47 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
         
         return tb1     
 
-    def onSave(self):
+    def onSave(self, event):
         logger.debug('onSave')
 
-    def onRefresh(self):
+    def onRefresh(self, event):
         logger.debug('onRefresh')
+        db = ManageSqliteDatabase(connectionName=self.dataSourceTreeNode.dataSource.connectionName, databaseAbsolutePath=self.dataSourceTreeNode.dataSource.filePath)
+#         result = db.sqlite_select(tableName="sqlite_master")
+        data = None
+        tableName=self.GetParent().GetParent().tableName
+        if tableName:
+            data = db.executeText(text=f"SELECT * FROM '{tableName}' LIMIT 500;")
+        if data:
+            logger.debug('setResultData count: %s', len(data.keys()))
+        self.resultPanel.addData(data)
+        self.resultPanel.Layout()
 
-    def onAddRow(self):
+    def onAddRow(self, event):
         logger.debug('onAddRow')
-        self.G
-        self.AppendRows()
+        logger.debug(self.resultPanel.GetNumberRows())
+#         self.newRows[self.resultPanel.GetNumberRows()+1]=list()
+        self.resultPanel.AppendRows(numRows=1, updateLabels=True)
+        
+        # TODO : a logic for save insert, update , delete has to go here
+        
+        
 
-    def onDuplicateRow(self):
+    def onDuplicateRow(self, event):
         logger.debug('onDuplicateRow')
 
-    def onDeleteRow(self):
-        logger.debug('onDeleteRow')
+    def onDeleteRow(self, event):
+        logger.debug(f'onDeleteRow')
+        seletedRows=list(self.resultPanel.GetSelectedRows())
+        seletedRows.sort(reverse = True)
+        for selectedRow in seletedRows:
+#             self.newRows.append(list())
+#             if selectedRow+1 in self.newRows: 
+#                 del self.newRows[selectedRow+1]
+            self.resultPanel.DeleteRows(pos=selectedRow, numRows=1, updateLabels=True)
+
+#         self.resultPanel.DeleteRows(pos=0, numRows=numRows, updateLabels=True)
+#         self.resultPanel.dele
 
     def getPanelByTabName(self, tableName=None, tabName=None):
         toolbar = self.constructTopResultToolBar()
@@ -241,8 +271,9 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
             
         if tabName == 'Columns':
             resultPanel = ResultDataGrid(self, data=None)
-            rows = db.executeText(f"pragma table_info('{tableName}');")
-            resultPanel.addData(rows)
+            if tableName:
+                rows = db.executeText(f"pragma table_info('{tableName}');")
+                resultPanel.addData(rows)
         elif tabName == 'Indexes':
             resultPanel = ResultDataGrid(self, data=None)
             
@@ -252,7 +283,7 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
             resultPanel = ResultDataGrid(self, data=None)
             data = None
             if tableName:
-                data = db.executeText(text=f"SELECT * FROM '{tableName}' LIMIT 20;")
+                data = db.executeText(text=f"SELECT * FROM '{tableName}' LIMIT 500;")
             if data:
                 logger.debug('setResultData count: %s', len(data.keys()))
 #                 self.bottomResultToolbar.SetStatusText("Count: {}".format(str(len(data.keys()))))

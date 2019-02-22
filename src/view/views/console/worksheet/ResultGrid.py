@@ -324,6 +324,11 @@ class ResultDataGrid(gridlib.Grid):
             # Call paste method
             self.paste()
             
+        # If Ctrl+Z is pressed...
+        if event.ControlDown() and event.GetKeyCode() == 90:
+            if self.data4undo[2] != '':
+                self.paste('undo')   
+                         
         # If Supr is presed
         if event.GetKeyCode() == 127:
             logger.info("Supr")
@@ -335,10 +340,54 @@ class ResultDataGrid(gridlib.Grid):
             event.Skip()
             return
 
+    def delete(self):
+        '''This method deletes text from selected cells, places a
+        copy of the deleted cells on the clipboard for pasting
+        (Ctrl+v), and places a copy in the self.data4undo variable
+        for undoing (Ctrl+z)
+        '''
+
+        # Get number of delete rows and cols
+        if self.GetSelectionBlockTopLeft() == []:
+            rowstart = self.GetGridCursorRow()
+            colstart = self.GetGridCursorCol()
+            rowend = rowstart
+            colend = colstart
+        else:
+            rowstart = self.GetSelectionBlockTopLeft()[0][0]
+            colstart = self.GetSelectionBlockTopLeft()[0][1]
+            rowend = self.GetSelectionBlockBottomRight()[0][0]
+            colend = self.GetSelectionBlockBottomRight()[0][1]
+
+        rows = rowend - rowstart + 1
+        cols = colend - colstart + 1
+
+        # Save deleted text and clear cells contents
+        text4undo = ''
+        for r in range(rows):
+            for c in range(cols):
+                text4undo += \
+                    str(self.GetCellValue(rowstart + r, colstart + c)) + '\t'
+                self.SetCellValue(rowstart + r, colstart + c, '')
+
+            text4undo = text4undo[:-1] + '\n'
+
+        # Save a copy of deleted text for undo
+        self.data4undo = [rowstart, colstart, text4undo]
+
+        # Save a copy of deleted text to clipboard for Ctrl+v
+        clipboard = wx.TextDataObject()
+        clipboard.SetText(text4undo)
+        if wx.TheClipboard.Open():
+            wx.TheClipboard.SetData(clipboard)
+            wx.TheClipboard.Close()
+        else:
+            wx.MessageBox("Can't open the clipboard", "Error")
+
     def copy(self):
         logger.info("Copy method")
         # Number of rows and cols
-        if len(self.GetSelectionBlockBottomRight())>0:
+        if len(self.GetSelectionBlockBottomRight()) > 0:
             rows = self.GetSelectionBlockBottomRight()[0][0] - self.GetSelectionBlockTopLeft()[0][0] + 1
             cols = self.GetSelectionBlockBottomRight()[0][1] - self.GetSelectionBlockTopLeft()[0][1] + 1
             
@@ -436,7 +485,7 @@ class ResultDataGrid(gridlib.Grid):
     def rowPopup(self, row, evt):
         """(row, evt) -> display a popup menu when a row label is right clicked"""
         menu = wx.Menu()
-        self=self
+        self = self
         copyID = wx.NewIdRef()
         appendID = wx.NewIdRef()
         deleteID = wx.NewIdRef()
@@ -493,10 +542,8 @@ class ResultDataGrid(gridlib.Grid):
             else:
                 wx.MessageBox("Can't open the clipboard", "Warning")
 
-
-
         def append(event, self=self, row=row):
-            logger.debug(row)
+            logger.debug('append')
 #             self.AppendRows(row)
             self.AppendRows(numRows=1, updateLabels=True)
 
@@ -513,6 +560,7 @@ class ResultDataGrid(gridlib.Grid):
         self.PopupMenu(menu)
         menu.Destroy()
         return
+
     def get_selection(self):
         """
         Returns selected range's start_row, start_col, end_row, end_col
@@ -553,6 +601,7 @@ class ResultDataGrid(gridlib.Grid):
         for row in range(start_row, end_row + 1):
             for col in range(start_col, end_col + 1):
                 yield [row, col]    
+
     def colPopup(self, col, evt):
         """(col, evt) -> display a popup menu when a column label is
         right clicked"""
@@ -677,7 +726,7 @@ class GridCellPopupMenu(wx.Menu):
         dlg = wx.MessageDialog(self.GetWindow(), f'Row count :  {self.GetWindow().GetNumberRows()}',
                        'Row Count',
                        wx.OK | wx.ICON_INFORMATION
-                       #wx.YES_NO | wx.NO_DEFAULT | wx.CANCEL | wx.ICON_INFORMATION
+                       # wx.YES_NO | wx.NO_DEFAULT | wx.CANCEL | wx.ICON_INFORMATION
                        )
         dlg.ShowModal()
         dlg.Destroy()

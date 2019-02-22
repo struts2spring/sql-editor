@@ -28,6 +28,8 @@ from src.view.views.java.explorer.JavaExplorer import CreatingJavaExplorerPanel
 from src.view.views.project.explorer.ProjectExplorer import CreatingProjectExplorerPanel
 from src.view.search.SearchFrame import SearchPanelsFrame
 from src.view.views.file.MainStcPanel import MainStc
+from src.view.views.console.worksheet.ResultGrid import ResultDataGrid
+
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -565,6 +567,8 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         if isinstance(window, MainStc):
             logger.debug('MainStc window')
             window.SaveFile()
+        elif isinstance(window, ResultDataGrid):
+            logger.debug('window:ResultDataGrid')
         self.enableButtons(buttonIds=[ID_SAVE], enable=False)
         # changing title : removing start mark
 
