@@ -344,7 +344,7 @@ class DatabaseTree(TreeCtrl):
         except Exception as e :
             logger.error(e)
 
-    def onRefresh(self, event, nodes=None):
+    def onRefresh(self, event, nodes=None, connectionName=None):
         logger.debug('onRootRefresh')
         '''
         1. find current active connection.
@@ -357,7 +357,7 @@ class DatabaseTree(TreeCtrl):
 #             nodes = self.GetSelections()
             for node in self.GetChildNodes(self.RootItem):
                 dataSourceTreeNode = self.GetItemData(node)
-                if dataSourceTreeNode.dataSource.isConnected:
+                if dataSourceTreeNode.dataSource.isConnected and connectionName==dataSourceTreeNode.dataSource.connectionName:
                     self.onDisconnectDb(event, [node])
                     self.onConnectDb(event, [node])
             pass

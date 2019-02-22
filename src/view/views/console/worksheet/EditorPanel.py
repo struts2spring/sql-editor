@@ -1001,7 +1001,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         '''
         for refreshItem in ['create table','drop','alter']:
             if refreshItem in sqlText.lower() :
-                self.GetTopLevelParent()._mgr.GetPane("databaseNaviagor").window.tree.onRefresh(event)
+                self.GetTopLevelParent()._mgr.GetPane("databaseNaviagor").window.tree.onRefresh(event, connectionName=selectedItemText)
         
 #         updateStatus="Unable to connect '"+dbFilePath +". "+error
 #         consoleOutputPanel = self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window
