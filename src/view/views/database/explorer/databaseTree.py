@@ -350,11 +350,22 @@ class DatabaseTree(TreeCtrl):
         1. find current active connection.
         2. refresh only that connection.
         '''
-        for node in nodes:
-            dataSourceTreeNode = self.GetItemData(node)
-            logger.debug(dataSourceTreeNode.dataSource.connectionName)
-            if dataSourceTreeNode.dataSource.isConnected and dataSourceTreeNode.depth == 1:
-                logger.debug(f'refreshing {dataSourceTreeNode.dataSource.connectionName}')
+        if nodes:
+            self.onDisconnectDb(event, nodes)
+            self.onConnectDb(event, nodes)
+        else:
+#             nodes = self.GetSelections()
+            for node in self.GetChildNodes(self.RootItem):
+                dataSourceTreeNode = self.GetItemData(node)
+                if dataSourceTreeNode.dataSource.isConnected:
+                    self.onDisconnectDb(event, [node])
+                    self.onConnectDb(event, [node])
+            pass
+#         for node in nodes:
+#             dataSourceTreeNode = self.GetItemData(node)
+#             logger.debug(dataSourceTreeNode.dataSource.connectionName)
+#             if dataSourceTreeNode.dataSource.isConnected and dataSourceTreeNode.depth == 1:
+#                 logger.debug(f'refreshing {dataSourceTreeNode.dataSource.connectionName}')
 
     def createMenu(self):
         logger.debug('createMenu')

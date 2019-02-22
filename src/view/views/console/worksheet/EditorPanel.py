@@ -405,11 +405,10 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             logger.debug(selectedText)
             # lineNo = self.GetCurrentLine()
             lineText, column = self.GetCurLine()
-            if selectedText != None and selectedText !='':
+            if selectedText != None and selectedText != '':
                 self.AddText(f'\n{selectedText}')
             else:
                 self.AddText(f'\n{lineText}')
-                
             
         elif event.ControlDown() and event.ShiftDown() and key == 70:
             logger.debug('ctrl+Shtft+F: format code')
@@ -911,7 +910,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         if cmd:
             self.CmdKeyExecute(cmd)
     
-    def executeSQL(self):
+    def executeSQL(self, event=None):
         '''
         '''
         error = 'success'
@@ -996,6 +995,13 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             error = str(e)
             
         self.refreshSqlLogUi()
+        
+        '''
+        logic to update connected tree if sqlText has create statement. 
+        '''
+        if 'create table' in sqlText.lower():
+            self.GetTopLevelParent()._mgr.GetPane("databaseNaviagor").window.tree.onRefresh(event)
+        
 #         updateStatus="Unable to connect '"+dbFilePath +". "+error
 #         consoleOutputPanel = self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window
 #         consoleOutputPanel.text.AppendText(error)
@@ -1100,6 +1106,7 @@ class CreatingEditorPanel(wx.Panel):
 #     def __OnCellChange(self, sqlType=None):
 #         logger.debug(f'__OnCellChange {sqlType}')
 #         self.sstc.SetText(sqlType.getCreateSql())
+
 
 if __name__ == '__main__':
     app = wx.App(False)
