@@ -999,8 +999,9 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         '''
         logic to update connected tree if sqlText has create statement. 
         '''
-        if 'create table' in sqlText.lower():
-            self.GetTopLevelParent()._mgr.GetPane("databaseNaviagor").window.tree.onRefresh(event)
+        for refreshItem in ['create table','drop','alter']:
+            if refreshItem in sqlText.lower() :
+                self.GetTopLevelParent()._mgr.GetPane("databaseNaviagor").window.tree.onRefresh(event)
         
 #         updateStatus="Unable to connect '"+dbFilePath +". "+error
 #         consoleOutputPanel = self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window
