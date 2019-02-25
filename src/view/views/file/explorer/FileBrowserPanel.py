@@ -23,6 +23,7 @@ logger = logging.getLogger('extensive')
 
 class FileBrowser(FileTree):
     
+    
     """FileBrowser Tree is a left navigation tree in File explorer"""
 
     def __init__(self, parent, size=wx.DefaultSize):

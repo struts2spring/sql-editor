@@ -296,7 +296,12 @@ class DatabaseTree(TreeCtrl):
             self.connectingDatabase(event=evt, nodes=nodes)
             
         if dataSourceTreeNode.nodeType == 'table':
-            self.openWorksheet(sheetName=dataSourceTreeNode.sqlType.name, dataSourceTreeNode=dataSourceTreeNode)
+            iconIndex=self.GetItemImage(itemId)
+            icon=self.GetImageList().GetBitmap(iconIndex)
+            if hasattr(self.GetTopLevelParent(), '_mgr'):
+                tableInfo = CreatingTableInfoPanel(self, -1, style=wx.CLIP_CHILDREN | wx.BORDER_NONE, tableName=dataSourceTreeNode.sqlType.name, dataSourceTreeNode=dataSourceTreeNode)
+                sqlExecutionTab = self.GetTopLevelParent()._mgr.addTabByWindow(window=tableInfo ,icon=icon,imageName="script.png", captionName=dataSourceTreeNode.sqlType.name, tabDirection=5)
+#             self.openWorksheet(sheetName=dataSourceTreeNode.sqlType.name, dataSourceTreeNode=dataSourceTreeNode)
         if dataSourceTreeNode.nodeType == 'view':
             # TODO : need to write a view panel
             pass

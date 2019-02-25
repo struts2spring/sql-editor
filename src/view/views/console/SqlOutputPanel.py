@@ -22,7 +22,7 @@ class SqlConsoleOutputPanel(wx.Panel):
         vBox = wx.BoxSizer(wx.VERTICAL)
 
         ####################################################################
-        self.text = SqlStyleTextCtrl(self, -1)
+        self.text = SqlStyleTextCtrl(self, -1, size=size)
 #         self.text.initKeyShortCut()
         if not data:
             data = ''
@@ -40,7 +40,7 @@ class SqlConsoleOutputPanel(wx.Panel):
 #         self.text.SetWrapMode(stc.STC_WRAP_WORD)
 #         self.text.SetMarginLeft(50)
         ####################################################################
-        vBox.Add(self.text , 1, wx.EXPAND | wx.ALL)
+        vBox.Add(self.text , 1, wx.EXPAND | wx.ALL, 1)
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(vBox, 1, wx.EXPAND , 0)
         self.SetSizer(sizer)

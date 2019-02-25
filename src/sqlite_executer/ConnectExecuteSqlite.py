@@ -350,7 +350,7 @@ class SQLExecuter():
             
             sqliteTypes = cur.execute("select distinct type from sqlite_master;").fetchall()
             for sqliteType in sqliteTypes:
-                query = f"""select * from sqlite_master where type`{sqliteType[0]}` \nAND name NOT LIKE 'sqlite_%' \nAND name != 'SAMPLE' ;
+                query = f"""select * from sqlite_master where type='{sqliteType[0]}' \nAND name NOT LIKE 'sqlite_%' \nAND name != 'SAMPLE' ;
                 """
                 logger.debug(query)
                 queryResult = cur.execute(query).fetchall()
@@ -727,7 +727,7 @@ class ManageSqliteDatabase():
         try:
             with self.conn:    
                 cur = self.conn.cursor() 
-                sql = f"SELECT name, sql FROM sqlite_master WHERE type=`table` AND name = `{tableName}`;"
+                sql = f"SELECT name, sql FROM sqlite_master WHERE type='table' AND name = '{tableName}';"
                 rows = cur.execute(sql).fetchall()
                 tableCreateStmt = rows[0][1]
                 match = re.findall(r'[^[]*\[([^]]*)\]', tableCreateStmt)

@@ -94,10 +94,10 @@ else:
 class SqlStyleTextCtrl(stc.StyledTextCtrl):
     fold_symbols = 2
 
-    def __init__(self, parent, ID,
+    def __init__(self, parent, Id,
                  pos=wx.DefaultPosition, size=wx.DefaultSize,
                  style=0):
-        stc.StyledTextCtrl.__init__(self, parent, ID, pos, size, style)    
+        stc.StyledTextCtrl.__init__(self, parent, Id, pos, size=size, style=style)    
         self.findData = wx.FindReplaceData()
         self.popmenu = None
         self.frame = None
@@ -999,7 +999,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         '''
         logic to update connected tree if sqlText has create statement. 
         '''
-        for refreshItem in ['create table','drop','alter']:
+        for refreshItem in ['create table', 'drop', 'alter']:
             if refreshItem in sqlText.lower() :
                 self.GetTopLevelParent()._mgr.GetPane("databaseNaviagor").window.tree.onRefresh(event, connectionName=selectedItemText)
         
