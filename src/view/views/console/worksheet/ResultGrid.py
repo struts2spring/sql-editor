@@ -265,7 +265,15 @@ class ResultDataGrid(gridlib.Grid):
                             self.SetColLabelValue(idx, str(colValue))
                         else:
                             try:
-                                self.SetCellValue(dataKey - 1, idx, str(colValue))
+                                if str(colValue).startswith('-______-'):
+                                    newStringValue = str(colValue).replace('-______-', '')
+                                    self.SetCellFont(dataKey - 1, idx,  wx.Font(10, wx.FONTFAMILY_SCRIPT, wx.FONTSTYLE_ITALIC, wx.FONTWEIGHT_NORMAL))
+                                    self.SetCellTextColour(dataKey - 1, idx, wx.LIGHT_GREY)
+                                    self.SetCellValue(dataKey - 1, idx, newStringValue)
+                                else:
+#                                     self.SetCellFont(dataKey - 1, idx,  wx.Font(10, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_ITALIC, wx.FONTWEIGHT_NORMAL))
+#                                     self.SetCellTextColour(dataKey - 1, idx,wx.LIGHT_GREY)
+                                    self.SetCellValue(dataKey - 1, idx, str(colValue))
 #                                 self.SetCellAlignment(dataKey - 1,idx, wx.ALIGN_RIGHT)
                             except Exception as e:
                                 logger.error(e, exc_info=True)  

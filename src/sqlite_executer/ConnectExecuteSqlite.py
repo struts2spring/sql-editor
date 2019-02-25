@@ -599,12 +599,27 @@ class ManageSqliteDatabase():
                             headerList.append(desc[0])
                         sqlOutput[0] = tuple(headerList)
                         for idx, item in enumerate(rows):
-                            sqlOutput[idx + 1] = item
+                            items = []
+                            for v in item:
+                                if v is None:
+                                    v = '-______-Null'# this is to make a distinguish between Null
+                                elif self.isBlob(v):
+                                    v = '-______-Blob'
+                                    
+                                items.append(v)
+#                             item=['-______-Null' if v is None else v for v in item] 
+                            sqlOutput[idx + 1] = items
         except Exception as e:
             logger.error(e, exc_info=True)
             raise e
             self.conn.rollback()
         return sqlOutput 
+    
+    def isBlob(self, text):
+        blob = False
+        if text != None and not isinstance(text, int) and not isinstance(text, str) and text.startswith(b'\x89'):
+            blob = True
+        return blob
     
     def executeSelectQuery(self, text=None):
         rows = None

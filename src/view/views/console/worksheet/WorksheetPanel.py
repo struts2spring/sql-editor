@@ -408,7 +408,7 @@ class CreatingWorksheetPanel(wx.Panel):
 if __name__ == '__main__':
     app = wx.App(False)
     frame = wx.Frame(None)
-    dataSource = DataSource(connectionName='employee_9_jan_2019', filePath=r'C:\Users\xbbntni\eclipse-workspace2\pyTrack\src\employee.sqlite')
+    dataSource = DataSource(connectionName='one', filePath=r'C:\Users\xbbntni\one.sqlite')
     dataSourceTreeNode = DataSourceTreeNode(depth=0, dataSource=dataSource, nodeLabel=None, imageName=None, children=None)
     panel = CreateWorksheetTabPanel(frame)
     panel.addTab(name='Worksheet', dataSourceTreeNode=dataSourceTreeNode)

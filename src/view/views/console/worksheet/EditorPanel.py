@@ -968,6 +968,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 if sqlOutput and resultListPanel._nb.GetCurrentPage():
                     resultListPanel._nb.GetCurrentPage().bottomResultToolbar.SetStatusText('Count: {}'.format(len(sqlOutput) - 1))
                     resultListPanel._nb.GetCurrentPage().resultPanel.addData(data=sqlOutput)
+#                     resultListPanel._nb.GetCurrentPage().resultPanel.DoRefresh()
 #                 else:
 #                     # logic to add a new tab in result
 #                     logger.debug('adding a new tab')

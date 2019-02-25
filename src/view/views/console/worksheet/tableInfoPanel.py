@@ -207,13 +207,16 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
 
     def onSave(self, event):
         logger.debug('onSave')
+        sqlText = self.generateSql()
+        db = ManageSqliteDatabase(connectionName=self.dataSourceTreeNode.dataSource.connectionName, databaseAbsolutePath=self.dataSourceTreeNode.dataSource.filePath)
+        db.executeText(sqlText)
 
     def onRefresh(self, event):
         logger.debug('onRefresh')
         db = ManageSqliteDatabase(connectionName=self.dataSourceTreeNode.dataSource.connectionName, databaseAbsolutePath=self.dataSourceTreeNode.dataSource.filePath)
 #         result = db.sqlite_select(tableName="sqlite_master")
         data = None
-        tableName=self.GetParent().GetParent().tableName
+        tableName = self.GetParent().GetParent().tableName
         if tableName:
             data = db.executeText(text=f"SELECT * FROM '{tableName}' LIMIT 500;")
         if data:
@@ -229,15 +232,18 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
         
         # TODO : a logic for save insert, update , delete has to go here
         
-        
+    def generateSql(self):
+        logger.debug('generateSql')
+        sql = ''
+        return sql
 
     def onDuplicateRow(self, event):
         logger.debug('onDuplicateRow')
 
     def onDeleteRow(self, event):
         logger.debug(f'onDeleteRow')
-        seletedRows=list(self.resultPanel.GetSelectedRows())
-        seletedRows.sort(reverse = True)
+        seletedRows = list(self.resultPanel.GetSelectedRows())
+        seletedRows.sort(reverse=True)
         for selectedRow in seletedRows:
 #             self.newRows.append(list())
 #             if selectedRow+1 in self.newRows: 
