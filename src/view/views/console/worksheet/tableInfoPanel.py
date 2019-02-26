@@ -210,6 +210,18 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
         sqlText = self.generateSql()
         db = ManageSqliteDatabase(connectionName=self.dataSourceTreeNode.dataSource.connectionName, databaseAbsolutePath=self.dataSourceTreeNode.dataSource.filePath)
         db.executeText(sqlText)
+        
+        originalData=self.resultPanel.getData()
+        newData=list()
+        
+        
+        for row in self.resultPanel.GetNumberRows():
+            newRow=[]
+            for col in self.resultPanel.GetNumberCols():
+                newRow.append(self.resultPanel.GetCellValue(row, col))
+            newData.append(newRow)
+        
+        self.generateSql(originalData,newData )
 
     def onRefresh(self, event):
         logger.debug('onRefresh')
@@ -228,11 +240,13 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
         logger.debug('onAddRow')
         logger.debug(self.resultPanel.GetNumberRows())
 #         self.newRows[self.resultPanel.GetNumberRows()+1]=list()
+#         data=self.resultPanel.getData()
+        
         self.resultPanel.AppendRows(numRows=1, updateLabels=True)
         
         # TODO : a logic for save insert, update , delete has to go here
         
-    def generateSql(self):
+    def generateSql(self, oldeData, newData):
         logger.debug('generateSql')
         sql = ''
         return sql

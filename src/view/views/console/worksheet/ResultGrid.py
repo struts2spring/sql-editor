@@ -198,6 +198,7 @@ class ResultDataGrid(gridlib.Grid):
         self.Bind(gridlib.EVT_GRID_CELL_RIGHT_CLICK, self.showGridCellPopupMenu)
         self.Bind(gridlib.EVT_GRID_LABEL_RIGHT_CLICK, self.showHeaderPopupMenu)
         self.Bind(wx.EVT_KEY_DOWN, self.OnKey)
+        self.data = None
         
 #         self.SetCellAlignment(row, col, horiz, vert)
         
@@ -226,7 +227,14 @@ class ResultDataGrid(gridlib.Grid):
 # 
 #         self.addData()
 
+    def setData(self, data):
+        self.data = data
+
+    def getData(self):
+        return self.data
+
     def addData(self, data=None):
+        self.data = data
 #         logger.info(self.GetRowSizes())
 #         logger.info(self.GetColSizes())
         self.ClearGrid()
@@ -267,7 +275,7 @@ class ResultDataGrid(gridlib.Grid):
                             try:
                                 if str(colValue).startswith('-______-'):
                                     newStringValue = str(colValue).replace('-______-', '')
-                                    self.SetCellFont(dataKey - 1, idx,  wx.Font(10, wx.FONTFAMILY_SCRIPT, wx.FONTSTYLE_ITALIC, wx.FONTWEIGHT_NORMAL))
+                                    self.SetCellFont(dataKey - 1, idx, wx.Font(10, wx.FONTFAMILY_SCRIPT, wx.FONTSTYLE_ITALIC, wx.FONTWEIGHT_NORMAL))
                                     self.SetCellTextColour(dataKey - 1, idx, wx.LIGHT_GREY)
                                     self.SetCellValue(dataKey - 1, idx, newStringValue)
                                 else:
