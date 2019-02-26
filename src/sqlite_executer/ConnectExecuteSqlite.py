@@ -602,9 +602,9 @@ class ManageSqliteDatabase():
                             items = []
                             for v in item:
                                 if v is None:
-                                    v = '-______-Null'# this is to make a distinguish between Null
+                                    v = '-______-NULL'# this is to make a distinguish between Null
                                 elif self.isBlob(v):
-                                    v = '-______-Blob'
+                                    v = '-______-BLOB'
                                     
                                 items.append(v)
 #                             item=['-______-Null' if v is None else v for v in item] 

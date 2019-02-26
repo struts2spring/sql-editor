@@ -207,21 +207,30 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
 
     def onSave(self, event):
         logger.debug('onSave')
-        sqlText = self.generateSql()
+#         sqlText = self.generateSql()
         db = ManageSqliteDatabase(connectionName=self.dataSourceTreeNode.dataSource.connectionName, databaseAbsolutePath=self.dataSourceTreeNode.dataSource.filePath)
-        db.executeText(sqlText)
+#         db.executeText(sqlText)
         
-        originalData=self.resultPanel.getData()
-        newData=list()
+        originalData = self.resultPanel.getData()
+        originalDataSet = set()
+        for k, v in originalData.items():
+            if k > 0:
+                originalDataSet.add(tuple([str(x) for x in v]))
         
+        newData = set()
         
-        for row in self.resultPanel.GetNumberRows():
-            newRow=[]
-            for col in self.resultPanel.GetNumberCols():
-                newRow.append(self.resultPanel.GetCellValue(row, col))
-            newData.append(newRow)
+        for row in range(self.resultPanel.GetNumberRows()):
+            newRow = []
+            for col in range(self.resultPanel.GetNumberCols()):
+                val = self.resultPanel.GetCellValue(row, col)
+                if self.resultPanel.GetCellTextColour(row, col) == wx.LIGHT_GREY and val in ('NULL','BLOB'):
+                    newRow.append(f'-______-{val}')
+                else:
+                    newRow.append(self.resultPanel.GetCellValue(row, col))
+            newData.add(tuple(newRow))
         
-        self.generateSql(originalData,newData )
+        sql=self.generateSql(oldDataSet=originalDataSet, newDataSet=newData)
+        print(sql)
 
     def onRefresh(self, event):
         logger.debug('onRefresh')
@@ -246,11 +255,30 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
         
         # TODO : a logic for save insert, update , delete has to go here
         
-    def generateSql(self, oldeData, newData):
+    def generateSql(self, oldDataSet=None, newDataSet=None):
         logger.debug('generateSql')
-        sql = ''
-        return sql
+        intersect=oldDataSet.intersection(newDataSet)
+        insertSqlData=newDataSet-oldDataSet
+        oldPKSet=set(self.getPrimaryKeyValue(oldDataSet))
+        newPKSet=set(self.getPrimaryKeyValue(newDataSet))
+        insertPKSet=set(self.getPrimaryKeyValue(insertSqlData))
+        updatePKSet=oldPKSet.intersection(insertPKSet)
+        columnsName=[column.name for column in self.dataSourceTreeNode.sqlType.columns]
+        columns="','".join(columnsName)
+        updateSqlDataSet=set()
+        valuesList=list()
+        for insertSqlDataRow in insertSqlData:
+            if insertSqlDataRow[0] in updatePKSet:
+                updateSqlDataSet.add(insertSqlDataRow)
+            else:
+                valuesList.append("','".join(insertSqlDataRow))
+        sqlList=list()
+        for values in valuesList: 
+            sqlList.append(f'''INSERT INTO '{self.dataSourceTreeNode.nodeLabel}' ('{columns}') VALUES ('{values}');''')
+        return '\n'.join(sqlList)
 
+    def getPrimaryKeyValue(self,oldDataSet):
+        return [str(oldData[0]) for oldData in oldDataSet]
     def onDuplicateRow(self, event):
         logger.debug('onDuplicateRow')
 
