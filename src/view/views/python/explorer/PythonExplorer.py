@@ -23,10 +23,10 @@ import time
 from src.view.util.common.fileutil import IsHidden, GetFileName
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 from wx.lib.pubsub import pub
+from src.settings.workspace import Setting
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
-
 
 
 class CreatingPythonExplorerPanel(FileTree):
@@ -42,7 +42,11 @@ class CreatingPythonExplorerPanel(FileTree):
         # Setup
         self.SetupImageList()
         try:
-            self.AddWatchDirectory(r"C:\work\python_project\sql-editor")
+            setting = Setting()
+            setting.loadSettings()
+            workspace = setting.getActiveWorkspace()
+            for project in workspace.projects:
+                self.AddWatchDirectory(project.projectPath)
         except:
             pass
         self.Bind(wx.EVT_MENU, self.OnMenu)
@@ -59,7 +63,7 @@ class CreatingPythonExplorerPanel(FileTree):
 #         assert os.path.exists(dname), "Path(%s) doesn't exist!" % dname
         childNode = None
         
-        dname = r"c:\1\sql_editor"
+#         dname = r"c:\1\sql_editor"
         if dname not in self._watch:
 
             self._watch.append(dname)
@@ -122,11 +126,10 @@ class CreatingPythonExplorerPanel(FileTree):
 
         """
         logger.debug('DoItemActivated')
-        filePathWithIconList=self.GetSelectedFilesWithImage()
+        filePathWithIconList = self.GetSelectedFilesWithImage()
         self.OpenFiles(self.GetSelectedFilesWithImage())
         for filePathWithIcon in filePathWithIconList:
             pub.sendMessage('addFileToHistory', path=filePathWithIcon[0])
-            
 
     def DoItemCollapsed(self, item):
         """Handle when an item is collapsed"""
@@ -354,7 +357,7 @@ class CreatingPythonExplorerPanel(FileTree):
         if hasattr(self.GetTopLevelParent(), '_mgr'):
 
             for fileWithImage in to_open:
-                filePath=fileWithImage[0]
+                filePath = fileWithImage[0]
                 fileName = os.path.split(fileWithImage[0])[-1]
                 file_ext = fileName.split('.')[-1]
                 mainStc = MainStc(self, text=FileOperations().readFile(filePath=fileWithImage[0]))

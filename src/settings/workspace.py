@@ -43,16 +43,50 @@ def serialize(obj):
 class Setting():
 
     def __init__(self):
-        pass
+        self.workspaces = list()
+        self.maxWorkspace = 10  # maximum number of workspaces
+        self.showWorkspaceSelectionDialog = True
+
+    def showWorkspaceSelection(self):
+        showDialog = True
+        if any([workspce.active for workspce in self.workspaces]):
+            showDialog = False
+        return showDialog
+    
+    def addWorkspace(self, workspace=None):
+        for workspce in self.workspaces:
+            workspce.active = False
+        if len(self.workspaces) > self.maxWorkspace:
+            self.workspaces[0] = workspace
+        else:
+            self.workspaces.append(workspace)
+        self.showWorkspaceSelectionDialog = self.showWorkspaceSelection()
+
+    def getActiveWorkspace(self):
+        workspce = None
+        for workspce in self.workspaces:
+            if workspce.active:
+                workspce = workspce
+                break
+        return workspce
+
+    def loadSettings(self):
+        workspace = Workspace(workspacePath=r'C:\Users\xbbntni\eclipse-workspace')
+        project = Project(projectPath=r'C:\Users\xbbntni\eclipse-workspace2\pyTrack')
+        project.addNature(nature='python')
+        workspace.addProject(project)
+        project = Project(projectPath=r'c:\1\sql_editor')
+        project.addNature(nature='python')
+        workspace.addProject(project)
+        
+#         settings = Setting()
+        self.addWorkspace(workspace)
 
 
 if __name__ == '__main__':
-    workspace = Workspace(workspacePath=r'C:\Users\xbbntni\eclipse-workspace')
-    project = Project(projectPath=r'c:\1\sql_editor')
-    project.addNature(nature='python')
-    project = Project(projectPath=r'c:\1\sql_editor')
-    project.addNature(nature='python')
-    workspace.addProject(project)
     
-    js = json.dumps(workspace.__dict__, sort_keys=True, indent=4, default=serialize)
+    settings = Setting()
+    settings.loadSettings()
+    
+    js = json.dumps(settings, sort_keys=True, indent=4, default=serialize)
     print(js)
