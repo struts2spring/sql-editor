@@ -25,6 +25,7 @@ from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 from wx.lib.pubsub import pub
 from src.settings.workspace import Setting
 from src.view.views.python.explorer.IconManager import PythonExplorerIconManager
+from src.view.views.editor.EditorManager import EditorWindowManager
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -379,25 +380,26 @@ class CreatingPythonExplorerPanel(FileTree):
                 filePath = fileWithImage[0]
                 fileName = os.path.split(fileWithImage[0])[-1]
                 file_ext = fileName.split('.')[-1]
-                mainStc = MainStc(self, text=FileOperations().readFile(filePath=fileWithImage[0]))
-                mainStc.SetFileName(filePath)
-                mainStc.SetModTime(os.path.getmtime(filePath))
-#                 mainStc.SetText(FileOperations().readFile(filePath=fileWithImage[0]))
-                mainStc.ConfigureLexer(file_ext)
-                mainStc.SetModified(False)
+                window = EditorWindowManager().getWindow(self, filePath)
+#                 mainStc = MainStc(self, text=FileOperations().readFile(filePath=fileWithImage[0]))
+#                 mainStc.SetFileName(filePath)
+#                 mainStc.SetModTime(os.path.getmtime(filePath))
+# #                 mainStc.SetText(FileOperations().readFile(filePath=fileWithImage[0]))
+#                 mainStc.ConfigureLexer(file_ext)
+#                 mainStc.SetModified(False)
+#                 mainStc.SetSavePoint()
                 imageName = self.iconManager.getFileImageNameByExtension(file_ext)
-                (name, captionName) = self.getTitleString(stc=mainStc, path=fileWithImage[0])
-                mainStc.SetSavePoint()
+                (name, captionName) = self.getTitleString(window=window, path=fileWithImage[0])
                 icon = fileWithImage[1]
 #                     imageName=self.iconsDictIndex[extensionName]
-                self.GetTopLevelParent()._mgr.addTabByWindow(window=mainStc, icon=icon, imageName=imageName, name=f'{name}-{captionName}', captionName=name, tabDirection=5)
+                self.GetTopLevelParent()._mgr.addTabByWindow(window=window, icon=icon, imageName=imageName, name=f'{name}-{captionName}', captionName=name, tabDirection=5)
 #                     centerPaneTab.window.addTab(name='openFileLoad'+fileName, worksheetPanel=stc)
 
 #         win = wx.GetApp().GetActiveWindow()
 #         if win:
 #             win.GetNotebook().OnDrop(to_open)
 
-    def getTitleString(self, stc=None, path=None):
+    def getTitleString(self, window=None, path=None):
         """Get the title string to display in the MainWindows title bar
         @return: (unicode) string
 
@@ -409,7 +411,7 @@ class CreatingPythonExplorerPanel(FileTree):
         if not len(title):
             title = path = self.GetTabLabel()
 
-        if stc.GetModify() and not title.startswith(u'*'):
+        if window.GetModify() and not title.startswith(u'*'):
             title = u"*" + title
         return title, path
 
