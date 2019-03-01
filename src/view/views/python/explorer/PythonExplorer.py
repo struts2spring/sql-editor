@@ -24,6 +24,7 @@ from src.view.util.common.fileutil import IsHidden, GetFileName
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 from wx.lib.pubsub import pub
 from src.settings.workspace import Setting
+from src.view.views.python.explorer.IconManager import PythonExplorerIconManager
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -32,7 +33,7 @@ logger = logging.getLogger('extensive')
 class CreatingPythonExplorerPanel(FileTree):
 
     def __init__(self, parent, size=wx.DefaultSize):
-        self._mime = FileBrowserMimeManager()
+        self.iconManager = PythonExplorerIconManager()
         super().__init__(parent)
         self._mw = None
         self.isClosing = False
@@ -46,12 +47,12 @@ class CreatingPythonExplorerPanel(FileTree):
             setting.loadSettings()
             workspace = setting.getActiveWorkspace()
             for project in workspace.projects:
-                self.AddWatchDirectory(project.projectPath)
+                self.AddWatchDirectory(project=project)
         except:
             pass
         self.Bind(wx.EVT_MENU, self.OnMenu)
 
-    def AddWatchDirectory(self, dname):
+    def AddWatchDirectory(self, project=None):
         """Add a directory to the controls top level view
         @param dname: directory path
         @return: TreeItem or None
@@ -64,11 +65,29 @@ class CreatingPythonExplorerPanel(FileTree):
         childNode = None
         
 #         dname = r"c:\1\sql_editor"
-        if dname not in self._watch:
+        if project.projectPath not in self._watch:
 
-            self._watch.append(dname)
-            childNode = self.AppendFileNode(self.RootItem, dname)
+            self._watch.append(project.projectPath)
+            childNode = self.AppendFileNode(self.RootItem, project=project)
             return childNode
+
+    def AppendFileNode(self, item, project=None):
+        """Append a child node to the tree
+        @param item: TreeItem parent node
+        @param path: path to add to node
+        @return: new node
+
+        """
+        logger.debug('AppendFileNode')
+        img = self.DoGetFileImage(project.projectPath)
+        name = os.path.basename(project.projectPath)
+        if not name:
+            name = project.projectPath
+        child = self.AppendItem(item, name, img)
+        self.SetItemData(child, project.projectPath)
+        if os.path.isdir(project.projectPath):
+            self.SetItemHasChildren(child, True)
+        return child
 
     def DoOnActivate(self, active):
         """Handle activation of main window that this
@@ -100,13 +119,13 @@ class CreatingPythonExplorerPanel(FileTree):
 
     def DoSetupImageList(self):
         """Setup the image list for this control"""
-        self._mime.PopulateImageList(self.ImageList)
+        self.iconManager.PopulateImageList(self.ImageList)
 
 #         super().DoSetupImageList()
 
     def DoGetFileImage(self, path):
         """Get the image for the given item"""
-        return self._mime.GetImageIndex(path)
+        return self.iconManager.GetImageIndex(path)
 
     def DoGetToolTip(self, item):
         """Get the tooltip to show for an item
@@ -114,7 +133,7 @@ class CreatingPythonExplorerPanel(FileTree):
 
         """
         tip = None
-#         if self.GetItemImage(item) == self._mime.IMG_NO_ACCESS:
+#         if self.GetItemImage(item) == self.iconManager.IMG_NO_ACCESS:
 #             tip = _("Access Denied")
 #        elif item: # Slightly annoying on GTK disable for now
 #            tip = self.GetPyData(item)
@@ -137,7 +156,7 @@ class CreatingPythonExplorerPanel(FileTree):
 #         if d:
 #             self._monitor.RemoveDirectory(d)
         super().DoItemCollapsed(item)
-        self.SetItemImage(item, self._mime.GetImageIndex(d, False))
+        self.SetItemImage(item, self.iconManager.GetImageIndex(d, False))
 
     def ShouldDisplayFile(self, path):
         """Check if the given file should be displayed based on configuration
@@ -216,11 +235,11 @@ class CreatingPythonExplorerPanel(FileTree):
             logger.info("Tree expand time: %f" % (time.time() - t1))
 
 #             if not self._monitor.AddDirectory(d):
-#                 self.SetItemImage(item, self._mime.IMG_NO_ACCESS)
+#                 self.SetItemImage(item, self.iconManager.IMG_NO_ACCESS)
 #                 return
 
         # Update tree image
-        self.SetItemImage(item, self._mime.GetImageIndex(d, True))
+        self.SetItemImage(item, self.iconManager.GetImageIndex(d, True))
         del cursor
 
     def GetDirContents(self, directory):
@@ -366,7 +385,7 @@ class CreatingPythonExplorerPanel(FileTree):
 #                 mainStc.SetText(FileOperations().readFile(filePath=fileWithImage[0]))
                 mainStc.ConfigureLexer(file_ext)
                 mainStc.SetModified(False)
-                imageName = self._mime.getFileImageNameByExtension(file_ext)
+                imageName = self.iconManager.getFileImageNameByExtension(file_ext)
                 (name, captionName) = self.getTitleString(stc=mainStc, path=fileWithImage[0])
                 mainStc.SetSavePoint()
                 icon = fileWithImage[1]
@@ -559,7 +578,7 @@ class CreatingPythonExplorerPanel(FileTree):
         @param msg: Message Object
 
         """
-        self._mime.RefreshImageList(self.ImageList)
+        self.iconManager.RefreshImageList(self.ImageList)
 
     def OnConfig(self, msg):
         """Handle updates for filebrowser preference updates"""
