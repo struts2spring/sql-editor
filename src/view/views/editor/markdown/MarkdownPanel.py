@@ -17,8 +17,11 @@ import wx
 
 # from src.view.table.CreateTable import CreateTableFrame
 import logging.config
+import wx.html2 as webview
+import markdown2
 from src.view.constants import LOG_SETTINGS
 from src.view.views.file.explorer._filetree import FileTree
+from wx.lib.pubsub import pub
 try:
     from agw import aui
     from agw.aui import aui_switcherdialog as ASD
@@ -31,17 +34,24 @@ logger = logging.getLogger('extensive')
 
 class CreatingMarkdownPanel(wx.Panel):
 
-    def __init__(self, parent=None, filePath=None, *args, **kw):
+    def __init__(self, parent=None, *args, filePath=None, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
         self.fileOperations = FileOperations()
         vBox = wx.BoxSizer(wx.VERTICAL)
         ####################################################################
         self._nb = aui.AuiNotebook(self)
-        self.markdownSourcePanel = MarkdownSourcePanel(self, filePath=filePath)
-        self.htmlPanel = HtmlPanel(self)
-        self._nb.AddPage(self.markdownSourcePanel, 'src') 
-        self._nb.AddPage(self.htmlPanel, 'html') 
+        self.filePath = filePath
+        text = FileOperations().readFile(filePath=filePath)
+        self.htmlPanel = HtmlPanel(self, text=text)
+        self.markdownSourcePanel = MarkdownSourcePanel(self, text=text)
+        self.htmlSrc = HtmlSrcPanel(self, text=text)
+        self._nb.AddPage(self.markdownSourcePanel, 'Src') 
+        self._nb.AddPage(self.htmlPanel, 'HTML') 
+        self._nb.AddPage(self.htmlSrc, 'HTML Src') 
+        self._nb.Split(0, wx.LEFT)
+        self._nb.Split(1, wx.RIGHT)
+        self._nb.Split(2, wx.DOWN)
         ####################################################################
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(self._nb, 1, wx.EXPAND)
@@ -51,51 +61,100 @@ class CreatingMarkdownPanel(wx.Panel):
     def GetModify(self):
         
         return False
+    
+    def getHtmlFromMarkdown(self, markdownText=None):
+        htmlsrc = markdown2.markdown(markdownText)
+        return htmlsrc
+        
 #---------------------------------------------------------------------------
 
 
+class HtmlSrcPanel(wx.Panel):
+
+    def __init__(self, parent=None, *args, text=None, **kw):
+        wx.Panel.__init__(self, parent, id=-1)
+        pub.subscribe(self.setPage, 'setPage')
+        self.parent = parent 
+        self.parent = parent
+        vBox = wx.BoxSizer(wx.VERTICAL)
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        ####################################################################
+        htmlsrc = self.GetParent().getHtmlFromMarkdown(text)
+        self.stc = MainStc(self, text=htmlsrc)
+
+        sizer.Add(self.stc, 1, wx.EXPAND)
+        ####################################################################
+        
+        sizer.Add(vBox, 1, wx.EXPAND , 0)
+        self.SetSizer(sizer)
+
+    def setPage(self, markdownText=None, baseUrl='/'):
+        try:
+            window=None
+            if isinstance(self.GetParent(), CreatingMarkdownPanel):
+                window=self.GetParent()
+            elif isinstance(self.GetParent().GetParent(), CreatingMarkdownPanel):
+                window=self.GetParent().GetParent()
+            html = window.getHtmlFromMarkdown(markdownText)
+            self.stc.SetText(html)
+        except Exception as e:
+            logger.error(e)
+
+
+    
 class HtmlPanel(wx.Panel):
 
-    def __init__(self, parent=None, *args, **kw):
+    def __init__(self, parent=None, *args, text=None, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent 
         self.parent = parent
         vBox = wx.BoxSizer(wx.VERTICAL)
         ####################################################################
+        pub.subscribe(self.setPage, 'setPage')
+        self.wv = webview.WebView.New(self)
+        if self.GetParent().filePath:
+            baseUrl = self.GetParent().filePath
+        self.setPage(markdownText=text, baseUrl=baseUrl)
         
         ####################################################################
         sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(self.wv, 1, wx.EXPAND | wx.ALL, 0)
         sizer.Add(vBox, 1, wx.EXPAND , 0)
         self.SetSizer(sizer)
+        
+    def setPage(self, markdownText=None, baseUrl='/'):
+        if markdownText:
+            window=None
+            if isinstance(self.GetParent(), CreatingMarkdownPanel):
+                window=self.GetParent()
+            elif isinstance(self.GetParent().GetParent(), CreatingMarkdownPanel):
+                window=self.GetParent().GetParent()
+            htmlsrc = window.getHtmlFromMarkdown(markdownText)
+            self.wv.SetPage(htmlsrc, baseUrl)
+            self.GetTopLevelParent().FindFocus()
+            self.GetParent().FindFocus()
+            print(self.GetTopLevelParent().FindFocus())
 
 
 class MarkdownSourcePanel(wx.Panel):
 
-    def __init__(self, parent=None, *args, filePath=None, **kw):
+    def __init__(self, parent=None, *args, text=None, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent 
         self.parent = parent
         vBox = wx.BoxSizer(wx.VERTICAL)
         sizer = wx.BoxSizer(wx.VERTICAL)
         ####################################################################
-        text = ''
-        if filePath:
-            fileExtension = filePath.split('.')[-1]
-            text = FileOperations().readFile(filePath=filePath)
-            self.stc = MainStc(self, text=text)
-            self.stc.SetFileName(filePath)
-            self.stc.SetModTime(os.path.getmtime(filePath))
-    #                 mainStc.SetText(FileOperations().readFile(filePath=fileWithImage[0]))
-            self.stc.ConfigureLexer(fileExtension)
-            self.stc.SetModified(False)
-    #             imageName = self.iconManager.getFileImageNameByExtension(fileExtension)
-    #             (name, captionName) = self.getTitleString(stc=mainStc, path=fileWithImage[0])
-            self.stc.SetSavePoint()
-            sizer.Add(self.stc, 1, wx.EXPAND)
+        self.stc = MainStc(self, text=text)
+        sizer.Add(self.stc, 1, wx.EXPAND)
         ####################################################################
         
         sizer.Add(vBox, 1, wx.EXPAND , 0)
         self.SetSizer(sizer)
+
+
+    def loadFile(self, path):
+        self.stc.LoadFile(path)
 
 
 if __name__ == '__main__':
@@ -103,7 +162,7 @@ if __name__ == '__main__':
     app = wx.App(False)
     frame = wx.Frame(None)
     try: 
-        panel = CreatingMarkdownPanel(frame, title='asfd')
+        panel = CreatingMarkdownPanel(frame, title='asfd', filePath=r'c:\1\sql_editor\README.md')
     except Exception as ex:
         logger.error(ex)
     frame.Show()

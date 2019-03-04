@@ -677,14 +677,15 @@ def CheckMagicComment(lines):
     logger.debug("[ed_txt][info] CheckMagicComment: %s" % str(lines))
     enc = None
     for line in lines:
-        match = RE_MAGIC_COMMENT.search(line)
-        if match:
-            enc = match.group(1)
-            try:
-                codecs.lookup(enc)
-            except LookupError:
-                enc = None
-            break
+        if isinstance(line, str):
+            match = RE_MAGIC_COMMENT.search(line)
+            if match:
+                enc = match.group(1)
+                try:
+                    codecs.lookup(enc)
+                except LookupError:
+                    enc = None
+                break
 
     logger.debug("[ed_txt][info] MagicComment is %s" % enc)
     return enc
@@ -804,12 +805,12 @@ def GetEncodings():
     encodings.append('latin-1')
 
     # Normalize all names
-    normlist = [ encodings.normalize_encoding(enc) for enc in encodings if enc]
+#     normlist = [ encodings.normalize_encoding(enc) for enc in encodings if enc]
 
     # Clean the list for duplicates and None values
     rlist = list()
     codec_list = list()
-    for enc in normlist:
+    for enc in encodings:
         if enc is not None and len(enc):
             enc = enc.lower()
             if enc not in rlist:

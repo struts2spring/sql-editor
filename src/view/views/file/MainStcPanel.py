@@ -29,8 +29,6 @@ from src.view.util.common.fileutil import GetFileSize, GetFileModTime
 from src.view.util.syntax.syntax import SYNTAX_IDS, GetExtFromId
 from src.view.views.file.BaseStcPanel import BaseStc, MARK_MARGIN, FOLD_MARGIN
 
-
-
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
@@ -108,7 +106,6 @@ class MainStc(BaseStc):
                           wx.stc.STC_CMD_ZOOMOUT)
         self.CmdKeyAssign(ord('+'), wx.stc.STC_SCMOD_CTRL | \
                           wx.stc.STC_SCMOD_SHIFT, wx.stc.STC_CMD_ZOOMIN)
-        
 
         if text:
             self.SetText(text)
@@ -163,14 +160,18 @@ class MainStc(BaseStc):
 
     __name__ = u"EditraTextCtrl"
 
-
-    def OnUpdatePageText(self,event):
+    def OnUpdatePageText(self, event):
         logger.debug('OnUpdatePageText')
-        pane=self.GetTopLevelParent()._mgr.GetPaneByWidget(self.GetTopLevelParent().FindFocus())
-        if not pane.caption.startswith('*'):
-            pane.caption=f'*{pane.caption}'
-            self.GetTopLevelParent()._mgr.Update()
+        if hasattr(self.GetTopLevelParent(), '_mgr'):
+            pane = self.GetTopLevelParent()._mgr.GetPaneByWidget(self.GetTopLevelParent().FindFocus())
+            if not pane.caption.startswith('*'):
+                pane.caption = f'*{pane.caption}'
+                self.GetTopLevelParent()._mgr.Update()
         pub.sendMessage('onUpdatePageText', filePath=self.file._path, extra1='onJavaPerspective')
+#         self.GetParent().parent.htmlPanel.setPage(markdownText, baseUrl)
+        pub.sendMessage('setPage', markdownText=self.GetText(), baseUrl='/')
+
+        self.GetTopLevelParent().FindFocus()
         
     #---- Protected Member Functions ----#
 
@@ -712,7 +713,7 @@ class MainStc(BaseStc):
                prevent a slow down in the input of text into the buffer
 
         """
-        self._config['autocomp']=None # TODO need to remove
+        self._config['autocomp'] = None  # TODO need to remove
         key_code = evt.GetKeyCode()
         cpos = self.GetCurrentPos()
         cmpl = self.GetCompleter()
@@ -750,9 +751,9 @@ class MainStc(BaseStc):
             evt.Skip()
             self.CallTipCancel()
         elif key_code == wx.WXK_TAB and \
-             True not in (evt.ControlDown(), evt.CmdDown(), 
+             True not in (evt.ControlDown(), evt.CmdDown(),
                           evt.ShiftDown(), evt.AltDown()):
-            self.Tab() # <- So action can be overridden
+            self.Tab()  # <- So action can be overridden
         else:
             print("IS TAB", key_code, wx.WXK_TAB)
             evt.Skip()
@@ -1829,14 +1830,15 @@ class MainStc(BaseStc):
 
         """
         fsize = GetFileSize(path)
-        if fsize < 1048576:  # 1MB
-            return super().LoadFile(path)
-        else:
+#         if fsize < 1048576:  # 1MB
+#             return super().LoadFile(path)
+#         else:
 #             ed_msg.PostMessage(ed_msg.EDMSG_FILE_OPENING, path)
-            self.file.SetPath(path)
-            self._loading = wx.BusyCursor()
-            self.file.ReadAsync(self)
-            return True
+        self.file.SetPath(path)
+        self._loading = wx.BusyCursor()
+        self.file.ReadAsync(self)
+        self._loading = wx.EndBusyCursor()
+        return True
 
     def ReloadFile(self):
         """Reloads the current file, returns True on success and
@@ -1934,7 +1936,7 @@ class MainStc(BaseStc):
                     self.File.Write(txt)
         except Exception as msg:
             result = False
-            logger.error(f"There was an error saving {path}" )
+            logger.error(f"There was an error saving {path}")
             logger.error(f"{msg}")
 
         if result:
@@ -1943,9 +1945,9 @@ class MainStc(BaseStc):
             self.File.FireModified()
             self.FireModified()
             self.SetFileName(self.File._path)
-            pane=self.GetTopLevelParent()._mgr.GetPaneByWidget(self.GetTopLevelParent().FindFocus())
+            pane = self.GetTopLevelParent()._mgr.GetPaneByWidget(self.GetTopLevelParent().FindFocus())
             if pane.caption.startswith('*'):
-                pane.caption=pane.caption[1:]
+                pane.caption = pane.caption[1:]
                 self.GetTopLevelParent()._mgr.Update()
 
 #         wx.CallAfter(ed_msg.PostMessage,
@@ -1967,7 +1969,7 @@ class MainStc(BaseStc):
 
         # Notify that lexer has changed
         pid = self.TopLevelParent.Id
-        logger.debug(f"file_ext:{file_ext} Lexer change notification for context {pid}" )
+        logger.debug(f"file_ext:{file_ext} Lexer change notification for context {pid}")
 #         ed_msg.PostMessage(ed_msg.EDMSG_UI_STC_LEXER,
 #                            (self.GetFileName(), self.GetLangId()), pid)
         return True
@@ -1985,13 +1987,12 @@ class MainStc(BaseStc):
             self.SetLineCaret()
 
 
-
 if __name__ == "__main__":
     app = wx.App()
     frame = wx.Frame(None)
-    mainstc=MainStc(frame)
+    mainstc = MainStc(frame)
     from src.view.util.FileOperationsUtil import FileOperations
-    text=FileOperations().readFile(filePath=r'/docs/work/python_project/Editra/src/dev_tool.py')
+    text = FileOperations().readFile(filePath=r'/docs/work/python_project/Editra/src/dev_tool.py')
     mainstc.SetText(text)
     mainstc._config['highlight'] = True
     mainstc.FindLexer(set_ext='py')

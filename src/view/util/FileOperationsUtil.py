@@ -31,7 +31,7 @@ class FileOperations():
 	
 	def readFile(self, filePath=None):
 		fileContent = ''
-		if os.path.exists(filePath):
+		if filePath and os.path.exists(filePath):
 			try:
 				with open(filePath, 'r') as htmlFile:
 					for line in htmlFile:
