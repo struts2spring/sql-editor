@@ -123,6 +123,7 @@ class HtmlPanel(wx.Panel):
         self.SetSizer(sizer)
         
     def setPage(self, markdownText=None, baseUrl='/'):
+        
         if markdownText:
             window=None
             if isinstance(self.GetParent(), CreatingMarkdownPanel):
