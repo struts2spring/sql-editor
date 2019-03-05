@@ -617,8 +617,11 @@ class ManageSqliteDatabase():
     
     def isBlob(self, text):
         blob = False
-        if text != None and not isinstance(text, int) and not isinstance(text, str) and text.startswith(b'\x89'):
-            blob = True
+        try:
+            if text != None and not isinstance(text, int) and not isinstance(text, str) and text.startswith(b'\x89'):
+                blob = True
+        except:
+            logger.error('isBlob')
         return blob
     
     def executeSelectQuery(self, text=None):
