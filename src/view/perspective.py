@@ -794,8 +794,8 @@ class PerspectiveManager(object):
             
         return tb1
 
-    def onOpenPerspecitve(self, event):
-        logger.debug('onOpenPerspecitve')
+#     def onOpenPerspecitve(self, event):
+#         logger.debug('onOpenPerspecitve')
 
     def selectItem(self, id=None):
         perspectiveToolbar = self._mgr.GetPane("perspectiveToolbar")

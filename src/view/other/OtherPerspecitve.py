@@ -4,17 +4,41 @@ Created on 30-Dec-2018
 @author: vijay
 '''
 
-
 import wx
 from wx import TreeCtrl
 from wx.lib.mixins.treemixin import ExpansionState
 from src.view.util.FileOperationsUtil import FileOperations
 import logging.config
-from src.view.constants import LOG_SETTINGS
+from src.view.constants import LOG_SETTINGS, ID_JAVA_EE_PERSPECTIVE, \
+    ID_JAVA_PERSPECTIVE, ID_DEBUG_PERSPECTIVE, ID_GIT_PERSPECTIVE, \
+    ID_PYTHON_PERSPECTIVE, ID_DATABASE_PERSPECTIVE, ID_RESOURCE_PERSPECTIVE
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 ##################################################
+
+perspectiveList = [
+        [wx.NewIdRef(), "Database Debug", 'database_debug_perspective.png', None],
+        [ID_DATABASE_PERSPECTIVE, "Database Development", 'database.png', None],
+        [ID_DEBUG_PERSPECTIVE, "Debug", 'debug_persp.png', None],
+        [ID_GIT_PERSPECTIVE, "Git", 'gitrepository.png', None],
+        [ID_JAVA_PERSPECTIVE, "Java", 'jperspective.png', None],
+        [ID_PYTHON_PERSPECTIVE, "Python", 'python_perspective.png', None],
+        [wx.NewIdRef(), "Java Browsing", 'browse_persp.png', None],
+        [ID_JAVA_EE_PERSPECTIVE, "Java EE", 'javaee_perspective.png', None],
+        [wx.NewIdRef(), "Java Type Hierarchy", 'java_type_hierarchy.png', None],
+        [wx.NewIdRef(), "JavaScript", 'javascript_perspective.png', None],
+        [wx.NewIdRef(), "JPA", 'jpa.png', None],
+        [wx.NewIdRef(), "Planning", 'perspective-planning.png', None],
+        [wx.NewIdRef(), "Plug-in Development", 'plugin_perspecitve.png', None],
+        [wx.NewIdRef(), "Remote System Explorer", 'remote_perspective.png', None],
+        [ID_RESOURCE_PERSPECTIVE, "Resource", 'resource_persp.png', None],
+        [wx.NewIdRef(), "SVN Repository Exploring", 'svn_perspective.png', None],
+        [wx.NewIdRef(), "Team Synchronizing", 'synch_synch.png', None],
+        [wx.NewIdRef(), "Web", 'web_perspective.png', None],
+        [wx.NewIdRef(), "XML", 'xml.png', None],
+    ]
+
 _treeList1 = [
     ("General", [
         ("Appearance", [
@@ -96,14 +120,14 @@ _treeList1 = [
             ('Available plugins')
         ]
      ),
-    ("Java",[("Appearance",[("Members Sort Order"),("Type Filters")]),
-             ("Build Path",[("Classpath Variables"),("User Liberaries")]),
+    ("Java", [("Appearance", [("Members Sort Order"), ("Type Filters")]),
+             ("Build Path", [("Classpath Variables"), ("User Liberaries")]),
              ("Code Coverage"),
-             ("Code Style",[("Clean Up"),("Code Templates"),("Formatter"),("Organize Imports")]),
-             ("Compiler",[("Building"),("Errors/Warning"),("Javadoc"),("Task Tags")]),
-             ("Debug",[("Detail Formatters"),("Heap Walking"),("Logical Structures"),("Premitive Display Options"),("Step Filtering")]),
-             ("Editor",[("Content Assist"),("Folding"),("Hovers"),("Mark Occurrences"),("Save Actions"),("Syntax Coloring"),("Templates"),("Typing")]),
-             ("Installed JREs",[("Execution Environments")]),
+             ("Code Style", [("Clean Up"), ("Code Templates"), ("Formatter"), ("Organize Imports")]),
+             ("Compiler", [("Building"), ("Errors/Warning"), ("Javadoc"), ("Task Tags")]),
+             ("Debug", [("Detail Formatters"), ("Heap Walking"), ("Logical Structures"), ("Premitive Display Options"), ("Step Filtering")]),
+             ("Editor", [("Content Assist"), ("Folding"), ("Hovers"), ("Mark Occurrences"), ("Save Actions"), ("Syntax Coloring"), ("Templates"), ("Typing")]),
+             ("Installed JREs", [("Execution Environments")]),
              ("JUnit"),
              ("Properties Files Editor"),
              
@@ -111,34 +135,34 @@ _treeList1 = [
     ("Java EE"),
     ("Java Persistence"),
     ("JavaScript"),
-    ("JSON",[("JSON Catalog"),("JSON Files",[("Editor",[("Content Assist"),("Syntax Coloring"),("Templates")]),("Validation")])]),
-    ("Maven", [("Archetypes"), ("Discovery"), ("Errors/Warning"), ("Installations"), ("Java EE Integration"),("Lifecycle Mappings"),("Source Lookup"),("Templates"),("User Interface"),("User Settings")]),
-    ("Python",[("Builders"),
-               ("Debug",[("Source Locator")]),
-               ("Editor",[("Auto Imports")]),
+    ("JSON", [("JSON Catalog"), ("JSON Files", [("Editor", [("Content Assist"), ("Syntax Coloring"), ("Templates")]), ("Validation")])]),
+    ("Maven", [("Archetypes"), ("Discovery"), ("Errors/Warning"), ("Installations"), ("Java EE Integration"), ("Lifecycle Mappings"), ("Source Lookup"), ("Templates"), ("User Interface"), ("User Settings")]),
+    ("Python", [("Builders"),
+               ("Debug", [("Source Locator")]),
+               ("Editor", [("Auto Imports")]),
                ("Code Analysis", [("PyLint")]),
                ("Code Completion (ctx insensitive and common tokens)"),
-               ("Code Folding"),("Code Style",[("Block Comments"),("Code Formatter"),("Docstrings"),("File types"),("Imports")]),
-               ("Editor caption/icon"),("Hover"),("Mark Occurrences"),("Overview Ruler Minimap")
+               ("Code Folding"), ("Code Style", [("Block Comments"), ("Code Formatter"), ("Docstrings"), ("File types"), ("Imports")]),
+               ("Editor caption/icon"), ("Hover"), ("Mark Occurrences"), ("Overview Ruler Minimap")
                ]),
     ("Remote Systems"),
     ("Run/Debug"),
     ("Server"),
-    ("Team",[("File Content"),("Git",[
-        ("Committing"),("Configuration"),("Confirmation and Warning"),("Date Format"),("History"), ("Label Decorations"),("Projects"),("Staging View"),("Synchronize"),("Window Cache"),
+    ("Team", [("File Content"), ("Git", [
+        ("Committing"), ("Configuration"), ("Confirmation and Warning"), ("Date Format"), ("History"), ("Label Decorations"), ("Projects"), ("Staging View"), ("Synchronize"), ("Window Cache"),
         ]),
-        ("Ignored Resources"),("Models")
+        ("Ignored Resources"), ("Models")
     ]),
-    ("Terminal",[("Local Terminal")]),
+    ("Terminal", [("Local Terminal")]),
     ("Validation"),
-    ("Web",[
-        ("CSS Files",[("Editor",[("Content Assist"),("Syntax Coloring"),("Templates")])]),
-        ("HTML Files",[("Editor",[("Content Assist"),("Syntax Coloring"),("Templates"),("Typing")]),("Validation")]),
-        ("JavaServer Faces Tools",[("FacesConfig Editor"),("Validation"),("Views",[("JSP Tag Registry")])]),
-        ("JSP Files",[("Editor",[("Content Assist"),("Syntax Coloring"),("Templates")])]),
+    ("Web", [
+        ("CSS Files", [("Editor", [("Content Assist"), ("Syntax Coloring"), ("Templates")])]),
+        ("HTML Files", [("Editor", [("Content Assist"), ("Syntax Coloring"), ("Templates"), ("Typing")]), ("Validation")]),
+        ("JavaServer Faces Tools", [("FacesConfig Editor"), ("Validation"), ("Views", [("JSP Tag Registry")])]),
+        ("JSP Files", [("Editor", [("Content Assist"), ("Syntax Coloring"), ("Templates")])]),
         
     ]),
-    ("Web Services",[("Axis Emitter"),("Axis2 Preferences")]),
+    ("Web Services", [("Axis Emitter"), ("Axis2 Preferences")]),
     ("XML"),
 ]
 
@@ -172,7 +196,6 @@ _treeList = [
 ]
 
 
-
 class OtherPerspectiveTreeFrame(wx.Dialog):
     
     def __init__(self, parent, title, size=(313, 441)):
@@ -183,7 +206,6 @@ class OtherPerspectiveTreeFrame(wx.Dialog):
         sizer = wx.BoxSizer(wx.VERTICAL)        
         self.buttonPanel = CreateButtonPanel(self)
         ####################################################################
-        
         
         self.OtherPerspectiveTreePanel = OtherPerspectiveTreePanel(self)
         ####################################################################
@@ -198,9 +220,12 @@ class OtherPerspectiveTreeFrame(wx.Dialog):
     
     def OnCloseFrame(self, event):
         self.Destroy()  
+
     def OnSize(self, event):
         hsize = event.GetSize()
         logger.debug(hsize)
+
+
 class CreateButtonPanel(wx.Panel):
 
     def __init__(self, parent=None, *args, **kw):
@@ -263,6 +288,8 @@ class CreateButtonPanel(wx.Panel):
     def onCancelButtonClick(self, event):
         logger.debug('onCancelButtonClick')
         self.GetTopLevelParent().Destroy()    
+
+
 class OtherPerspectiveTreePanel(wx.Panel):
 
     def __init__(self, parent=None, *args, **kw):
@@ -381,22 +408,26 @@ class OtherPerspectiveTreePanel(wx.Panel):
             logger.debug(treeData)
             for idx, items in enumerate(treeData):
                 logger.debug(items)
-                itemText = None
-                image = 1
-                if isinstance(items, tuple):
-                    itemText = items[0]
-                    image = self.tree.iconsDictIndex['folder.png']
-                else:
-                    itemText = items
+#                 itemText = None
+#                 image = 1
+#                 if isinstance(items, tuple):
+#                     itemText = items[1]
+#                     image = self.tree.iconsDictIndex['folder.png']
+#                 else:
+#                     itemText = items
+#                     image = self.tree.iconsDictIndex['fileType_filter.png']
+                itemText = items[1]
+                if items[2]:
+                    image = self.tree.iconsDictIndex[items[2]]
+                else: 
                     image = self.tree.iconsDictIndex['fileType_filter.png']
-                
                 child = self.tree.AppendItem(parent, itemText, image=image)
 #                 self.tree.SetItemFont(child, catFont)
                 self.tree.SetItemData(child, count)
-                if isinstance(items, tuple) and len(items) > 1:
-                    constructNode(parent=child, treeData=items[1])
+#                 if isinstance(items, tuple) and len(items) > 1:
+#                     constructNode(parent=child, treeData=items[1])
 
-        constructNode(parent=self.root, treeData=_treeList1)
+        constructNode(parent=self.root, treeData=perspectiveList)
 #         for category, items in _treeList:
 #             category, items
 #             count += 1
@@ -629,8 +660,13 @@ class OtherViewBaseTreePanel(ExpansionState, TreeCtrl):
         self.iconsDictIndex = {}
         count = 0
         self.fileOperations = FileOperations()
+        
         for imageName in ['preference.png', 'folder.png', 'folder_view.png', 'fileType_filter.png', 'usb.png', 'stop.png',
-                          'java.png', 'python_module.png', 'xml.png', "other_view.png"]:
+                          'java.png', 'python_module.png', 'xml.png', "other_view.png", 'gitrepository.png', 'jperspective.png',
+                           'javaee_perspective.png', 'python_perspective.png', 'database.png', 'resource_persp.png', 'debug_persp.png',
+                           'jpa.png', 'web_perspective.png', 'javascript_perspective.png', 'plugin_perspecitve.png', 'svn_perspective.png',
+                           'remote_perspective.png', 'browse_persp.png', 'perspective-planning.png', 'database_debug_perspective.png',
+                           'java_type_hierarchy.png', 'synch_synch.png', ]:
             self.ImageList.Add(self.fileOperations.getImageBitmap(imageName=imageName))
             self.iconsDictIndex[imageName] = count
             count += 1
