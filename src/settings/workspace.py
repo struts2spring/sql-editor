@@ -13,7 +13,7 @@ class Project():
     def __init__(self, projectPath=None,):
         self.projectPath = projectPath  # directory path in system
         self.natures = list()  # java, javascript, python
-    
+
     def addNature(self, nature=None):
         self.natures.append(nature)
 
@@ -52,7 +52,7 @@ class Setting():
         if any([workspce.active for workspce in self.workspaces]):
             showDialog = False
         return showDialog
-    
+
     def addWorkspace(self, workspace=None):
         for workspce in self.workspaces:
             workspce.active = False
@@ -72,21 +72,21 @@ class Setting():
 
     def loadSettings(self):
         workspace = Workspace(workspacePath=r'C:\Users\xbbntni\eclipse-workspace')
-        project = Project(projectPath=r'C:\Users\xbbntni\eclipse-workspace2\pyTrack')
+        project = Project(projectPath=r'C:\work\python_project\sql-editor')
         project.addNature(nature='python')
         workspace.addProject(project)
         project = Project(projectPath=r'c:\1\sql_editor')
         project.addNature(nature='python')
         workspace.addProject(project)
-        
+
 #         settings = Setting()
         self.addWorkspace(workspace)
 
 
 if __name__ == '__main__':
-    
+
     settings = Setting()
     settings.loadSettings()
-    
+
     js = json.dumps(settings, sort_keys=True, indent=4, default=serialize)
     print(js)

@@ -26,6 +26,7 @@ from wx.lib.pubsub import pub
 from src.settings.workspace import Setting
 from src.view.views.python.explorer.IconManager import PythonExplorerIconManager
 from src.view.views.editor.EditorManager import EditorWindowManager
+from src.view.constants import ID_NEW
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -41,6 +42,9 @@ class CreatingPythonExplorerPanel(FileTree):
         self.syncTimer = wx.Timer(self)
         self._cpath = None
         self.sqlExecuter = SQLExecuter()
+
+        self.menu = None
+        self.fileOperations = FileOperations()
         # Setup
         self.SetupImageList()
         try:
@@ -64,7 +68,7 @@ class CreatingPythonExplorerPanel(FileTree):
         logger.debug('AddWatchDirectory')
 #         assert os.path.exists(dname), "Path(%s) doesn't exist!" % dname
         childNode = None
-        
+
 #         dname = r"c:\1\sql_editor"
         if project.projectPath not in self._watch:
 
@@ -294,11 +298,46 @@ class CreatingPythonExplorerPanel(FileTree):
 
     def DoShowMenu(self, item):
         """Show context menu"""
+        logger.debug('DoShowMenu')
         # Check if click was in blank window area
         activeNode = None
         try:
             activeNode = self.GetPyData(item)
-        except wx.PyAssertionError:
+            if not self.menu:
+                self.menu = wx.Menu()
+                items = [
+                    [ID_NEW, 'New', None],
+                    [],
+                    [ID_NEW, 'Copy', "copy_edit.png"],
+                    [ID_NEW, 'Paste', "paste_edit.png"],
+                    [ID_NEW, 'Delete', "delete_obj.png"],
+                    [ID_NEW, 'Move', None],
+                    [ID_NEW, 'Rename', None],
+                    [],
+                    [ID_NEW, 'Import', "import_prj.png"],
+                    [ID_NEW, 'Export', "export.png"],
+                    [],
+                    [ID_NEW, 'Refresh', "refresh.png"],
+                    [ID_NEW, 'Close Project', None],
+                    [ID_NEW, 'Close Unreleated Projects', None],
+                    [ID_NEW, 'Run As', "run_exc.png"],
+                    [ID_NEW, 'Debug As', "debug_exc.png"],
+                    [],
+                    [ID_NEW, 'Properties', "project_properties.png"],
+                    ]
+                #
+                for mi_tup in items:
+                    if len(mi_tup) > 0:
+                        mitem = wx.MenuItem(self.menu, mi_tup[0], mi_tup[1])
+                        if mi_tup[2] is not None:
+                            mitem.SetBitmap(self.fileOperations.getImageBitmap(imageName=mi_tup[2]))
+                        self.menu.Append(mitem)
+                    else:
+                        self.menu.AppendSeparator()
+#                         bmp = wx.ArtProvider.GetBitmap(str(mi_tup[2]), wx.ART_MENU)
+#                         mitem.SetBitmap(bmp)
+        except Exception as e:
+            logger.error(e)
             pass
 
 #         if not self._menu.Menu:
@@ -336,9 +375,9 @@ class CreatingPythonExplorerPanel(FileTree):
 #                 self._menu.Menu.AppendItem(mitem)
 
         # Set contextual data
-        self._menu.SetUserData('item_id', item)
-        self._menu.SetUserData('active_node', activeNode)
-        self._menu.SetUserData('selected_nodes', self.GetSelectedFiles())
+#         self._menu.SetUserData('item_id', item)
+#         self._menu.SetUserData('active_node', activeNode)
+#         self._menu.SetUserData('selected_nodes', self.GetSelectedFiles())
 
         # Update Menu
 #         mitem = self._menu.Menu.FindItemById(ID_ARCHIVE)
@@ -349,7 +388,7 @@ class CreatingPythonExplorerPanel(FileTree):
 #         for mitem in (ID_DUPLICATE,):
 #             self._menu.Menu.Enable(mitem, len(self.GetSelections()) == 1)
 
-        self.PopupMenu(self._menu.Menu)
+        self.PopupMenu(self.menu)
 
     #---- End FileTree Interface Methods ----#
 
@@ -491,9 +530,10 @@ class CreatingPythonExplorerPanel(FileTree):
         filesystem operations
 
         """
+        logger.debug('OnMenu')
         e_id = evt.Id
-        path = self._menu.GetUserData('active_node')
-        paths = self._menu.GetUserData('selected_nodes')
+#         path = self._menu.GetUserData('active_node')
+#         paths = self._menu.GetUserData('selected_nodes')
 
         def Opener(paths):
             """File opener job

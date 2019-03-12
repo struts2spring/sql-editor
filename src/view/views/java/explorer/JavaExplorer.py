@@ -22,10 +22,12 @@ class CreatingJavaExplorerPanel(FileTree):
 
     def __init__(self, parent, size=wx.DefaultSize):
         super(CreatingJavaExplorerPanel, self).__init__(parent)
-        self.AddWatchDirectory("c:\\1")
-        
+        try:
+            self.AddWatchDirectory("c:\\1")
+        except :
+            pass
         self.Bind(wx.EVT_MENU, self.OnMenu)
-            
+
     def OnMenu(self, evt):
         """Handle the context menu events for performing
         filesystem operations
@@ -41,11 +43,11 @@ if __name__ == '__main__':
 #     treeImageLevel[(1, 0)] = (0, 'database_category.png')
 #     treeImageLevel[(1, 1)] = (0, 'folder_view.png')
 #     treeImageLevel[(1, 2)] = (0, 'folder.png')
-#     
+#
 #     print(treeImageLevel[(0, 0)])
     app = wx.App(False)
     frame = wx.Frame(None)
-    try: 
+    try:
         panel = CreatingJavaExplorerPanel(frame)
     except Exception as ex:
         logger.error(ex)
