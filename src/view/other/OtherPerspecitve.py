@@ -674,9 +674,12 @@ class OtherViewBaseTreePanel(ExpansionState, TreeCtrl):
                            'jpa.png', 'web_perspective.png', 'javascript_perspective.png', 'plugin_perspecitve.png', 'svn_perspective.png',
                            'remote_perspective.png', 'browse_persp.png', 'perspective-planning.png', 'database_debug_perspective.png',
                            'java_type_hierarchy.png','xml_perspective.png', 'synch_synch.png', ]:
-            self.ImageList.Add(self.fileOperations.getImageBitmap(imageName=imageName))
-            self.iconsDictIndex[imageName] = count
-            count += 1
+            try:
+                self.ImageList.Add(self.fileOperations.getImageBitmap(imageName=imageName))
+                self.iconsDictIndex[imageName] = count
+                count += 1
+            except Exception as e :
+                logger.error(imageName, e)
 
     def GetItemIdentity(self, item):
         return self.GetItemData(item)
