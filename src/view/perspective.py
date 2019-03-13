@@ -67,7 +67,7 @@ class EclipseAuiToolbar(aui.AuiToolBar):
         print(extra1)
         if extra2:
             print(extra2)
-    
+
     def getToolBarItemById(self, id=None):
         item = None
         for _item in self._items:
@@ -86,7 +86,7 @@ class EclipseAuiToolbar(aui.AuiToolBar):
         self.RefreshOverflowState()
 #         self.SetHoverItem(None)
 #         self.SetPressedItem(None)
-# 
+#
 #         self._tip_item = None
         self.StopPreviewTimer()
 
@@ -99,14 +99,14 @@ class EclipseAuiToolbar(aui.AuiToolBar):
 
         if pitem and pitem.label != 'Open Perspective':
             former_item = None
-    
+
             for item in self._items:
-    
+
                 if item.state & aui.AUI_BUTTON_STATE_PRESSED:
                     former_item = item
-    
+
                 item.state &= ~aui.AUI_BUTTON_STATE_PRESSED
-                
+
             pitem.state &= ~aui.AUI_BUTTON_STATE_HOVER
             pitem.state |= aui.AUI_BUTTON_STATE_PRESSED
 
@@ -373,11 +373,11 @@ class EclipseAuiToolbar(aui.AuiToolBar):
                 self.SetPressedItem(None)
 
         # figure out the dropdown button state (are we hovering or pressing it?)
-        self.RefreshOverflowState()    
+        self.RefreshOverflowState()
 
 
 class MyAuiManager(aui.AuiManager):
-    
+
     def __init__(self, managed_window=None, agwFlags=None):
 
         super(MyAuiManager, self).__init__(managed_window=managed_window, agwFlags=agwFlags)
@@ -385,10 +385,10 @@ class MyAuiManager(aui.AuiManager):
     def addTabByWindow(self, window=None , icon=None, imageName="script.png", name=None, captionName=None, tabDirection=5):
         '''
         This method always create a new tab for the window.
-        tabDirection=2 is the right 
-        tabDirection=3 is the bottom 
-        tabDirection=4 is the left 
-        tabDirection=5 is the center 
+        tabDirection=2 is the right
+        tabDirection=3 is the bottom
+        tabDirection=4 is the left
+        tabDirection=5 is the center
         '''
         self.SetAutoNotebookStyle(aui.AUI_NB_DEFAULT_STYLE | wx.BORDER_NONE)
         if name == None:
@@ -415,14 +415,14 @@ class MyAuiManager(aui.AuiManager):
                     self.AddPane(window, auiPanInfo, target=targetTab)
                     isPaneAdded = True
                 break
-            
+
         if not isPaneAdded:
             auiPanInfo = aui.AuiPaneInfo().Icon(FileOperations().getImageBitmap(imageName=imageName)).\
                 Name(name).Caption(captionName).LeftDockable(True).Dockable(True).Movable(True).MinSize(200, -1).BestSize(200, -1).CaptionVisible(visible=True).Direction(wx.TOP).\
                 Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).CaptionVisible(visible=True)
             auiPanInfo.dock_direction = tabDirection
             self.AddPane(window, auiPanInfo)
-     
+
         self.Update()
 
     def OnTabBeginDrag(self, event):
@@ -457,7 +457,7 @@ class MyAuiManager(aui.AuiManager):
 
                 try:
                     if tab.HasCapture():
-                        
+
                         tab.ReleaseMouse()
                 except:
                     pass
@@ -506,7 +506,7 @@ class MyAuiManager(aui.AuiManager):
         (x, y) = self._frame.GetClientSize()
         perspectiveToolbar = self.GetPane("perspectiveToolbar")
         perspectiveToolbar.dock_pos = x - ((len(perspectiveToolbar.window._items) - 2) * 32) + 5
-        self.Update()  
+        self.Update()
 #         self.DoDropToolbar(self._docks, self._panes, perspectiveToolbar, point, wx.Point(0,0))
 
 
@@ -525,13 +525,15 @@ class PerspectiveManager(object):
 
         """
         super(PerspectiveManager, self).__init__()
-        self.toolbarItems={}
+        self.toolbarItems = {}
         self.createAuiManager()
         pub.subscribe(self.__onObjectAdded, 'perspectiveClicked')
         pub.subscribe(self.__onUpdatePageText, 'onUpdatePageText')
         self.accel_tbl = wx.AcceleratorTable([
             (wx.ACCEL_CTRL, ord('S'), ID_SAVE),
             (wx.ACCEL_CTRL, ord('H'), ID_SEARCH_FILE),
+            (wx.ACCEL_CTRL | wx.ACCEL_SHIFT , ord('R'), ID_RESOURCE),
+            (wx.ACCEL_CTRL | wx.ACCEL_SHIFT , ord('T'), ID_OPEN_TYPE),
 #                                       (wx.ACCEL_CTRL, ord('V'), wx.ID_PASTE),
 #                                       (wx.ACCEL_ALT, ord('X'), wx.ID_PASTE),
 #                                       (wx.ACCEL_SHIFT | wx.ACCEL_ALT, ord('Y'), wx.ID_PASTE)
@@ -545,11 +547,11 @@ class PerspectiveManager(object):
         print(extra1)
         toolSave = viewToolbar.window.FindTool(ID_SAVE)
         toolSaveAll = viewToolbar.window.FindTool(ID_SAVE_ALL)
-        toolSaveAll.state = aui.AUI_BUTTON_STATE_NORMAL 
-        toolSave.state = aui.AUI_BUTTON_STATE_NORMAL 
+        toolSaveAll.state = aui.AUI_BUTTON_STATE_NORMAL
+        toolSave.state = aui.AUI_BUTTON_STATE_NORMAL
         logger.info(toolSave.state)
         self.updateTitle(title=filePath)
-        self._mgr.Update()  
+        self._mgr.Update()
         if extra2:
             print(extra2)
 
@@ -559,94 +561,94 @@ class PerspectiveManager(object):
         print(extra1)
         if extra2:
             print(extra2)
-        
+
     def createAuiManager(self):
         logger.debug('createAuiManager')
         # tell FrameManager to manage this frame
         self._mgr = MyAuiManager()
         self._mgr.SetManagedWindow(self)
-        
+
         # set up default notebook style
         self._notebook_style = aui.AUI_NB_DEFAULT_STYLE | wx.BORDER_NONE
-        self._notebook_theme = 1      
+        self._notebook_theme = 1
         # min size for the frame itself isn't completely done.
         # see the end up AuiManager.Update() for the test
         # code. For now, just hard code a frame minimum size
-        self.SetMinSize(wx.Size(100, 100))    
+        self.SetMinSize(wx.Size(100, 100))
         self._perspectives = []
-        
+
         # add a bunch of panes
 #         self._mgr.AddPane(self.CreateSizeReportCtrl(), wx.aui.AuiPaneInfo().Name("test1").Caption("Pane Caption").Top().CloseButton(True).MaximizeButton(True))
                 # add the toolbars to the manager
-        
+
 #         topToolBar = wx.BoxSizer(wx.HORIZONTAL)
 #         topToolBar.Add(self.constructToolBar(),1,wx.ALIGN_LEFT,4) # note the 2nd param 'proportion' is 1
 #         #topToolBar.AddStretchSpacer()
 #         topToolBar.Add(self.constructToolBar(),0,wx.ALIGN_RIGHT,4)
-        
+
         self._mgr.AddPane(self.constructViewToolBar(), aui.AuiPaneInfo().
                           Name("viewToolbar").Caption("View Toolbar").
                           ToolbarPane().Top().Row(1).Position(1).CloseButton(True).
-                          LeftDockable(False).RightDockable(False).Gripper(True))    
+                          LeftDockable(False).RightDockable(False).Gripper(True))
         self._mgr.AddPane(self.constructPerspectiveToolBar(), aui.AuiPaneInfo().
                           Name("perspectiveToolbar").Caption("Perspective Toolbar").
                           ToolbarPane().Top().Row(1).Position(1).CloseButton(True).
-                          LeftDockable(False).RightDockable(False).Gripper(True), self.definePoint())    
-        
+                          LeftDockable(False).RightDockable(False).Gripper(True), self.definePoint())
+
 #         self._mgr.AddPane(self.creatingFileExplorer(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="file_explorer.png")).BestSize(500, -1).
 #                           Name("fileExplorer").Caption("File Explorer").Dockable(True).Movable(True).MinSize(500, -1).Resizable(True).
 #                           Left().Layer(1).Position(2).CloseButton(True).MaximizeButton(True).MinimizeButton(True))
-        
+
 #         self._mgr.AddPane(self.creatingTreeCtrl(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="folder_database.png")).BestSize(500, -1).
 #                           Name("databaseNaviagor").Caption("Database Navigator").Dockable(True).Movable(True).MinSize(500, -1).
 #                           Left().Layer(1).Position(1).CloseButton(True).MaximizeButton(True).MinimizeButton(True), target=self._mgr.GetPane("fileExplorer"))
-        
+
         self._mgr.AddPane(WelcomePanel(self), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="welcome16.png")).BestSize(500, -1).
                           Name("onWelcome").Caption("Welcome").Dockable(True).Movable(True).MinSize(500, -1).CaptionVisible(visible=True).Direction(wx.TOP).
-                          Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True))  
+                          Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True))
 #         self._mgr.AddPane(wx.Panel(self), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="variable_view.png")).BestSize(500, -1).
 #                           Name("variableView").Caption("Variable").Dockable(True).Movable(True).MinSize(500, -1).CaptionVisible(visible=True).Direction(wx.TOP).
-#                           Right().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True))   
+#                           Right().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True))
 #         self._mgr.AddPane(self.constructCenterPane(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="script.png")).
 #                           Name("centerPane").Caption("Center Pane").LeftDockable(True).Direction(wx.TOP).
 #                           Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).CaptionVisible(visible=True), target=self._mgr.GetPane("onWelcome"))
 #         self._mgr.AddPane(self.getWorksheet(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="script.png")).
 #                           Name("Worksheet-0").Caption("Worksheet-0").LeftDockable(True).Direction(wx.TOP).
 #                           Center().Layer(0).Position(0).CloseButton(True).MaximizeButton(True).MinimizeButton(True).CaptionVisible(visible=True), target=self._mgr.GetPane("onWelcome"))
-        
+
 #         self._mgr.AddPane(self.constructSchemaViewerPane(), aui.AuiPaneInfo().Icon(wx.Bitmap(os.path.join(path, "script.png"))).
 #                           Name("schemaViewer").Caption("Schema Viewer").LeftDockable(True).
-#                           Center().CloseButton(True).MaximizeButton(True).MinimizeButton(True))      
+#                           Center().CloseButton(True).MaximizeButton(True).MinimizeButton(True))
 #         self._mgr.AddPane(self.constructSchemaViewerPane(), aui.AuiPaneInfo().
 #                           Name("test9").Caption("Min Size 200x100").
 #                           BestSize(wx.Size(200, 100)).MinSize(wx.Size(200, 100)).
-#                           Bottom().Layer(1).CloseButton(True).MaximizeButton(True))      
-  
+#                           Bottom().Layer(1).CloseButton(True).MaximizeButton(True))
+
 #         self._mgr.AddPane(self.sqlConsoleOutputPane(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="console_view.png")).
 #                           Name("consoleOutput").Caption("Console").Dockable(True).Movable(True).LeftDockable(True).BestSize(wx.Size(500, 400)).MinSize(wx.Size(500, 400)).
 #                           Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True).PinButton(visible=True).GripperTop())
-            
+
 #         self._mgr.AddPane(self.constructHistoryPane(), aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="sql.png")).
 #                           Name("sqlLog").Caption("SQL Log").Dockable(True).BestSize(wx.Size(500, 400)).MinSize(wx.Size(500, 400)).
 #                           Bottom().Layer(0).Row(1).CloseButton(True).MaximizeButton(visible=True).MinimizeButton(visible=True), target=self._mgr.GetPane("consoleOutput"))
-        
+
         self._mgr.GetPane("onWelcome").Show()
-        
+
         viewToolbar = self._mgr.GetPane("viewToolbar")
         viewToolbar.Show()
-        
+
         self._mgr.GetPane("variableView").Show()
         perspectiveToolbar = self._mgr.GetPane("perspectiveToolbar")
         perspectiveToolbar.dock_row = viewToolbar.dock_row
         perspectiveToolbar.Show()
-        
+
         self.perspective_default = self._mgr.SavePerspective()
         perspective_all = self._mgr.SavePerspective()
         self.setStyleToPanes()
         all_panes = self._mgr.GetAllPanes()
         # "commit" all changes made to FrameManager
-        self._mgr.Update()  
-        
+        self._mgr.Update()
+
         # some more event
         self.Bind(aui.EVT_AUI_PANE_CLOSE, self.OnPaneClose)
         self.Bind(aui.EVT_AUINOTEBOOK_ALLOW_DND, self.OnAllowNotebookDnD)
@@ -662,19 +664,19 @@ class PerspectiveManager(object):
         self.Bind(wx.EVT_TIMER, self.TimerHandler)
         self.timer = wx.Timer(self)
         self.timer.Start(100)
-        
-#######################################################################################    
+
+#######################################################################################
     def definePoint(self):
         '''
         right align toolbar
         '''
-        
+
         managed_window = self._mgr.GetManagedWindow()
         wnd_pos = managed_window.GetPosition()
         (x, y) = wnd_size = managed_window.GetSize()
         point = wx.Point(x - ((len(self.perspectiveList) - 1) * 32) + 5, 0)
         return point
-        
+
     def OnPaneClose(self, event):
         logger.debug("OnPaneClose")
 #         if event.pane.name == "test10":
@@ -684,7 +686,7 @@ class PerspectiveManager(object):
 #             msg += "minimize "
 #         else:
 #             msg += "close/hide "
-# 
+#
 #         res = wx.MessageBox(msg + "this pane?", "AUI", wx.YES_NO, self)
 #         if res != wx.YES:
 #             event.Veto()
@@ -700,7 +702,7 @@ class PerspectiveManager(object):
         ctrl = event.GetEventObject()
 
 #         if isinstance(ctrl.GetPage(event.GetSelection()), wx.html.HtmlWindow):
-# 
+#
 #             res = wx.MessageBox("Are you sure you want to close/hide this notebook page?",
 #                                 "AUI", wx.YES_NO, self)
 #             if res != wx.YES:
@@ -753,15 +755,15 @@ class PerspectiveManager(object):
         except:
             self.timer.Stop()
 
-#######################################################################################    
+#######################################################################################
     def setStyleToPanes(self):
         all_panes = self._mgr.GetAllPanes()
 
         for pane in all_panes:
 
             if isinstance(pane.window, aui.AuiNotebook):
-                nb = pane.window       
-                nb.SetAGWWindowStyleFlag(self._notebook_style) 
+                nb = pane.window
+                nb.SetAGWWindowStyleFlag(self._notebook_style)
                 nb.SetArtProvider(aui.ChromeTabArt())
                 nb.Refresh()
                 nb.Update()
@@ -769,7 +771,7 @@ class PerspectiveManager(object):
     def constructPerspectiveToolBar(self):
 #         tb1 = aui.AuiToolBar(self, -1, agwStyle=aui.AUI_TB_DEFAULT_STYLE | wx.NO_BORDER)
         tb1 = EclipseAuiToolbar(self)
-        
+
         self.perspectiveList = [
             [ID_OTHER_PERSPECTIVE, "Open Perspective", 'new_persp.png', 'Open Perspective', None],
             [],
@@ -791,7 +793,7 @@ class PerspectiveManager(object):
                     tb1.SetPressedItem(toolBarItem)
             else:
                 tb1.AddSeparator()
-            
+
         return tb1
 
 #     def onOpenPerspecitve(self, event):
@@ -799,22 +801,20 @@ class PerspectiveManager(object):
 
     def selectItem(self, id=None):
         perspectiveToolbar = self._mgr.GetPane("perspectiveToolbar")
-        item = perspectiveToolbar.window.getToolBarItemById(id)   
-        perspectiveToolbar.window.EnableTool(item, True) 
-    
-    
-    
+        item = perspectiveToolbar.window.getToolBarItemById(id)
+        perspectiveToolbar.window.EnableTool(item, True)
+
 #     def hideTools(self,viewToolbar.window, perspectiveName):
 #         pass
-    
+
     def viewToolBarByPerspective(self, perspectiveName):
         viewToolbar = self._mgr.GetPane("viewToolbar")
-        
+
 #         viewToolbar.window.DeleteTool(wx.ID_PREFERENCES)
         self.constructViewToolBar(viewToolbar.window, perspectiveName)
         s = viewToolbar.window.GetMinSize()
         viewToolbar.BestSize(s)
-        
+
         allowedInstanceForProspective = [
 #             SqlConsoleOutputPanel,
             py.shell.Shell,
@@ -823,7 +823,7 @@ class PerspectiveManager(object):
             CreatingJavaExplorerPanel,
             FileBrowser,
             ]
-        
+
         if self.selectedPerspectiveName == 'database':
             allowedInstanceForProspective.remove(DataSourcePanel)
         elif self.selectedPerspectiveName == 'python':
@@ -837,7 +837,7 @@ class PerspectiveManager(object):
             allowedInstanceForProspective.remove(CreatingJavaExplorerPanel)
         elif self.selectedPerspectiveName == 'git':
             allowedInstanceForProspective.remove(CreatingJavaExplorerPanel)
-               
+
 #         for pane in self._mgr.GetAllPanes():
 #             if pane.window:
 #                 for instance in allowedInstanceForProspective :
@@ -858,7 +858,7 @@ class PerspectiveManager(object):
         elif self.selectedPerspectiveName == 'java':
             self.openPanel(name="consoleOutput", imageName="console_view.png", captionName="Console", tabDirection=3)
             self.openPanel(name="javaPackageExplorer", imageName="package_explorer.png", captionName="Java Package Explorer", tabDirection=4)
-            
+
 #         else:
 #             databaseNaviagorPane = self._mgr.GetPane("databaseNaviagor")
 #             databaseNaviagorPane.Show(False)
@@ -866,13 +866,13 @@ class PerspectiveManager(object):
             if pane.window:
                 for instance in allowedInstanceForProspective :
                     if isinstance(pane.window, instance):
-                        self._mgr.ClosePane(pane)        
+                        self._mgr.ClosePane(pane)
         for pane in self._mgr.GetAllPanes():
             if pane.window:
                 logger.debug(f'pane.window:{pane.window}, pane.window.IsShown():{pane.window.IsShown()}')
-        
-        self._mgr.Update()  
-        
+
+        self._mgr.Update()
+
         print('viewToolBarByPerspective')
 
     def openPanel(self, name="consoleOutput", imageName="console_view.png", captionName="Console", tabDirection=3):
@@ -901,15 +901,15 @@ class PerspectiveManager(object):
                 panel = CreatingPythonExplorerPanel(self)
             elif name == "fileExplorer":
                 panel = FileBrowser(self, size=(500, 300))
-                
+
             self._mgr.addTabByWindow(panel, imageName=imageName, name=name , captionName=captionName, tabDirection=tabDirection)
         elif not pane.IsShown():
             pane.dock_direction = tabDirection
             window = pane.window
             if window:
                 window.Show()
-            pane.Show(True)         
-#         item.state=4   
+            pane.Show(True)
+#         item.state=4
 
     def onPerspeciveSelection(self, event):
         logger.debug('onPerspeciveSelection')
@@ -917,25 +917,25 @@ class PerspectiveManager(object):
         self.selectItem(event.Id)
         if event.Id == ID_JAVA_PERSPECTIVE:
             self.selectedPerspectiveName = 'java'
-            self.viewToolBarByPerspective(self.selectedPerspectiveName)            
+            self.viewToolBarByPerspective(self.selectedPerspectiveName)
         elif event.Id == ID_JAVA_EE_PERSPECTIVE:
             self.selectedPerspectiveName = 'java ee'
-            self.viewToolBarByPerspective(self.selectedPerspectiveName)            
+            self.viewToolBarByPerspective(self.selectedPerspectiveName)
         elif event.Id == ID_DEBUG_PERSPECTIVE:
             self.selectedPerspectiveName = 'debug'
-            self.viewToolBarByPerspective(self.selectedPerspectiveName)            
+            self.viewToolBarByPerspective(self.selectedPerspectiveName)
         elif event.Id == ID_PYTHON_PERSPECTIVE:
             self.selectedPerspectiveName = 'python'
-            self.viewToolBarByPerspective(self.selectedPerspectiveName)            
+            self.viewToolBarByPerspective(self.selectedPerspectiveName)
         elif event.Id == ID_DATABASE_PERSPECTIVE:
             self.selectedPerspectiveName = 'database'
-            self.viewToolBarByPerspective(self.selectedPerspectiveName)            
+            self.viewToolBarByPerspective(self.selectedPerspectiveName)
         elif event.Id == ID_GIT_PERSPECTIVE:
             self.selectedPerspectiveName = 'git'
-            self.viewToolBarByPerspective(self.selectedPerspectiveName)            
+            self.viewToolBarByPerspective(self.selectedPerspectiveName)
         elif event.Id == ID_RESOURCE_PERSPECTIVE:
             self.selectedPerspectiveName = 'resource'
-            self.viewToolBarByPerspective(self.selectedPerspectiveName)            
+            self.viewToolBarByPerspective(self.selectedPerspectiveName)
 
     def constructViewToolBar(self, toobar=None, perspectiveName='python'):
         # create some toolbars
@@ -947,8 +947,8 @@ class PerspectiveManager(object):
         tools = [
             (ID_NEW, "New", "new_con.png", 'New', self.onNewMenu, True, ['resource', 'python', 'java', 'debug', 'java ee'], True, wx.ITEM_NORMAL),
             (),
-            (ID_SAVE, "Save (Ctrl+S)", "save.png", 'Save (Ctrl+S)', self.onSave, False, ['resource', 'python', 'java', 'debug', 'java ee','database'], False, wx.ITEM_NORMAL),
-            (ID_SAVE_ALL, "Save All (Ctrl+Shift+S)", "saveall_edit.png", 'Save All (Ctrl+Shift+S)', self.onSaveAll, False, ['resource', 'python', 'java', 'debug', 'java ee','database'], False, wx.ITEM_NORMAL),
+            (ID_SAVE, "Save (Ctrl+S)", "save.png", 'Save (Ctrl+S)', self.onSave, False, ['resource', 'python', 'java', 'debug', 'java ee', 'database'], False, wx.ITEM_NORMAL),
+            (ID_SAVE_ALL, "Save All (Ctrl+Shift+S)", "saveall_edit.png", 'Save All (Ctrl+Shift+S)', self.onSaveAll, False, ['resource', 'python', 'java', 'debug', 'java ee', 'database'], False, wx.ITEM_NORMAL),
             (ID_BUILD_ALL, "Build All (Ctrl+B)", "build_exec.png", "Build All (Ctrl+B)", None, False, [ 'python', 'java', 'java ee'], True, wx.ITEM_NORMAL),
             (ID_TERMINAL, "Open a Terminal", "linux_terminal.png", "Open a Terminal (Ctrl+Shift+Alt+T)", self.onOpenTerminal, False, ['resource', 'python', 'java', 'debug', 'java ee'], True, wx.ITEM_NORMAL),
             (),
@@ -962,7 +962,7 @@ class PerspectiveManager(object):
             (ID_STEP_INTO_DEBUG, "Step Into", "stepinto_co.png", "Step Into", self.onOpenTerminal, False, ['debug', 'java ee'], False, wx.ITEM_NORMAL),
             (ID_STEP_OVER_DEBUG, "Step Over", "stepover_co.png", "Step Over", self.onOpenTerminal, False, ['debug', 'java ee'], False, wx.ITEM_NORMAL),
             (ID_STEP_RETURN_DEBUG, "Step Return", "stepreturn_co.png", "Step Return", self.onOpenTerminal, False, ['debug', 'java ee'], False, wx.ITEM_NORMAL),
-            
+
             (),
             (ID_DEBUG_AS_MENU, "Debug As...", "debug_exc.png", "Debug As...", self.onOpenTerminal, True, ['python', 'java', 'debug', 'java ee'], True, wx.ITEM_NORMAL),
             (ID_RUN_AS_MENU, "Run As...", "run_exc.png", "Run As...", self.onRunAsMenu, True, ['python', 'java', 'debug', 'java ee'], True, wx.ITEM_NORMAL),
@@ -979,23 +979,22 @@ class PerspectiveManager(object):
             (ID_newWorksheet, "Script", "script.png", 'Open a new script worksheet', None, False, ['database'], True, wx.ITEM_NORMAL),
 #             (wx.ID_PREFERENCES, "Preferences", "preference.png", 'Preference', None),
             ]
-        
 
-        if len(self.toolbarItems) ==0:
+        if len(self.toolbarItems) == 0:
             for tool in tools:
-                
+
                 if len(tool) == 0:
                     toobar.AddSeparator()
     #             elif perspectiveName in tool[6]:
                 else:
                     logger.debug(tool)
                     state = tool[7]
-                    if tool[8]==wx.ITEM_CHECK:
-                        toolItem = toobar.AddToggleTool(tool[0],  self.fileOperations.getImageBitmap(imageName=tool[2]),wx.NullBitmap, toggle=True,short_help_string=tool[3])
+                    if tool[8] == wx.ITEM_CHECK:
+                        toolItem = toobar.AddToggleTool(tool[0], self.fileOperations.getImageBitmap(imageName=tool[2]), wx.NullBitmap, toggle=True, short_help_string=tool[3])
                         toolItem.__setattr__('toggle', False)
                         toolItem.SetState(AUI_BUTTON_STATE_NORMAL)
                         toolItem.SetKind(wx.ITEM_CHECK)
-                    elif tool[8]==wx.ITEM_NORMAL:
+                    elif tool[8] == wx.ITEM_NORMAL:
                         toolItem = toobar.AddSimpleTool(tool[0], tool[1], self.fileOperations.getImageBitmap(imageName=tool[2]), short_help_string=tool[3], kind=tool[8])
                     if state:
                         toolItem.state &= ~aui.AUI_BUTTON_STATE_DISABLED
@@ -1005,10 +1004,10 @@ class PerspectiveManager(object):
                         self.Bind(wx.EVT_MENU, tool[4], tool[0])
                     if tool[5]:
                         toobar.SetToolDropDown(tool[0], tool[5])
-        ##############################################################                  
+        ##############################################################
         for tool in toobar._items:
-            self.toolbarItems[tool.GetId()]=tool
-            
+            self.toolbarItems[tool.GetId()] = tool
+
         toobar._items.clear()
         if self._ctrl:
             self._ctrl.Hide()
@@ -1024,7 +1023,7 @@ class PerspectiveManager(object):
         self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onRunDebugAsDropDown, id=ID_CREATE_DYNAMIC_WEB_PROJECT)
         self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onRunDebugAsDropDown, id=ID_CREATE_NEW_SERVLET)
         return toobar
-    
+
     def onOpenTerminal(self, event):
         logger.debug(f'onOpenTerminal {event.Id}')
 
@@ -1035,9 +1034,9 @@ class PerspectiveManager(object):
         if event.GetEventObject()._tip_item.toggle:
 #             event.GetEventObject()._tip_item.SetBitmap(event.GetEventObject()._tip_item.GetBitmap())
             event.GetEventObject()._tip_item.SetState(AUI_BUTTON_STATE_NORMAL)
-        else: 
+        else:
             event.GetEventObject()._tip_item.SetState(AUI_BUTTON_STATE_PRESSED)
-            
+
         event.GetEventObject()._tip_item.toggle = not event.GetEventObject()._tip_item.toggle
         event.GetEventObject().GetToolToggled(event.GetEventObject()._tip_item.GetId())
 #         event.GetEventObject().GetToolToggled(event.GetEventObject()._tip_item.GetId())
@@ -1047,10 +1046,10 @@ class PerspectiveManager(object):
 #             event.GetEventObject()._tip_item.SetState(AUI_BUTTON_STATE_NORMAL)
 #         else:
 #             event.GetEventObject()._tip_item.SetState(AUI_BUTTON_STATE_PRESSED)
-    
+
     def onOpenTask(self, event):
         logger.debug('onOpenTask')
-    
+
     def onOpenSearch(self, event):
         logger.debug('onOpenSearch')
 
@@ -1065,15 +1064,15 @@ class PerspectiveManager(object):
 #         viewToolbar = self._mgr.GetPane("viewToolbar")
 #         toolSave=viewToolbar.window.FindTool(ID_SAVE)
 #         toolSave.state =aui.AUI_BUTTON_STATE_DISABLED
-#         self._mgr.Update()  
+#         self._mgr.Update()
 #     def onSaveAll(self, event):
-#         logger.debug('onSaveAll1')        
+#         logger.debug('onSaveAll1')
 #         viewToolbar = self._mgr.GetPane("viewToolbar")
 #         toolSaveAll=viewToolbar.window.FindTool(ID_SAVE_ALL)
 #         toolSaveAll.state =aui.AUI_BUTTON_STATE_DISABLED
 #         toolSave=viewToolbar.window.FindTool(ID_SAVE)
 #         toolSave.state =aui.AUI_BUTTON_STATE_DISABLED
-#         self._mgr.Update()  
+#         self._mgr.Update()
     def onRunDebugAsDropDown(self, event):
 
         if event.IsDropDownClicked():
@@ -1095,7 +1094,7 @@ class PerspectiveManager(object):
                         [ID_DEBUG_CONFIG, 'Run Configurations...', None, None],
                         [ID_ORGANIZE_FAVORITES, 'Organize Favorites..', None, None],
                         ]
-            
+
             elif event.Id == ID_NEW_JAVA_CLASS:
                 baseList = [
                         [],
@@ -1132,7 +1131,7 @@ class PerspectiveManager(object):
                         [ID_XDOCKLET_ENTERPRISE_JAVA_BEAN, 'XDocklet Enterprise Java Bean', 'xdoclet_ejb.png', None],
                         [ID_ECLIPSELINK_DYNAMIC_ENTITY, 'EclipseLink Dynamic Entity', 'eclipseLink_dynamic_entity.png', None],
                         ]
-            
+
             elif event.Id == ID_NEW:
                 baseList = [
                         [ID_NEW_PROJECT, 'Project', "new_con.png", None],
@@ -1141,11 +1140,11 @@ class PerspectiveManager(object):
                         [],
                         [ID_OTHER_MENU, 'Other (Ctrl+N)', "new_con.png", None],
                         ]
-                
+
                 menuItemList = {
-                    "java": 
-                        [[ID_NEW_JAVA_PROJECT, 'Java Project', 'newjprj_wiz.png', None], ] + 
-                        baseList[0:1] + 
+                    "java":
+                        [[ID_NEW_JAVA_PROJECT, 'Java Project', 'newjprj_wiz.png', None], ] +
+                        baseList[0:1] +
                         [
                             [],
                             [10003, 'Package', "newpack_wiz.png", None],
@@ -1162,7 +1161,7 @@ class PerspectiveManager(object):
                             [ID_JUNIT_TEST_CASE, 'JUnit Test Case', "new_testcase.png", None],
                         ]
                         +baseList[1:],
-                    "java ee": 
+                    "java ee":
                         [
                             [ID_MAVEN_PROJECT, 'Maven Project', 'maven_project.png', None],
                             [ID_ENTERPRISE_APP_PROJECT, 'Enterprise Application Project', 'enterprise_app.png', None],
@@ -1172,12 +1171,12 @@ class PerspectiveManager(object):
                             [ID_APP_CLIENT_PROJECT, 'Application Client Project', 'app_client_prj.png', None],
                             [ID_STATIC_WEB_PROJECT, 'Static Web Project', 'static_web_project.png', None],
                             [ID_JPA_PROJECT, 'JPA Project', 'jpa_orm_mapping.png', None],
-                         
-                         ] + 
-                        baseList[0:1] + 
+
+                         ] +
+                        baseList[0:1] +
                         [
                             [],
-                            
+
                             [ID_SERVLET, 'Servlet', "create_new_servlet.png", None],
                             [ID_SESSION_BEAN, 'Session Bean (EJB 3.x)', 'session_bean.png', None],
                             [ID_MESSAGE_DRIVEN_BEAN, 'Message-Driven Bean (EJB 3.x)', 'message_driven_bean.png', None],
@@ -1186,11 +1185,11 @@ class PerspectiveManager(object):
                             [20007, 'File', "newfile_wiz.png", None],
                         ]
                         +baseList[1:],
-                    "python": 
+                    "python":
                         [
                             [ID_NEW_PYTHON_PROJECT , 'Python Project', 'new_py_prj_wiz.png', None],
-                        ] + 
-                        baseList[0:1] + 
+                        ] +
+                        baseList[0:1] +
                         [
                             [],
                             [20003, 'Source Folder', "packagefolder_obj.png", None],
@@ -1200,7 +1199,7 @@ class PerspectiveManager(object):
                             [20007, 'File', "newfile_wiz.png", None],
                         ]
                         +baseList[1:],
-                    "resource": baseList[0:1] + 
+                    "resource": baseList[0:1] +
                         [
                             [],
                             [20006, 'Folder', "project.png", None],
@@ -1209,10 +1208,10 @@ class PerspectiveManager(object):
                         +baseList[1:],
                     "debug": baseList,
                     "database": baseList
-                    }            
-                
+                    }
+
                 baseList = menuItemList[self.selectedPerspectiveName]
-                    
+
             menuItemList = {
                 self.selectedPerspectiveName: baseList
                 }
@@ -1228,10 +1227,10 @@ class PerspectiveManager(object):
             self.PopupMenu(menuPopup, pt)
 
             # make sure the button is "un-stuck"
-            tb.SetToolSticky(event.GetId(), False)    
+            tb.SetToolSticky(event.GetId(), False)
 
     def createMenuByPerspective(self, menuItemList=None, perspectiveName='python'):
-            
+
         menuPopup = wx.Menu()
         for menuItemName in menuItemList[perspectiveName]:
             if len(menuItemName) > 1:
@@ -1244,41 +1243,41 @@ class PerspectiveManager(object):
         return menuPopup
 
     def creatingFileExplorer(self):
-        
+
         fileBrowserPanel = FileBrowser(self, size=(200, 300))
         return fileBrowserPanel
-    
+
     def creatingTreeCtrl(self):
         # Create a TreeCtrl
 #         treePanel = CreatingTreePanel(self)
         treePanel = DataSourcePanel(self)
 
         return treePanel
-    
+
     def getWorksheet(self, dataSourceTreeNode=None):
         worksheetPanel = CreatingWorksheetWithToolbarPanel(self, -1, style=wx.CLIP_CHILDREN | wx.BORDER_NONE, dataSourceTreeNode=dataSourceTreeNode)
         return worksheetPanel
-    
+
     def constructCenterPane(self):
-        worksheet = CreateWorksheetTabPanel(self)      
+        worksheet = CreateWorksheetTabPanel(self)
 #         worksheet.addTab('Start Page')
         return worksheet
-    
+
     def sqlConsoleOutputPane(self):
         sqlConsoleOutputPanel = SqlConsoleOutputPanel(self)
         return sqlConsoleOutputPanel
-    
+
     def constructHistoryPane(self):
         historyGrid = HistoryGrid(self)
         return historyGrid
-    
+
     def CreateSizeReportCtrl(self, width=80, height=80):
 
         ctrl = SizeReportCtrl(self, -1, wx.DefaultPosition,
                               wx.Size(width, height), self._mgr)
         return ctrl
-        
-        
+
+
 class SizeReportCtrl(wx.PyControl):
 
     def __init__(self, parent, id=wx.ID_ANY, pos=wx.DefaultPosition,

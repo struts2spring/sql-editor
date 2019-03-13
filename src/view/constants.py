@@ -6,6 +6,7 @@ from src.view.util.common.ed_glob import ID_GOTO_LINE
 TITLE = "Eclipse"
 VERSION = "0.0.5"
 
+ID_RESOURCE = wx.NewIdRef()
 ID_WELCOME = wx.NewIdRef()
 ID_UPDATE_CHECK = wx.NewIdRef()
 ID_newConnection = wx.NewIdRef()

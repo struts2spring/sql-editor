@@ -530,8 +530,9 @@ class CreatingPythonExplorerPanel(FileTree):
         filesystem operations
 
         """
-        logger.debug('OnMenu')
+        logger.debug(f'OnMenu{ evt.Id}')
         e_id = evt.Id
+
 #         path = self._menu.GetUserData('active_node')
 #         paths = self._menu.GetUserData('selected_nodes')
 

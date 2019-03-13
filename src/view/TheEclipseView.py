@@ -30,7 +30,6 @@ from src.view.search.SearchFrame import SearchPanelsFrame
 from src.view.views.file.MainStcPanel import MainStc
 from src.view.views.console.worksheet.ResultGrid import ResultDataGrid
 
-
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
@@ -81,21 +80,21 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
     def updateTitle(self, title=None):
         logger.debug(f'updateTitle: {title}')
         self.SetTitle(f'{TITLE}-{title}')
-    
+
     def onTabRightup1(self, event):
         logger.debug('rightdown PopUp')
         _mgr = self._mgr
         currentlySelectedPage = event.GetSelection()
         logger.debug("onTabRightDown: currentlySelectedPage %s", currentlySelectedPage)
         pageInfo = event.GetEventObject().GetPageInfo(currentlySelectedPage)
-        
+
         def onCloseTab(event=None, pageInfo=None):
             logger.debug("onCloseTab")
             logger.debug("currentlySelectedPage %s", pageInfo)
             self._mgr.ClosePane(self._mgr.GetPaneByWidget(pageInfo.window))
 #             self._mgr.Update()
             # TODO:  need to work
-    
+
         def onCloseOthersTabs(event=None, pageInfo=None):
             logger.debug("onCloseOthersTabs")
             logger.debug("currentlySelectedPage %s", currentlySelectedPage)
@@ -105,7 +104,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                     _mgr.ClosePane(pane)
             _mgr.Update()
             # TODO:  need to work
-    
+
         def onCloseLeftTabs(event=None, pageInfo=None):
             logger.debug("onCloseLeftTabs")
             logger.debug("currentlySelectedPage %s", currentlySelectedPage)
@@ -115,7 +114,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                     _mgr.ClosePane(pane)
             _mgr.Update()
             # TODO:  need to work
-    
+
         def onCloseRightTabs(event=None, pageInfo=None):
             logger.debug("onCloseRightTabs")
             logger.debug("currentlySelectedPage %s", currentlySelectedPage)
@@ -125,7 +124,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                     _mgr.ClosePane(pane)
             _mgr.Update()
             # TODO:  need to work
-    
+
         def onCloseAllTabs(event=None, pageInfo=None):
             logger.debug("onCloseAllTabs")
             logger.debug("currentlySelectedPage %s", currentlySelectedPage)
@@ -143,7 +142,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
             {'label':"Close Other tabs to the left", 'icon':self.fileOperations.getImageBitmap(imageName="close.png"), "eventMethod":lambda event: onCloseLeftTabs(event, pageInfo)},
             {'label':'Close Other tabs to the right', 'icon':self.fileOperations.getImageBitmap(imageName="close.png"), "eventMethod":lambda event: onCloseRightTabs(event, pageInfo)},
             {'label':'Close &All', 'icon':self.fileOperations.getImageBitmap(imageName="close.png"), "eventMethod":lambda event: onCloseAllTabs(event, pageInfo)}
-            
+
             ]
 
             # TODO:  need to work
@@ -158,10 +157,10 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 #             deleteMenuItem.SetBitmap(delBmp)
 #             delMenu = menu.AppendItem(deleteMenuItem)
 # #             self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
-#             
-#             
+#
+#
 #             self.Bind(wx.EVT_MENU, self.onOpenSqlEditorTab, item3)
-            
+
         self.PopupMenu(self.popupmenu, pos)
 
     def startWebHelp(self):
@@ -419,19 +418,17 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
         self.disableInitial(menuBar=mb)
         self.SetMenuBar(mb)
-        
+
 #         self.addFileToHistory(r'C:\Users\xbbntni\Downloads\1.txt')
 #         self.addFileToHistory(r'C:\Users\xbbntni\Downloads\India-Technology-NPS-New-Subscriber.pdf')
 #         self.addFileToHistory(r'C:\Users\xbbntni\Downloads\India-Technology-NPS-Exiting.pdf')
-
-
 
     def addFileToHistory(self, path):
         self.filehistory.AddFileToHistory(path)
 
     def disableInitial(self, menuBar=None):
         itemIdList = [
-#             ID_SAVE, 
+#             ID_SAVE,
             ID_SAVE_ALL, wx.ID_UNDO, wx.ID_REDO, wx.ID_CUT, wx.ID_COPY, wx.ID_PASTE]
         for itemId in itemIdList:
             it = menuBar.FindItemById(itemId)
@@ -463,7 +460,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         return attacheTo
 
     def bindingEvent(self):
-        
+
         self.Bind(wx.EVT_MENU, self.OnExit, id=wx.ID_EXIT)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
         self.Bind(wx.EVT_MENU, self.OnExit, id=wx.ID_EXIT)
@@ -480,6 +477,8 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         self.Bind(wx.EVT_MENU, lambda e: self.onNewWorksheet(e), id=ID_newWorksheet)
         self.Bind(wx.EVT_MENU, self.onPreferences, ID_PREFERENCES)
         self.Bind(wx.EVT_MENU, self.onFileSearch, ID_SEARCH_FILE)
+        self.Bind(wx.EVT_MENU, self.onOpenResource, ID_RESOURCE)
+        self.Bind(wx.EVT_MENU, self.onOpenType, ID_OPEN_TYPE)
 
         self.Bind(wx.EVT_MENU, self.onViewClick, id=ID_OUTLINE)
         self.Bind(wx.EVT_MENU, self.onViewClick, id=ID_SQL_LOG)
@@ -517,7 +516,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 # #                                       (wx.ACCEL_SHIFT | wx.ACCEL_ALT, ord('Y'), wx.ID_PASTE)
 #                                      ])
 #         self.SetAcceleratorTable(self.accel_tbl)
-        
+
     def Cleanup(self, *args):
         logger.debug('Cleanup')
         for i in range(self.filehistory.GetCount() + 1):
@@ -528,7 +527,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                 pass
         # A little extra cleanup is required for the FileHistory control
 #         del self.filehistory
-        
+
     def OnFileHistory(self, evt):
         # get the file based on the menu ID
         fileNum = evt.GetId() - wx.ID_FILE1
@@ -563,7 +562,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
     def onSave(self, event):
         logger.debug('onSave1')
         # disabling button
-        window=self.GetTopLevelParent().FindFocus()
+        window = self.GetTopLevelParent().FindFocus()
         if isinstance(window, MainStc):
             logger.debug('MainStc window')
             window.SaveFile()
@@ -582,7 +581,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
         """
         logger.debug('onSaveAs')
-        window=self.GetTopLevelParent().FindFocus()
+        window = self.GetTopLevelParent().FindFocus()
         if isinstance(window, MainStc):
             logger.debug('MainStc window')
             window.SaveFile()
@@ -667,7 +666,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                 count = int(countStr)
                 count += 1
         self._mgr.addTabByWindow(self.getWorksheet(dataSourceTreeNode), imageName="script.png", captionName="Worksheet-{}".format(count), tabDirection=5)
-        
+
 #         sqlExecutionTab = self.GetTopLevelParent()._mgr.GetPane("centerPane")
 #         sqlExecutionTab.window.addTab("Worksheet")
 
@@ -725,6 +724,14 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         logger.debug('onFileSearch')
         frame = SearchPanelsFrame(None, size=(800, 400))
         frame.CenterOnScreen()
+
+    def onOpenType(self, event):
+        logger.debug('onOpenType')
+
+    def onOpenResource(self, event):
+        logger.debug('onOpenResource')
+#         frame = SearchPanelsFrame(None, size=(800, 400))
+#         frame.CenterOnScreen()
 
     def onViewClick(self, event):
         logger.debug('onViewClick')
