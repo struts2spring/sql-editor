@@ -10,7 +10,7 @@ import wx
 
 # from src.view.table.CreateTable import CreateTableFrame
 import logging.config
-from src.view.constants import LOG_SETTINGS
+from src.view.constants import LOG_SETTINGS, ID_COLLAPSE_ALL,ID_LINK_WITH_EDITOR
 from src.view.views.file.explorer._filetree import FileTree
 from src.view.views.file.MainStcPanel import MainStc
 import os
@@ -28,11 +28,83 @@ from src.view.views.python.explorer.IconManager import PythonExplorerIconManager
 from src.view.views.editor.EditorManager import EditorWindowManager
 from src.view.constants import ID_NEW
 
+try:
+    from agw import aui
+    from agw.aui import aui_switcherdialog as ASD
+except ImportError:  # if it's not there locally, try the wxPython lib.
+    import wx.lib.agw.aui as aui
+    from wx.lib.agw.aui import aui_switcherdialog as ASD
+
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
 
-class CreatingPythonExplorerPanel(FileTree):
+class PythonExplorerPanel(wx.Panel):
+
+    def __init__(self, parent=None, *args, **kw):
+        wx.Panel.__init__(self, parent, id=-1)
+        self.parent = parent
+        sizer = wx.BoxSizer(wx.VERTICAL)
+#         self.title = title
+        ####################################################################
+        self.fileOperations = FileOperations()
+        self.topToolbar = self.constructTopToolBar()
+        self.pythonExplorerTreePanel = PythonExplorerTreePanel(self)
+        ####################################################################
+        sizer.Add(self.topToolbar, 0, wx.EXPAND)
+        sizer.Add(self.pythonExplorerTreePanel, 1, wx.EXPAND)
+        self.SetSizer(sizer)
+        self.Center()
+#         self.createStatusBar()
+        self.Show(True)
+
+    def constructTopToolBar(self):
+
+        # create some toolbars
+        tb1 = aui.AuiToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize, agwStyle=aui.AUI_TB_DEFAULT_STYLE | aui.AUI_TB_OVERFLOW)
+
+        tb1.SetToolBitmapSize(wx.Size(42, 42))
+
+        tools = [
+            (ID_COLLAPSE_ALL, "Collapse All", "collapseall.png", 'Collapse All', self.onCollapseAll),
+            (ID_LINK_WITH_EDITOR, "Link with Editor", "icon_link_with_editor.png", 'Link with Editor', self.onLinkWithEditor),
+            (),
+#             (ID_REFRESH_ROW, "Result refresh", "resultset_refresh.png", 'Result refresh \tF5', self.onRefresh),
+#             (ID_ADD_ROW, "Add a new row", "row_add.png", 'Add a new row', self.onAddRow),
+#             (ID_DUPLICATE_ROW, "Duplicate selected row", "row_copy.png", 'Duplicate selected row', self.onDuplicateRow),
+#             (ID_DELETE_ROW, "Delete selected row", "row_delete.png", 'Delete selected row', self.onDeleteRow),
+            ]
+        for tool in tools:
+            if len(tool) == 0:
+                tb1.AddSeparator()
+            else:
+                logger.debug(tool)
+                toolItem = tb1.AddSimpleTool(tool[0], tool[1], self.fileOperations.getImageBitmap(imageName=tool[2]), short_help_string=tool[3])
+                if tool[4]:
+                    self.Bind(wx.EVT_MENU, tool[4], id=tool[0])
+#             tb1.AddSimpleTool(ID_SAVE_ROW, "Save", fileOperations.getImageBitmap(imageName="save_to_database.png"), short_help_string='Save to database')
+#             tb1.AddSeparator()
+#
+#             tb1.AddSimpleTool(ID_REFRESH_ROW, "Result refresh", fileOperations.getImageBitmap(imageName="resultset_refresh.png"), short_help_string='Refresh data')
+#             tb1.AddSimpleTool(ID_ADD_ROW, "Add a new row", fileOperations.getImageBitmap(imageName="row_add.png"), short_help_string='Add new row')
+#             tb1.AddSimpleTool(ID_DUPLICATE_ROW, "Duplicate current row", fileOperations.getImageBitmap(imageName="row_copy.png"), short_help_string='Duplicate current row')
+#             tb1.AddSimpleTool(ID_DELETE_ROW, "Delete current row", fileOperations.getImageBitmap(imageName="row_delete.png"), short_help_string='Delete current row')
+#             tb1.AddSeparator()
+
+#         tb1.AddTool(ID_RUN, "Pin", fileOperations.getImageBitmap(imageName="pin2_green.png"))
+
+        tb1.Realize()
+
+        return tb1
+
+    def onCollapseAll(self, event):
+        logger.debug('onCollapseAll')
+
+    def onLinkWithEditor(self, event):
+        logger.debug('onLinkWithEditor')
+
+
+class PythonExplorerTreePanel(FileTree):
 
     def __init__(self, parent, size=wx.DefaultSize):
         self.iconManager = PythonExplorerIconManager()
@@ -955,7 +1027,7 @@ if __name__ == '__main__':
     app = wx.App(False)
     frame = wx.Frame(None)
     try:
-        panel = CreatingPythonExplorerPanel(frame)
+        panel = PythonExplorerPanel(frame)
     except Exception as ex:
         logger.error(ex)
     frame.Show()

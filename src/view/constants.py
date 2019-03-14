@@ -144,6 +144,12 @@ ID_HIDE_STATUSBAR = wx.NewIdRef()
 # search toolbar menu
 ID_SEARCH_FILE = wx.NewIdRef()
 
+
+
+
+ID_COLLAPSE_ALL = wx.NewIdRef()
+ID_LINK_WITH_EDITOR= wx.NewIdRef()
+
 # Data tableinfo toolbar menu
 ID_ADD_ROW = wx.NewIdRef()
 ID_DUPLICATE_ROW = wx.NewIdRef()

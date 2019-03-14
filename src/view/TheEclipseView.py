@@ -18,7 +18,7 @@ from src.view.views.database.explorer.DataSourceExplorer import DataSourcePanel
 
 import logging.config
 # from src.view.TreePanel import CreatingTreePanel
-from src.view.views.python.explorer.PythonExplorer import CreatingPythonExplorerPanel
+from src.view.views.python.explorer.PythonExplorer import PythonExplorerPanel
 from src.view.views.sql.history.HistoryListPanel import HistoryGrid
 from src.view.views.file.explorer import FileBrowserPanel
 from src.view.views.file.explorer.FileBrowserPanel import FileBrowser
@@ -781,7 +781,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
             elif name == "databaseNaviagor":
                 panel = DataSourcePanel(self)
             elif name == "pythonPackageExplorer":
-                panel = CreatingPythonExplorerPanel(self)
+                panel = PythonExplorerPanel(self)
             elif name == "projectExplorerView":
                 panel = CreatingProjectExplorerPanel(self)
             elif name == "javaPackageExplorer":
@@ -790,23 +790,23 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                 intro = f'{py.version.VERSION}'
                 panel = py.shell.Shell(self, -1, introText=intro)
             elif name == "terminalView":
-                panel = CreatingPythonExplorerPanel(self)
+                panel = PythonExplorerPanel(self)
             elif name == "navigatorView":
-                panel = CreatingPythonExplorerPanel(self)
+                panel = PythonExplorerPanel(self)
             elif name == "tasksView":
-                panel = CreatingPythonExplorerPanel(self)
+                panel = PythonExplorerPanel(self)
             elif name == "fileExplorer":
                 panel = FileBrowser(self, size=(500, 300))
             elif name == "sqlLogView":
                 panel = HistoryGrid(self)
             elif name == "outlineView":
-                panel = CreatingPythonExplorerPanel(self)
+                panel = PythonExplorerPanel(self)
             elif name == "variablesView":
-                panel = CreatingPythonExplorerPanel(self)
+                panel = PythonExplorerPanel(self)
             elif name == "breakpointsView":
-                panel = CreatingPythonExplorerPanel(self)
+                panel = PythonExplorerPanel(self)
             elif name == "expressionsView":
-                panel = CreatingPythonExplorerPanel(self)
+                panel = PythonExplorerPanel(self)
 
             self._mgr.addTabByWindow(panel, imageName=imageName, name=name , captionName=captionName, tabDirection=tabDirection)
         elif not self._mgr.GetPaneByName(name).IsShown():

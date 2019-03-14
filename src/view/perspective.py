@@ -26,7 +26,7 @@ from wx.lib.pubsub import pub
 from wx.lib.agw.aui.auibar import AuiToolBarEvent, \
     wxEVT_COMMAND_AUITOOLBAR_BEGIN_DRAG, wxEVT_COMMAND_AUITOOLBAR_MIDDLE_CLICK, \
     wxEVT_COMMAND_AUITOOLBAR_RIGHT_CLICK
-from src.view.views.python.explorer.PythonExplorer import CreatingPythonExplorerPanel
+from src.view.views.python.explorer.PythonExplorer import PythonExplorerPanel
 
 from wx import py
 from src.view.views.java.explorer.JavaExplorer import CreatingJavaExplorerPanel
@@ -818,7 +818,7 @@ class PerspectiveManager(object):
         allowedInstanceForProspective = [
 #             SqlConsoleOutputPanel,
             py.shell.Shell,
-            CreatingPythonExplorerPanel,
+            PythonExplorerPanel,
             DataSourcePanel,
             CreatingJavaExplorerPanel,
             FileBrowser,
@@ -827,7 +827,7 @@ class PerspectiveManager(object):
         if self.selectedPerspectiveName == 'database':
             allowedInstanceForProspective.remove(DataSourcePanel)
         elif self.selectedPerspectiveName == 'python':
-            allowedInstanceForProspective.remove(CreatingPythonExplorerPanel)
+            allowedInstanceForProspective.remove(PythonExplorerPanel)
             allowedInstanceForProspective.remove(py.shell.Shell)
         elif self.selectedPerspectiveName == 'java':
             allowedInstanceForProspective.remove(CreatingJavaExplorerPanel)
