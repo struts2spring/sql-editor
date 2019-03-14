@@ -10,7 +10,8 @@ import wx
 
 # from src.view.table.CreateTable import CreateTableFrame
 import logging.config
-from src.view.constants import LOG_SETTINGS, ID_COLLAPSE_ALL,ID_LINK_WITH_EDITOR
+from src.view.constants import LOG_SETTINGS, ID_COLLAPSE_ALL, ID_LINK_WITH_EDITOR, \
+    ID_VIEW_MENU
 from src.view.views.file.explorer._filetree import FileTree
 from src.view.views.file.MainStcPanel import MainStc
 import os
@@ -63,12 +64,13 @@ class PythonExplorerPanel(wx.Panel):
         # create some toolbars
         tb1 = aui.AuiToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize, agwStyle=aui.AUI_TB_DEFAULT_STYLE | aui.AUI_TB_OVERFLOW)
 
-        tb1.SetToolBitmapSize(wx.Size(42, 42))
+        tb1.SetToolBitmapSize(wx.Size(16, 16))
 
         tools = [
             (ID_COLLAPSE_ALL, "Collapse All", "collapseall.png", 'Collapse All', self.onCollapseAll),
             (ID_LINK_WITH_EDITOR, "Link with Editor", "icon_link_with_editor.png", 'Link with Editor', self.onLinkWithEditor),
             (),
+            (ID_VIEW_MENU, "View Menu", "icon_menu.png", 'View Menu', self.onViewMenu),
 #             (ID_REFRESH_ROW, "Result refresh", "resultset_refresh.png", 'Result refresh \tF5', self.onRefresh),
 #             (ID_ADD_ROW, "Add a new row", "row_add.png", 'Add a new row', self.onAddRow),
 #             (ID_DUPLICATE_ROW, "Duplicate selected row", "row_copy.png", 'Duplicate selected row', self.onDuplicateRow),
@@ -102,6 +104,9 @@ class PythonExplorerPanel(wx.Panel):
 
     def onLinkWithEditor(self, event):
         logger.debug('onLinkWithEditor')
+
+    def onViewMenu(self, event):
+        logger.debug('onViewMenu')
 
 
 class PythonExplorerTreePanel(FileTree):

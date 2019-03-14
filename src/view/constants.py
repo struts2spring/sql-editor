@@ -149,6 +149,7 @@ ID_SEARCH_FILE = wx.NewIdRef()
 
 ID_COLLAPSE_ALL = wx.NewIdRef()
 ID_LINK_WITH_EDITOR= wx.NewIdRef()
+ID_VIEW_MENU= wx.NewIdRef()
 
 # Data tableinfo toolbar menu
 ID_ADD_ROW = wx.NewIdRef()
