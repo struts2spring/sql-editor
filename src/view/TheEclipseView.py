@@ -15,6 +15,7 @@ from src.view.views.console.worksheet.WelcomePage import WelcomePanel
 from src.view.other.OtherView import OtherViewTreePanel, OtherViewTreeFrame
 from src.view.other.OtherPerspecitve import OtherPerspectiveTreeFrame
 from src.view.views.database.explorer.DataSourceExplorer import DataSourcePanel
+from src.view.other.Resources import ResourceFrame
 
 import logging.config
 # from src.view.TreePanel import CreatingTreePanel
@@ -730,8 +731,8 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
     def onOpenResource(self, event):
         logger.debug('onOpenResource')
-#         frame = SearchPanelsFrame(None, size=(800, 400))
-#         frame.CenterOnScreen()
+        frame = ResourceFrame(None, 'Open Resource',size=(800, 400))
+        frame.CenterOnScreen()
 
     def onViewClick(self, event):
         logger.debug('onViewClick')

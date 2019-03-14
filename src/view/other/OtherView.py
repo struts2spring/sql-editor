@@ -219,7 +219,7 @@ class CreateButtonPanel(wx.Panel):
         self.parent = parent
         sizer = wx.BoxSizer(wx.VERTICAL)
         hbox = wx.BoxSizer(wx.HORIZONTAL)
-        okButton = wx.Button(self, 50, "Ok", (20, 220))
+        okButton = wx.Button(self, 50, "Open", (20, 220))
         okButton.SetToolTip("Execute script to create table.")
         self.Bind(wx.EVT_BUTTON, self.onOkClick, okButton)
 
