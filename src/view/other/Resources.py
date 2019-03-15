@@ -268,6 +268,12 @@ class CreateButtonPanel(wx.Panel):
                     # wx.TOP
                     # wx.BOTTOM
                     )
+        self.showInButton.SetBitmap(self.fileOperations.getImageBitmap(imageName='button_menu.png'),
+#                     wx.LEFT    # Left is the default, the image can be on the other sides too
+                    wx.RIGHT
+                    # wx.TOP
+                    # wx.BOTTOM
+                    )
         hbox.Add(self.showInButton)
         hbox.Add(self.openWithButton)
         hbox.Add(okButton)
@@ -284,6 +290,9 @@ class CreateButtonPanel(wx.Panel):
         menu.Append(wx.ID_ANY, "Menu Item 1")
         menu.Append(wx.ID_ANY, "Menu Item 2")
         menu.Append(wx.ID_ANY, "Menu Item 3")
+        w, h = self.showInButton.GetSize()
+        x, y = self.showInButton.GetPosition()
+        self.PopupMenu(menu, (x, y + h))
 
     def onOpenWithButton(self, event):
         logger.debug('openWithButton')
@@ -342,19 +351,20 @@ class ResourcePanel(wx.Panel):
         self.enterLabel = wx.StaticText(self, -1, "Enter resource name prefix, path prefix or pattern(?, * or camel case):")
         self.matchingItemLabel = wx.StaticText(self, -1, "Matching items:")
         self.treeMap = {}
-        self.tree = OtherViewBaseTreePanel(self)
+#         self.tree = OtherViewBaseTreePanel(self)
+        self.resourceSearchResultListCtrl = ResourceSearchResultListCtrl(self)
 
         self.filter = wx.SearchCtrl(self, style=wx.TE_PROCESS_ENTER)
         self.filter.SetDescriptiveText("Type filter search text")
         self.filter.ShowCancelButton(True)
-        self.filter.Bind(wx.EVT_TEXT, self.RecreateTree)
+#         self.filter.Bind(wx.EVT_TEXT, self.RecreateTree)
         self.filter.Bind(wx.EVT_SEARCHCTRL_CANCEL_BTN, lambda e: self.filter.SetValue(''))
         self.filter.Bind(wx.EVT_TEXT_ENTER, self.OnSearch)
 
-        self.tree.Bind(wx.EVT_TREE_ITEM_EXPANDED, self.OnItemExpanded)
-        self.tree.Bind(wx.EVT_TREE_ITEM_COLLAPSED, self.OnItemCollapsed)
-        self.tree.Bind(wx.EVT_TREE_SEL_CHANGED, self.OnSelChanged)
-        self.tree.Bind(wx.EVT_LEFT_DOWN, self.OnTreeLeftDown)
+#         self.tree.Bind(wx.EVT_TREE_ITEM_EXPANDED, self.OnItemExpanded)
+#         self.tree.Bind(wx.EVT_TREE_ITEM_COLLAPSED, self.OnItemCollapsed)
+#         self.tree.Bind(wx.EVT_TREE_SEL_CHANGED, self.OnSelChanged)
+#         self.tree.Bind(wx.EVT_LEFT_DOWN, self.OnTreeLeftDown)
 #         self.tree.SelectItem(self.root)
 
         searchMenu = wx.Menu()
@@ -363,12 +373,12 @@ class ResourcePanel(wx.Panel):
         item = searchMenu.AppendRadioItem(-1, "Sample Content")
         self.Bind(wx.EVT_MENU, self.OnSearchMenu, item)
         self.filter.SetMenu(searchMenu)
-        self.RecreateTree()
+#         self.RecreateTree()
         ####################################################################
         vBox.Add(self.enterLabel, 0, wx.EXPAND | wx.ALL, 5)
         vBox.Add(self.filter , 0, wx.EXPAND | wx.ALL)
         vBox.Add(self.matchingItemLabel, 0, wx.EXPAND | wx.ALL, 5)
-        vBox.Add(self.tree , 1, wx.EXPAND | wx.ALL)
+        vBox.Add(self.resourceSearchResultListCtrl , 1, wx.EXPAND | wx.ALL)
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(vBox, 1, wx.EXPAND , 0)
         self.SetSizer(sizer)
@@ -403,263 +413,41 @@ class ResourcePanel(wx.Panel):
         self.RecreateTree()
 
     #---------------------------------------------
-    def RecreateTree(self, evt=None):
-        searchMenu = self.filter.GetMenu().GetMenuItems()
-        fullSearch = searchMenu[1].IsChecked()
-
-        if evt:
-            if fullSearch:
-                # Do not`scan all the demo files for every char
-                # the user input, use wx.EVT_TEXT_ENTER instead
-                return
-
-        expansionState = self.tree.GetExpansionState()
-
-        current = None
-        item = self.tree.GetSelection()
-        if item:
-            prnt = self.tree.GetItemParent(item)
-            if prnt:
-                current = (self.tree.GetItemText(item),
-                           self.tree.GetItemText(prnt))
-
-        self.tree.Freeze()
-        self.tree.DeleteAllItems()
-        self.root = self.tree.AddRoot("Other View")
-        self.tree.SetItemImage(self.root, self.tree.iconsDictIndex['other_view.png'])
-        self.tree.SetItemData(self.root, 0)
-
-        treeFont = self.tree.GetFont()
-        catFont = self.tree.GetFont()
-
-        # The native treectrl on MSW has a bug where it doesn't draw
-        # all of the text for an item if the font is larger than the
-        # default.  It seems to be clipping the item's label as if it
-        # was the size of the same label in the default font.
-        if 'wxMSW' not in wx.PlatformInfo:
-            treeFont.SetPointSize(treeFont.GetPointSize() + 2)
-
-        treeFont.SetWeight(wx.BOLD)
-        catFont.SetWeight(wx.BOLD)
-#         self.tree.SetItemFont(self.root, treeFont)
-
-        firstChild = None
-        selectItem = None
-        filter = self.filter.GetValue()
-        count = 0
-
-        def constructNode(parent=None, treeData=None):
-            logger.debug(treeData)
-            for idx, items in enumerate(treeData):
-                logger.debug(items)
-#                 itemText = None
-#                 image = 1
-#                 if isinstance(items, tuple):
-#                     itemText = items[1]
-#                     image = self.tree.iconsDictIndex['folder.png']
-#                 else:
-#                     itemText = items
-#                     image = self.tree.iconsDictIndex['fileType_filter.png']
-                itemText = items[1]
-                if items[2]:
-                    image = self.tree.iconsDictIndex[items[2]]
-                else:
-                    image = self.tree.iconsDictIndex['fileType_filter.png']
-                child = self.tree.AppendItem(parent, itemText, image=image)
-#                 self.tree.SetItemFont(child, catFont)
-                self.tree.SetItemData(child, count)
-#                 if isinstance(items, tuple) and len(items) > 1:
-#                     constructNode(parent=child, treeData=items[1])
-
-        constructNode(parent=self.root, treeData=perspectiveList)
-#         for category, items in _treeList:
-#             category, items
-#             count += 1
-#             if filter:
-#                 if fullSearch:
-#                     items = self.searchItems[category]
-#                 else:
-#                     items = [item for item in items if filter.lower() in item.lower()]
-#             if items:
-#                 child = self.tree.AppendItem(self.root, category, image=count)
-#                 self.tree.SetItemFont(child, catFont)
-#                 self.tree.SetItemData(child, count)
-#                 if not firstChild: firstChild = child
-#                 for childItem in items:
-#                     image = count
-# #                     if DoesModifiedExist(childItem):
-# #                         image = len(_demoPngs)
-#                     theDemo = self.tree.AppendItem(child, childItem, image=image)
-#                     self.tree.SetItemData(theDemo, count)
-#                     self.treeMap[childItem] = theDemo
-#                     if current and (childItem, category) == current:
-#                         selectItem = theDemo
-
-#         self.tree.Expand(self.root)
-        if firstChild:
-            self.tree.Expand(firstChild)
-        if filter:
-            self.tree.ExpandAll()
-        elif expansionState:
-            self.tree.SetExpansionState(expansionState)
-        if selectItem:
-            self.skipLoad = True
-            self.tree.SelectItem(selectItem)
-            self.skipLoad = False
-
-        self.tree.Thaw()
-        self.searchItems = {}
-
-    #---------------------------------------------
-    def RecreateTree1(self, evt=None):
-        # Catch the search type (name or content)
-        searchMenu = self.filter.GetMenu().GetMenuItems()
-        fullSearch = searchMenu[1].IsChecked()
-
-        if evt:
-            if fullSearch:
-                # Do not`scan all the demo files for every char
-                # the user input, use wx.EVT_TEXT_ENTER instead
-                return
-
-        expansionState = self.tree.GetExpansionState()
-
-        current = None
-        item = self.tree.GetSelection()
-        if item:
-            prnt = self.tree.GetItemParent(item)
-            if prnt:
-                current = (self.tree.GetItemText(item),
-                           self.tree.GetItemText(prnt))
-
-        self.tree.Freeze()
-        self.tree.DeleteAllItems()
-        self.root = self.tree.AddRoot("Preferences")
-        self.tree.SetItemImage(self.root, 0)
-        self.tree.SetItemData(self.root, 0)
-
-        treeFont = self.tree.GetFont()
-        catFont = self.tree.GetFont()
-
-        # The native treectrl on MSW has a bug where it doesn't draw
-        # all of the text for an item if the font is larger than the
-        # default.  It seems to be clipping the item's label as if it
-        # was the size of the same label in the default font.
-        if 'wxMSW' not in wx.PlatformInfo:
-            treeFont.SetPointSize(treeFont.GetPointSize() + 2)
-
-        treeFont.SetWeight(wx.BOLD)
-        catFont.SetWeight(wx.BOLD)
-        self.tree.SetItemFont(self.root, treeFont)
-
-        firstChild = None
-        selectItem = None
-        filter = self.filter.GetValue()
-        count = 0
-
-        for category, items in _treeList:
-            category, items
-            count += 1
-            if filter:
-                if fullSearch:
-                    items = self.searchItems[category]
-                else:
-                    items = [item for item in items if filter.lower() in item.lower()]
-            if items:
-                child = self.tree.AppendItem(self.root, category, image=count)
-                self.tree.SetItemFont(child, catFont)
-                self.tree.SetItemData(child, count)
-                if not firstChild: firstChild = child
-                for childItem in items:
-                    image = count
-#                     if DoesModifiedExist(childItem):
-#                         image = len(_demoPngs)
-                    theDemo = self.tree.AppendItem(child, childItem, image=image)
-                    self.tree.SetItemData(theDemo, count)
-                    self.treeMap[childItem] = theDemo
-                    if current and (childItem, category) == current:
-                        selectItem = theDemo
-
-        self.tree.Expand(self.root)
-        if firstChild:
-            self.tree.Expand(firstChild)
-        if filter:
-            self.tree.ExpandAll()
-        elif expansionState:
-            self.tree.SetExpansionState(expansionState)
-        if selectItem:
-            self.skipLoad = True
-            self.tree.SelectItem(selectItem)
-            self.skipLoad = False
-
-        self.tree.Thaw()
-        self.searchItems = {}
-
-    #---------------------------------------------
-    def OnItemExpanded(self, event):
-        item = event.GetItem()
-        logger.debug("OnItemExpanded: %s" , self.tree.GetItemText(item))
-        if self.tree.GetItemParent(item):
-            self.tree.SetItemImage(item, self.tree.iconsDictIndex['folder_view.png'])
-        event.Skip()
-
-    #---------------------------------------------
-    def OnItemCollapsed(self, event):
-        item = event.GetItem()
-        logger.debug("OnItemCollapsed: %s", self.tree.GetItemText(item))
-        if self.tree.GetItemParent(item):
-            self.tree.SetItemImage(item, self.tree.iconsDictIndex['folder.png'])
-        event.Skip()
-
-    #---------------------------------------------
-    def OnTreeLeftDown(self, event):
-        # reset the overview text if the tree item is clicked on again
-        pt = event.GetPosition();
-        item, flags = self.tree.HitTest(pt)
-        if item and item == self.tree.GetSelection():
-            print(self.tree.GetItemText(item) + " Overview")
-        event.Skip()
-
-    #---------------------------------------------
-    def OnSelChanged(self, event):
-#         if self.dying or not self.loaded or self.skipLoad:
-#             return
-
-#         self.StopDownload()
-
-        item = event.GetItem()
-        itemText = self.tree.GetItemText(item)
-        logger.debug(itemText)
-        opalPreference = self.GetTopLevelParent()
-        if opalPreference:
-    #         rightPanel=opalPreference.rightPanelItem.GetParent()
-    #         opalPreference.rightPanelItem.Hide()
-    #         opalPreference.rightPanelItem.Hide()
-    #         opalPreference.rightPanelItem=opalPreference.getPreferencePanelObj(rightPanel,preferenceName=itemText)
-    #         opalPreference.rightPanelItem.Show(True)
-    #         opalPreference.rightPanelItem.Layout()
-            for pnl in opalPreference.pnl.GetChildren():
-    #             print(pnl)
-                if pnl.GetName() == 'rightPanel':
-                    opalPreference = self.GetTopLevelParent()
-                    for child in pnl.GetChildren():
-#                         if 'preference' in child.name.lower():
-                        child.Hide()
-    #                     break
-    #                     child.opalPreference.getPreferencePanelObj(pnl,preferenceName=itemText)
-                    rightPanelItem = opalPreference.getPreferencePanelObj(pnl, preferenceName=itemText)
-                    opalPreference.addPanel(rightPanelItem)
-                    pnl.Layout()
-                    pnl.Refresh()
-                    pnl.Fit()
-            opalPreference.Layout()
-    #         print(opalPreference.GetChildrenCount())
-    #         opalPreference.GetChildrenCount().rightpanel.Refresh()
-
-            opalPreference.mgr.Update()
 
 
 #         self.UpdateNotebook(preferenceName=itemText)
+import wx.lib.mixins.listctrl as listmix
+
+
+class ImprovedListCtrl(wx.ListCtrl, listmix.ListCtrlAutoWidthMixin):
+
+    def __init__(self, parent, ID, pos=wx.DefaultPosition,
+                 size=wx.DefaultSize, style=0):
+        wx.ListCtrl.__init__(self, parent, ID, pos, size, style)
+        listmix.ListCtrlAutoWidthMixin.__init__(self)
+
+
+class ResourceSearchResultListCtrl(wx.Panel):
+
+    def __init__(self, parent):
+        wx.Panel.__init__(self, parent, -1, style=wx.WANTS_CHARS)  
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        self.list = ImprovedListCtrl(self, wx.NewIdRef(),
+                                style=wx.LC_REPORT
+                                # | wx.BORDER_SUNKEN
+                                | wx.BORDER_NONE
+                                | wx.LC_EDIT_LABELS
+                                # | wx.LC_SORT_ASCENDING    # disabling initial auto sort gives a
+                               | wx.LC_NO_HEADER  # better illustration of col-click sorting
+                                # | wx.LC_VRULES
+                                # | wx.LC_HRULES
+                                # | wx.LC_SINGLE_SEL
+                                )       
+        sizer.Add(self.list, 1, wx.EXPAND)
+        self.SetSizer(sizer)
+        self.SetAutoLayout(True)    
+
+
 class OtherViewBaseTreePanel(ExpansionState, TreeCtrl):
     '''
     Left navigation tree in preferences page
