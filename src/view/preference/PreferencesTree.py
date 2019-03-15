@@ -203,7 +203,9 @@ class PrefrencesTreePanel(wx.Panel):
         vBox.Add(self.tree , 1, wx.EXPAND | wx.ALL)
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(vBox, 1, wx.EXPAND , 0)
+        
         self.SetSizer(sizer)
+
 
     def OnSearchMenu(self, event):
 

@@ -79,10 +79,15 @@ class PrefrencesTree(ExpansionState, TreeCtrl):
 #         if USE_CUSTOMTREECTRL:
 #             self.SetSpacing(10)
 #             self.SetWindowStyle(self.GetWindowStyle() & ~wx.TR_LINES_AT_ROOT)
- 
+        self.Bind(wx.EVT_CHAR_HOOK, self.OnKeyUP)
         self.SetInitialSize((100, 80))
          
-             
+    def OnKeyUP(self, event):
+#         print "KEY UP!"
+        keyCode = event.GetKeyCode()
+        if keyCode == wx.WXK_ESCAPE:
+            self.Close()
+        event.Skip()              
     def AppendItem(self, parent, text, image=-1, wnd=None):
  
         item = TreeCtrl.AppendItem(self, parent, text, image=image)

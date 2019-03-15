@@ -198,7 +198,7 @@ _treeList = [
 
 class ResourceFrame(wx.Frame):
 
-    def __init__(self, parent, title, size=(313, 441),
+    def __init__(self, parent, title, size=(413, 441),
                  style=wx.DEFAULT_FRAME_STYLE | wx.NO_FULL_REPAINT_ON_RESIZE | wx.SUNKEN_BORDER | wx.STAY_ON_TOP):
         style = style & (~wx.MINIMIZE_BOX)
         wx.Frame.__init__(self, parent, -1, title, size=size,
@@ -213,7 +213,6 @@ class ResourceFrame(wx.Frame):
         sizer = wx.BoxSizer(wx.VERTICAL)
         self.buttonPanel = CreateButtonPanel(self)
         ####################################################################
-
         self.resourcePanel = ResourcePanel(self)
         ####################################################################
 
@@ -225,14 +224,13 @@ class ResourceFrame(wx.Frame):
 #         self.createStatusBar()
         self.Show(True)
 
-
 #         self.Bind(wx.EVT_SIZE, self.OnSize)
     def OnKeyUP(self, event):
 #         print "KEY UP!"
         keyCode = event.GetKeyCode()
         if keyCode == wx.WXK_ESCAPE:
             self.Close()
-        event.Skip() 
+        event.Skip()
 
     def OnCloseFrame(self, event):
         self.Destroy()
@@ -247,23 +245,31 @@ class CreateButtonPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
 
         wx.Panel.__init__(self, parent, id=-1)
+
         self.parent = parent
+        self.fileOperations = FileOperations()
         sizer = wx.BoxSizer(wx.VERTICAL)
         hbox = wx.BoxSizer(wx.HORIZONTAL)
-        okButton = wx.Button(self, 50, "Open", (20, 220))
+        self.openWithButton = wx.Button(self, wx.NewIdRef(), "Open Wit&h", size=(80, 26))
+        self.showInButton = wx.Button(self, wx.NewIdRef(), "Show In", size=(80, 26))
+        okButton = wx.Button(self, wx.NewIdRef(), "Open", size=(80, 26))
         okButton.SetToolTip("Execute script to create table.")
         self.Bind(wx.EVT_BUTTON, self.onOkClick, okButton)
+        self.Bind(wx.EVT_BUTTON, self.onOpenWithButton, self.openWithButton)
+        self.Bind(wx.EVT_BUTTON, self.onShowInButton, self.showInButton)
 
-        cancelButton = wx.Button(self, 51, "Cancel", (20, 220))
+        cancelButton = wx.Button(self, wx.NewIdRef(), "Cancel", size=(80, 26))
         cancelButton.SetToolTip("Execute script to create table.")
         self.Bind(wx.EVT_BUTTON, self.onCancelButtonClick, cancelButton)
 
-#         b.SetBitmap(images.Mondrian.Bitmap,
+        self.openWithButton.SetBitmap(self.fileOperations.getImageBitmap(imageName='button_menu.png'),
 #                     wx.LEFT    # Left is the default, the image can be on the other sides too
-#                     #wx.RIGHT
-#                     #wx.TOP
-#                     #wx.BOTTOM
-#                     )
+                    wx.RIGHT
+                    # wx.TOP
+                    # wx.BOTTOM
+                    )
+        hbox.Add(self.showInButton)
+        hbox.Add(self.openWithButton)
         hbox.Add(okButton)
         hbox.Add(cancelButton)
 #         sizer.Add(cancelButton, 0, wx.ALIGN_RIGHT | wx.RIGHT | wx.BOTTOM)
@@ -271,6 +277,24 @@ class CreateButtonPanel(wx.Panel):
 #         sizer.Add(vBox, 1, wx.EXPAND , 0)
         self.SetAutoLayout(True)
         self.SetSizer(sizer)
+
+    def onShowInButton(self, event):
+        logger.debug('showInButton')
+        menu = wx.Menu()
+        menu.Append(wx.ID_ANY, "Menu Item 1")
+        menu.Append(wx.ID_ANY, "Menu Item 2")
+        menu.Append(wx.ID_ANY, "Menu Item 3")
+
+    def onOpenWithButton(self, event):
+        logger.debug('openWithButton')
+        menu = wx.Menu()
+        menu.Append(wx.ID_ANY, "Menu Item 1")
+        menu.Append(wx.ID_ANY, "Menu Item 2")
+        menu.Append(wx.ID_ANY, "Menu Item 3")
+        self.openWithButton
+        w, h = self.openWithButton.GetSize()
+        x, y = self.openWithButton.GetPosition()
+        self.PopupMenu(menu, (x, y + h))
 
     def onOkClick(self, event):
         logger.debug('onOkClick')
@@ -315,6 +339,8 @@ class ResourcePanel(wx.Panel):
         self.connDict = dict()
         vBox = wx.BoxSizer(wx.VERTICAL)
         ####################################################################
+        self.enterLabel = wx.StaticText(self, -1, "Enter resource name prefix, path prefix or pattern(?, * or camel case):")
+        self.matchingItemLabel = wx.StaticText(self, -1, "Matching items:")
         self.treeMap = {}
         self.tree = OtherViewBaseTreePanel(self)
 
@@ -339,7 +365,9 @@ class ResourcePanel(wx.Panel):
         self.filter.SetMenu(searchMenu)
         self.RecreateTree()
         ####################################################################
+        vBox.Add(self.enterLabel, 0, wx.EXPAND | wx.ALL, 5)
         vBox.Add(self.filter , 0, wx.EXPAND | wx.ALL)
+        vBox.Add(self.matchingItemLabel, 0, wx.EXPAND | wx.ALL, 5)
         vBox.Add(self.tree , 1, wx.EXPAND | wx.ALL)
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(vBox, 1, wx.EXPAND , 0)
@@ -639,7 +667,7 @@ class OtherViewBaseTreePanel(ExpansionState, TreeCtrl):
 
     def __init__(self, parent):
 
-        TreeCtrl.__init__(self, parent, style=wx.TR_HIDE_ROOT | wx.TR_DEFAULT_STYLE |
+        TreeCtrl.__init__(self, parent, style=wx.TR_HIDE_ROOT | wx.TR_DEFAULT_STYLE | 
                                wx.TR_HAS_VARIABLE_ROW_HEIGHT | wx.BORDER_NONE)
 
         self._il = None
