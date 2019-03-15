@@ -4,7 +4,6 @@ Created on 30-Dec-2018
 @author: vijay
 '''
 
-
 import wx
 from wx import TreeCtrl
 from wx.lib.mixins.treemixin import ExpansionState
@@ -96,14 +95,14 @@ _treeList1 = [
             ('Available plugins')
         ]
      ),
-    ("Java",[("Appearance",[("Members Sort Order"),("Type Filters")]),
-             ("Build Path",[("Classpath Variables"),("User Liberaries")]),
+    ("Java", [("Appearance", [("Members Sort Order"), ("Type Filters")]),
+             ("Build Path", [("Classpath Variables"), ("User Liberaries")]),
              ("Code Coverage"),
-             ("Code Style",[("Clean Up"),("Code Templates"),("Formatter"),("Organize Imports")]),
-             ("Compiler",[("Building"),("Errors/Warning"),("Javadoc"),("Task Tags")]),
-             ("Debug",[("Detail Formatters"),("Heap Walking"),("Logical Structures"),("Premitive Display Options"),("Step Filtering")]),
-             ("Editor",[("Content Assist"),("Folding"),("Hovers"),("Mark Occurrences"),("Save Actions"),("Syntax Coloring"),("Templates"),("Typing")]),
-             ("Installed JREs",[("Execution Environments")]),
+             ("Code Style", [("Clean Up"), ("Code Templates"), ("Formatter"), ("Organize Imports")]),
+             ("Compiler", [("Building"), ("Errors/Warning"), ("Javadoc"), ("Task Tags")]),
+             ("Debug", [("Detail Formatters"), ("Heap Walking"), ("Logical Structures"), ("Premitive Display Options"), ("Step Filtering")]),
+             ("Editor", [("Content Assist"), ("Folding"), ("Hovers"), ("Mark Occurrences"), ("Save Actions"), ("Syntax Coloring"), ("Templates"), ("Typing")]),
+             ("Installed JREs", [("Execution Environments")]),
              ("JUnit"),
              ("Properties Files Editor"),
 
@@ -111,34 +110,34 @@ _treeList1 = [
     ("Java EE"),
     ("Java Persistence"),
     ("JavaScript"),
-    ("JSON",[("JSON Catalog"),("JSON Files",[("Editor",[("Content Assist"),("Syntax Coloring"),("Templates")]),("Validation")])]),
-    ("Maven", [("Archetypes"), ("Discovery"), ("Errors/Warning"), ("Installations"), ("Java EE Integration"),("Lifecycle Mappings"),("Source Lookup"),("Templates"),("User Interface"),("User Settings")]),
-    ("Python",[("Builders"),
-               ("Debug",[("Source Locator")]),
-               ("Editor",[("Auto Imports")]),
+    ("JSON", [("JSON Catalog"), ("JSON Files", [("Editor", [("Content Assist"), ("Syntax Coloring"), ("Templates")]), ("Validation")])]),
+    ("Maven", [("Archetypes"), ("Discovery"), ("Errors/Warning"), ("Installations"), ("Java EE Integration"), ("Lifecycle Mappings"), ("Source Lookup"), ("Templates"), ("User Interface"), ("User Settings")]),
+    ("Python", [("Builders"),
+               ("Debug", [("Source Locator")]),
+               ("Editor", [("Auto Imports")]),
                ("Code Analysis", [("PyLint")]),
                ("Code Completion (ctx insensitive and common tokens)"),
-               ("Code Folding"),("Code Style",[("Block Comments"),("Code Formatter"),("Docstrings"),("File types"),("Imports")]),
-               ("Editor caption/icon"),("Hover"),("Mark Occurrences"),("Overview Ruler Minimap")
+               ("Code Folding"), ("Code Style", [("Block Comments"), ("Code Formatter"), ("Docstrings"), ("File types"), ("Imports")]),
+               ("Editor caption/icon"), ("Hover"), ("Mark Occurrences"), ("Overview Ruler Minimap")
                ]),
     ("Remote Systems"),
     ("Run/Debug"),
     ("Server"),
-    ("Team",[("File Content"),("Git",[
-        ("Committing"),("Configuration"),("Confirmation and Warning"),("Date Format"),("History"), ("Label Decorations"),("Projects"),("Staging View"),("Synchronize"),("Window Cache"),
+    ("Team", [("File Content"), ("Git", [
+        ("Committing"), ("Configuration"), ("Confirmation and Warning"), ("Date Format"), ("History"), ("Label Decorations"), ("Projects"), ("Staging View"), ("Synchronize"), ("Window Cache"),
         ]),
-        ("Ignored Resources"),("Models")
+        ("Ignored Resources"), ("Models")
     ]),
-    ("Terminal",[("Local Terminal")]),
+    ("Terminal", [("Local Terminal")]),
     ("Validation"),
-    ("Web",[
-        ("CSS Files",[("Editor",[("Content Assist"),("Syntax Coloring"),("Templates")])]),
-        ("HTML Files",[("Editor",[("Content Assist"),("Syntax Coloring"),("Templates"),("Typing")]),("Validation")]),
-        ("JavaServer Faces Tools",[("FacesConfig Editor"),("Validation"),("Views",[("JSP Tag Registry")])]),
-        ("JSP Files",[("Editor",[("Content Assist"),("Syntax Coloring"),("Templates")])]),
+    ("Web", [
+        ("CSS Files", [("Editor", [("Content Assist"), ("Syntax Coloring"), ("Templates")])]),
+        ("HTML Files", [("Editor", [("Content Assist"), ("Syntax Coloring"), ("Templates"), ("Typing")]), ("Validation")]),
+        ("JavaServer Faces Tools", [("FacesConfig Editor"), ("Validation"), ("Views", [("JSP Tag Registry")])]),
+        ("JSP Files", [("Editor", [("Content Assist"), ("Syntax Coloring"), ("Templates")])]),
 
     ]),
-    ("Web Services",[("Axis Emitter"),("Axis2 Preferences")]),
+    ("Web Services", [("Axis Emitter"), ("Axis2 Preferences")]),
     ("XML"),
 ]
 
@@ -172,7 +171,6 @@ _treeList = [
 ]
 
 
-
 class OtherViewTreeFrame(wx.Frame):
 
     def __init__(self, parent, title, size=(313, 441),
@@ -189,28 +187,37 @@ class OtherViewTreeFrame(wx.Frame):
         icon.CopyFromBitmap(self.fileOperations.getImageBitmap(imageName='eclipse16.png'))
         self.SetIcon(icon)
 
-
         sizer = wx.BoxSizer(wx.VERTICAL)
         self.buttonPanel = CreateButtonPanel(self)
         ####################################################################
-
 
         self.otherViewTreePanel = OtherViewTreePanel(self)
         ####################################################################
 
         sizer.Add(self.otherViewTreePanel, 1, wx.EXPAND)
         sizer.Add(self.buttonPanel, 0, wx.EXPAND)
+        self.Bind(wx.EVT_CHAR_HOOK, self.OnKeyUP)
         self.SetSizer(sizer)
         self.Center()
 #         self.createStatusBar()
         self.Show(True)
+
 #         self.Bind(wx.EVT_SIZE, self.OnSize)
+    def OnKeyUP(self, event):
+#         print "KEY UP!"
+        keyCode = event.GetKeyCode()
+        if keyCode == wx.WXK_ESCAPE:
+            self.Close()
+        event.Skip() 
 
     def OnCloseFrame(self, event):
         self.Destroy()
+
     def OnSize(self, event):
         hsize = event.GetSize()
         logger.debug(hsize)
+
+
 class CreateButtonPanel(wx.Panel):
 
     def __init__(self, parent=None, *args, **kw):
@@ -273,6 +280,8 @@ class CreateButtonPanel(wx.Panel):
     def onCancelButtonClick(self, event):
         logger.debug('onCancelButtonClick')
         self.GetTopLevelParent().Destroy()
+
+
 class OtherViewTreePanel(wx.Panel):
 
     def __init__(self, parent=None, *args, **kw):
@@ -602,7 +611,7 @@ class OtherViewBaseTreePanel(ExpansionState, TreeCtrl):
 
     def __init__(self, parent):
 
-        TreeCtrl.__init__(self, parent, style=wx.TR_HIDE_ROOT | wx.TR_DEFAULT_STYLE |
+        TreeCtrl.__init__(self, parent, style=wx.TR_HIDE_ROOT | wx.TR_DEFAULT_STYLE | 
                                wx.TR_HAS_VARIABLE_ROW_HEIGHT | wx.BORDER_NONE)
 
         self._il = None

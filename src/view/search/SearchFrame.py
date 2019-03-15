@@ -49,31 +49,37 @@ class SearchPanelsFrame(wx.Frame):
     def BindEvents(self):
 #         self.Bind(wx.EVT_BUTTON, self.OnCloseMe, button)
         self.Bind(wx.EVT_CLOSE, self.OnCloseWindow)
+        self.Bind(wx.EVT_CHAR_HOOK, self.OnKeyUP)
 
     def OnCloseWindow(self, event):
         self._mgr.UnInit()
         event.Skip()
         self.Destroy()
 
+    def OnKeyUP(self, event):
+#         print "KEY UP!"
+        keyCode = event.GetKeyCode()
+        if keyCode == wx.WXK_ESCAPE:
+            self.Close()
+        event.Skip() 
+
     def BuildPanes(self):
 #         self.SetMinSize(wx.Size(400, 300))
         # this is to set tab on top
         self._mgr.SetAutoNotebookStyle(aui.AUI_NB_DEFAULT_STYLE | wx.BORDER_NONE)
         
-        
         self.buttonPanel = CreateButtonPanel(self)
         self.fileSearchPanel = CreateFileSearchPanel(self)
-        fileSearchPaneInfo= aui.AuiPaneInfo().Name("fileSearch").Icon(self.fileOperations.getImageBitmap(imageName="search_history.png")).Caption("File Search")\
+        fileSearchPaneInfo = aui.AuiPaneInfo().Name("fileSearch").Icon(self.fileOperations.getImageBitmap(imageName="search_history.png")).Caption("File Search")\
                         .Direction(wx.TOP).Row(0).Center().Layer(0).Position(0).Dockable(True)\
                         .CaptionVisible(False, left=False).MinimizeButton(False).CloseButton(False)
         self._mgr.AddPane(self.fileSearchPanel, fileSearchPaneInfo)
-        
 
         self.fileSearchPanel1 = CreateFileSearchPanel(self)
         self._mgr.AddPane(self.fileSearchPanel1, aui.AuiPaneInfo().Icon(self.fileOperations.getImageBitmap(imageName="search_history.png")).
                           Name(f"taskSearch").Caption(f"Task Search").Dockable(False)
                           .Center().Layer(0).Position(1).CaptionVisible(False, left=False)
-                          .MinimizeButton(False).CloseButton(False),target=fileSearchPaneInfo)
+                          .MinimizeButton(False).CloseButton(False), target=fileSearchPaneInfo)
         
         self._mgr.AddPane(self.buttonPanel, aui.AuiPaneInfo().
                           Name("button").Caption("Button")
@@ -81,7 +87,6 @@ class SearchPanelsFrame(wx.Frame):
                           .MinimizeButton(True).CloseButton(False))
         
         self._mgr.Update()
-
 
 
 class CreateFileSearchPanel(wx.Panel):

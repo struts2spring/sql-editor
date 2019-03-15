@@ -219,11 +219,19 @@ class OtherPerspectiveTreeFrame(wx.Dialog):
 
         sizer.Add(self.OtherPerspectiveTreePanel, 1, wx.EXPAND)
         sizer.Add(self.buttonPanel, 0, wx.EXPAND)
+        self.Bind(wx.EVT_CHAR_HOOK, self.OnKeyUP)
         self.SetSizer(sizer)
         self.Center()
 #         self.createStatusBar()
         self.Show(True)
+
 #         self.Bind(wx.EVT_SIZE, self.OnSize)
+    def OnKeyUP(self, event):
+#         print "KEY UP!"
+        keyCode = event.GetKeyCode()
+        if keyCode == wx.WXK_ESCAPE:
+            self.Close()
+        event.Skip() 
 
     def OnCloseFrame(self, event):
         self.Destroy()
@@ -630,7 +638,7 @@ class OtherViewBaseTreePanel(ExpansionState, TreeCtrl):
 
     def __init__(self, parent):
 
-        TreeCtrl.__init__(self, parent, style=wx.TR_HIDE_ROOT | wx.TR_DEFAULT_STYLE |
+        TreeCtrl.__init__(self, parent, style=wx.TR_HIDE_ROOT | wx.TR_DEFAULT_STYLE | 
                                wx.TR_HAS_VARIABLE_ROW_HEIGHT | wx.BORDER_NONE)
 
         self._il = None
@@ -673,7 +681,7 @@ class OtherViewBaseTreePanel(ExpansionState, TreeCtrl):
                            'javaee_perspective.png', 'python_perspective.png', 'database.png', 'resource_persp.png', 'debug_persp.png',
                            'jpa.png', 'web_perspective.png', 'javascript_perspective.png', 'plugin_perspecitve.png', 'svn_perspective.png',
                            'remote_perspective.png', 'browse_persp.png', 'perspective-planning.png', 'database_debug_perspective.png',
-                           'java_type_hierarchy.png','xml_perspective.png', 'synch_synch.png', ]:
+                           'java_type_hierarchy.png', 'xml_perspective.png', 'synch_synch.png', ]:
             try:
                 self.ImageList.Add(self.fileOperations.getImageBitmap(imageName=imageName))
                 self.iconsDictIndex[imageName] = count
