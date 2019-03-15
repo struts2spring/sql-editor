@@ -731,7 +731,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
     def onOpenResource(self, event):
         logger.debug('onOpenResource')
-        frame = ResourceFrame(None, 'Open Resource',size=(800, 400))
+        frame = ResourceFrame(self, 'Open Resource',size=(800, 400))
         frame.CenterOnScreen()
 
     def onViewClick(self, event):
