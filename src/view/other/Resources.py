@@ -434,8 +434,11 @@ class ResourceSearchResultListCtrl(wx.Panel):
         sizer = wx.BoxSizer(wx.VERTICAL)
         
         self.searchResult = {
-            1 : ["abc.py", "c:\1\asdf"],
-            2 : ["abc.java", "c:\1\asdf"],
+            1 : ["abc1.py", r"c:\1\asdf"],
+            2 : ["abc2.java", r"c:\1\asdf"],
+            3 : ["abc3.java", r"c:\1\asdf"],
+            4 : ["abc4.java", r"c:\1\asdf"],
+            5 : ["abc5.java", r"c:\1\asdf"],
         }
 
         self.fileOperations = FileOperations()
@@ -472,6 +475,9 @@ class ResourceSearchResultListCtrl(wx.Panel):
         self.java = self.il.Add(self.fileOperations.getImageBitmap(imageName='java.png'))
         self.md = self.il.Add(self.fileOperations.getImageBitmap(imageName='markdown.png'))       
         self.list.SetImageList(self.il, wx.IMAGE_LIST_SMALL)
+    
+    def getExtension(self, fileName=None):
+        return fileName.split('.')[-1]
 
     def loadData(self):
         logger.debug('loadData')
@@ -479,7 +485,7 @@ class ResourceSearchResultListCtrl(wx.Panel):
         self.list.InsertColumn(1, "Path")
         items = self.searchResult.items()
         for key, data in items:
-            index = self.list.InsertItem(self.list.GetItemCount(), data[0], self.getImageIndex(extention='java'))
+            index = self.list.InsertItem(self.list.GetItemCount(), data[0], self.getImageIndex(extention=self.getExtension(fileName=data[0])))
             self.list.SetItem(index, 1, data[1])
 #             self.list.SetItem(index, 2, data[2])
             self.list.SetItemData(index, key)
