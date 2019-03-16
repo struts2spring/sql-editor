@@ -432,6 +432,13 @@ class ResourceSearchResultListCtrl(wx.Panel):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent, -1, style=wx.WANTS_CHARS)  
         sizer = wx.BoxSizer(wx.VERTICAL)
+        
+        self.searchResult = {
+            1 : ["abc.py", "c:\1\asdf"],
+            2 : ["abc.java", "c:\1\asdf"],
+        }
+
+        self.fileOperations = FileOperations()
         self.list = ImprovedListCtrl(self, wx.NewIdRef(),
                                 style=wx.LC_REPORT
                                 # | wx.BORDER_SUNKEN
@@ -443,11 +450,50 @@ class ResourceSearchResultListCtrl(wx.Panel):
                                 # | wx.LC_HRULES
                                 # | wx.LC_SINGLE_SEL
                                 )       
+        self.setImageList()
+        self.loadData()
         sizer.Add(self.list, 1, wx.EXPAND)
         self.SetSizer(sizer)
         self.SetAutoLayout(True)    
 
+    def setImageList(self):
+        self.il = wx.ImageList(16, 16)
+        
+        self.imageList = {
+            'py':['py', 'python.png'],
+            'java':['java', 'java.png'],
+            'md':['md', 'markdown.png'],
+            'txt':['txt', 'text.png']
+        }        
+        for imageExtension, item in self.imageList.items():
+            imageExtension, imageName = item[0], item[1]
+            item.append(self.il.Add(self.fileOperations.getImageBitmap(imageName=imageName)))
+        self.py = self.il.Add(self.fileOperations.getImageBitmap(imageName='python.png'))
+        self.java = self.il.Add(self.fileOperations.getImageBitmap(imageName='java.png'))
+        self.md = self.il.Add(self.fileOperations.getImageBitmap(imageName='markdown.png'))       
+        self.list.SetImageList(self.il, wx.IMAGE_LIST_SMALL)
 
+    def loadData(self):
+        logger.debug('loadData')
+        self.list.InsertColumn(0, "Name")
+        self.list.InsertColumn(1, "Path")
+        items = self.searchResult.items()
+        for key, data in items:
+            index = self.list.InsertItem(self.list.GetItemCount(), data[0], self.getImageIndex(extention='java'))
+            self.list.SetItem(index, 1, data[1])
+#             self.list.SetItem(index, 2, data[2])
+            self.list.SetItemData(index, key)
+
+        self.list.SetColumnWidth(0, wx.LIST_AUTOSIZE)
+        self.list.SetColumnWidth(1, wx.LIST_AUTOSIZE)
+
+    def clearData(self):
+        logger.debug('clearData')
+
+    def getImageIndex(self, extention='txt'):
+        return self.imageList[extention][2]
+
+        
 class OtherViewBaseTreePanel(ExpansionState, TreeCtrl):
     '''
     Left navigation tree in preferences page
