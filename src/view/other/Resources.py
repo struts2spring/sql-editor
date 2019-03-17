@@ -8,10 +8,13 @@ import wx
 from wx import TreeCtrl
 from wx.lib.mixins.treemixin import ExpansionState
 from src.view.util.FileOperationsUtil import FileOperations
+from src.logic.resource.search.ResourceSearch import ResourceSearchLogic
 import logging.config
 from src.view.constants import LOG_SETTINGS, ID_JAVA_EE_PERSPECTIVE, \
     ID_JAVA_PERSPECTIVE, ID_DEBUG_PERSPECTIVE, ID_GIT_PERSPECTIVE, \
     ID_PYTHON_PERSPECTIVE, ID_DATABASE_PERSPECTIVE, ID_RESOURCE_PERSPECTIVE
+from src.view.views.editor.EditorManager import EditorWindowManager
+import os
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -213,7 +216,7 @@ class ResourceFrame(wx.Frame):
         sizer = wx.BoxSizer(wx.VERTICAL)
         self.buttonPanel = CreateButtonPanel(self)
         ####################################################################
-        self.resourcePanel = ResourcePanel(self)
+        self.resourcePanel = ResourcePanel(self, parent)
         ####################################################################
 
         sizer.Add(self.resourcePanel, 1, wx.EXPAND)
@@ -357,7 +360,7 @@ class ResourcePanel(wx.Panel):
         self.filter = wx.SearchCtrl(self, style=wx.TE_PROCESS_ENTER)
         self.filter.SetDescriptiveText("Type filter search text")
         self.filter.ShowCancelButton(True)
-#         self.filter.Bind(wx.EVT_TEXT, self.RecreateTree)
+        self.filter.Bind(wx.EVT_TEXT, self.OnSearch)
         self.filter.Bind(wx.EVT_SEARCHCTRL_CANCEL_BTN, lambda e: self.filter.SetValue(''))
         self.filter.Bind(wx.EVT_TEXT_ENTER, self.OnSearch)
 
@@ -397,20 +400,24 @@ class ResourcePanel(wx.Panel):
     def OnSearch(self, event=None):
 
         value = self.filter.GetValue()
-        if not value:
-            self.RecreateTree()
-            return
+#         if not value:
+#             self.RecreateTree()
+#             return
 
         wx.BeginBusyCursor()
-
-        for category, items in _treeList:
-            self.searchItems[category] = []
-            for childItem in items:
-#                 if SearchDemo(childItem, value):
-                self.searchItems[category].append(childItem)
+        logger.debug(value)
+        resourceSearchLogic = ResourceSearchLogic()
+        self.searchResult = resourceSearchLogic.getFiles(searchText=value)
+        
+        self.resourceSearchResultListCtrl.loadData(self.searchResult)
+#         for category, items in _treeList:
+#             self.searchItems[category] = []
+#             for childItem in items:
+# #                 if SearchDemo(childItem, value):
+#                 self.searchItems[category].append(childItem)
 
         wx.EndBusyCursor()
-        self.RecreateTree()
+#         self.RecreateTree()
 
     #---------------------------------------------
 
@@ -434,11 +441,13 @@ class ResourceSearchResultListCtrl(wx.Panel):
         sizer = wx.BoxSizer(wx.VERTICAL)
         
         self.searchResult = {
-            1 : ["abc1.py", r"c:\1\asdf"],
-            2 : ["abc2.java", r"c:\1\asdf"],
-            3 : ["abc3.java", r"c:\1\asdf"],
-            4 : ["abc4.java", r"c:\1\asdf"],
-            5 : ["abc5.java", r"c:\1\asdf"],
+#             1 : ["abc1.py", r"c:\1\asdf"],
+#             2 : ["abc2.java", r"c:\1\asdf"],
+#             3 : ["abcasdfasdfa3.java", r"c:\1\asdf"],
+#             4 : ["abc4.java", r"c:\1\asdf"],
+#             5 : ["abc5.properties", r"c:\1\asdf"],
+#             6 : ["abc5.md", r"c:\1\asdf"],
+#             7 : ["abc5.txt", r"c:\1\asdf"],
         }
 
         self.fileOperations = FileOperations()
@@ -449,42 +458,129 @@ class ResourceSearchResultListCtrl(wx.Panel):
                                 | wx.LC_EDIT_LABELS
                                 # | wx.LC_SORT_ASCENDING    # disabling initial auto sort gives a
                                | wx.LC_NO_HEADER  # better illustration of col-click sorting
-                                # | wx.LC_VRULES
-                                # | wx.LC_HRULES
-                                # | wx.LC_SINGLE_SEL
+                                | wx.LC_VRULES
+                                | wx.LC_HRULES
+                                | wx.LC_SINGLE_SEL
                                 )       
         self.setImageList()
-        self.loadData()
+        self.loadData(items={})
         sizer.Add(self.list, 1, wx.EXPAND)
         self.SetSizer(sizer)
         self.SetAutoLayout(True)    
+        
+        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnItemSelected, self.list)
+        self.Bind(wx.EVT_LIST_ITEM_DESELECTED, self.OnItemDeselected, self.list)
+        self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OnItemActivated, self.list)
+        self.Bind(wx.EVT_LIST_DELETE_ITEM, self.OnItemDelete, self.list)
+        self.Bind(wx.EVT_LIST_COL_CLICK, self.OnColClick, self.list)
+        self.Bind(wx.EVT_LIST_COL_RIGHT_CLICK, self.OnColRightClick, self.list)
+        self.Bind(wx.EVT_LIST_COL_BEGIN_DRAG, self.OnColBeginDrag, self.list)
+        self.Bind(wx.EVT_LIST_COL_DRAGGING, self.OnColDragging, self.list)
+        self.Bind(wx.EVT_LIST_COL_END_DRAG, self.OnColEndDrag, self.list)
+        self.Bind(wx.EVT_LIST_BEGIN_LABEL_EDIT, self.OnBeginEdit, self.list)
+        self.Bind(wx.EVT_LIST_END_LABEL_EDIT, self.OnEndEdit, self.list)
+
+        self.list.Bind(wx.EVT_LEFT_DCLICK, self.OnDoubleClick)
+        self.list.Bind(wx.EVT_RIGHT_DOWN, self.OnRightDown)
+
+        # for wxMSW
+        self.list.Bind(wx.EVT_COMMAND_RIGHT_CLICK, self.OnRightClick)
+
+        # for wxGTK
+        self.list.Bind(wx.EVT_RIGHT_UP, self.OnRightClick)
+
+    def getColumnText(self, index, col):
+        item = self.list.GetItem(index, col)
+        return item.GetText()
+
+    def OnItemSelected(self, event):
+        logger.debug('OnItemSelected')
+        self.currentItem = event.Index
+        logger.debug(f"OnItemSelected: {self.currentItem}, {self.list.GetItemText(self.currentItem)}, {self.getColumnText(self.currentItem, 1)}")
+
+#         if self.currentItem == 10:
+#             logger.debug("OnItemSelected: Veto'd selection\n")
+#             # event.Veto()  # doesn't work
+#             # this does
+#             self.list.SetItemState(10, 0, wx.LIST_STATE_SELECTED)
+
+        event.Skip()
+
+    def OnItemDeselected(self, event):
+        logger.debug('OnItemDeselected')
+
+    def OnItemActivated(self, event):
+        logger.debug('OnItemActivated')
+        self.currentItem = event.Index
+        logger.debug(f"OnItemActivated: {self.list.GetItemText(self.currentItem)} TopItem: {self.list.GetTopItem()}")
+        logger.debug(self.searchResult[self.currentItem])
+        fileName, relateName, fileDirPath = self.searchResult[self.currentItem]
+        captionName = fileName
+        window = EditorWindowManager().getWindow(self.GetTopLevelParent().Parent, os.path.join(fileDirPath, fileName))
+#         icon = self.list.OnGetItemImage(self.currentItem)
+        self.GetTopLevelParent().Parent._mgr.addTabByWindow(window=window, icon=None, name=f'{relateName}-{captionName}', captionName=captionName, tabDirection=5)
+        self.GetTopLevelParent().Destroy()
+
+    def OnItemDelete(self, event):
+        logger.debug('OnItemDelete')
+
+    def OnColClick(self, event):
+        logger.debug('OnColClick')
+
+    def OnColRightClick(self, event):
+        logger.debug('OnColRightClick')
+
+    def OnColBeginDrag(self, event):
+        logger.debug('OnColBeginDrag')
+
+    def OnColDragging(self, event):
+        logger.debug('OnColDragging')
+
+    def OnColEndDrag(self, event):
+        logger.debug('OnColEndDrag')
+
+    def OnBeginEdit(self, event):
+        logger.debug('OnBeginEdit')
+
+    def OnEndEdit(self, event):
+        logger.debug('OnEndEdit')
+
+    def OnDoubleClick(self, event):
+        logger.debug('OnDoubleClick')
+
+    def OnRightDown(self, event):
+        logger.debug('OnRightDown')
+
+    def OnRightClick(self, event):
+        logger.debug('OnRightClick')
 
     def setImageList(self):
         self.il = wx.ImageList(16, 16)
         
         self.imageList = {
-            'py':['py', 'python.png'],
-            'java':['java', 'java.png'],
+            '_':['_', 'fileType_filter.png'],
+            'py':['py', 'python_module.png'],
+            'java':['java', 'jcu_obj.png'],
             'md':['md', 'markdown.png'],
-            'txt':['txt', 'text.png']
+            'txt':['txt', 'text.png'],
         }        
         for imageExtension, item in self.imageList.items():
             imageExtension, imageName = item[0], item[1]
             item.append(self.il.Add(self.fileOperations.getImageBitmap(imageName=imageName)))
-        self.py = self.il.Add(self.fileOperations.getImageBitmap(imageName='python.png'))
-        self.java = self.il.Add(self.fileOperations.getImageBitmap(imageName='java.png'))
-        self.md = self.il.Add(self.fileOperations.getImageBitmap(imageName='markdown.png'))       
+      
         self.list.SetImageList(self.il, wx.IMAGE_LIST_SMALL)
     
     def getExtension(self, fileName=None):
         return fileName.split('.')[-1]
 
-    def loadData(self):
+    def loadData(self, items={}):
         logger.debug('loadData')
+        self.list.ClearAll()
         self.list.InsertColumn(0, "Name")
         self.list.InsertColumn(1, "Path")
-        items = self.searchResult.items()
-        for key, data in items:
+        self.searchResult = items
+#         items = self.searchResult.items()
+        for key, data in items.items():
             index = self.list.InsertItem(self.list.GetItemCount(), data[0], self.getImageIndex(extention=self.getExtension(fileName=data[0])))
             self.list.SetItem(index, 1, data[1])
 #             self.list.SetItem(index, 2, data[2])
@@ -495,79 +591,16 @@ class ResourceSearchResultListCtrl(wx.Panel):
 
     def clearData(self):
         logger.debug('clearData')
+        self.list.ClearAll()
 
     def getImageIndex(self, extention='txt'):
-        return self.imageList[extention][2]
-
-        
-class OtherViewBaseTreePanel(ExpansionState, TreeCtrl):
-    '''
-    Left navigation tree in preferences page
-    '''
-
-    def __init__(self, parent):
-
-        TreeCtrl.__init__(self, parent, style=wx.TR_HIDE_ROOT | wx.TR_DEFAULT_STYLE | 
-                               wx.TR_HAS_VARIABLE_ROW_HEIGHT | wx.BORDER_NONE)
-
-        self._il = None
-        self.BuildTreeImageList()
-
-#         if USE_CUSTOMTREECTRL:
-#             self.SetSpacing(10)
-#             self.SetWindowStyle(self.GetWindowStyle() & ~wx.TR_LINES_AT_ROOT)
-
-        self.SetInitialSize((100, 80))
-
-    def AppendItem(self, parent, text, image=-1, wnd=None):
-
-        item = TreeCtrl.AppendItem(self, parent, text, image=image)
-        return item
-
-    def BuildTreeImageList(self):
-#         imgList = wx.ImageList(16, 16)
-#
-#         for png in _demoPngs:
-#             imgList.Add(catalog[png].GetBitmap())
-#
-#         # add the image for modified demos.
-#         imgList.Add(catalog["custom"].GetBitmap())
-#
-#         self.AssignImageList(imgList)
-        if self._il:
-            self._il.Destroy()
-            self._il = None
-        self._il = wx.ImageList(16, 16)
-        self.SetImageList(self._il)
-
-        self.ImageList.RemoveAll()
-        self.iconsDictIndex = {}
-        count = 0
-        self.fileOperations = FileOperations()
-
-        for imageName in ['preference.png', 'folder.png', 'folder_view.png', 'fileType_filter.png', 'usb.png', 'stop.png',
-                          'java.png', 'python_module.png', 'xml.png', "other_view.png", 'gitrepository.png', 'jperspective.png',
-                           'javaee_perspective.png', 'python_perspective.png', 'database.png', 'resource_persp.png', 'debug_persp.png',
-                           'jpa.png', 'web_perspective.png', 'javascript_perspective.png', 'plugin_perspecitve.png', 'svn_perspective.png',
-                           'remote_perspective.png', 'browse_persp.png', 'perspective-planning.png', 'database_debug_perspective.png',
-                           'java_type_hierarchy.png', 'xml_perspective.png', 'synch_synch.png', ]:
-            try:
-                self.ImageList.Add(self.fileOperations.getImageBitmap(imageName=imageName))
-                self.iconsDictIndex[imageName] = count
-                count += 1
-            except Exception as e :
-                logger.error(imageName, e)
-
-    def GetItemIdentity(self, item):
-        return self.GetItemData(item)
-
-    def Freeze(self):
-        if 'wxMSW' in wx.PlatformInfo:
-            return super(OtherViewBaseTreePanel, self).Freeze()
-
-    def Thaw(self):
-        if 'wxMSW' in wx.PlatformInfo:
-            return super(OtherViewBaseTreePanel, self).Thaw()
+        imageIndex = 0
+        try:
+            if self.imageList[extention]:
+                imageIndex = self.imageList[extention][2]
+        except:
+            pass
+        return imageIndex
 
 
 if __name__ == '__main__':

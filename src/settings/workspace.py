@@ -72,7 +72,7 @@ class Setting():
 
     def loadSettings(self):
         workspace = Workspace(workspacePath=r'C:\Users\xbbntni\eclipse-workspace')
-        project = Project(projectPath=r'C:\work\python_project\sql-editor')
+        project = Project(projectPath=r'/docs/work/python_project/sql_editor')
         project.addNature(nature='python')
         workspace.addProject(project)
         project = Project(projectPath=r'c:\1\sql_editor')
