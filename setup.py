@@ -1,3 +1,4 @@
+
 import setuptools
 import os
 
@@ -26,7 +27,7 @@ setuptools.setup(
     install_requires=[
         'pypubsub==4.0.0',
         'six==1.11.0',
-        'wxpython==4.0.3',
+        'wxpython>=4.0.3',
         'sqlparse'
     ],
     python_requires='>=3',

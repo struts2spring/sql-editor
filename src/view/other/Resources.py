@@ -351,6 +351,7 @@ class ResourcePanel(wx.Panel):
         self.connDict = dict()
         vBox = wx.BoxSizer(wx.VERTICAL)
         ####################################################################
+        self.resourceSearchLogic = ResourceSearchLogic()
         self.enterLabel = wx.StaticText(self, -1, "Enter resource name prefix, path prefix or pattern(?, * or camel case):")
         self.matchingItemLabel = wx.StaticText(self, -1, "Matching items:")
         self.treeMap = {}
@@ -406,9 +407,14 @@ class ResourcePanel(wx.Panel):
 
         wx.BeginBusyCursor()
         logger.debug(value)
-        resourceSearchLogic = ResourceSearchLogic()
-        self.searchResult = resourceSearchLogic.getFiles(searchText=value)
-        
+        self.resourceSearchLogic.clearLastResult()
+        projects = [
+            ('c:\work\python_project', 'sql-editor'),
+            ('c:\work\python_project', 'Phoenix'),
+            ]
+        for x in projects:
+            self.searchResult = self.resourceSearchLogic.getFiles(basePath=x[0], projectDirName=x[1], searchText=value)
+
         self.resourceSearchResultListCtrl.loadData(self.searchResult)
 #         for category, items in _treeList:
 #             self.searchItems[category] = []
@@ -437,9 +443,9 @@ class ImprovedListCtrl(wx.ListCtrl, listmix.ListCtrlAutoWidthMixin):
 class ResourceSearchResultListCtrl(wx.Panel):
 
     def __init__(self, parent):
-        wx.Panel.__init__(self, parent, -1, style=wx.WANTS_CHARS)  
+        wx.Panel.__init__(self, parent, -1, style=wx.WANTS_CHARS)
         sizer = wx.BoxSizer(wx.VERTICAL)
-        
+
         self.searchResult = {
 #             1 : ["abc1.py", r"c:\1\asdf"],
 #             2 : ["abc2.java", r"c:\1\asdf"],
@@ -461,13 +467,13 @@ class ResourceSearchResultListCtrl(wx.Panel):
                                 | wx.LC_VRULES
                                 | wx.LC_HRULES
                                 | wx.LC_SINGLE_SEL
-                                )       
+                                )
         self.setImageList()
         self.loadData(items={})
         sizer.Add(self.list, 1, wx.EXPAND)
         self.SetSizer(sizer)
-        self.SetAutoLayout(True)    
-        
+        self.SetAutoLayout(True)
+
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnItemSelected, self.list)
         self.Bind(wx.EVT_LIST_ITEM_DESELECTED, self.OnItemDeselected, self.list)
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OnItemActivated, self.list)
@@ -556,20 +562,20 @@ class ResourceSearchResultListCtrl(wx.Panel):
 
     def setImageList(self):
         self.il = wx.ImageList(16, 16)
-        
+
         self.imageList = {
             '_':['_', 'fileType_filter.png'],
             'py':['py', 'python_module.png'],
             'java':['java', 'jcu_obj.png'],
             'md':['md', 'markdown.png'],
             'txt':['txt', 'text.png'],
-        }        
+        }
         for imageExtension, item in self.imageList.items():
             imageExtension, imageName = item[0], item[1]
             item.append(self.il.Add(self.fileOperations.getImageBitmap(imageName=imageName)))
-      
+
         self.list.SetImageList(self.il, wx.IMAGE_LIST_SMALL)
-    
+
     def getExtension(self, fileName=None):
         return fileName.split('.')[-1]
 

@@ -43,7 +43,7 @@ logger = logging.getLogger('extensive')
 class PythonExplorerPanel(wx.Panel):
 
     def __init__(self, parent=None, *args, **kw):
-        wx.Panel.__init__(self, parent, id=-1)
+        wx.Panel.__init__(self, parent, -1)
         self.parent = parent
         sizer = wx.BoxSizer(wx.VERTICAL)
 #         self.title = title
@@ -56,8 +56,12 @@ class PythonExplorerPanel(wx.Panel):
         sizer.Add(self.pythonExplorerTreePanel, 1, wx.EXPAND)
         self.SetSizer(sizer)
         self.Center()
+        self.Bind(wx.EVT_CONTEXT_MENU, self.OnContextMenu)
 #         self.createStatusBar()
-        self.Show(True)
+#         self.Show(True)
+
+    def OnContextMenu(self, event):
+        logger.debug("OnContextMenu\n")
 
     def constructTopToolBar(self):
 
@@ -132,7 +136,7 @@ class PythonExplorerTreePanel(FileTree):
                 self.AddWatchDirectory(project=project)
         except:
             pass
-        self.Bind(wx.EVT_MENU, self.OnMenu)
+        self.Bind(wx.EVT_CONTEXT_MENU, self._OnMenu)
 
     def AddWatchDirectory(self, project=None):
         """Add a directory to the controls top level view

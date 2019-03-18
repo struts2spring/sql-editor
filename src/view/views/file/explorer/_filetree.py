@@ -23,11 +23,11 @@ class FileTree(wx.TreeCtrl):
 
     """
 
-    def __init__(self, parent, style=wx.TR_HIDE_ROOT | 
-                                             wx.TR_FULL_ROW_HIGHLIGHT | 
-                                             wx.TR_LINES_AT_ROOT | 
-                                             wx.TR_HAS_BUTTONS | 
-                                             wx.TR_MULTIPLE | 
+    def __init__(self, parent, style=wx.TR_HIDE_ROOT |
+                                             wx.TR_FULL_ROW_HIGHLIGHT |
+                                             wx.TR_LINES_AT_ROOT |
+                                             wx.TR_HAS_BUTTONS |
+                                             wx.TR_MULTIPLE |
                                              wx.TR_EDIT_LABELS | wx.BORDER_NONE):
         super(FileTree, self).__init__(parent,
                                        style=style)
@@ -43,6 +43,7 @@ class FileTree(wx.TreeCtrl):
         self.SetItemData(self.RootItem, "root")
 
         # Event Handlers
+#         self.Bind(wx.EVT_CONTEXT_MENU, self._OnMenu)
         self.Bind(wx.EVT_TREE_ITEM_GETTOOLTIP, self._OnGetToolTip)
         self.Bind(wx.EVT_TREE_ITEM_ACTIVATED, self._OnItemActivated)
         self.Bind(wx.EVT_TREE_ITEM_COLLAPSED, self._OnItemCollapsed)
@@ -50,6 +51,7 @@ class FileTree(wx.TreeCtrl):
         self.Bind(wx.EVT_TREE_ITEM_MENU, self._OnMenu)
         self.Bind(wx.EVT_TREE_BEGIN_LABEL_EDIT, self._OnBeginEdit)
         self.Bind(wx.EVT_TREE_END_LABEL_EDIT, self._OnEndEdit)
+#         self.Bind(wx._OnMenu, self._OnMenu)
 
     def _OnBeginEdit(self, evt):
         logger.debug('_OnBeginEdit')
@@ -157,7 +159,7 @@ class FileTree(wx.TreeCtrl):
 
         """
         logger.debug('DoItemCollapsed')
-        
+
         self.DeleteChildren(item)
 
     def DoItemExpanding(self, item):
@@ -193,7 +195,7 @@ class FileTree(wx.TreeCtrl):
         self.ImageList.Add(bmp)
         bmp = wx.ArtProvider.GetBitmap(wx.ART_ERROR, wx.ART_MENU, (16, 16))
         self.ImageList.Add(bmp)
-        
+
         iconsPresent = self.getExtensionWithBmp()
         logger.debug(iconsPresent)
         count = 3
@@ -234,45 +236,45 @@ class FileTree(wx.TreeCtrl):
 
     def getIconByExtension(self, file_extension=".txt"):
         fileType = wx.TheMimeTypesManager.GetFileTypeFromExtension(file_extension)
-        bmp = wx.Bitmap(16, 16) 
+        bmp = wx.Bitmap(16, 16)
         if fileType is None:
             logger.debug("File extension not found.")
         else:
             icon, file, idx = fileType.GetIconInfo()
             if icon.IsOk():
-                bmp.CopyFromIcon(icon) 
-                bmp = bmp.ConvertToImage() 
-                # Rescale it, usually it's not 16x16 
-                bmp.Rescale(16, 16) 
-                bmp = wx.BitmapFromImage(bmp) 
+                bmp.CopyFromIcon(icon)
+                bmp = bmp.ConvertToImage()
+                # Rescale it, usually it's not 16x16
+                bmp.Rescale(16, 16)
+                bmp = wx.BitmapFromImage(bmp)
         return bmp
-    
+
     def getExtensionWithBmp(self):
-        # Locate all file types 
-        mtypes = wx.TheMimeTypesManager.EnumAllFileTypes() 
-        
+        # Locate all file types
+        mtypes = wx.TheMimeTypesManager.EnumAllFileTypes()
+
         iconsPresent = []
         iconsNotPresent = []
-        for mt in mtypes: 
-        
-            # Loop over all file types 
-            fileType = wx.TheMimeTypesManager.GetFileTypeFromMimeType(mt) 
-            
-            if fileType is not None: 
-                # Get the icon information for that file extension 
-                nntype = fileType.GetIconInfo() 
-        
-                if nntype is not None: 
-                    # Get the icon for that file extension 
-                    icon, file, idx = nntype 
-        
+        for mt in mtypes:
+
+            # Loop over all file types
+            fileType = wx.TheMimeTypesManager.GetFileTypeFromMimeType(mt)
+
+            if fileType is not None:
+                # Get the icon information for that file extension
+                nntype = fileType.GetIconInfo()
+
+                if nntype is not None:
+                    # Get the icon for that file extension
+                    icon, file, idx = nntype
+
                     if icon.IsOk():
-                        bmp = wx.Bitmap(16, 16) 
-                        bmp.CopyFromIcon(icon) 
-                        bmp = bmp.ConvertToImage() 
-                        # Rescale it, usually it's not 16x16 
-                        bmp.Rescale(16, 16) 
-                        bmp = wx.Bitmap(bmp) 
+                        bmp = wx.Bitmap(16, 16)
+                        bmp.CopyFromIcon(icon)
+                        bmp = bmp.ConvertToImage()
+                        # Rescale it, usually it's not 16x16
+                        bmp.Rescale(16, 16)
+                        bmp = wx.Bitmap(bmp)
                         iconsPresent.append([fileType.GetExtensions(), bmp, file])
                     else:
                         iconsNotPresent.append(nntype)
