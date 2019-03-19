@@ -16,7 +16,7 @@ from src.view.constants import LOG_SETTINGS, ID_JAVA_EE_PERSPECTIVE, \
     setting
 from src.view.views.editor.EditorManager import EditorWindowManager
 import os
-from build.lib.src.settings.workspace import Setting
+
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
