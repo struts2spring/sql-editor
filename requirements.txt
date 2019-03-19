@@ -29,7 +29,7 @@ macholib==1.11
 markdown==3.0.1
 markupsafe==1.1.0
 matplotlib==3.0.2
-mkdocs==1.1.dev0
+mkdocs==1.0.4
 multi-key-dict==2.0.3
 nltk==3.4
 numpy==1.15.4
@@ -46,7 +46,6 @@ pypubsub==4.0.0
 pyte==0.8.0
 python-dateutil==2.8.0
 python-jenkins==1.4.0
-pywin32==224
 pywin32-ctypes==0.2.0
 pyyaml==4.2b4
 requests==2.20.1
@@ -55,13 +54,11 @@ singledispatch==3.4.0.3
 six==1.11.0
 SQLAlchemy==1.2.15
 sqlparse==0.2.4
-swagger-server==1.0.0
 tornado==5.1.1
 urllib3==1.24.1
 wcwidth==0.1.7
 werkzeug==0.14.1
 wxmplot==0.9.34
 wxpython==4.0.3
-wxupdatedemo==0.0.1
 xlrd==1.2.0
 zope.interface==4.6.0

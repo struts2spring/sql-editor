@@ -11,7 +11,8 @@ import wx
 # from src.view.table.CreateTable import CreateTableFrame
 import logging.config
 from src.view.constants import LOG_SETTINGS, ID_COLLAPSE_ALL, ID_LINK_WITH_EDITOR, \
-    ID_VIEW_MENU, setting
+    ID_VIEW_MENU, setting, menuItemList, ID_EXPORT, ID_IMPORT, ID_NEW, \
+    ID_PROJECT_PROPERTIES, ID_CLOSE_PROJECT, ID_DELETE_PROJECT
 from src.view.views.file.explorer._filetree import FileTree
 from src.view.views.file.MainStcPanel import MainStc
 import os
@@ -27,7 +28,6 @@ from wx.lib.pubsub import pub
 # from src.settings.workspace import Setting
 from src.view.views.python.explorer.IconManager import PythonExplorerIconManager
 from src.view.views.editor.EditorManager import EditorWindowManager
-from src.view.constants import ID_NEW
 
 try:
     from agw import aui
@@ -128,16 +128,16 @@ class PythonExplorerTreePanel(FileTree):
         self.fileOperations = FileOperations()
         # Setup
         self.SetupImageList()
+        self.initProjects()
+#         self.Bind(wx.EVT_CONTEXT_MENU, self._OnMenu)
+
+    def initProjects(self):
         try:
-#             setting = Setting()
-#             setting.loadSettings()
-            workspace = setting.getActiveWorkspace()
-            for project in workspace.projects:
+
+            for project in setting.activeWorkspace.projects:
                 self.AddWatchDirectory(project=project)
         except:
             pass
-        self.Bind(wx.EVT_CONTEXT_MENU, self._OnMenu)
-
     def AddWatchDirectory(self, project=None):
         """Add a directory to the controls top level view
         @param dname: directory path
@@ -387,32 +387,45 @@ class PythonExplorerTreePanel(FileTree):
             if not self.menu:
                 self.menu = wx.Menu()
                 items = [
-                    [ID_NEW, 'New', None],
+                    [ID_NEW, 'New', None ],
                     [],
-                    [ID_NEW, 'Copy', "copy_edit.png"],
-                    [ID_NEW, 'Paste', "paste_edit.png"],
-                    [ID_NEW, 'Delete', "delete_obj.png"],
-                    [ID_NEW, 'Move', None],
-                    [ID_NEW, 'Rename', None],
+                    [wx.NewIdRef(), 'Copy', "copy_edit.png"],
+                    [wx.NewIdRef(), 'Paste', "paste_edit.png"],
+                    [ID_DELETE_PROJECT, 'Delete', "delete_obj.png"],
+                    [wx.NewIdRef(), 'Move', None],
+                    [wx.NewIdRef(), 'Rename', None],
                     [],
-                    [ID_NEW, 'Import', "import_prj.png"],
-                    [ID_NEW, 'Export', "export.png"],
+                    [ID_IMPORT, 'Import', "import_prj.png"],
+                    [ID_EXPORT, 'Export', "export.png"],
                     [],
-                    [ID_NEW, 'Refresh', "refresh.png"],
-                    [ID_NEW, 'Close Project', None],
-                    [ID_NEW, 'Close Unreleated Projects', None],
-                    [ID_NEW, 'Run As', "run_exc.png"],
-                    [ID_NEW, 'Debug As', "debug_exc.png"],
+                    [wx.NewIdRef(), 'Refresh', "refresh.png"],
+                    [ID_CLOSE_PROJECT, 'Close Project', None],
+                    [wx.NewIdRef(), 'Close Unreleated Projects', None],
+                    [wx.NewIdRef(), 'Run As', "run_exc.png"],
+                    [wx.NewIdRef(), 'Debug As', "debug_exc.png"],
                     [],
-                    [ID_NEW, 'Properties', "project_properties.png"],
+                    [ID_PROJECT_PROPERTIES, 'Properties', "project_properties.png"],
                     ]
                 #
                 for mi_tup in items:
                     if len(mi_tup) > 0:
-                        mitem = wx.MenuItem(self.menu, mi_tup[0], mi_tup[1])
-                        if mi_tup[2] is not None:
-                            mitem.SetBitmap(self.fileOperations.getImageBitmap(imageName=mi_tup[2]))
-                        self.menu.Append(mitem)
+                        if mi_tup[0] == ID_NEW:
+                            sm = wx.Menu()
+                            for menuItemName in menuItemList[self.GetTopLevelParent().selectedPerspectiveName]:
+                                if len(menuItemName) > 1:
+                                    menuItem = wx.MenuItem(sm, menuItemName[0], menuItemName[1])
+                                    if menuItemName[2]:
+                                        menuItem.SetBitmap(self.fileOperations.getImageBitmap(imageName=menuItemName[2]))
+                                    sm.Append(menuItem)
+                                else:
+                                    sm.AppendSeparator()
+                            self.menu.Append(mi_tup[0], mi_tup[1], sm)
+                        else:
+                            mitem = wx.MenuItem(self.menu, mi_tup[0], mi_tup[1])
+                            if mi_tup[2] is not None:
+                                mitem.SetBitmap(self.fileOperations.getImageBitmap(imageName=mi_tup[2]))
+                            self.menu.Append(mitem)
+                            self.Bind(wx.EVT_MENU, self.onRightClickMenu, id=mi_tup[0])
                     else:
                         self.menu.AppendSeparator()
 #                         bmp = wx.ArtProvider.GetBitmap(str(mi_tup[2]), wx.ART_MENU)
@@ -421,57 +434,23 @@ class PythonExplorerTreePanel(FileTree):
             logger.error(e)
             pass
 
-#         if not self._menu.Menu:
-#             self._menu.Menu = wx.Menu()
-#             # TODO: bother with theme changes ...?
-#             items = [(ID_EDIT, _("Edit"), None),
-#                      (ID_OPEN, _("Open with " + FILEMAN), ID_OPEN),
-#                      (ID_REVEAL, _("Reveal in " + FILEMAN), None),
-#                      (wx.ID_SEPARATOR, '', None),
-#                      (wx.ID_REFRESH, _("Refresh"), ID_REFRESH),
-#                      (wx.ID_SEPARATOR, '', None),
-#                      (ID_MARK_PATH, _("Bookmark Selected Path(s)"),
-#                       ID_ADD_BM),
-#                      (wx.ID_SEPARATOR, '', None),
-#                      (ID_SEARCH_DIR, _("Search in directory"), ID_FIND),
-#                      (wx.ID_SEPARATOR, '', None),
-#                      (ID_GETINFO, _("Get Info"), None),
-#                      (ID_RENAME, _("Rename"), None),
-#                      (wx.ID_SEPARATOR, '', None),
-#                      (ID_NEW_FOLDER, _("New Folder"), ID_FOLDER),
-#                      (ID_NEW_FILE, _("New File"), ID_NEW),
-#                      (wx.ID_SEPARATOR, '', None),
-#                      (ID_DUPLICATE, _("Duplicate"), None),
-#                      (ID_ARCHIVE, _("Create Archive of \"%s\"") % '', None),
-#                      (wx.ID_SEPARATOR, '', None),
-#                      (ID_DELETE, TrashString(), ID_DELETE),
-#                     ]
-#
-#             for mi_tup in items:
-#                 mitem = wx.MenuItem(self._menu.Menu, mi_tup[0], mi_tup[1])
-#                 if mi_tup[2] is not None:
-#                     bmp = wx.ArtProvider.GetBitmap(str(mi_tup[2]), wx.ART_MENU)
-#                     mitem.SetBitmap(bmp)
-#
-#                 self._menu.Menu.AppendItem(mitem)
-
-        # Set contextual data
-#         self._menu.SetUserData('item_id', item)
-#         self._menu.SetUserData('active_node', activeNode)
-#         self._menu.SetUserData('selected_nodes', self.GetSelectedFiles())
-
-        # Update Menu
-#         mitem = self._menu.Menu.FindItemById(ID_ARCHIVE)
-#         if mitem != wx.NOT_FOUND:
-#             path = self._menu.GetUserData('active_node')
-#             mitem.SetText(_("Create Archive of \"%s\"") % \
-#                           path.split(os.path.sep)[-1])
-#         for mitem in (ID_DUPLICATE,):
-#             self._menu.Menu.Enable(mitem, len(self.GetSelections()) == 1)
-
         self.PopupMenu(self.menu)
 
     #---- End FileTree Interface Methods ----#
+    def onRightClickMenu(self, event):
+        logger.debug('onRightClickMenu')
+        if event.Id == ID_PROJECT_PROPERTIES:
+            logger.debug('ID_PROJECT_PROPERTIES')
+        if event.Id == ID_CLOSE_PROJECT:
+            logger.debug('ID_CLOSE_PROJECT')
+        if event.Id == ID_DELETE_PROJECT:
+            logger.debug('ID_DELETE_PROJECT')
+            for project in setting.activeWorkspace.projects:
+                if project.projectDirName=='sql_editor':
+                    setting.activeWorkspace.projects.remove(project)
+#                     self.RemoveWatchDirectory(dname)
+        if event.Id == ID_IMPORT:
+            logger.debug('ID_IMPORT')
 
     def OpenFiles(self, filesWithImage=[]):
         """Open the list of files in Editra for editing
