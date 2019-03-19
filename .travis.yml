@@ -35,7 +35,8 @@ install:
   - echo "SIX_INSTALLATION"
   - travis_wait 60 sudo pip install -Uv six
   - echo "WXPYTHON_INSTALLATION"
-  - pip install -U -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-14.04 wxPython
+  - pip install -Uv wxpython
+#   - pip install -U -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-14.04 wxPython
  #travis_wait 60 sudo pip install -Uv wxpython
   - echo "WXPYTHON_INSTALLATION_FINISHED"
   - "pip install requests coveralls nose-htmloutput nose coverage"
