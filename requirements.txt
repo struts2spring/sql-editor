@@ -46,7 +46,6 @@ pypubsub==4.0.0
 pyte==0.8.0
 python-dateutil==2.8.0
 python-jenkins==1.4.0
-pywin32==224
 pywin32-ctypes==0.2.0
 pyyaml==4.2b4
 requests==2.20.1
