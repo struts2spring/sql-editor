@@ -55,6 +55,7 @@ class Setting():
         self.maxWorkspace = 10  # maximum number of workspaces
         self.showWorkspaceSelectionDialog = True
         self.loadSettings()
+        self.activeWorkspace=self.getActiveWorkspace()
 
     def showWorkspaceSelection(self):
         showDialog = True

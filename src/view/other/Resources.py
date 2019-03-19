@@ -12,9 +12,11 @@ from src.logic.resource.search.ResourceSearch import ResourceSearchLogic
 import logging.config
 from src.view.constants import LOG_SETTINGS, ID_JAVA_EE_PERSPECTIVE, \
     ID_JAVA_PERSPECTIVE, ID_DEBUG_PERSPECTIVE, ID_GIT_PERSPECTIVE, \
-    ID_PYTHON_PERSPECTIVE, ID_DATABASE_PERSPECTIVE, ID_RESOURCE_PERSPECTIVE
+    ID_PYTHON_PERSPECTIVE, ID_DATABASE_PERSPECTIVE, ID_RESOURCE_PERSPECTIVE, \
+    setting
 from src.view.views.editor.EditorManager import EditorWindowManager
 import os
+from build.lib.src.settings.workspace import Setting
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -408,12 +410,10 @@ class ResourcePanel(wx.Panel):
         wx.BeginBusyCursor()
         logger.debug(value)
         self.resourceSearchLogic.clearLastResult()
-        projects = [
-            ('/docs/work/python_project', 'sql_editor'),
-            ('/docs/work/python_project', 'Phoenix'),
-            ]
-        for x in projects:
-            self.searchResult = self.resourceSearchLogic.getFiles(basePath=x[0], projectDirName=x[1], searchText=value)
+        setting.activeWorkspace.projects
+
+        for project in setting.activeWorkspace.projects:
+            self.searchResult = self.resourceSearchLogic.getFiles(basePath=project.basePath, projectDirName=project.projectDirName, searchText=value)
 
         self.resourceSearchResultListCtrl.loadData(self.searchResult)
 #         for category, items in _treeList:
