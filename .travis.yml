@@ -41,12 +41,12 @@ install:
   - "pip install requests coveralls nose-htmloutput nose coverage"
   - echo "INSTALLATION_FINISHED"
   - pip install -r requirements.txt
-  - pip install -U pytest
+#   - pip install -U pytest
   - python -V
 
 # command to run tests
-script:
-  - pytest
+# script:
+#   - pytest
 after_success:
 - coveralls
 notifications:
