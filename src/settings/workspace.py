@@ -6,7 +6,6 @@ Created on Feb 26, 2019
 import json, os
 from datetime import date
 import time
-from build.lib.src.view.view import project
 
 
 class Project():
