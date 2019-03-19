@@ -55,6 +55,7 @@ class Setting():
         self.workspaces = list()
         self.maxWorkspace = 10  # maximum number of workspaces
         self.showWorkspaceSelectionDialog = True
+        self.loadSettings()
 
     def showWorkspaceSelection(self):
         showDialog = True
@@ -81,7 +82,7 @@ class Setting():
 
     def loadSettings(self):
         workspace = Workspace(workspacePath=r'C:\Users\xbbntni\eclipse-workspace')
-        project = Project(basePath=r'/docs/work/python_project', projectDirName='sql-editor')
+        project = Project(basePath=r'/docs/work/python_project', projectDirName='sql_editor')
         project.addNature(nature='python')
         workspace.addProject(project)
         project = Project(basePath=r'c:\work\python_project', projectDirName='sql-editor')
@@ -95,7 +96,7 @@ class Setting():
 if __name__ == '__main__':
 
     settings = Setting()
-    settings.loadSettings()
+#     settings.loadSettings()
 
     js = json.dumps(settings, sort_keys=True, indent=4, default=serialize)
     print(js)

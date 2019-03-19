@@ -409,8 +409,8 @@ class ResourcePanel(wx.Panel):
         logger.debug(value)
         self.resourceSearchLogic.clearLastResult()
         projects = [
-            ('c:\work\python_project', 'sql-editor'),
-            ('c:\work\python_project', 'Phoenix'),
+            ('/docs/work/python_project', 'sql_editor'),
+            ('/docs/work/python_project', 'Phoenix'),
             ]
         for x in projects:
             self.searchResult = self.resourceSearchLogic.getFiles(basePath=x[0], projectDirName=x[1], searchText=value)

@@ -47,5 +47,5 @@ class ResourceSearchLogic():
 
 if __name__ == "__main__":
     resourceSearchLogic = ResourceSearchLogic()
-    resultDict = resourceSearchLogic.getFiles(basePath='c:\work\python_project', projectDirName='sql-editor',searchText='.py')
+    resultDict = resourceSearchLogic.getFiles(basePath='/docs/work/python_project', projectDirName='sql_editor',searchText='.py')
     print(resultDict)

@@ -130,7 +130,7 @@ class PythonExplorerTreePanel(FileTree):
         self.SetupImageList()
         try:
             setting = Setting()
-            setting.loadSettings()
+#             setting.loadSettings()
             workspace = setting.getActiveWorkspace()
             for project in workspace.projects:
                 self.AddWatchDirectory(project=project)
