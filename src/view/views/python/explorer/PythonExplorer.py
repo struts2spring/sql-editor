@@ -11,7 +11,7 @@ import wx
 # from src.view.table.CreateTable import CreateTableFrame
 import logging.config
 from src.view.constants import LOG_SETTINGS, ID_COLLAPSE_ALL, ID_LINK_WITH_EDITOR, \
-    ID_VIEW_MENU
+    ID_VIEW_MENU, setting
 from src.view.views.file.explorer._filetree import FileTree
 from src.view.views.file.MainStcPanel import MainStc
 import os
@@ -24,7 +24,7 @@ import time
 from src.view.util.common.fileutil import IsHidden, GetFileName
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 from wx.lib.pubsub import pub
-from src.settings.workspace import Setting
+# from src.settings.workspace import Setting
 from src.view.views.python.explorer.IconManager import PythonExplorerIconManager
 from src.view.views.editor.EditorManager import EditorWindowManager
 from src.view.constants import ID_NEW
@@ -129,7 +129,7 @@ class PythonExplorerTreePanel(FileTree):
         # Setup
         self.SetupImageList()
         try:
-            setting = Setting()
+#             setting = Setting()
 #             setting.loadSettings()
             workspace = setting.getActiveWorkspace()
             for project in workspace.projects:
