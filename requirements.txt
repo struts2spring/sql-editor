@@ -29,7 +29,7 @@ macholib==1.11
 markdown==3.0.1
 markupsafe==1.1.0
 matplotlib==3.0.2
-mkdocs==1.1.dev0
+mkdocs==1.0.4
 multi-key-dict==2.0.3
 nltk==3.4
 numpy==1.15.4
