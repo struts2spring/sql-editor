@@ -35,7 +35,7 @@ Install the Sql editor from source code.
 $ cd sql_editor
 $ python setup.py install
 
-sql_editor
+eclipse
 ```
 
 or 
