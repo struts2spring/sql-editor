@@ -138,6 +138,11 @@ class PythonExplorerTreePanel(FileTree):
                 self.AddWatchDirectory(project=project)
         except:
             pass
+
+    def onDelete(self, evt):
+        logger.debug('onDelete')
+        item = evt.GetItem()
+
     def AddWatchDirectory(self, project=None):
         """Add a directory to the controls top level view
         @param dname: directory path
@@ -446,8 +451,12 @@ class PythonExplorerTreePanel(FileTree):
         if event.Id == ID_DELETE_PROJECT:
             logger.debug('ID_DELETE_PROJECT')
             for project in setting.activeWorkspace.projects:
-                if project.projectDirName=='sql_editor':
-                    setting.activeWorkspace.projects.remove(project)
+                for node in self.GetSelections():
+                    
+                    if project.projectDirName == self.GetItemText(node):
+                        setting.activeWorkspace.projects.remove(project)
+                    self.Delete(node)
+#                     self.initProjects()
 #                     self.RemoveWatchDirectory(dname)
         if event.Id == ID_IMPORT:
             logger.debug('ID_IMPORT')

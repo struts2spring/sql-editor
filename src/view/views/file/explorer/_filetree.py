@@ -51,6 +51,7 @@ class FileTree(wx.TreeCtrl):
         self.Bind(wx.EVT_TREE_ITEM_MENU, self._OnMenu)
         self.Bind(wx.EVT_TREE_BEGIN_LABEL_EDIT, self._OnBeginEdit)
         self.Bind(wx.EVT_TREE_END_LABEL_EDIT, self._OnEndEdit)
+        self.Bind(wx.EVT_TREE_DELETE_ITEM, self.onDelete)
 #         self.Bind(wx._OnMenu, self._OnMenu)
 
     def _OnBeginEdit(self, evt):
