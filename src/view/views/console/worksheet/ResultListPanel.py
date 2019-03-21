@@ -13,7 +13,7 @@ except ImportError:  # if it's not there locally, try the wxPython lib.
 import os
 from src.view.constants import ID_EXECUTE_SCRIPT, ID_RESULT_REFRESH, \
     ID_ROW_ADD, ID_ROW_DELETE, ID_RESULT_NEXT, ID_RESULT_PREVIOUS, \
-    ID_APPLY_CHANGE, ID_RESULT_FIRST, ID_RESULT_LAST, ID_PIN, ID_RUN
+    ID_APPLY_CHANGE, ID_RESULT_FIRST, ID_RESULT_LAST, ID_PIN, ID_RUN, ID_SQL_TEXT
 import logging.config
 from src.view.constants import LOG_SETTINGS
 
@@ -64,7 +64,7 @@ class ResultModel(dv.PyDataViewIndexListModel):
     def GetCount(self):
         # print('GetCount')
         return len(self.data)
-    
+
     # Called to check if non-standard attributes should be used in the
     # cell at (row, col)
     def GetAttrByRow(self, row, col, attr):
@@ -90,26 +90,26 @@ class ResultModel(dv.PyDataViewIndexListModel):
             return (int(self.data[row1][col]) > int(self.data[row2][col])) - (int(self.data[row1][col]) < int(self.data[row2][col]))
         else:
             return (int(self.data[row1][col]) > int(self.data[row2][col])) - (int(self.data[row1][col]) < int(self.data[row2][col]))
-        
+
     def DeleteRows(self, rows):
         # make a copy since we'll be sorting(mutating) the list
         rows = list(rows)
         # use reverse order so the indexes don't change as we remove items
         rows.sort(reverse=True)
-        
+
         for row in rows:
             # remove it from our data structure
             del self.data[row]
             # notify the view(s) using this model that it has been removed
             self.RowDeleted(row)
-            
+
     def AddRow(self, value):
         # update data structure
         self.data.append(value)
         # notify views
         self.RowAppended()
-        
-            
+
+
 class ResultPanel(wx.Panel):
 
     def __init__(self, parent, model=None, data=None):
@@ -123,19 +123,19 @@ class ResultPanel(wx.Panel):
                                    | dv.DV_VERT_RULES
                                    | dv.DV_MULTIPLE
                                    )
-        
+
         # Create an instance of our simple model...
 #         if model is None:
 #             self.model = ResultModel(self.data)
 #         else:
-#             self.model = model            
+#             self.model = model
 
 #         self.createDataViewCtrl()
 
         # set the Sizer property (same as SetSizer)
-        self.Sizer = wx.BoxSizer(wx.VERTICAL) 
+        self.Sizer = wx.BoxSizer(wx.VERTICAL)
         self.Sizer.Add(self.dvc, 1, wx.EXPAND)
-        
+
         # Add some buttons to help out with the tests
 #         b1 = wx.Button(self, label="New View", name="newView")
 #         self.Bind(wx.EVT_BUTTON, self.OnNewView, b1)
@@ -159,7 +159,7 @@ class ResultPanel(wx.Panel):
         if model is None:
             self.model = ResultModel(data)
         else:
-            self.model = model      
+            self.model = model
 
     def createDataViewCtrl(self, data=None, headerList=None):
 
@@ -202,18 +202,18 @@ class ResultPanel(wx.Panel):
         for c in self.dvc.Columns:
             c.Sortable = True
             c.Reorderable = True
-            
+
         # Let's change our minds and not let the first col be moved.
-        c0.Reorderable = False     
-             
+        c0.Reorderable = False
+
 #     def OnNewView(self, evt):
 #         f = wx.Frame(None, title="New view, shared model", size=(600,400))
 #         ResultPanel(f,  self.model)
 #         b = f.FindWindowByName("newView")
 #         b.Disable()
 #         f.Show()
-# 
-# 
+#
+#
 #     def OnDeleteRows(self, evt):
 #         # Remove the selected row(s) from the model. The model will take care
 #         # of notifying the view (and any other observers) that the change has
@@ -221,8 +221,8 @@ class ResultPanel(wx.Panel):
 #         items = self.dvc.GetSelections()
 #         rows = [self.model.GetRow(item) for item in items]
 #         self.model.DeleteRows(rows)
-# 
-#         
+#
+#
 #     def OnAddRow(self, evt):
 #         # Add some bogus data to a new row in the model's data
 #         id = len(self.model.data) + 1
@@ -238,9 +238,9 @@ class ResultPanel(wx.Panel):
 
     def OnValueChanged(self, evt):
         print("OnValueChanged\n")
-        
+
     def constructBottomResultToolBar(self):
-        
+
         # create some toolbars
         tb1 = aui.AuiToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
                          wx.TB_FLAT | wx.TB_NODIVIDER)
@@ -254,7 +254,7 @@ class ResultPanel(wx.Panel):
         except Exception as e:
             logger.error(e, exc_info=True)
         logger.info('path {}'.format(path))
-        imageLocation = os.path.abspath(os.path.join(path, "images"))   
+        imageLocation = os.path.abspath(os.path.join(path, "images"))
         tb1.AddSimpleTool(ID_ROW_ADD, "Row add", wx.Bitmap(os.path.join(imageLocation, "row_add.png")), short_help_string="Row add ")
         tb1.AddSimpleTool(ID_ROW_DELETE, "Row delete", wx.Bitmap(os.path.join(imageLocation, "row_delete.png")), short_help_string="Row delete ")
         tb1.AddSimpleTool(ID_APPLY_CHANGE, "Apply data change", wx.Bitmap(os.path.join(imageLocation, "accept.png")), short_help_string="Apply data change ")
@@ -267,9 +267,9 @@ class ResultPanel(wx.Panel):
         tb1.AddSeparator()
 
         tb1.Realize()
-        
-        return tb1 
-        
+
+        return tb1
+
 #----------------------------------------------------------------------
 
 # def runTest(frame, nb, log):
@@ -280,7 +280,7 @@ class ResultPanel(wx.Panel):
 #     musicdata = ListCtrl.musicdata.items()
 #     musicdata.sort()
 #     musicdata = [[str(k)] + list(v) for k,v in musicdata]
-# 
+#
 #     win = TestPanel(nb, log, data=musicdata)
 #     return win
 
@@ -303,7 +303,7 @@ class CreatingResultWithToolbarPanel(wx.Panel):
 #         self.resultPanel = ResultPanel(self, data=self.getData())
         self.resultPanel = ResultDataGrid(self, data=self.getData())
 #         bottomResultToolbar = self.constructBottomResultToolBar()
-        
+
         ####################################################################
         vBox.Add(self.topResultToolbar , 0, wx.EXPAND | wx.ALL, 0)
         vBox.Add(self.resultPanel , 1, wx.EXPAND | wx.ALL, 0)
@@ -313,8 +313,8 @@ class CreatingResultWithToolbarPanel(wx.Panel):
         sizer = wx.BoxSizer(wx.VERTICAL)
 #         sizer.Add(worksheetToolbar ,.9, wx.EXPAND | wx.ALL, 0)
         sizer.Add(vBox, 1, wx.EXPAND , 0)
-        self.SetSizer(sizer)    
-    
+        self.SetSizer(sizer)
+
     def constructBottomResultToolBar(self):
 #         tb2 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
 #                  wx.TB_FLAT | wx.TB_NODIVIDER)
@@ -323,12 +323,12 @@ class CreatingResultWithToolbarPanel(wx.Panel):
 #         bottomBarText.ShowMessage("asdf")
 # #         tb2.AddLabelTool('asfd' bitmap=wx.Bitmap(os.path.join(imageLocation, "resultset_last.png")))
 #         tb2.AddTool
-#         
+#
 #         tb2.Realize()
-        
+
         self.statusbar = wx.StatusBar(self).Create(self)
 #         self.statusbar.SetStatusText('This goes in your statusbar')
-        return self.statusbar   
+        return self.statusbar
 
     def constructTopResultToolBar(self):
 #         path = os.path.abspath(__file__)
@@ -342,7 +342,7 @@ class CreatingResultWithToolbarPanel(wx.Panel):
 #         except Exception as e:
 #             logger.error(e, exc_info=True)
 #         print('------------------------------------------------------------------------->',path)
-#         path = os.path.abspath(os.path.join(path, "images"))        
+#         path = os.path.abspath(os.path.join(path, "images"))
         # create some toolbars
         tb1 = aui.AuiToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize, agwStyle=aui.AUI_TB_DEFAULT_STYLE | aui.AUI_TB_OVERFLOW)
         tb1.SetToolBitmapSize(wx.Size(42, 42))
@@ -352,18 +352,23 @@ class CreatingResultWithToolbarPanel(wx.Panel):
 #         playImage = None
 #         if "worksheet" == os.path.split(os.getcwd())[-1:][0]:
 #             imageLocation = os.path.join("..", "..", "images")
-# 
+#
 #         elif "view" == os.path.split(os.getcwd())[-1:][0]:
 #             imageLocation = os.path.join("..", "images")
         tb1.AddSimpleTool(ID_PIN, "Pin", self.fileOperations.getImageBitmap(imageName="pin2_green.png"), short_help_string="Pin", kind=ITEM_CHECK)
         tb1.AddSimpleTool(ID_RUN, "Result refresh", self.fileOperations.getImageBitmap(imageName="resultset_refresh.png"), short_help_string="Refresh")
-        
+        tb1.AddSimpleTool(ID_SQL_TEXT, "SQL \t(Ctrl+Q)", self.fileOperations.getImageBitmap(imageName="sql_text.png"), short_help_string="SQL \t(Ctrl+Q)")
+
         self.Bind(wx.EVT_MENU, self.onPinClick, id=ID_PIN)
+        self.Bind(wx.EVT_MENU, self.onSqlText, id=ID_SQL_TEXT)
         tb1.AddSeparator()
 
         tb1.Realize()
-        
-        return tb1     
+
+        return tb1
+
+    def onSqlText(self, event):
+        logger.debug(f'onSqlText:')
 
     def onPinClick(self, event):
         logger.debug(f'onPinClick:{self.pin}')
@@ -384,7 +389,7 @@ class CreateResultSheetTabPanel(wx.Panel):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
         self.fileOperations = FileOperations()
-                
+
         # Attributes
         self._nb = aui.AuiNotebook(self)
 #         if "worksheet" == os.path.split(os.getcwd())[-1:][0]:
@@ -394,15 +399,15 @@ class CreateResultSheetTabPanel(wx.Panel):
 #         imageLocation = os.path.join(path)
         imgList = wx.ImageList(16, 16)
         imgList.Add(self.fileOperations.getImageBitmap("sql_script.png"))
-        
-        self._nb.AssignImageList(imgList) 
-        
+
+        self._nb.AssignImageList(imgList)
+
         self.addTab()
         #         self._nb.AddPage(worksheetPanel, "2", imageId=0)
         # Layout
-        
+
         self.__DoLayout()
-        
+
     def addTab(self, name='Start Page'):
         resultSheetPanel = CreatingResultWithToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN | wx.BORDER_NONE)
 #             worksheetPanel.worksheetPanel.editorPanel
@@ -410,9 +415,9 @@ class CreateResultSheetTabPanel(wx.Panel):
         self._nb.AddPage(resultSheetPanel, name)
         self._nb.SetSelectionToWindow(resultSheetPanel)
         self.Bind(aui.EVT_AUINOTEBOOK_TAB_RIGHT_DOWN, self.onTabRightDown, self._nb)
-        self.Bind(aui.EVT_AUINOTEBOOK_BG_DCLICK, self.onBgDoubleClick, self._nb)  
-        self.Bind(aui.EVT_AUINOTEBOOK_PAGE_CLOSE, self.onCloseClick, self._nb)  
-        
+        self.Bind(aui.EVT_AUINOTEBOOK_BG_DCLICK, self.onBgDoubleClick, self._nb)
+        self.Bind(aui.EVT_AUINOTEBOOK_PAGE_CLOSE, self.onCloseClick, self._nb)
+
     def __DoLayout(self):
         """Layout the panel"""
         sizer = wx.BoxSizer(wx.VERTICAL)
@@ -429,8 +434,8 @@ class CreateResultSheetTabPanel(wx.Panel):
         if n != -1:
             self._nb.SetSelection(n)
             return True
-        return False    
-    
+        return False
+
     def GetCurrentPage(self):
         """
         Get the current active Page page
@@ -452,14 +457,14 @@ class CreateResultSheetTabPanel(wx.Panel):
             page = self._nb.GetPage(n)
             if isinstance(page, page_type):
                 res.append(page)
-        return res                
+        return res
 
     def onTabRightDown(self, event):
         logger.debug('onTabRightDown')
-        
+
     def onBgDoubleClick(self, event):
         logger.debug('onBgDoubleClick')
-        
+
     def onCloseClick(self, event):
         logger.debug('onCloseClick')
         self.GetCurrentPage()

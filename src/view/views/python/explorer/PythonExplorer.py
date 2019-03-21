@@ -88,16 +88,6 @@ class PythonExplorerPanel(wx.Panel):
                 toolItem = tb1.AddSimpleTool(tool[0], tool[1], self.fileOperations.getImageBitmap(imageName=tool[2]), short_help_string=tool[3])
                 if tool[4]:
                     self.Bind(wx.EVT_MENU, tool[4], id=tool[0])
-#             tb1.AddSimpleTool(ID_SAVE_ROW, "Save", fileOperations.getImageBitmap(imageName="save_to_database.png"), short_help_string='Save to database')
-#             tb1.AddSeparator()
-#
-#             tb1.AddSimpleTool(ID_REFRESH_ROW, "Result refresh", fileOperations.getImageBitmap(imageName="resultset_refresh.png"), short_help_string='Refresh data')
-#             tb1.AddSimpleTool(ID_ADD_ROW, "Add a new row", fileOperations.getImageBitmap(imageName="row_add.png"), short_help_string='Add new row')
-#             tb1.AddSimpleTool(ID_DUPLICATE_ROW, "Duplicate current row", fileOperations.getImageBitmap(imageName="row_copy.png"), short_help_string='Duplicate current row')
-#             tb1.AddSimpleTool(ID_DELETE_ROW, "Delete current row", fileOperations.getImageBitmap(imageName="row_delete.png"), short_help_string='Delete current row')
-#             tb1.AddSeparator()
-
-#         tb1.AddTool(ID_RUN, "Pin", fileOperations.getImageBitmap(imageName="pin2_green.png"))
 
         tb1.Realize()
 
@@ -452,7 +442,7 @@ class PythonExplorerTreePanel(FileTree):
             logger.debug('ID_DELETE_PROJECT')
             for project in setting.activeWorkspace.projects:
                 for node in self.GetSelections():
-                    
+
                     if project.projectDirName == self.GetItemText(node):
                         setting.activeWorkspace.projects.remove(project)
                     self.Delete(node)

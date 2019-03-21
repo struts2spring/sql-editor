@@ -80,6 +80,7 @@ ID_NEW_PYTHON_PACKAGE = wx.NewIdRef()
 ID_NEW_PYTHON_MODULE = wx.NewIdRef()
 
 ID_RUN = wx.NewIdRef()
+ID_SQL_TEXT = wx.NewIdRef()
 ID_DEBUG = wx.NewIdRef()
 ID_RUN_HISTORY = wx.NewIdRef()
 ID_RUN_CONFIG = wx.NewIdRef()
