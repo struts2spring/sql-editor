@@ -756,7 +756,7 @@ class FileBrowserMimeManager():
 #             '.exe':'exe.png',
             '.xml':'xml.png',
             '.java':'java.png',
-            '.py':'python.png',
+            '.py':'python_module.png',
             '.html':'web.png',
             '.md':'markdown.png',
             '.jar':'jar_file.png',
@@ -790,7 +790,7 @@ class FileBrowserMimeManager():
                 logger.error(e, exc_info=True)
         for imageName in ['fileType_filter.png', 'folder.png', 'folder_view.png', 'harddisk.png', 'usb.png', 'stop.png',
                           'java.png', 'python_module.png', 'xml.png', 'python.png', 'java.png', 'jar_file.png', 'markdown.png',
-                          'yaml.png', 'spec.png' ]:
+                          'yaml.png', 'spec.png','web.png' ]:
             imglist.Add(self.fileOperations.getImageBitmap(imageName=imageName))
             self.iconsDictIndex[imageName] = count
             count += 1

@@ -13,27 +13,27 @@ logger = logging.getLogger('extensive')
 
 
 class PythonExplorerIconManager():
-    
+
     def __init__(self):
         self.fileOperations = FileOperations()
         self.fileImageExtensionDict = {
 #             '.exe':'exe.png',
             '.xml':'xml.png',
             '.java':'java.png',
-            '.py':'python.png',
+            '.py':'python_module.png',
             '.html':'web.png',
             '.md':'markdown.png',
             '.jar':'jar_file.png',
             '.yaml':'yaml.png',
             '.yml':'yaml.png',
-            
+
             }
         pass
-    
+
     def PopulateImageList(self, imglist):
         """Populate an ImageList with the icons for the file tree
         @param imglist: wx.ImageList instance (16x16)
- 
+
         """
         imglist.RemoveAll()
         self.iconsDictIndex = {}
@@ -54,7 +54,7 @@ class PythonExplorerIconManager():
                 logger.error(e, exc_info=True)
         for imageName in ['fileType_filter.png', 'folder.png', 'folder_view.png', 'harddisk.png', 'usb.png', 'stop.png',
                           'java.png', 'python_module.png', 'xml.png', 'python.png', 'java.png', 'jar_file.png', 'markdown.png',
-                          'yaml.png', ]:
+                          'yaml.png', 'package_obj.png' ]:
             imglist.Add(self.fileOperations.getImageBitmap(imageName=imageName))
             self.iconsDictIndex[imageName] = count
             count += 1
@@ -75,13 +75,13 @@ class PythonExplorerIconManager():
             except :
                 logger.error('some error :' + extension)
 #        This is to supress warning
-        del noLog        
+        del noLog
         return icon
 
     def GetImageIndex(self, path, expanded=False):
         """Get the appropriate file index for the given path
         @param path: file name or path
- 
+
         """
         imageName = 'fileType_filter.png'
         if not os.access(path, os.R_OK):
@@ -97,18 +97,18 @@ class PythonExplorerIconManager():
             fileExtension = fileExtension.lower()
             if fileExtension and self.getFileImageNameByExtension(fileExtension):
                 imageName = self.getFileImageNameByExtension(fileExtension)
-                
+
         return self.iconsDictIndex[imageName]
-    
+
     def getFileImageNameByExtension(self, fileExtension=None):
         imageName = None
-         
+
         if fileExtension in self.fileImageExtensionDict.keys():
             imageName = self.fileImageExtensionDict[fileExtension]
-        
+
         return imageName
 
-    
+
 #     def IsDevice(self, path):
 #         """Is the path some sort of device"""
 #         if os.path.ismount(path):
@@ -162,15 +162,15 @@ class PythonExplorerIconManager():
 #                IMG_SHELL   : ID_LANG_BASH }
 #     def __init__(self):
 #         super(FBMimeMgr, self).__init__()
-# 
+#
 #         # Attributes
 #         self._ftype = FBMimeMgr.IMG_FILE
-#         
+#
 #     @classmethod
 #     def PopulateImageList(cls, imglist):
 #         """Populate an ImageList with the icons for the file tree
 #         @param imglist: wx.ImageList instance (16x16)
-# 
+#
 #         """
 #         imglist.RemoveAll()
 #         for img in FBMimeMgr.IMAGES:
@@ -178,7 +178,7 @@ class PythonExplorerIconManager():
 #             bmp = wx.ArtProvider.GetBitmap(str(imgid), wx.ART_MENU)
 #             if bmp.IsOk():
 #                 imglist.Add(bmp)
-# 
+#
 #     @classmethod
 #     def RefreshImageList(cls, imglist):
 #         """Refresh all icons from the icon manager"""
@@ -187,11 +187,11 @@ class PythonExplorerIconManager():
 #             bmp = wx.ArtProvider.GetBitmap(str(imgid), wx.ART_MENU)
 #             if bmp.IsOk():
 #                 imglist.Replace(idx, bmp)
-# 
+#
 #     def GetImageIndex(self, path, expanded=False):
 #         """Get the appropriate file index for the given path
 #         @param path: file name or path
-# 
+#
 #         """
 #         self._ftype = FBMimeMgr.IMG_FILE
 #         if not os.access(path, os.R_OK):
@@ -208,11 +208,11 @@ class PythonExplorerIconManager():
 #         elif self.IsKnownBinType(path):
 #             pass
 #         return self._ftype
-# 
+#
 #     def IsKnownTextFile(self, path):
 #         """Is a known text file type
 #         @param path: file path / name
-# 
+#
 #         """
 #         tpath = os.path.basename(path)
 #         ext = GetFileExtensions(tpath)
@@ -227,11 +227,11 @@ class PythonExplorerIconManager():
 #                  ID_LANG_BASH : FBMimeMgr.IMG_SHELL }
 # #         self._ftype = tmap.get(etype, FBMimeMgr.IMG_FILE)
 #         return self._ftype != FBMimeMgr.IMG_FILE
-# 
+#
 #     def IsKnownBinType(self, path):
 #         """Is a known binary file type
 #         @param path: file path / name
-# 
+#
 #         """
 #         ext = GetFileExtension(path)
 #         if ext in ('exe', 'dll', 'so'): # TODO better mapping
@@ -239,7 +239,7 @@ class PythonExplorerIconManager():
 #         else:
 #             return False
 #         return True
-# 
+#
 #     def IsDevice(self, path):
 #         """Is the path some sort of device"""
 #         if os.path.ismount(path):

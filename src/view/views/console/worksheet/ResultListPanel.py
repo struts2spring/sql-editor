@@ -411,7 +411,7 @@ class CreateResultSheetTabPanel(wx.Panel):
     def addTab(self, name='Start Page'):
         resultSheetPanel = CreatingResultWithToolbarPanel(self._nb, -1, style=wx.CLIP_CHILDREN | wx.BORDER_NONE)
 #             worksheetPanel.worksheetPanel.editorPanel
-        name = 'ResultSheet '
+        name = 'Query Result '
         self._nb.AddPage(resultSheetPanel, name)
         self._nb.SetSelectionToWindow(resultSheetPanel)
         self.Bind(aui.EVT_AUINOTEBOOK_TAB_RIGHT_DOWN, self.onTabRightDown, self._nb)
