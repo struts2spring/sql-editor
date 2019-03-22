@@ -4,7 +4,9 @@ Created on 22-Mar-2019
 @author: vijay
 '''
 import wx
+import wx.stc as stc
 from src.view.util.FileOperationsUtil import FileOperations
+from src.view.views.console.worksheet.EditorPanel import SqlStyleTextCtrl
 
 
 class SqlQueryFrame(wx.Frame):
@@ -55,9 +57,20 @@ class SqlQueryPanel(wx.Panel):
         sizer = wx.BoxSizer(wx.VERTICAL)
         ####################################################################
         self.sqlText = sqlText
-        page = wx.TextCtrl(self, -1, self.sqlText, style=wx.TE_MULTILINE)
+        self.sstc = SqlStyleTextCtrl(self, -1)
+        self.sstc.initKeyShortCut()
+        self.sstc.SetText(sqlText)
+        self.sstc.EmptyUndoBuffer()
+        self.sstc.Colourise(0, -1)
+        self.sstc.SetInitialSize(wx.Size(400, 400))
+#         self.sstc.SetBestFittingSize(wx.Size(400, 400))
+
+        # line numbers in the margin
+        self.sstc.SetMarginType(1, stc.STC_MARGIN_NUMBER)
+        self.sstc.SetMarginWidth(1, 25)
+#         page = wx.TextCtrl(self, -1, self.sqlText, style=wx.TE_MULTILINE)
         ####################################################################
-        sizer.Add(page, 1, wx.EXPAND)
+        sizer.Add(self.sstc, 1, wx.EXPAND)
         self.SetSizer(sizer)
         self.Center()
 #         self.createStatusBar()
@@ -66,7 +79,7 @@ class SqlQueryPanel(wx.Panel):
 
 if __name__ == '__main__':
     app = wx.App()
-    frm = SqlQueryFrame(None, size=(400, 300))
+    frm = SqlQueryFrame(None, sqlText='abc',size=(400, 300))
 #     pnl = SqlQueryPanel(frm)
     frm.Show()
     app.MainLoop()
