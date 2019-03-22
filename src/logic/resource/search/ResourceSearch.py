@@ -3,6 +3,7 @@
 import  os, fnmatch
 import logging.config
 from src.view.constants import LOG_SETTINGS
+import re
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
@@ -27,7 +28,9 @@ class ResourceSearchLogic():
             for root, dirs, files in os.walk(directory):
                 if len(self.resultDict) < 100:
                     for file in files:
-                        if file.endswith(searchText):
+                        pattern=searchText
+                        if re.search(pattern,file, re.I):
+#                         if file.endswith(searchText):
                             self.resultDict[len(self.resultDict)] = [file, root.split(basePath)[1][1:], root]
                             filePath=os.path.join(root,file)
                             print(filePath)
