@@ -186,8 +186,8 @@ class MyCellEditor(gridlib.PyGridCellEditor):
         """
         logger.info("MyCellEditor: Clone\n")
         return MyCellEditor()
-        
-            
+
+
 class ResultDataGrid(gridlib.Grid):
 
     def __init__(self, parent, model=None, data=None):
@@ -199,9 +199,9 @@ class ResultDataGrid(gridlib.Grid):
         self.Bind(gridlib.EVT_GRID_LABEL_RIGHT_CLICK, self.showHeaderPopupMenu)
         self.Bind(wx.EVT_KEY_DOWN, self.OnKey)
         self.data = None
-        
+        self.sqlText = ''
 #         self.SetCellAlignment(row, col, horiz, vert)
-        
+
         # Somebody changed the grid so the type registry takes precedence
         # over the default attribute set for editors and renderers, so we
         # have to set null handlers for the type registry before the
@@ -218,14 +218,17 @@ class ResultDataGrid(gridlib.Grid):
         # but for this example, we'll just set the custom editor on one cell
 #         self.SetCellEditor(1, 0, MyCellEditor())
 #         self.SetCellValue(1, 0, "Try to edit this box")
-# 
+#
 #         # and on a column
 #         attr = gridlib.GridCellAttr()
 #         attr.SetEditor(MyCellEditor())
 #         self.SetColAttr(2, attr)
 #         self.SetCellValue(1, 2, "or any in this column")
-# 
+#
 #         self.addData()
+
+    def setSqlText(self, sqlText):
+        self.sqlText = sqlText
 
     def setData(self, data):
         self.data = data
@@ -246,25 +249,25 @@ class ResultDataGrid(gridlib.Grid):
                 currentRows, currentCols = (self.GetNumberRows(), self.GetNumberCols())
                 newRows = len(data) - 1
                 newCols = len(data[0])
-        #         self.AppendRows(numRows=len(data)-1, updateLabels=True)   
+        #         self.AppendRows(numRows=len(data)-1, updateLabels=True)
         #         if len(data) > 0 :
-        #             self.AppendCols(numCols=len(data[0]), updateLabels=True)  
+        #             self.AppendCols(numCols=len(data[0]), updateLabels=True)
                 if newRows < currentRows:
                     # - Delete rows:
                     self.DeleteRows(0, currentRows - newRows, True)
-        
+
                 if newRows > currentRows:
                     # - append currentRows:
                     self.AppendRows(newRows - currentRows)
-                    
+
                 if newCols < currentCols:
                     # - Delete rows:
                     self.DeleteCols(pos=0, numCols=currentCols - newCols, updateLabels=True)
-        
+
                 if newCols > currentCols:
                     # - append currentRows:
                     self.AppendCols(newCols - currentCols)
-        
+
                 for dataKey, dataValue in data.items():
 #                     logger.info(dataKey, dataValue)
                     for idx, colValue in enumerate(dataValue):
@@ -284,7 +287,7 @@ class ResultDataGrid(gridlib.Grid):
                                     self.SetCellValue(dataKey - 1, idx, str(colValue))
 #                                 self.SetCellAlignment(dataKey - 1,idx, wx.ALIGN_RIGHT)
                             except Exception as e:
-                                logger.error(e, exc_info=True)  
+                                logger.error(e, exc_info=True)
             else:
                 numCols = self.GetNumberCols()
                 numRows = self.GetNumberRows()
@@ -293,7 +296,7 @@ class ResultDataGrid(gridlib.Grid):
                     self.DeleteCols(pos=0, numCols=numCols, updateLabels=True)
                     self.DeleteRows(pos=0, numRows=numRows, updateLabels=True)
         except Exception as e:
-            logger.error(e, exc_info=True)    
+            logger.error(e, exc_info=True)
         self.Refresh()
 #         self.SetColSize(0, 150)
 #         self.SetColSize(1, 150)
@@ -309,11 +312,11 @@ class ResultDataGrid(gridlib.Grid):
             logger.info("Selection block top left " + str(self.GetSelectionBlockTopLeft()))
         if self.GetSelectionBlockBottomRight():
             logger.info("Selection block bottom right " + str(self.GetSelectionBlockBottomRight()))
-        
+
         # If selection is col...
         if self.GetSelectedCols():
             logger.info("Selected cols " + str(self.GetSelectedCols()))
-        
+
         # If selection is row...
         if self.GetSelectedRows():
             logger.info("Selected rows " + str(self.GetSelectedRows()))
@@ -324,7 +327,7 @@ class ResultDataGrid(gridlib.Grid):
         col = self.GetGridCursorCol()
         cell = (row, col)
         logger.info("Current cell " + str(cell))
-        
+
     def OnKey(self, event):
         # If Ctrl+C is pressed...
         if event.ControlDown() and event.GetKeyCode() == 67:
@@ -332,25 +335,25 @@ class ResultDataGrid(gridlib.Grid):
             self.selection()
             # Call copy method
             self.copy()
-            
+
         # If Ctrl+V is pressed...
         if event.ControlDown() and event.GetKeyCode() == 86:
             logger.info("Ctrl+V")
             self.currentcell()
             # Call paste method
             self.paste()
-            
+
         # If Ctrl+Z is pressed...
         if event.ControlDown() and event.GetKeyCode() == 90:
             if self.data4undo[2] != '':
-                self.paste('undo')   
-                         
+                self.paste('undo')
+
         # If Supr is presed
         if event.GetKeyCode() == 127:
             logger.info("Supr")
             # Call delete method
             self.delete()
-            
+
         # Skip other Key events
         if event.GetKeyCode():
             event.Skip()
@@ -406,10 +409,10 @@ class ResultDataGrid(gridlib.Grid):
         if len(self.GetSelectionBlockBottomRight()) > 0:
             rows = self.GetSelectionBlockBottomRight()[0][0] - self.GetSelectionBlockTopLeft()[0][0] + 1
             cols = self.GetSelectionBlockBottomRight()[0][1] - self.GetSelectionBlockTopLeft()[0][1] + 1
-            
+
             # data variable contain text that must be set in the clipboard
             data = ''
-            
+
             # For each cell in selected range append the cell value in the data variable
             # Tabs '\t' for cols and '\r' for rows
             for r in range(rows):
@@ -428,7 +431,7 @@ class ResultDataGrid(gridlib.Grid):
                 wx.TheClipboard.Close()
             else:
                 wx.MessageBox("Can't open the clipboard", "Error")
-            
+
     def paste(self):
         logger.info("Paste method")
         clipboard = wx.TextDataObject()
@@ -454,11 +457,11 @@ class ResultDataGrid(gridlib.Grid):
         '''
         When cell is edited, get a handle on the editor widget
         and bind it to EVT_KEY_DOWN
-        '''        
-        editor = event.GetControl()        
+        '''
+        editor = event.GetControl()
         editor.Bind(wx.EVT_KEY_DOWN, self.onEditorKey)
         event.Skip()
- 
+
     #----------------------------------------------------------------------
     def onEditorKey(self, event):
         '''
@@ -466,7 +469,7 @@ class ResultDataGrid(gridlib.Grid):
         keystrokes, such as arrow up or arrow down, and responds accordingly. Allows
         all other key strokes to pass through the handler.
         '''
-        keycode = event.GetKeyCode() 
+        keycode = event.GetKeyCode()
         if keycode == wx.WXK_UP:
             logger.info('you pressed the UP key!')
             self.grid.MoveCursorUp(False)
@@ -481,7 +484,7 @@ class ResultDataGrid(gridlib.Grid):
             self.grid.MoveCursorRight(False)
         else:
             pass
-        event.Skip()        
+        event.Skip()
 
 #----------------------------------------------------------------------
     def showHeaderPopupMenu(self, event):
@@ -491,13 +494,13 @@ class ResultDataGrid(gridlib.Grid):
         row, col = event.GetRow(), event.GetCol()
         if row == -1: self.colPopup(col, event)
         elif col == -1: self.rowPopup(row, event)
-        
+
 #         if col>=0:
 #             header = self.GetColLabelValue(event.GetCol())
 #             menu = GridHeaderPopupMenu(header=header)
 #             self.PopupMenu(menu, event.GetPosition())
 #             menu.Destroy()
-            
+
     def rowPopup(self, row, evt):
         """(row, evt) -> display a popup menu when a row label is right clicked"""
         menu = wx.Menu()
@@ -506,16 +509,16 @@ class ResultDataGrid(gridlib.Grid):
         appendID = wx.NewIdRef()
         deleteID = wx.NewIdRef()
         x = self.GetRowSize(row) / 2
-        
+
         copyRowItem = wx.MenuItem(menu, copyID, "Copy Row")
         copyRowItem.SetBitmap(self.fileOperations.getImageBitmap(imageName="copy_edit_co.png"))
-        copyItemMenu = menu.Append(copyRowItem) 
-        
+        copyItemMenu = menu.Append(copyRowItem)
+
         appendRowItem = wx.MenuItem(menu, appendID, "Append Row")
         appendRowItem.SetBitmap(self.fileOperations.getImageBitmap(imageName="row_add.png"))
-        appendItemMenu = menu.Append(appendRowItem) 
+        appendItemMenu = menu.Append(appendRowItem)
 #         self.Bind(wx.EVT_MENU, lambda e: self.onCopySelection(e), copyItemMenu)
-        
+
         if not self.GetSelectedRows():
             self.SelectRow(row)
 
@@ -524,7 +527,7 @@ class ResultDataGrid(gridlib.Grid):
 
         deleteRowsItem = wx.MenuItem(menu, deleteID, "Delete Row(s)")
         deleteRowsItem.SetBitmap(self.fileOperations.getImageBitmap(imageName="row_delete.png"))
-        deleteItemMenu = menu.Append(deleteRowsItem) 
+        deleteItemMenu = menu.Append(deleteRowsItem)
 
 #         menu.Append(deleteID, "Delete Row(s)")
 
@@ -536,9 +539,9 @@ class ResultDataGrid(gridlib.Grid):
             if not selection:
                 return []
             start_row, start_col, end_row, end_col = selection
-    
+
             data = u''
-    
+
             rows = range(start_row, end_row + 1)
             for row in rows:
                 columns = range(start_col, end_col + 1)
@@ -548,10 +551,10 @@ class ResultDataGrid(gridlib.Grid):
                         data += self.GetCellValue(row, column) + "\n"
                     else:
                         data += self.GetCellValue(row, column) + "\t"
-    
+
             text_data_object = wx.TextDataObject()
             text_data_object.SetText(data)
-    
+
             if wx.TheClipboard.Open():
                 wx.TheClipboard.SetData(text_data_object)
                 wx.TheClipboard.Close()
@@ -616,7 +619,7 @@ class ResultDataGrid(gridlib.Grid):
         start_row, start_col, end_row, end_col = selection
         for row in range(start_row, end_row + 1):
             for col in range(start_col, end_col + 1):
-                yield [row, col]    
+                yield [row, col]
 
     def colPopup(self, col, evt):
         """(col, evt) -> display a popup menu when a column label is
@@ -631,23 +634,23 @@ class ResultDataGrid(gridlib.Grid):
         cols = self.GetSelectedCols()
         header = self.GetColLabelValue(col)
         self.Refresh()
-        
+
         copyHeaderItem = wx.MenuItem(menu, copyHeaderId, "Copy Selected Header")
         copyHeaderItem.SetBitmap(self.fileOperations.getImageBitmap(imageName="copy_edit_co.png"))
-        copyHeaderMenu = menu.Append(copyHeaderItem) 
-        
+        copyHeaderMenu = menu.Append(copyHeaderItem)
+
         sortHeaderItem = wx.MenuItem(menu, sortID, "Sort Column")
         sortHeaderItem.SetBitmap(self.fileOperations.getImageBitmap(imageName="sort.png"))
-        sortHeaderMenu = menu.Append(sortHeaderItem) 
-        
+        sortHeaderMenu = menu.Append(sortHeaderItem)
+
 #         menu.Append(copyHeaderId, "Copy Selected Header")
 #         menu.Append(sortID, "Sort Column")
-        
+
 #         self.header = header
 #         item = wx.MenuItem(self, wx.NewIdRef(), "Sort...")
 #         self.Append(item)
 #         self.Bind(wx.EVT_MENU, self.OnSortColumn, item)
-# 
+#
 #         item = wx.MenuItem(self, wx.NewIdRef(), "Copy Selected Header")
 #         self.Append(item)
 #         self.Bind(wx.EVT_MENU, self.OnItem3, item)
@@ -701,15 +704,15 @@ class GridCellPopupMenu(wx.Menu):
     def __init__(self, header=None):
         wx.Menu.__init__(self)
         self.fileOperations = FileOperations()
-        
+
         copyItem = wx.MenuItem(self, wx.NewIdRef(), "Copy")
         copyItem.SetBitmap(self.fileOperations.getImageBitmap(imageName="copy_edit_co.png"))
-        copyItemMenu = self.Append(copyItem) 
+        copyItemMenu = self.Append(copyItem)
         self.Bind(wx.EVT_MENU, lambda e: self.onCopySelection(e), copyItemMenu)
-        
+
         pasteItem = wx.MenuItem(self, wx.NewIdRef(), "Paste")
         pasteItem.SetBitmap(self.fileOperations.getImageBitmap(imageName="paste_edit.png"))
-        pasteItemMenu = self.Append(pasteItem) 
+        pasteItemMenu = self.Append(pasteItem)
         self.Bind(wx.EVT_MENU, lambda e: self.onPasteSelection(e), pasteItemMenu)
 
         exportItem = wx.MenuItem(self, wx.NewIdRef(), "Export...")
@@ -749,14 +752,14 @@ class GridCellPopupMenu(wx.Menu):
 #         print "Item Three selected in the %s window"%self.WinName
 #         copyValue = self.GetColLabelValue(event.GetCol())
 
-              
+
 class GridHeaderPopupMenu(wx.Menu):
 
     def __init__(self, header=None):
         wx.Menu.__init__(self)
         self.header = header
 #         self.WinName = WinName
-    
+
 #         item = wx.MenuItem(self, wx.NewIdRef(), "Item One")
 #         self.Append(item)
 #         self.Bind(wx.EVT_MENU, self.OnItem1, item)
@@ -796,7 +799,7 @@ class GridHeaderPopupMenu(wx.Menu):
 #         print "Item Three selected in the %s window"%self.WinName
 #         copyValue = self.GetColLabelValue(event.GetCol())
         self.onCopy(self.header)
-        
+
 #----------------------------------------------------------------------
     def onCopy(self, copyValue=None):
         """"""

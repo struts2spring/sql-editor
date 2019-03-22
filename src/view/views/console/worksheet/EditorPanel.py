@@ -80,7 +80,7 @@ elif wx.Platform == '__WXGTK__':
               'other': 'Comic Sans MS',
               'size' : 10,
               'size2': 8,
-             }    
+             }
 else:
     faces = { 'times': 'Times',
               'mono' : 'Courier',
@@ -97,7 +97,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
     def __init__(self, parent, Id,
                  pos=wx.DefaultPosition, size=wx.DefaultSize,
                  style=0):
-        stc.StyledTextCtrl.__init__(self, parent, Id, pos, size=size, style=style)    
+        stc.StyledTextCtrl.__init__(self, parent, Id, pos, size=size, style=style)
         self.findData = wx.FindReplaceData()
         self.popmenu = None
         self.frame = None
@@ -130,9 +130,9 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         self.SetViewEOL(False)
         self.SetEOLMode(stc.STC_EOL_CRLF)
 #         self.SetUseAntiAliasing(True)
-        
+
         self.selection_column_mode = False
-        
+
 #         self.SetEdgeMode(stc.STC_EDGE_BACKGROUND)
 #         self.SetEdgeColumn(78)
         # set backspace to unindent
@@ -145,7 +145,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         self.SetMarginType(2, stc.STC_MARGIN_SYMBOL)
         self.SetMarginMask(2, stc.STC_MASK_FOLDERS)
         self.SetMarginSensitive(2, True)
-        self.SetMarginWidth(2, 12)        
+        self.SetMarginWidth(2, 12)
         # Make some styles,  The lexer defines what each style is used for, we
         # just have to define what each style looks like.  This set is adapted from
         # Scintilla sample property files.
@@ -163,8 +163,8 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         self.StyleSetSpec(stc.STC_STYLE_LINENUMBER, "back:#C0C0C0,face:%(helv)s,size:%(size2)d" % faces)
         self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, "face:%(other)s" % faces)
         self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT, "fore:#FFFFFF,back:#0000FF,bold")
-        self.StyleSetSpec(stc.STC_STYLE_BRACEBAD, "fore:#000000,back:#FF0000,bold")   
-        
+        self.StyleSetSpec(stc.STC_STYLE_BRACEBAD, "fore:#000000,back:#FF0000,bold")
+
         if self.fold_symbols == 0:
             # Arrow pointing right for contracted folders, arrow pointing down for expanded
             self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN, stc.STC_MARK_ARROWDOWN, "black", "black")
@@ -174,7 +174,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             self.MarkerDefine(stc.STC_MARKNUM_FOLDEREND, stc.STC_MARK_EMPTY, "white", "black")
             self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPENMID, stc.STC_MARK_EMPTY, "white", "black")
             self.MarkerDefine(stc.STC_MARKNUM_FOLDERMIDTAIL, stc.STC_MARK_EMPTY, "white", "black")
-            
+
         elif self.fold_symbols == 1:
             # Plus for contracted folders, minus for expanded
             self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN, stc.STC_MARK_MINUS, "white", "black")
@@ -204,10 +204,10 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             self.MarkerDefine(stc.STC_MARKNUM_FOLDEREND, stc.STC_MARK_BOXPLUSCONNECTED, "white", "#808080")
             self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPENMID, stc.STC_MARK_BOXMINUSCONNECTED, "white", "#808080")
             self.MarkerDefine(stc.STC_MARKNUM_FOLDERMIDTAIL, stc.STC_MARK_TCORNER, "white", "#808080")
-             
+
         self.sqlStyle()
         self.registerAllImages()
-        
+
 #         stc.EVT_STC_MARGINCLICK(self, self.GetId(), self.OnMarginClick)
 #         wx.EVT_RIGHT_DOWN(self, self.onRightMouseDown)
 #         wx.EVT_LEFT_UP(self, self.onLeftMouseUp)
@@ -217,7 +217,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         self.Bind(stc.EVT_STC_MARGINCLICK, self.OnMarginClick)
         self.Bind(wx.EVT_KEY_DOWN, self.OnKeyPressed)
         self.Bind(wx.EVT_KEY_UP, self.OnKeyUp)
-        
+
         self.accel_tbl = wx.AcceleratorTable([
                                         (wx.ACCEL_CTRL, ord('C'), wx.ID_COPY),
                                         (wx.ACCEL_CTRL, ord('V'), wx.ID_PASTE),
@@ -251,7 +251,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             wx.ArtProvider.GetBitmap(wx.ART_NEW, size=(16, 16)))
         self.RegisterImage(3,
             wx.ArtProvider.GetBitmap(wx.ART_COPY, size=(16, 16)))
-        
+
     def formatCode(self, inputText=None):
         logger.debug("formatCode: %s", inputText)
 #         new = inputText + "1"
@@ -262,10 +262,10 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 #         logger.debug("formatCode: %s \n   %s  \n  %s ", s, inputText, new)
         new_str = s.replace(inputText, formatted_sql, 1)
         self.SetText(new_str)
- 
+
     def Undo(self, *args, **kwargs):
         return stc.StyledTextCtrl.Undo(self, *args, **kwargs)
-    
+
     def Redo(self, *args, **kwargs):
         return stc.StyledTextCtrl.Redo(self, *args, **kwargs)
 
@@ -279,8 +279,8 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 
         if success:
 #             if not self.execplugin('on_paste', self, do.GetText()):
-            stc.StyledTextCtrl.Paste(self) 
-                
+            stc.StyledTextCtrl.Paste(self)
+
     def copyClipboard(self, event):
         """"""
         text = self.GetSelectedText()
@@ -290,7 +290,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         else:
             self.selection_column_mode = False
         stc.StyledTextCtrl.Copy(self)
-        
+
         self.dataObj = wx.TextDataObject()
         self.dataObj.SetText(text)
         if wx.TheClipboard.Open():
@@ -298,15 +298,15 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             wx.TheClipboard.Close()
         else:
             wx.MessageBox("Unable to open the clipboard", "Error")
-    
+
     def OnKeyUp(self, event):
         if self.CallTipActive():
             self.CallTipCancel()
         key = event.GetKeyCode()
         logger.debug('OnKeyUp: GetKeyCode:%s ControlDown:%s ShiftDown:%s', event.GetKeyCode(), event.ControlDown(), event.ShiftDown())
-        
+
         if event.ControlDown() and  key == 47:
-            logger.debug('ctrl+/ %s', self.GetSelectedText())   
+            logger.debug('ctrl+/ %s', self.GetSelectedText())
             if self.GetSelectedText():
                 logger.debug(self.GetSelectedText())
                 logger.debug(self.GetSelectionNStart())
@@ -328,10 +328,10 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 print(completeText)
 #                 self.MoveCaretInsideView()
 #                 self.SetText()
-        
+
 #         elif event.ControlDown() and  key == 67:
 #             logger.debug('ctrl+C %s', self.GetSelectedText())
-#             self.copyClipboard(text=self.GetSelectedText())    
+#             self.copyClipboard(text=self.GetSelectedText())
 #             if key == 86:
 #                 self.Paste()
 
@@ -341,19 +341,19 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                  style=wx.DEFAULT_DIALOG_STYLE, numberOfLines=self.LineCount
                  )
             dlg.CenterOnScreen()
-            
+
             # this does not return until the dialog is closed.
             val = dlg.ShowModal()
-            
+
             if val == wx.ID_OK:
                 lineNumber = dlg.lineNumberText.GetValue()
                 logger.debug("You pressed OK %s", lineNumber)
                 if lineNumber != '':
                     self.GotoLine(int(lineNumber) - 1)
-                
+
             else:
                 logger.debug("You pressed Cancel\n")
-            
+
             dlg.Destroy()
 #             app.MainLoop()
         elif event.ControlDown() and  key == 86:
@@ -380,9 +380,9 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 #             self.statusbar.SetStatusText(self.getCurrentCursorPosition(), 0)
             if hasattr(self.GetTopLevelParent(), 'statusbar'):
                 self.GetTopLevelParent().statusbar.SetStatusText("Line " + str(line) + " , Column " + str(column), 0)
-    
+
 #     def duplicateLine(self, lineText, lineNo):
-#         print('duplicateLine', lineText)       
+#         print('duplicateLine', lineText)
 #         s = self.GetText()
 # #         lineText=lineText.strip('\n')
 #         lines=s.split('\n')
@@ -393,7 +393,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 # #         for idx, line in enumerate(lines):
 # #             print(idx," : ",line)
 # #             newString=
-         
+
     def OnKeyPressed(self, event):
         if self.CallTipActive():
             self.CallTipCancel()
@@ -409,24 +409,24 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 self.AddText(f'\n{selectedText}')
             else:
                 self.AddText(f'\n{lineText}')
-            
+
         elif event.ControlDown() and event.ShiftDown() and key == 70:
             logger.debug('ctrl+Shtft+F: format code')
             selectedText = self.GetSelectedText()
             self.formatCode(inputText=selectedText)
-            
+
             event.Skip()
         elif event.ControlDown() and  key == 70:
             logger.debug('ctrl+F: for find and relpace')
             self.findData.SetFindString(self.GetSelectedText())
-        
+
             self.finddlg = wx.FindReplaceDialog(self, self.findData, "Find & Replace", wx.FR_REPLACEDIALOG)
             self.BindFindEvents(self.finddlg)
             self.finddlg.Show(True)
 #             if self.frame == None:
 #                 self.frame = CreatingFindAndReplaceFrame(self, 'Find / Replace')
 #             self.copyClipboard(text=self.GetSelectedText())
-            event.Skip()            
+            event.Skip()
         elif not event.ControlDown() and event.AltDown() and key == 317:
             logger.debug('Alt+Down: MoveSelectedLinesDown')
             self.MoveSelectedLinesDown()
@@ -439,24 +439,24 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         elif key == wx.WXK_RETURN and event.ControlDown():
             logger.debug('ctrl+Enter: execute sql')
             self.executeSQL()
-            
+
             # Refresh tree if it required
-            
+
         elif key == wx.WXK_SPACE and event.ControlDown():
             pos = self.GetCurrentPos()
             logger.debug(self.GetSelectedText())
 #             self.AddText('viajy')
 #             self.AddSelection('viajy')
-                
+
             # Tips
             if event.ShiftDown():
                 self.CallTipSetBackground("yellow")
                 self.CallTipShow(pos, 'lots of of text: blah, blah, blah\n\n'
                                  'show some suff, maybe parameters..\n\n'
                                  'fubar(param1, param2)')
-            
+
             # Code completion
-            
+
             else:
                 # lst = []
                 # for x in range(50000):
@@ -480,17 +480,17 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 self.AutoCompShow(0, "|".join(self.getAdvice()))
         else:
             event.Skip()
-            
+
 # =========================================================================
     def BindFindEvents(self, win):
         win.Bind(wx.EVT_FIND, self.OnFind)
         win.Bind(wx.EVT_FIND_NEXT, self.OnFind)
         win.Bind(wx.EVT_FIND_REPLACE, self.OnFind)
         win.Bind(wx.EVT_FIND_REPLACE_ALL, self.OnFind)
-        win.Bind(wx.EVT_FIND_CLOSE, self.OnFindClose)        
-        
+        win.Bind(wx.EVT_FIND_CLOSE, self.OnFindClose)
+
     def OnFind(self, evt):
-        
+
         end = self.GetLastPosition()
         textstring = self.GetRange(0, end).lower()
         findstring = evt.GetFindString().lower()
@@ -511,7 +511,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             evtType = "**Unknown Event Type**"
         if et in [wx.wxEVT_COMMAND_FIND_REPLACE]:
             replaceTxt = "Replace text: %s" % evt.GetReplaceString()
-#             self.SetText(re.sub(findstring, evt.GetReplaceString(), self.GetText(), count=1, flags=re.I)) 
+#             self.SetText(re.sub(findstring, evt.GetReplaceString(), self.GetText(), count=1, flags=re.I))
             backward = not (evt.GetFlags() & wx.FR_DOWN)
             if backward:
                 start = self.GetSelection()[0]
@@ -546,7 +546,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             # TODO : need to be workd
         if et in [wx.wxEVT_COMMAND_FIND_REPLACE_ALL]:
             # replaceTxt = "Replace text: %s" % evt.GetReplaceString()
-            self.SetText(re.sub(findstring, evt.GetReplaceString(), self.GetText(), flags=re.I)) 
+            self.SetText(re.sub(findstring, evt.GetReplaceString(), self.GetText(), flags=re.I))
 
         if et in [wx.wxEVT_COMMAND_FIND, wx.wxEVT_COMMAND_FIND_NEXT]:
             backward = not (evt.GetFlags() & wx.FR_DOWN)
@@ -580,7 +580,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             self.ShowPosition(loc)
             self.SetSelection(loc, loc + len(findstring))
 
-        logger.info("%s -- Find text: %s   Replace text: %s  Flags: %d  \n" % 
+        logger.info("%s -- Find text: %s   Replace text: %s  Flags: %d  \n" %
                        (evtType, evt.GetFindString(), replaceTxt, evt.GetFlags()))
 
 #         findstring = self.finddata.GetFindString().lower()
@@ -590,7 +590,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         evt.GetDialog().Destroy()
 #         self.EnableButtons()
 # =========================================================================
-            
+
     def getAdvice(self):
         del self.adviceList[:]
         self.adviceList.append("select * from ")
@@ -721,7 +721,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 line = line + 1
 
         return line
-    
+
     def onLeftMouseUp(self, event):
         line = self.GetCurrentLine()
         lineText, column = self.GetCurLine()
@@ -730,7 +730,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 #             self.statusbar.SetStatusText(self.getCurrentCursorPosition(), 0)
         if hasattr(self.GetTopLevelParent(), 'statusbar'):
             self.GetTopLevelParent().statusbar.SetStatusText("Line " + str(line) + " , Column " + str(column), 0)
-        
+
         event.Skip()
 
     def onRightMouseDown(self, event):
@@ -739,14 +739,14 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         if self.popmenu:
             self.popmenu.Destroy()
             self.popmenu = None
-        fileMenu = wx.Menu()   
+        fileMenu = wx.Menu()
         imp = wx.Menu()
-        imp.Append(wx.ID_ANY, 'Import newsfeed list...') 
+        imp.Append(wx.ID_ANY, 'Import newsfeed list...')
         fileMenu.Append(wx.ID_ANY, 'I&mport', imp)
         if self.popmenu:
             self.popmenu.Append(fileMenu)
             self.PopupMenu(self.popmenu, event.GetPosition())
-                
+
     def initKeyShortCut(self):
         self.CmdKeyClearAll()
         self.keydefs = {}
@@ -878,7 +878,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         for keys, cmd in action:
             self.keydefs[keys.upper()] = cmd
             f, ikey = self.convert_key(keys)
-            self.CmdKeyAssign(ikey, f, cmd)  
+            self.CmdKeyAssign(ikey, f, cmd)
 
     def convert_key(self, keydef):
         f = 0
@@ -899,7 +899,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             else:
                 logger.debug("[TextEditor] Undefined char [%s]", uk)
                 continue
-        return f, ikey      
+        return f, ikey
 
     def execute_key(self, keydef):
 #         logger.debug 'execute_key--->', keydef
@@ -909,7 +909,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             cmd = keydef
         if cmd:
             self.CmdKeyExecute(cmd)
-    
+
     def executeSQL(self, event=None):
         '''
         '''
@@ -917,7 +917,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         sqlText = self.GetSelectedText()
         if self.GetSelectedText() == '' or self.GetSelectedText() == None:
             sqlText, column = self.GetCurLine()
-        
+
         ##################################################################################
         selectedItemText, dbFilePath = self.findingConnectionName()
 
@@ -955,7 +955,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 duration = endTime - startTime
                 if selectedItemText:
                     self.updateSqlLog(sqlText, duration, connectionName=selectedItemText)
-                    
+
                 if self.GetGrandParent().GetParent().resultPanel._nb.GetCurrentPage().pin:
                     logger.debug('adding a new tab')
                     self.GetGrandParent().GetParent().resultPanel.addTab()
@@ -968,6 +968,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
                 if sqlOutput and resultListPanel._nb.GetCurrentPage():
                     resultListPanel._nb.GetCurrentPage().bottomResultToolbar.SetStatusText('Count: {}'.format(len(sqlOutput) - 1))
                     resultListPanel._nb.GetCurrentPage().resultPanel.addData(data=sqlOutput)
+                    resultListPanel._nb.GetCurrentPage().resultPanel.setSqlText(sqlText)
 #                     resultListPanel._nb.GetCurrentPage().resultPanel.DoRefresh()
 #                 else:
 #                     # logic to add a new tab in result
@@ -994,26 +995,26 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 
 #             print(e)
             error = str(e)
-            
+
         self.refreshSqlLogUi()
-        
+
         '''
-        logic to update connected tree if sqlText has create statement. 
+        logic to update connected tree if sqlText has create statement.
         '''
         for refreshItem in ['create table', 'drop', 'alter']:
             if refreshItem in sqlText.lower() :
                 self.GetTopLevelParent()._mgr.GetPane("databaseNaviagor").window.tree.onRefresh(event, connectionName=selectedItemText)
-        
+
 #         updateStatus="Unable to connect '"+dbFilePath +". "+error
 #         consoleOutputPanel = self.GetTopLevelParent()._mgr.GetPane("consoleOutput").window
 #         consoleOutputPanel.text.AppendText(error)
-#             font = self.GetTopLevelParent().statusbar.GetFont() 
-#             font.SetWeight(wx.BOLD) 
-#             self.GetTopLevelParent().statusbar.SetFont(font) 
-#             self.GetTopLevelParent().statusbar.SetForegroundColour(wx.RED) 
+#             font = self.GetTopLevelParent().statusbar.GetFont()
+#             font.SetWeight(wx.BOLD)
+#             self.GetTopLevelParent().statusbar.SetFont(font)
+#             self.GetTopLevelParent().statusbar.SetForegroundColour(wx.RED)
 #             self.GetTopLevelParent().statusbar.SetStatusText(updateStatus,1)
         # TODO Update update sql log history grid
-        
+
     def findingConnectionName(self):
         '''
         This method defines connection name based on selected connection in the tree.
@@ -1025,17 +1026,17 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         connectionName = textCtrl.GetValue()
         databaseAbsolutePath = sqlExecuter.getDbFilePath(connectionName)
         logger.debug("databaseAbsolutePath: %s", databaseAbsolutePath)
-        
-        ##################################################################################        
+
+        ##################################################################################
         return connectionName, databaseAbsolutePath
-        
+
     def updateSqlLog(self, sqlText, duration, connectionName=None):
         logger.debug('updateSqlLog : %s', sqlText)
         sqlExecuter = SQLExecuter(database='_opal.sqlite')
         table = 'sql_log'
         rows = [{'id':None, 'sql':str(sqlText), 'connection_name':connectionName, 'created_time':datetime.datetime.now(), 'executed':'1', 'duration':duration}]
         sqlExecuter.sqlite_insert(table, rows)
-        
+
     def refreshSqlLogUi(self):
         logger.debug('refreshSqlLogUi')
         historyGrid = self.GetTopLevelParent()._mgr.GetPane("sqlLog").window
@@ -1044,10 +1045,10 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             sqlExecuter = SQLExecuter(database='_opal.sqlite')
             sqlOutput = sqlExecuter.executeText(sqlText)
             historyGrid.addData(data=sqlOutput)
-              
+
     def sqlStyle(self):
         # Sql styles
-        # Default 
+        # Default
         self.StyleSetSpec(stc.STC_P_DEFAULT, "fore:#000000,face:%(helv)s,size:%(size)d" % faces)
         # Comments
         self.StyleSetSpec(stc.STC_P_COMMENTLINE, "fore:#007F00,face:%(other)s,size:%(size)d" % faces)
@@ -1076,7 +1077,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         # End of line where string is not closed
         self.StyleSetSpec(stc.STC_P_STRINGEOL, "fore:#000000,face:%(mono)s,back:#E0C0E0,eol,size:%(size)d" % faces)
 
-        self.SetCaretForeground("BLUE")        
+        self.SetCaretForeground("BLUE")
 
 
 class CreatingEditorPanel(wx.Panel):

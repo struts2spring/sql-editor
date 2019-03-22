@@ -1,6 +1,7 @@
 
 import wx
 import wx.dataview as dv
+from src.view.views.console.worksheet.sql.SqlQuery import SqlQueryFrame
 from src.view.views.console.worksheet.ResultGrid import ResultDataGrid
 from src.view.util.FileOperationsUtil import FileOperations
 from wx import ITEM_CHECK
@@ -368,7 +369,10 @@ class CreatingResultWithToolbarPanel(wx.Panel):
         return tb1
 
     def onSqlText(self, event):
-        logger.debug(f'onSqlText:')
+        logger.debug(f'onSqlText:{self.resultPanel.sqlText}')
+
+        frame = SqlQueryFrame(self, sqlText=self.resultPanel.sqlText, size=(400, 300))
+        frame.CenterOnScreen()
 
     def onPinClick(self, event):
         logger.debug(f'onPinClick:{self.pin}')
