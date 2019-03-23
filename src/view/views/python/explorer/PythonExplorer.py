@@ -66,12 +66,12 @@ class PythonExplorerPanel(wx.Panel):
     def constructTopToolBar(self):
 
         # create some toolbars
-        tb1 = aui.AuiToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize, agwStyle=aui.AUI_TB_DEFAULT_STYLE | aui.AUI_TB_OVERFLOW)
+        tb1 = aui.AuiToolBar(self, -1, wx.DefaultPosition, (10,10), agwStyle=aui.AUI_TB_DEFAULT_STYLE | aui.AUI_TB_OVERFLOW)
 
-        tb1.SetToolBitmapSize(wx.Size(16, 16))
+#         tb1.SetToolBitmapSize(wx.Size(16, 16))
 
         tools = [
-            (ID_COLLAPSE_ALL, "Collapse All", "collapseall.png", 'Collapse All', self.onCollapseAll),
+            (ID_COLLAPSE_ALL, "Collapse All", "collapseall-small.png", 'Collapse All', self.onCollapseAll),
             (ID_LINK_WITH_EDITOR, "Link with Editor", "icon_link_with_editor.png", 'Link with Editor', self.onLinkWithEditor),
             (),
             (ID_VIEW_MENU, "View Menu", "icon_menu.png", 'View Menu', self.onViewMenu),
