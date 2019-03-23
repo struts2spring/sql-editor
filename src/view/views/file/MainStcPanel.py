@@ -28,6 +28,8 @@ from src.view.util.common.ed_marker import Bookmark
 from src.view.util.common.fileutil import GetFileSize, GetFileModTime
 from src.view.util.syntax.syntax import SYNTAX_IDS, GetExtFromId
 from src.view.views.file.BaseStcPanel import BaseStc, MARK_MARGIN, FOLD_MARGIN
+from src.view.constants import ID_FIND_REPLACE
+from src.view.other.FindReplace import FindAndReplaceFrame
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -152,14 +154,28 @@ class MainStc(BaseStc):
         self.Bind(wx.EVT_LEFT_UP, self.OnLeftUp)
         self.Bind(wx.EVT_TIMER, self.OnBackupTimer)
         self.Bind(wx.stc.EVT_STC_CHANGE, self.OnUpdatePageText)
+        self.Bind(wx.EVT_MENU, self.onFindReplace, ID_FIND_REPLACE)
 
         # Async file load events
         self.Bind(EVT_FILE_LOAD, self.OnLoadProgress)
-
+        self.accel_tbl = wx.AcceleratorTable([
+            (wx.ACCEL_CTRL, ord('F'), ID_FIND_REPLACE),
+#             (wx.ACCEL_CTRL, ord('H'), ID_SEARCH_FILE),
+#             (wx.ACCEL_CTRL | wx.ACCEL_SHIFT , ord('R'), ID_RESOURCE),
+#             (wx.ACCEL_CTRL | wx.ACCEL_SHIFT , ord('T'), ID_OPEN_TYPE),
+#                                       (wx.ACCEL_CTRL, ord('V'), wx.ID_PASTE),
+#                                       (wx.ACCEL_ALT, ord('X'), wx.ID_PASTE),
+#                                       (wx.ACCEL_SHIFT | wx.ACCEL_ALT, ord('Y'), wx.ID_PASTE)
+                                     ])
+        self.SetAcceleratorTable(self.accel_tbl)
        #---- End Init ----#
 
     __name__ = u"EditraTextCtrl"
 
+    def onFindReplace(self, event):
+        logger.debug('onFindReplace')
+        frame = FindAndReplaceFrame(self, 'Find/Replace')
+        frame.Show()
     def OnUpdatePageText(self, event):
         logger.debug('OnUpdatePageText')
         if hasattr(self.GetTopLevelParent(), '_mgr'):

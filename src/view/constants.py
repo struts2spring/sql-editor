@@ -17,6 +17,7 @@ ID_newConnection = wx.NewIdRef()
 ID_openConnection = wx.NewIdRef()
 ID_newWorksheet = wx.NewIdRef()
 ID_deleteWithDatabase = wx.NewIdRef()
+ID_FIND_REPLACE = wx.NewIdRef()
 
 ID_CONNECTION_PROPERTIES = wx.NewIdRef()
 

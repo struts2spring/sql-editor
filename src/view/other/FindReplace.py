@@ -12,7 +12,7 @@ logger = logging.getLogger('extensive')
 
 class FindAndReplaceFrame(wx.Frame):
 
-    def __init__(self, parent, title, size=(413, 441),
+    def __init__(self, parent, title, size=(350, 420),
                  style=wx.DEFAULT_FRAME_STYLE | wx.NO_FULL_REPAINT_ON_RESIZE | wx.SUNKEN_BORDER | wx.STAY_ON_TOP):
         style = style & (~wx.MINIMIZE_BOX)
         wx.Frame.__init__(self, parent, -1, title, size=size,
