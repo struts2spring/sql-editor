@@ -6,7 +6,12 @@ Created on 15-Dec-2016
 import wx
 import os
 
-import wx.lib.agw.aui.auibook as aui
+try:
+    from agw import aui
+    from agw.aui import aui_switcherdialog as ASD
+except ImportError: # if it's not there locally, try the wxPython lib.
+    import wx.lib.agw.aui as aui
+    from wx.lib.agw.aui import aui_switcherdialog as ASD
 
 from src.view.constants import ID_RUN, ID_TEXTCTRL_AUTO_COMPLETE, ID_SQL_LOG
 from wx import ID_SPELL_CHECK
@@ -51,7 +56,7 @@ class CreateWorksheetTabPanel(wx.Panel):
         except Exception as e:
             logger.error(e, exc_info=True)
         path = os.path.abspath(os.path.join(path, "images"))
-        
+
         # Attributes
         self._nb = aui.AuiNotebook(self)
 #         if "worksheet" == os.path.split(os.getcwd())[-1:][0]:
@@ -60,13 +65,13 @@ class CreateWorksheetTabPanel(wx.Panel):
 #             imageLocation = os.path.join("..", "images")
         imgList = wx.ImageList(16, 16)
         imgList.Add(wx.Bitmap(os.path.join(path, "sql_script.png")))
-        
-        self._nb.AssignImageList(imgList) 
-        
+
+        self._nb.AssignImageList(imgList)
+
         self.addTab()
 #         self._nb.AddPage(worksheetPanel, "2", imageId=0)
         # Layout
-        
+
         self.__DoLayout()
 
     def addTab(self, name='Start Page', worksheetPanel=None, dataSourceTreeNode=None):
@@ -99,7 +104,7 @@ class CreateWorksheetTabPanel(wx.Panel):
         self.SetAutoLayout(True)
         self.SetSizer(sizer)
         self.Layout()
-        
+
     def SetCurrentPage(self, page):
         """
         Set the current page to the page given
@@ -108,8 +113,8 @@ class CreateWorksheetTabPanel(wx.Panel):
         if n != -1:
             self._nb.SetSelection(n)
             return True
-        return False    
-    
+        return False
+
     def GetCurrentPage(self):
         """
         Get the current active Page page
@@ -131,8 +136,8 @@ class CreateWorksheetTabPanel(wx.Panel):
             page = self._nb.GetPage(n)
             if isinstance(page, page_type):
                 res.append(page)
-        return res        
-    
+        return res
+
     def onCloseTab(self, event=None, currentlySelectedPage=None):
         logger.debug("onCloseTab")
         logger.debug("currentlySelectedPage %s", currentlySelectedPage)
@@ -146,26 +151,26 @@ class CreateWorksheetTabPanel(wx.Panel):
         logger.debug("onCloseOthersTab")
         logger.debug("currentlySelectedPage %s", currentlySelectedPage)
         npages = self._nb.GetPageCount()
-        
+
         for n in range(currentlySelectedPage, npages):
             self._nb.DeletePage(currentlySelectedPage + 1)
         for n in range(0, currentlySelectedPage):
             self._nb.DeletePage(0)
-        
+
     def onCloseLeftTabs(self, event=None, currentlySelectedPage=None):
         logger.debug("onCloseLeftTabs")
         logger.debug("currentlySelectedPage %s", currentlySelectedPage)
         for n in range(0, currentlySelectedPage):
             self._nb.DeletePage(0)
-    
+
     def onCloseRightTabs(self, event=None, currentlySelectedPage=None):
         npages = self._nb.GetPageCount()
-        
+
         for n in range(currentlySelectedPage, npages):
             self._nb.DeletePage(currentlySelectedPage + 1)
         logger.debug("onCloseRightTabs")
         logger.debug("currentlySelectedPage %s", currentlySelectedPage)
-    
+
     def onCloseAllTabs(self, event):
         logger.debug("onCloseAllTabs")
 #         npages = self._nb.DeleteAllPages()
@@ -176,12 +181,12 @@ class CreateWorksheetTabPanel(wx.Panel):
 #         for n in range(0, npages):
 #             page = self._nb.GetPage(n)
 #             page.
-#     
+#
     def onTabRightDown(self, evt=None):
         logger.debug('rightdown PopUp')
         currentlySelectedPage = self._nb.GetSelection()
         logger.debug("onTabRightDown: currentlySelectedPage %s", currentlySelectedPage)
-        
+
         pos = self.ScreenToClient(wx.GetMousePosition())
         self.popupmenu = wx.Menu()
         popupList = [
@@ -202,10 +207,10 @@ class CreateWorksheetTabPanel(wx.Panel):
 #             deleteMenuItem.SetBitmap(delBmp)
 #             delMenu = menu.AppendItem(deleteMenuItem)
 # #             self.Bind(wx.EVT_MENU, self.OnItemBackground, item1)
-#             
-#             
+#
+#
 #             self.Bind(wx.EVT_MENU, self.onOpenSqlEditorTab, item3)
-            
+
         self.PopupMenu(self.popupmenu, pos)
 #         tab = event.GetEventObject()
 #         num = tab.GetActivePage()
@@ -214,14 +219,14 @@ class CreateWorksheetTabPanel(wx.Panel):
 #         date = DateControlPop(self, -1, pos = (30,30))
 #         self.PopupMenu(menu)
 #         menu.Destroy()
-        
+
 #         self.popmenu=None
 #         if self.popmenu:
 #             self.popmenu.Destroy()
 #             self.popmenu = None
-#         fileMenu = wx.Menu()   
+#         fileMenu = wx.Menu()
 #         imp = wx.Menu()
-#         imp.Append(wx.ID_ANY, 'Import newsfeed list...') 
+#         imp.Append(wx.ID_ANY, 'Import newsfeed list...')
 #         fileMenu.AppendMenu(wx.ID_ANY, 'I&mport', imp)
 #         self.popmenu.Append(fileMenu)
 #         self.PopupMenu(self.popmenu, event.GetPosition())
@@ -233,7 +238,7 @@ class CreatingStartPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
-        
+
         vBox = wx.BoxSizer(wx.VERTICAL)
 
         ####################################################################
@@ -247,7 +252,7 @@ class CreatingStartPanel(wx.Panel):
         sizer = wx.BoxSizer(wx.VERTICAL)
 #         sizer.Add(worksheetToolbar ,.9, wx.EXPAND | wx.ALL, 0)
         sizer.Add(vBox, 1, wx.EXPAND , 0)
-        self.SetSizer(sizer)   
+        self.SetSizer(sizer)
 
 
 class CreatingWorksheetWithToolbarPanel(wx.Panel):
@@ -277,19 +282,22 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
         sizer = wx.BoxSizer(wx.VERTICAL)
 #         sizer.Add(worksheetToolbar ,.9, wx.EXPAND | wx.ALL, 0)
         sizer.Add(vBox, 1, wx.EXPAND , 0)
-        self.SetSizer(sizer)    
-    
+        self.SetSizer(sizer)
+
     def createDropdownToolbar(self, dataSourceTreeNode=None):
-        tb2 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
-                         wx.TB_FLAT | wx.TB_NODIVIDER)
-        tb2.SetToolBitmapSize(wx.Size(16, 16))
+#         tb2 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize,
+#                          wx.TB_FLAT | wx.TB_NODIVIDER)
+        tb2 = aui.AuiToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize, agwStyle=aui.AUI_TB_DEFAULT_STYLE | aui.AUI_TB_OVERFLOW)
+
+#         tb2.SetToolBitmapSize(wx.Size(32, 32))
         self.dynamic_choices = list()
         sqlExecuter = SQLExecuter()
-        dbList = sqlExecuter.getListDatabase()  
+        dbList = sqlExecuter.getListDatabase()
         for db in dbList:
             self.dynamic_choices.append(db[1])
-           
-        self._ctrl = TextCtrlAutoComplete(tb2, id=ID_TEXTCTRL_AUTO_COMPLETE, size=(250, 20), choices=self.dynamic_choices)
+
+#         self._ctrl=wx.Choice(tb4, -1, choices=["One choice", "Another choice"])
+        self._ctrl = TextCtrlAutoComplete(tb2, id=ID_TEXTCTRL_AUTO_COMPLETE,  choices=self.dynamic_choices)
 #         self._ctrl.SetSize((250, 15))
         self._ctrl.SetChoices(self.dynamic_choices)
         self._ctrl.SetEntryCallback(self.dynamic_choices)
@@ -297,34 +305,34 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
         if dataSourceTreeNode:
             self._ctrl.SetValue(dataSourceTreeNode.dataSource.connectionName)
         tb2.AddControl(self._ctrl)
-        tb2.Realize() 
+        tb2.Realize()
         return tb2
-    
+
     def constructWorksheetToolBar(self):
         logger.debug("constructWorksheetToolBar")
         # create some toolbars
         tb1 = aui.AuiToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize, agwStyle=aui.AUI_TB_DEFAULT_STYLE | aui.AUI_TB_OVERFLOW)
-        
-        tb1.SetToolBitmapSize(wx.Size(42, 42))
 
-        tb1.AddSimpleTool(ID_RUN, "Run", self.fileOperations.getImageBitmap("webinar.png"), short_help_string="Run   (Ctrl+Enter)") 
+#         tb1.SetToolBitmapSize(wx.Size(42, 42))
+
+        tb1.AddSimpleTool(ID_RUN, "Run", self.fileOperations.getImageBitmap("webinar.png"), short_help_string="Run   (Ctrl+Enter)")
         tb1.AddSimpleTool(ID_executeScript, "Run Script  F9", self.fileOperations.getImageBitmap("sql_script_exec.png"), short_help_string="Run Script  F9")
         tb1.AddSeparator()
         tb1.AddSimpleTool(ID_SPELL_CHECK, "Spelling check", self.fileOperations.getImageBitmap("abc.png"), short_help_string="Spelling check")
-        
+
         tb1.AddSimpleTool(ID_SQL_LOG, "Sql history", self.fileOperations.getImageBitmap("sql.png"), short_help_string="Sql history")
-        
+
         tb1.Realize()
-        
-        return tb1     
-    
+
+        return tb1
+
     def onSpellCheck(self, event):
         logger.debug('onSpellCheck')
 
     def onSqlLog(self, event):
         logger.debug('onSqlLog')
-        pub.sendMessage('sqlLogView', event=event)      
-        
+        pub.sendMessage('sqlLogView', event=event)
+
     def bindingEvent(self):
         self.Bind(wx.EVT_MENU, self.executeSQL, id=ID_RUN)
         self.Bind(wx.EVT_MENU, self.onSpellCheck, id=ID_SPELL_CHECK)
@@ -341,7 +349,7 @@ class CreatingWorksheetWithToolbarPanel(wx.Panel):
 #         resultPanel.setModel(music)
 #         resultPanel.Layout()
 
-    
+
 class CreatingWorksheetPanel(wx.Panel):
 
     def __init__(self, parent=None, *args, **kw):
@@ -350,9 +358,9 @@ class CreatingWorksheetPanel(wx.Panel):
         vBox = wx.BoxSizer(wx.VERTICAL)
 
         ####################################################################
-        
+
 #         self._nb = wx.Notebook(self)
-        
+
         ####################################################################
         self.data = dict()
 #         worksheetToolbar = self.constructWorksheetToolBar()
@@ -369,8 +377,8 @@ class CreatingWorksheetPanel(wx.Panel):
 #         splitter.AppendWindow(self.editorPanel)
 #         splitter.AppendWindow(self.resultPanel)
 #         splitter.SetOrientation(wx.VERTICAL)
-#         splitter.SizeWindows()  
-        
+#         splitter.SizeWindows()
+
 #         editorPanel = CreatingEditorPanel(self)
         ####################################################################
         vBox.Add(splitter , 1, wx.EXPAND | wx.ALL, 0)
@@ -381,14 +389,14 @@ class CreatingWorksheetPanel(wx.Panel):
         sizer.Add(vBox, 1, wx.EXPAND , 0)
         self.SetSizer(sizer)
         self.SetAutoLayout(True)
-        
+
     def SetOrientation(self, value):
         if value:
             self.splitter.SetOrientation(wx.VERTICAL)
         else:
             self.splitter.SetOrientation(wx.HORIZONTAL)
-        self.splitter.SizeWindows()        
-    
+        self.splitter.SizeWindows()
+
     def setResultData(self, data=None):
         if data:
             logger.debug('setResultData count: %s', len(data.keys()))
@@ -403,7 +411,7 @@ class CreatingWorksheetPanel(wx.Panel):
 #         self.data=music
         return self.data
 
-    
+
     #---------------------------------------------------------------------------
 if __name__ == '__main__':
     app = wx.App(False)
