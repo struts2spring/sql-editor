@@ -28,7 +28,7 @@ from src.view.util.common.ed_marker import Bookmark
 from src.view.util.common.fileutil import GetFileSize, GetFileModTime
 from src.view.util.syntax.syntax import SYNTAX_IDS, GetExtFromId
 from src.view.views.file.BaseStcPanel import BaseStc, MARK_MARGIN, FOLD_MARGIN
-from src.view.constants import ID_FIND_REPLACE
+from src.view.constants import ID_FIND_REPLACE, ID_FIND_NEXT_MATCH
 from src.view.other.FindReplace import FindAndReplaceFrame
 
 logging.config.dictConfig(LOG_SETTINGS)
@@ -72,7 +72,7 @@ def jumpaction(func):
                      prepos=pos, preline=line,
                      lnum=cline, pos=cpos)
         tlw = stc.TopLevelParent
-#             ed_msg.PostMessage(ed_msg.EDMSG_UI_STC_POS_JUMPED, mdata, tlw.Id) 
+#             ed_msg.PostMessage(ed_msg.EDMSG_UI_STC_POS_JUMPED, mdata, tlw.Id)
 #         except wx.PyDeadObjectError:
 #             pass
 
@@ -101,7 +101,7 @@ class MainStc(BaseStc):
         """
         super().__init__(parent, id_, pos, size, style)
 
-        self.SetModEventMask(wx.stc.STC_PERFORMED_UNDO | wx.stc.STC_PERFORMED_REDO | 
+        self.SetModEventMask(wx.stc.STC_PERFORMED_UNDO | wx.stc.STC_PERFORMED_REDO |
                              wx.stc.STC_MOD_DELETETEXT | wx.stc.STC_MOD_INSERTTEXT)
 
         self.CmdKeyAssign(ord('-'), wx.stc.STC_SCMOD_CTRL, \
@@ -155,11 +155,13 @@ class MainStc(BaseStc):
         self.Bind(wx.EVT_TIMER, self.OnBackupTimer)
         self.Bind(wx.stc.EVT_STC_CHANGE, self.OnUpdatePageText)
         self.Bind(wx.EVT_MENU, self.onFindReplace, ID_FIND_REPLACE)
+        self.Bind(wx.EVT_MENU, self.onFindNextMatch, ID_FIND_NEXT_MATCH)
 
         # Async file load events
         self.Bind(EVT_FILE_LOAD, self.OnLoadProgress)
         self.accel_tbl = wx.AcceleratorTable([
             (wx.ACCEL_CTRL, ord('F'), ID_FIND_REPLACE),
+            (wx.ACCEL_CTRL, ord('K'), ID_FIND_NEXT_MATCH),
 #             (wx.ACCEL_CTRL, ord('H'), ID_SEARCH_FILE),
 #             (wx.ACCEL_CTRL | wx.ACCEL_SHIFT , ord('R'), ID_RESOURCE),
 #             (wx.ACCEL_CTRL | wx.ACCEL_SHIFT , ord('T'), ID_OPEN_TYPE),
@@ -172,10 +174,14 @@ class MainStc(BaseStc):
 
     __name__ = u"EditraTextCtrl"
 
+    def onFindNextMatch(self, event):
+        logger.debug('onFindNextMatch')
+
     def onFindReplace(self, event):
         logger.debug('onFindReplace')
         frame = FindAndReplaceFrame(self, 'Find/Replace')
         frame.Show()
+
     def OnUpdatePageText(self, event):
         logger.debug('OnUpdatePageText')
         if hasattr(self.GetTopLevelParent(), '_mgr'):
@@ -188,7 +194,7 @@ class MainStc(BaseStc):
         pub.sendMessage('setPage', markdownText=self.GetText(), baseUrl='/')
 
         self.GetTopLevelParent().FindFocus()
-        
+
     #---- Protected Member Functions ----#
 
     def _BuildMacro(self):
@@ -404,7 +410,7 @@ class MainStc(BaseStc):
         # check before
         try:
             if isinstance(char_before, int):
-                char_before = chr(char_before) 
+                char_before = chr(char_before)
             if char_before and char_before in "[]{}()<>":
                 brace_at_caret = caret_pos - 1
         except Exception as e:
@@ -654,14 +660,14 @@ class MainStc(BaseStc):
 #         # If the file is loading or is over 5MB don't do automatic backups.
 #         if self.IsLoading() or ebmlib.GetFileSize(fname) > 5242880:
 #             return
-# 
+#
 #         # If the file is different than the last save point make the backup.
 #         suffix = _PGET('AUTOBACKUP_SUFFIX', default=u'.edbkup')
 #         bkupmgr = ebmlib.FileBackupMgr(None, u"%s" + suffix)
 #         path = _PGET('AUTOBACKUP_PATH', default=u"")
 #         if path and os.path.exists(path):
 #             bkupmgr.SetBackupDirectory(path)
-# 
+#
 #         if not self._backup_done and \
 #            (not bkupmgr.HasBackup(fname) or bkupmgr.IsBackupNewer(fname)):
 #             msg = _("File backup performed: %s") % fname
@@ -1789,7 +1795,7 @@ class MainStc(BaseStc):
             self.CharLeftExtend()
 
     def WordPartRightExtend(self):  # pylint: disable-msg=W0221
-        """Extend selection to start of next change in 
+        """Extend selection to start of next change in
         capitalization/punctuation
         @postcondition: selection is extended
 
@@ -2008,7 +2014,7 @@ if __name__ == "__main__":
     frame = wx.Frame(None)
     mainstc = MainStc(frame)
     from src.view.util.FileOperationsUtil import FileOperations
-    text = FileOperations().readFile(filePath=r'/docs/work/python_project/Editra/src/dev_tool.py')
+    text = FileOperations().readFile(filePath=r'C:\work\python_project\sql-editor\src\view\HistoryListPanel.py')
     mainstc.SetText(text)
     mainstc._config['highlight'] = True
     mainstc.FindLexer(set_ext='py')

@@ -38,11 +38,11 @@ CTRL_SHIFT = stc.STC_SCMOD_CTRL | stc.STC_SCMOD_SHIFT
 class BaseStc(stc.StyledTextCtrl, StyleManager):
     """Base StyledTextCtrl that provides all the base code editing functionality.
 
-    """    
+    """
     ED_STC_MASK_MARKERS = ~stc.STC_MASK_FOLDERS
 
     def __init__(self, parent, id_=wx.ID_ANY, pos=wx.DefaultPosition, size=wx.DefaultSize, style=0):
-        
+
         stc.StyledTextCtrl.__init__(self, parent, id_, pos, size, style)
         StyleManager.__init__(self, self.GetStyleSheet())
         self.file = FileObject()
@@ -535,6 +535,8 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
         @keyword extra_offset: extra offset to be applied to the movement
 
         """
+        end = self.GetLastPosition()
+        textstring = self.GetRange(0, end)
         text, pos = self.GetCurLine()
         oldpos = pos
         if not reverse:
@@ -941,14 +943,26 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
             flags = flags | stc.STC_FIND_REGEXP
 
         self.SearchAnchor()
+        try:
+            if self.old and not back:
+                self.GotoPos(self.old+len(text))
+                self.SearchAnchor()
+#                 self.SearchNext(flags, text)
+#                 self.SetCurrentPos(self.CurrentPos+len(text))
+        except:
+            pass
         if not back:
             # Search forward
+#             res = self.SearchNext(flags, text)
             res = self.SearchNext(flags, text)
             if res == -1:
                 # Nothing found, search from top
                 self.DocumentStart()
                 self.SearchAnchor()
                 res = self.SearchNext(flags, text)
+            else:
+                self.old=int(res)
+
         else:
             # Search backward
             res = self.SearchPrev(flags, text)
@@ -957,6 +971,7 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
                 self.DocumentEnd()
                 self.SearchAnchor()
                 res = self.SearchPrev(flags, text)
+        self.EnsureCaretVisible()
         return res  # returns -1 if nothing found even after wrapping around
 
     def SetDocument(self, doc):
@@ -978,7 +993,7 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
         """Get the document objects encoding
         @return: string
 
-        """ 
+        """
         return self.file.GetEncoding()
 
     def SetFileName(self, path):
@@ -1064,30 +1079,30 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
         """
         super().SetSelection(start, end)
 
-    def SetSelection(self, start, end):
-        """Override base method to make it work correctly using
-        Unicode character positions instead of UTF-8.
-
-        """
-        # STC HELL - some methods require UTF-8 offsets while others work
-        #            with Unicode...
-        # Calculate UTF-8 offsets in buffer
-        unicode_txt = self.GetText()
-#         if start != 0:
-#             start = len(ed_txt.EncodeString(unicode_txt[0:start], 'utf-8'))
-#         if end != 0:
-#             end = len(ed_txt.EncodeString(unicode_txt[0:end], 'utf-8'))
-        del unicode_txt
-        super().SetSelection(start, end)
-
-    def GetSelection(self):
-        """Get the selection positions in Unicode instead of UTF-8"""
-        # STC HELL
-        # Translate the UTF8 byte offsets to unicode
-        start, end = super().GetSelection()
-        utf8_txt = self.GetText()
-        del utf8_txt
-        return start, end
+#     def SetSelection(self, start, end):
+#         """Override base method to make it work correctly using
+#         Unicode character positions instead of UTF-8.
+#
+#         """
+#         # STC HELL - some methods require UTF-8 offsets while others work
+#         #            with Unicode...
+#         # Calculate UTF-8 offsets in buffer
+#         unicode_txt = self.GetText()
+# #         if start != 0:
+# #             start = len(ed_txt.EncodeString(unicode_txt[0:start], 'utf-8'))
+# #         if end != 0:
+# #             end = len(ed_txt.EncodeString(unicode_txt[0:end], 'utf-8'))
+#         del unicode_txt
+#         super().SetSelection(start, end)
+#
+#     def GetSelection(self):
+#         """Get the selection positions in Unicode instead of UTF-8"""
+#         # STC HELL
+#         # Translate the UTF8 byte offsets to unicode
+#         start, end = super().GetSelection()
+#         utf8_txt = self.GetText()
+#         del utf8_txt
+#         return start, end
 
     def ShowAutoCompOpt(self, command):
         """Shows the autocompletion options list for the command
@@ -1097,7 +1112,7 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
         pos = self.GetCurrentPos()
         # symList is a list(completer.Symbol)
         symList = self._code['compsvc'].GetAutoCompList(command)
-        
+
         # Build a list that can be feed to Scintilla
 #         lst = map(unicode, symList)
 #         if lst is not None and len(lst):
@@ -1106,8 +1121,8 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
 #             if lst.isspace():
 #                 return
 #             self.AutoCompShow(pos - self.WordStartPosition(pos, True), lst)
-# 
-#             # Check if something was inserted due to there only being a 
+#
+#             # Check if something was inserted due to there only being a
 #             # single choice returned from the completer and allow the completer
 #             # to adjust caret position as necessary.
 #             curpos = self.GetCurrentPos()
