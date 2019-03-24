@@ -945,7 +945,7 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
         self.SearchAnchor()
         try:
             if self.old and not back:
-                self.GotoPos(self.old+len(text))
+                self.GotoPos(self.CurrentPos+len(text))
                 self.SearchAnchor()
 #                 self.SearchNext(flags, text)
 #                 self.SetCurrentPos(self.CurrentPos+len(text))
