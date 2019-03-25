@@ -377,6 +377,8 @@ class PythonExplorerTreePanel(FileTree):
         """Show context menu"""
         logger.debug('DoShowMenu')
         # Check if click was in blank window area
+        nodes = self.GetSelections()
+        file = [ self.GetPyData(node) for node in nodes ][0]
         activeNode = None
         try:
             activeNode = self.GetPyData(item)
@@ -419,7 +421,7 @@ class PythonExplorerTreePanel(FileTree):
                                     if menuItemName[2]:
                                         menuItem.SetBitmap(self.fileOperations.getImageBitmap(imageName=menuItemName[2]))
                                     sm.Append(menuItem)
-                                    self.Bind(wx.EVT_MENU, self.onRightClickMenu, id=menuItemName[0])
+                                    self.Bind(wx.EVT_MENU, lambda e:self.onRightClickMenu(e,file), id=menuItemName[0])
                                 else:
                                     sm.AppendSeparator()
                             self.menu.Append(mi_tup[0], mi_tup[1], sm)
@@ -440,7 +442,7 @@ class PythonExplorerTreePanel(FileTree):
         self.PopupMenu(self.menu)
 
     #---- End FileTree Interface Methods ----#
-    def onRightClickMenu(self, event):
+    def onRightClickMenu(self, event, file):
         logger.debug(f'onRightClickMenu: {event.Id}')
         if event.Id == ID_PROJECT_PROPERTIES:
             logger.debug('ID_PROJECT_PROPERTIES')
@@ -460,7 +462,7 @@ class PythonExplorerTreePanel(FileTree):
             logger.debug('ID_IMPORT')
         if event.Id == ID_NEW_FILE:
             logger.debug('ID_NEW_FILE')
-            newFileframe = NewFileFrame(None, 'New File')
+            newFileframe = NewFileFrame(None, 'New File', selectedPath=file)
             newFileframe.CenterOnScreen()
             newFileframe.Show()
         if event.Id == ID_NEW_FOLDER:

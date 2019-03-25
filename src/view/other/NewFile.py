@@ -16,7 +16,7 @@ logger = logging.getLogger('extensive')
 
 class NewFileFrame(wx.Frame):
 
-    def __init__(self, parent, title, size=(350, 420),
+    def __init__(self, parent, title, selectedPath=None, size=(350, 420),
                  style=wx.DEFAULT_FRAME_STYLE | wx.NO_FULL_REPAINT_ON_RESIZE | wx.SUNKEN_BORDER | wx.STAY_ON_TOP):
         style = style & (~wx.MINIMIZE_BOX)
         wx.Frame.__init__(self, parent, -1, title, size=size,
@@ -31,7 +31,7 @@ class NewFileFrame(wx.Frame):
         sizer = wx.BoxSizer(wx.VERTICAL)
 #         self.buttonPanel = CreateButtonPanel(self)
         ####################################################################
-        self.newFileFrame = NewFilePanel(self)
+        self.newFileFrame = NewFilePanel(self, selectedPath=selectedPath)
         ####################################################################
         sizer.Add(self.newFileFrame, 1, wx.EXPAND)
 #         sizer.Add(self.buttonPanel, 0, wx.EXPAND)
@@ -59,7 +59,7 @@ class NewFileFrame(wx.Frame):
 
 class NewFilePanel(wx.Panel):
 
-    def __init__(self, parent, *args, **kw):
+    def __init__(self, parent, *args, selectedPath=None, **kw):
         wx.Panel.__init__(self, parent, id=-1)
 #         self.parent = parent
         vBox = wx.BoxSizer(wx.VERTICAL)
@@ -68,7 +68,7 @@ class NewFilePanel(wx.Panel):
         h1 = wx.BoxSizer(wx.HORIZONTAL)
         h2 = wx.BoxSizer(wx.HORIZONTAL)
         ###################################3333333333
-        self.parentFolderText = ''
+        self.parentFolderText = selectedPath
         self.fileNameText = ''
 
         parentFolderLabel = wx.StaticText(self, -1, "Enter or select parent folder:")
@@ -206,6 +206,10 @@ class FolderExplorerTreePanel(FileTree):
 #         elif keypress == 'WXK_DELETE':
 #             self.onDeleteKeyPress(event)
         event.Skip()
+
+    def setSelectedDirPath(self, selectedPath=None):
+        logger.debug(f'setSelectedFilePath: {selectedPath}')
+        # TODO : need to be implement
 
     def showFileSelected(self, selectedFilePath=None):
         logger.debug(f'showFileSelected: {selectedFilePath}')
@@ -1207,6 +1211,6 @@ class FolderIconManager():
 
 if __name__ == '__main__':
     app = wx.App(False)
-    frame = NewFileFrame(None, 'New File')
+    frame = NewFileFrame(None, 'New File', selectedPath="c:\work\python-project")
     frame.Show()
     app.MainLoop()
