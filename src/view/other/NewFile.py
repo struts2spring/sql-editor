@@ -1,4 +1,3 @@
-
 from wx import TreeCtrl
 from src.view.util.FileOperationsUtil import FileOperations
 import logging.config
@@ -75,7 +74,8 @@ class NewFilePanel(wx.Panel):
         self.parentFolderCtrl = wx.TextCtrl(self, -1, self.parentFolderText, size=(400, -1))
 
         fileNameLabel = wx.StaticText(self, -1, "File name:")
-        self.fileNameCtrl = wx.TextCtrl(self, -1, self.fileNameText, size=(400, -1))
+        self.fileNameCtrl = wx.TextCtrl(self, -1, self.fileNameText, size=(400, -1) , style=wx.TE_PROCESS_ENTER)
+        self.Bind(wx.EVT_TEXT , self.onEnteredText, self.fileNameCtrl)
 
         self.folderExplorerTreePanel = FolderExplorerTreePanel(self)
         self.buttons = CreateButtonPanel(self)
@@ -95,6 +95,14 @@ class NewFilePanel(wx.Panel):
         vBox.Add(self.buttons, 0, wx.EXPAND , 0)
         self.SetSizer(vBox)
         self.SetAutoLayout(True)
+
+    def onEnteredText(self, event):
+        text = event.GetString()
+        logger.debug(f'fileName: {text}')
+        if text.strip() != '':
+            self.buttons.finishButton.Enable(enable=True)
+            self.buttons.finishButton.SetFocus()
+            self.fileNameCtrl.SetFocus()
 
     def setFindText(self, findText):
         if not wx.TheClipboard.IsOpened():  # may crash, otherwise
