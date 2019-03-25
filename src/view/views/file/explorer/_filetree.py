@@ -10,7 +10,7 @@ import os
 import wx
 
 import logging.config
-from src.view.constants import LOG_SETTINGS
+from src.view.constants import LOG_SETTINGS, keyMap
 from src.view.util.FileOperationsUtil import FileOperations
 from src.view.util.osutil import GetWindowsDrives
 logging.config.dictConfig(LOG_SETTINGS)
@@ -53,6 +53,84 @@ class FileTree(wx.TreeCtrl):
         self.Bind(wx.EVT_TREE_END_LABEL_EDIT, self._OnEndEdit)
         self.Bind(wx.EVT_TREE_DELETE_ITEM, self.onDelete)
 #         self.Bind(wx._OnMenu, self._OnMenu)
+#         self.Bind(wx.EVT_TREE_KEY_DOWN, self.onTreeKeyDown)
+        self.Bind(wx.EVT_TREE_SEL_CHANGED, self.onSelectionChange)
+
+    def onSelectionChange(self, event):
+        logger.debug(f'onSelectionChange {self}')
+#         self.LogKeyEvent('KeyDown', event.GetKeyEvent())
+        keypress = self.GetKeyPress(event)
+        keycode = event.GetKeyCode()
+        keyname = keyMap.get(keycode, None)
+        logger.debug(f'onSelectionChange keycode: {keycode}  keypress: {keypress} keyname: {keyname}')
+
+        self.GetSelectedFiles()
+#         logger.debug(keypress == 'WXK_F2')
+#
+# #         if keypress == 'Ctrl+C':
+# #             pass
+# #             self.onTreeCopy(event)
+#         if keypress == 'WXK_F2':
+#             self.onF2KeyPress(event)
+#         elif keypress == 'WXK_DELETE':
+#             self.onDeleteKeyPress(event)
+        event.Skip()
+
+    def onTreeKeyDown(self, event):
+        logger.debug(f'onTreeKeyDown {self}')
+#         self.LogKeyEvent('KeyDown', event.GetKeyEvent())
+        keypress = self.GetKeyPress(event)
+        keycode = event.GetKeyCode()
+        keyname = keyMap.get(keycode, None)
+        logger.debug(f'onTreeKeyDown keycode: {keycode}  keypress: {keypress} keyname: {keyname}')
+
+        self.GetSelectedFiles()
+#         logger.debug(keypress == 'WXK_F2')
+#
+# #         if keypress == 'Ctrl+C':
+# #             pass
+# #             self.onTreeCopy(event)
+#         if keypress == 'WXK_F2':
+#             self.onF2KeyPress(event)
+#         elif keypress == 'WXK_DELETE':
+#             self.onDeleteKeyPress(event)
+        event.Skip()
+
+    def GetKeyPress(self, evt):
+        keycode = evt.GetKeyCode()
+        keyname = keyMap.get(keycode, None)
+        modifiers = ""
+        for mod, ch in ((evt.GetKeyEvent().ControlDown(), 'Ctrl+'),
+                        (evt.GetKeyEvent().AltDown(), 'Alt+'),
+                        (evt.GetKeyEvent().ShiftDown(), 'Shift+'),
+                        (evt.GetKeyEvent().MetaDown(), 'Meta+')):
+            if mod:
+                modifiers += ch
+            else:
+                modifiers += '-'
+#         if keyname is None:
+#             if keycode < 256:
+#                 if keycode == 0:
+#                     keyname = "NUL"
+#                 elif keycode < 27:
+#                     char_keycode=chr(ord('A') + keycode-1)
+#                     keyname = f"Ctrl-{char_keycode}" % (ord('A') + keycode - 1)
+#                 else:
+#                     keyname = u"\"%s\"" % keycode
+#             else:
+#                 keyname = u"(%s)" % keycode
+        if keyname is None:
+            if keycode == 0:
+                keyname = "NUL"
+            elif  27 < keycode < 256  :
+                keyname = chr(keycode)
+            elif  keycode < 27 :
+                keyname = chr(ord('A') + keycode - 1)
+                logger.debug(keyname)
+            else:
+                keyname = f"({chr(keycode)})unknown"
+        logger.debug(f'modifiers:{modifiers},keyname:{keyname}')
+        return modifiers + keyname
 
     def _OnBeginEdit(self, evt):
         logger.debug('_OnBeginEdit')
@@ -362,22 +440,22 @@ class FileTree(wx.TreeCtrl):
 
         """
         logger.debug('AppendFileNodes')
-        getBaseName = os.path.basename
-        isDir = os.path.isdir
-        getImg = self.DoGetFileImage
-        appendNode = self.AppendItem
-        setData = self.SetItemData
+#         getBaseName = os.path.basename
+#         isDir = os.path.os.path.isdir
+#         getImg = self.DoGetFileImage
+#         appendNode = self.AppendItem
+#         setData = self.SetItemData
         for path in paths:
             try:
-                img = getImg(path)
-                name = getBaseName(path)
+                img = self.DoGetFileImage(path)
+                name = os.path.basename(path)
                 if not name:
                     name = path
-                child = appendNode(item, name, img)
-                setData(child, path)
+                child = self.AppendItem(item, name, img)
+                self.SetItemData(child, path)
             except Exception as e:
                 logger.error(e, exc_info=True)
-            if isDir(path):
+            if os.path.isdir(path):
                 self.SetItemHasChildren(child, True)
 
     def GetChildNodes(self, parent):
@@ -434,6 +512,7 @@ class FileTree(wx.TreeCtrl):
         nodes = self.GetSelections()
         files = [ self.GetPyData(node) for node in nodes ]
         return files
+
     def GetSelectedFilesWithImage(self):
         """Get a list of the selected files
         @return: list of [filePath, icon]
@@ -441,10 +520,10 @@ class FileTree(wx.TreeCtrl):
         """
         logger.debug('GetSelectedFiles')
         nodes = self.GetSelections()
-        files=[]
+        files = []
         for node in nodes:
-            iconIndex=self.GetItemImage(node)
-            icon=self.GetImageList().GetBitmap(iconIndex)
+            iconIndex = self.GetItemImage(node)
+            icon = self.GetImageList().GetBitmap(iconIndex)
             files.append([self.GetPyData(node), icon])
         return files
 
