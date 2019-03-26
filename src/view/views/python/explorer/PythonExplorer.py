@@ -12,7 +12,8 @@ import wx
 import logging.config
 from src.view.constants import LOG_SETTINGS, ID_COLLAPSE_ALL, ID_LINK_WITH_EDITOR, \
     ID_VIEW_MENU, setting, menuItemList, ID_EXPORT, ID_IMPORT, ID_NEW, \
-    ID_PROJECT_PROPERTIES, ID_CLOSE_PROJECT, ID_DELETE_PROJECT, ID_NEW_FILE, ID_NEW_FOLDER
+    ID_PROJECT_PROPERTIES, ID_CLOSE_PROJECT, ID_DELETE_PROJECT, ID_NEW_FILE, ID_NEW_FOLDER, \
+    ID_RENAME
 from src.view.views.file.explorer._filetree import FileTree
 from src.view.views.file.MainStcPanel import MainStc
 from src.view.other.NewFile import NewFileFrame
@@ -29,6 +30,7 @@ from wx.lib.pubsub import pub
 # from src.settings.workspace import Setting
 from src.view.views.python.explorer.IconManager import PythonExplorerIconManager
 from src.view.views.editor.EditorManager import EditorWindowManager
+import shutil
 
 try:
     from agw import aui
@@ -130,8 +132,54 @@ class PythonExplorerTreePanel(FileTree):
         except:
             pass
 
+    def onDeleteKeyPress(self, event):
+        logger.debug(f'onDeleteKeyPress:{self}')
+        try:
+            nodes = self.GetSelections()
+            for node in nodes:
+                path = self.GetPyData(node)
+                if os.path.isdir(path):
+                    shutil.rmtree(path)
+                elif os.path.isfile(path):
+                    os.remove(path)
+                self.Delete(node)
+                event.Skip()
+                
+        except Exception as e:
+            logger.error(e, exc_info=True)
+
+    def onF2KeyPress(self, event):
+        logger.debug(f'onF2KeyPress:{self}')
+        try:
+            nodes = self.GetSelections()
+            if nodes and nodes[0]:
+                self.EditLabel(nodes[0])
+                
+        except Exception as e:
+            logger.error(e, exc_info=True) 
+
+    def _OnEndEdit(self, evt):
+        logger.debug('_OnEndEdit')
+        if self._editlabels:
+            item = evt.GetItem()
+            data = self.GetPyData(item)
+            basePath, fileOrFolder = os.path.split(data)
+            os.chdir(basePath)
+            newlabel = evt.GetLabel()
+            
+            logger.debug(f'newlabel:{newlabel}')
+            if newlabel and newlabel != '':
+                os.rename(fileOrFolder, newlabel)
+                self.Refresh(eraseBackground=True, rect=None)
+                evt.Skip()
+            else:
+                evt.Veto()
+                
+#             if self.DoEndEdit(item, newlabel):
+#                 return
+
     def onDelete(self, evt):
-        logger.debug('onDelete')
+        logger.debug(f'onDelete:{self}')
         item = evt.GetItem()
 
     def AddWatchDirectory(self, project=None):
@@ -394,7 +442,7 @@ class PythonExplorerTreePanel(FileTree):
                     [wx.NewIdRef(), 'Paste', "paste_edit.png"],
                     [ID_DELETE_PROJECT, 'Delete', "delete_obj.png"],
                     [wx.NewIdRef(), 'Move', None],
-                    [wx.NewIdRef(), 'Rename', None],
+                    [ID_RENAME, 'Rename', None],
                     [],
                     [ID_IMPORT, 'Import', "import_prj.png"],
                     [ID_EXPORT, 'Export', "export.png"],
@@ -424,7 +472,7 @@ class PythonExplorerTreePanel(FileTree):
                                     if menuItemName[2]:
                                         menuItem.SetBitmap(self.fileOperations.getImageBitmap(imageName=menuItemName[2]))
                                     sm.Append(menuItem)
-                                    self.Bind(wx.EVT_MENU, lambda e:self.onRightClickMenu(e,file), id=menuItemName[0])
+                                    self.Bind(wx.EVT_MENU, lambda e:self.onRightClickMenu(e, file=file), id=menuItemName[0])
                                 else:
                                     sm.AppendSeparator()
                             self.menu.Append(mi_tup[0], mi_tup[1], sm)
@@ -445,7 +493,7 @@ class PythonExplorerTreePanel(FileTree):
         self.PopupMenu(self.menu)
 
     #---- End FileTree Interface Methods ----#
-    def onRightClickMenu(self, event, file):
+    def onRightClickMenu(self, event, file=None):
         logger.debug(f'onRightClickMenu: {event.Id}')
         if event.Id == ID_PROJECT_PROPERTIES:
             logger.debug('ID_PROJECT_PROPERTIES')
@@ -461,6 +509,9 @@ class PythonExplorerTreePanel(FileTree):
                     self.Delete(node)
 #                     self.initProjects()
 #                     self.RemoveWatchDirectory(dname)
+        if event.Id == ID_RENAME:
+            logger.debug('ID_RENAME')
+            self.onF2KeyPress(event)
         if event.Id == ID_IMPORT:
             logger.debug('ID_IMPORT')
         if event.Id == ID_NEW_FILE:

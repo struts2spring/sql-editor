@@ -23,11 +23,11 @@ class FileTree(wx.TreeCtrl):
 
     """
 
-    def __init__(self, parent, style=wx.TR_HIDE_ROOT |
-                                             wx.TR_FULL_ROW_HIGHLIGHT |
-                                             wx.TR_LINES_AT_ROOT |
-                                             wx.TR_HAS_BUTTONS |
-                                             wx.TR_MULTIPLE |
+    def __init__(self, parent, style=wx.TR_HIDE_ROOT | 
+                                             wx.TR_FULL_ROW_HIGHLIGHT | 
+                                             wx.TR_LINES_AT_ROOT | 
+                                             wx.TR_HAS_BUTTONS | 
+                                             wx.TR_MULTIPLE | 
                                              wx.TR_EDIT_LABELS | wx.BORDER_NONE):
         super(FileTree, self).__init__(parent,
                                        style=style)
@@ -51,9 +51,9 @@ class FileTree(wx.TreeCtrl):
         self.Bind(wx.EVT_TREE_ITEM_MENU, self._OnMenu)
         self.Bind(wx.EVT_TREE_BEGIN_LABEL_EDIT, self._OnBeginEdit)
         self.Bind(wx.EVT_TREE_END_LABEL_EDIT, self._OnEndEdit)
-        self.Bind(wx.EVT_TREE_DELETE_ITEM, self.onDelete)
+#         self.Bind(wx.EVT_TREE_DELETE_ITEM, self.onDelete)
 #         self.Bind(wx._OnMenu, self._OnMenu)
-#         self.Bind(wx.EVT_TREE_KEY_DOWN, self.onTreeKeyDown)
+        self.Bind(wx.EVT_TREE_KEY_DOWN, self.onTreeKeyDown)
         self.Bind(wx.EVT_TREE_SEL_CHANGED, self.onSelectionChange)
 
     def onSelectionChange(self, event):
@@ -90,11 +90,22 @@ class FileTree(wx.TreeCtrl):
 # #         if keypress == 'Ctrl+C':
 # #             pass
 # #             self.onTreeCopy(event)
-#         if keypress == 'WXK_F2':
-#             self.onF2KeyPress(event)
-#         elif keypress == 'WXK_DELETE':
-#             self.onDeleteKeyPress(event)
+        if keypress == '----WXK_F2':
+            self.onF2KeyPress(event)
+        elif keypress == '----WXK_DELETE':
+            self.onDeleteKeyPress(event)
         event.Skip()
+
+    def onDeleteKeyPress(self, event):
+        logger.debug(f'onDeleteKeyPress:{self}')
+
+    def onF2KeyPress(self, event):
+        logger.debug('onF2KeyPress')
+        try:
+            nodes = self.GetSelections()
+                
+        except Exception as e:
+            logger.error(e, exc_info=True) 
 
     def GetKeyPress(self, evt):
         keycode = evt.GetKeyCode()
@@ -148,6 +159,7 @@ class FileTree(wx.TreeCtrl):
         if self._editlabels:
             item = evt.GetItem()
             newlabel = evt.GetLabel()
+            logger.debug(f'newlabel:{newlabel}')
             if self.DoEndEdit(item, newlabel):
                 evt.Skip()
                 return
