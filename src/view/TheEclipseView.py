@@ -468,6 +468,14 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         self.Bind(wx.EVT_MENU, self.OnAbout, id=wx.ID_ABOUT)
         self.Bind(wx.EVT_MENU, self.OnWelcome, id=ID_WELCOME)
 
+        self.Bind(wx.EVT_MENU, self.onUndo, id=ID_UNDO)
+        self.Bind(wx.EVT_MENU, self.onRedo, id=ID_REDO)
+        self.Bind(wx.EVT_MENU, self.onCopy, id=ID_COPY)
+        self.Bind(wx.EVT_MENU, self.onPaste, id=ID_PASTE)
+        self.Bind(wx.EVT_MENU, self.onCut, id=ID_CUT)
+        self.Bind(wx.EVT_MENU, self.onFormatFile, id=ID_FORMAT_FILE)
+#         self.Bind(wx.EVT_MENU, lambda evt, temp=wx.WXK_DOWN: self.onDuplicateLine(evt, temp), id=ID_DUPLICATE_LINE)
+        self.Bind(wx.EVT_MENU, self.onDuplicateLine, id=ID_DUPLICATE_LINE)
         self.Bind(wx.EVT_MENU, self.onSave, id=ID_SAVE)
         self.Bind(wx.EVT_MENU, self.onSaveAll, id=ID_SAVE_ALL)
         self.Bind(wx.EVT_MENU, self.onSaveAs, id=ID_SAVE_AS)
@@ -627,6 +635,38 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 #         else:
 #             dlg.Destroy()
 
+    def onUndo(self, event):
+        logger.debug('onUndo')
+        self._mgr.GetManagedWindow().FindFocus().Undo()
+
+    def onRedo(self, event):
+        logger.debug('onRedo')
+        self._mgr.GetManagedWindow().FindFocus().Redo()
+
+    def onCopy(self, event):
+        logger.debug('onCopy')
+        self._mgr.GetManagedWindow().FindFocus().Copy()
+
+#         currentlySelectedPage = event.GetSelection()
+#         logger.debug("onTabRightDown: currentlySelectedPage %s", currentlySelectedPage)
+#         pageInfo = event.GetEventObject().GetPageInfo(currentlySelectedPage)
+#         logger.debug(pageInfo)
+
+    def onPaste(self, event):
+        logger.debug('onPaste')
+        self._mgr.GetManagedWindow().FindFocus().Paste()
+
+    def onCut(self, event):
+        logger.debug('onCut')
+        self._mgr.GetManagedWindow().FindFocus().Cut()
+
+    def onFormatFile(self, event):
+        logger.debug('onFormatFile')
+
+    def onDuplicateLine(self, event):
+        logger.debug('onDuplicateLine')
+        self._mgr.GetManagedWindow().FindFocus().LineDuplicate()
+
     def onOpenConnection(self, event):
         logger.debug('onOpenConnection')
         self.openFrame()
@@ -731,7 +771,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
     def onOpenResource(self, event):
         logger.debug('onOpenResource')
-        frame = ResourceFrame(self, 'Open Resource',size=(800, 400))
+        frame = ResourceFrame(self, 'Open Resource', size=(800, 400))
         frame.CenterOnScreen()
 
     def onViewClick(self, event):

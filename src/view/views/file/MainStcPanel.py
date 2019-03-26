@@ -162,6 +162,7 @@ class MainStc(BaseStc):
         self.accel_tbl = wx.AcceleratorTable([
             (wx.ACCEL_CTRL, ord('F'), ID_FIND_REPLACE),
             (wx.ACCEL_CTRL, ord('K'), ID_FIND_NEXT_MATCH),
+#             (wx.ACCEL_CTRL, ord('C'), ID_COPY),
 #             (wx.ACCEL_CTRL, ord('H'), ID_SEARCH_FILE),
 #             (wx.ACCEL_CTRL | wx.ACCEL_SHIFT , ord('R'), ID_RESOURCE),
 #             (wx.ACCEL_CTRL | wx.ACCEL_SHIFT , ord('T'), ID_OPEN_TYPE),

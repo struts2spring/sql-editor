@@ -530,8 +530,15 @@ class PerspectiveManager(object):
         pub.subscribe(self.__onObjectAdded, 'perspectiveClicked')
         pub.subscribe(self.__onUpdatePageText, 'onUpdatePageText')
         self.accel_tbl = wx.AcceleratorTable([
+            (wx.ACCEL_CTRL, ord('Y'), ID_REDO),
+            (wx.ACCEL_CTRL, ord('Z'), ID_UNDO),
+            (wx.ACCEL_CTRL, ord('C'), ID_COPY),
+            (wx.ACCEL_CTRL, ord('V'), ID_PASTE),
+            (wx.ACCEL_CTRL, ord('X'), ID_CUT),
+            (wx.ACCEL_CTRL| wx.ACCEL_ALT, wx.WXK_DOWN, ID_DUPLICATE_LINE),
             (wx.ACCEL_CTRL, ord('S'), ID_SAVE),
             (wx.ACCEL_CTRL, ord('H'), ID_SEARCH_FILE),
+            (wx.ACCEL_CTRL | wx.ACCEL_SHIFT, ord('F'), ID_FORMAT_FILE),
             (wx.ACCEL_CTRL | wx.ACCEL_SHIFT , ord('R'), ID_RESOURCE),
             (wx.ACCEL_CTRL | wx.ACCEL_SHIFT , ord('T'), ID_OPEN_TYPE),
 #                                       (wx.ACCEL_CTRL, ord('V'), wx.ID_PASTE),
