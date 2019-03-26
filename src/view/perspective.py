@@ -1213,12 +1213,12 @@ class PerspectiveManager(object):
 
                 baseList = menuItemList[self.selectedPerspectiveName]
 
-            menuItemList = {
+            menuItemListx = {
                 self.selectedPerspectiveName: baseList
                 }
             # create the popup menu
             # menuPopup = wx.Menu()
-            menuPopup = self.createMenuByPerspective(menuItemList=menuItemList, perspectiveName=self.selectedPerspectiveName)
+            menuPopup = self.createMenuByPerspective(menuItemList=menuItemListx, perspectiveName=self.selectedPerspectiveName)
 
             # line up our menu with the button
             rect = tb.GetToolRect(event.GetId())

@@ -85,7 +85,7 @@ class Setting():
         project = Project(basePath=r'/docs/work/python_project', projectDirName='sql_editor')
         project.addNature(nature='python')
         workspace.addProject(project)
-        project = Project(basePath=r'c:\work\python_project', projectDirName='sql-editor')
+        project = Project(basePath=r'c:\1', projectDirName='sql_editor')
         project.addNature(nature='python')
         workspace.addProject(project)
 

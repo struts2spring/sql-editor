@@ -310,11 +310,14 @@ class PythonExplorerTreePanel(FileTree):
 
         if d and os.path.exists(d) and os.access(d, os.R_OK) and self.ShouldDisplayFile(d):
             contents = self.GetDirContents(d)
-            t1 = time.time()
-            with Freezer(self) as _tmp:
-                self.AppendFileNodes(item, contents)
-                self.SortChildren(item)
-            logger.info("Tree expand time: %f" % (time.time() - t1))
+            if contents and  len(contents) > 0:
+                t1 = time.time()
+                with Freezer(self) as _tmp:
+                    self.AppendFileNodes(item, contents)
+                    self.SortChildren(item)
+                logger.info("Tree expand time: %f" % (time.time() - t1))
+            else:
+                self.SetItemHasChildren(item, hasChildren=False)
 
 #             if not self._monitor.AddDirectory(d):
 #                 self.SetItemImage(item, self.iconManager.IMG_NO_ACCESS)
@@ -467,6 +470,9 @@ class PythonExplorerTreePanel(FileTree):
             newFileframe.Show()
         if event.Id == ID_NEW_FOLDER:
             logger.debug('ID_NEW_FOLDER')
+            newFileframe = NewFileFrame(None, 'New Folder', selectedPath=file)
+            newFileframe.CenterOnScreen()
+            newFileframe.Show()
 
     def OpenFiles(self, filesWithImage=[]):
         """Open the list of files in Editra for editing

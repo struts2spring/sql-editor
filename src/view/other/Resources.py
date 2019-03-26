@@ -363,6 +363,7 @@ class ResourcePanel(wx.Panel):
         self.filter = wx.SearchCtrl(self, style=wx.TE_PROCESS_ENTER)
         self.filter.SetDescriptiveText("Type filter search text")
         self.filter.ShowCancelButton(True)
+        self.filter.SetFocus()
         self.filter.Bind(wx.EVT_TEXT, self.OnSearch)
         self.filter.Bind(wx.EVT_SEARCHCTRL_CANCEL_BTN, lambda e: self.filter.SetValue(''))
         self.filter.Bind(wx.EVT_TEXT_ENTER, self.OnSearch)

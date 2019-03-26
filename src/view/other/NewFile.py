@@ -2,11 +2,16 @@ from wx import TreeCtrl
 from src.view.util.FileOperationsUtil import FileOperations
 import logging.config
 import wx, os
+import stat
 from src.view.constants import LOG_SETTINGS, setting, ID_NEW_FILE, ID_NEW, \
     keyMap
 from src.view.views.file.explorer._filetree import FileTree
 import time
 from src.view.util.common.eclutil import Freezer
+from pathlib import Path
+from wx.lib.pubsub import pub
+from src.view.views.editor.EditorManager import EditorWindowManager
+from src.view.util.osutil import GetWindowsDriveType, RemovableDrive, CDROMDrive
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -14,12 +19,16 @@ logger = logging.getLogger('extensive')
 
 
 class NewFileFrame(wx.Frame):
+    '''
+    This is for new file and new folder.
+    '''
 
     def __init__(self, parent, title, selectedPath=None, size=(350, 420),
                  style=wx.DEFAULT_FRAME_STYLE | wx.NO_FULL_REPAINT_ON_RESIZE | wx.SUNKEN_BORDER | wx.STAY_ON_TOP):
         style = style & (~wx.MINIMIZE_BOX)
         wx.Frame.__init__(self, parent, -1, title, size=size,
                           style=style)
+        self.title = title
         self.Bind(wx.EVT_CLOSE, self.OnCloseFrame)
         self.SetMinSize((100, 100))
         self.fileOperations = FileOperations()
@@ -30,7 +39,7 @@ class NewFileFrame(wx.Frame):
         sizer = wx.BoxSizer(wx.VERTICAL)
 #         self.buttonPanel = CreateButtonPanel(self)
         ####################################################################
-        self.newFileFrame = NewFilePanel(self, selectedPath=selectedPath)
+        self.newFileFrame = NewFilePanel(self, title=title, selectedPath=selectedPath)
         ####################################################################
         sizer.Add(self.newFileFrame, 1, wx.EXPAND)
 #         sizer.Add(self.buttonPanel, 0, wx.EXPAND)
@@ -58,9 +67,10 @@ class NewFileFrame(wx.Frame):
 
 class NewFilePanel(wx.Panel):
 
-    def __init__(self, parent, *args, selectedPath=None, **kw):
+    def __init__(self, parent, *args, title=None, selectedPath=None, **kw):
         wx.Panel.__init__(self, parent, id=-1)
 #         self.parent = parent
+        self.title = title
         vBox = wx.BoxSizer(wx.VERTICAL)
 
         v1 = wx.BoxSizer(wx.VERTICAL)
@@ -73,7 +83,12 @@ class NewFilePanel(wx.Panel):
         parentFolderLabel = wx.StaticText(self, -1, "Enter or select parent folder:")
         self.parentFolderCtrl = wx.TextCtrl(self, -1, self.parentFolderText, size=(400, -1))
 
-        fileNameLabel = wx.StaticText(self, -1, "File name:")
+        fileLabel = ''
+        if title == 'New File':
+            fileLabel = "File name:"
+        elif title == 'New Folder':
+            fileLabel = "Folder name:"
+        fileNameLabel = wx.StaticText(self, -1, fileLabel)
         self.fileNameCtrl = wx.TextCtrl(self, -1, self.fileNameText, size=(400, -1) , style=wx.TE_PROCESS_ENTER)
         self.Bind(wx.EVT_TEXT , self.onEnteredText, self.fileNameCtrl)
 
@@ -132,7 +147,7 @@ class CreateButtonPanel(wx.Panel):
         hbox3 = wx.BoxSizer(wx.HORIZONTAL)
         self.cancelButton = wx.Button(self, -1, "Cancel")
         self.Bind(wx.EVT_BUTTON, self.onCancelClicked, self.cancelButton)
-        self.cancelButton.SetDefault()
+#         self.cancelButton.SetDefault()
 
         self.finishButton = wx.Button(self, -1, "Finish")
         self.Bind(wx.EVT_BUTTON, self.onFinishClicked, self.finishButton)
@@ -155,6 +170,20 @@ class CreateButtonPanel(wx.Panel):
 
     def onFinishClicked(self, event):
         logger.debug('onFinishClicked')
+        logger.debug(self.GetParent().parentFolderCtrl.GetValue())
+        logger.debug(self.GetParent().fileNameCtrl.GetValue())
+        try:
+            parentDir = self.GetParent().parentFolderCtrl.GetValue()
+            fname = self.GetParent().fileNameCtrl.GetValue()
+            if self.GetParent().title == 'New File':
+                os.makedirs(parentDir, mode=511, exist_ok=True)
+                os.chdir(parentDir)
+                Path(os.path.join(parentDir, fname)).touch(mode=0o777, exist_ok=True)
+            elif self.GetParent().title == 'New Folder':
+                os.makedirs(os.path.join(parentDir, fname), mode=511, exist_ok=True)
+        except Exception as e:
+            logger.error(e)
+#         os.makedirs(self.GetParent().parentFolderCtrl.GetValue(), mode=511, exist_ok=False)
         self.GetTopLevelParent().Close()
 
 #     def onReplaceAllClicked(self, event):
@@ -203,7 +232,8 @@ class FolderExplorerTreePanel(FileTree):
         files = [ self.GetPyData(node) for node in nodes ]
 #         files = self.GetSelectedFiles()
         logger.debug(files)
-        self.showFileSelected(selectedFilePath=files[0])
+        if files and len(files) > 0:
+            self.showFileSelected(selectedFilePath=files[0])
 #         logger.debug(keypress == 'WXK_F2')
 #
 # #         if keypress == 'Ctrl+C':
@@ -549,24 +579,24 @@ class FolderExplorerTreePanel(FileTree):
 #         self.PopupMenu(self.menu)
 
     #---- End FileTree Interface Methods ----#
-    def onRightClickMenu(self, event):
-        logger.debug('onRightClickMenu')
-        if event.Id == ID_PROJECT_PROPERTIES:
-            logger.debug('ID_PROJECT_PROPERTIES')
-        if event.Id == ID_CLOSE_PROJECT:
-            logger.debug('ID_CLOSE_PROJECT')
-        if event.Id == ID_DELETE_PROJECT:
-            logger.debug('ID_DELETE_PROJECT')
-            for project in setting.activeWorkspace.projects:
-                for node in self.GetSelections():
-
-                    if project.projectDirName == self.GetItemText(node):
-                        setting.activeWorkspace.projects.remove(project)
-                    self.Delete(node)
-#                     self.initProjects()
-#                     self.RemoveWatchDirectory(dname)
-        if event.Id == ID_IMPORT:
-            logger.debug('ID_IMPORT')
+#     def onRightClickMenu(self, event):
+#         logger.debug('onRightClickMenu')
+#         if event.Id == ID_PROJECT_PROPERTIES:
+#             logger.debug('ID_PROJECT_PROPERTIES')
+#         if event.Id == ID_CLOSE_PROJECT:
+#             logger.debug('ID_CLOSE_PROJECT')
+#         if event.Id == ID_DELETE_PROJECT:
+#             logger.debug('ID_DELETE_PROJECT')
+#             for project in setting.activeWorkspace.projects:
+#                 for node in self.GetSelections():
+# 
+#                     if project.projectDirName == self.GetItemText(node):
+#                         setting.activeWorkspace.projects.remove(project)
+#                     self.Delete(node)
+# #                     self.initProjects()
+# #                     self.RemoveWatchDirectory(dname)
+#         if event.Id == ID_IMPORT:
+#             logger.debug('ID_IMPORT')
 
     def OpenFiles(self, filesWithImage=[]):
         """Open the list of files in Editra for editing
