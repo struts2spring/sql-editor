@@ -6,7 +6,8 @@
 # License: wxWindows License                                                  #
 ###############################################################################
 from src.view.util.syntax.syndata import SyntaxDataBase
-from src.view.util.syntax.synglob import FEATURE_AUTOINDENT
+from src.view.util.syntax.synglob import FEATURE_AUTOINDENT, LANG_MAP
+from src.view.util.syntax.synextreg import ID_LANG_PYTHON, LANG_PYTHON
 
 """
 FILE: python.py
@@ -238,3 +239,7 @@ def PosOpenBracket(text):
     return res
 
 #---- End Syntax Modules Internal Functions ----#
+
+if __name__=='__main__':
+    syntaxData=SyntaxData(LANG_MAP[LANG_PYTHON][0])
+    print('hi')

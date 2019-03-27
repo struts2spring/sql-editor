@@ -10,6 +10,7 @@ from src.view.util.syntax.synglob import LANG_MAP
 from src.view.util.syntax.syndata import SyntaxDataBase
 from src.view.util.syntax.synxml import LoadHandler
 from src.view.util.syntax import synglob
+from src.view.util.syntax._python import SyntaxData
 
 
 """
@@ -60,7 +61,7 @@ _ = wx.GetTranslation
 # Needed by other modules that use this api
 # from synextreg import ExtensionRegister, GetFileExtensions, RegisterNewLangId
 from src.view.util.syntax.synextreg import ExtensionRegister, GetFileExtensions, RegisterNewLangId,\
-    LANG_TXT
+    LANG_TXT, LANG_PYTHON
 #-----------------------------------------------------------------------------#
 
 class SyntaxMgr(object):
@@ -200,12 +201,14 @@ class SyntaxMgr(object):
         if not self.LoadModule(lex_cfg[MODULE]):
             # Bail out and return a default plaintext config as
             # nothing else can be done at this point
-            return SyntaxDataBase()
+#             return SyntaxDataBase()
+            return SyntaxData(LANG_MAP[LANG_PYTHON][0])
 
         # This little bit of code fetches the keyword/syntax 
         # spec set(s) from the specified module
         mod = self._loaded[lex_cfg[MODULE]]
         syn_data = mod.SyntaxData(lex_cfg[LANG_ID])
+        syn_data = SyntaxData(LANG_MAP[LANG_PYTHON][0])
         return syn_data
 
     def LoadExtensions(self, path):
