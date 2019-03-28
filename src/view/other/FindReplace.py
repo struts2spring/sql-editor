@@ -70,6 +70,7 @@ class FindAndReplacePanel(wx.Panel):
         self.buttons = CreateButtonPanel(self)
         findLabel = wx.StaticText(self, -1, "F&ind:               ")
         self.findTextCtrl = wx.TextCtrl(self, -1, self.findText, size=(400, -1))
+        self.findTextCtrl.SetFocus()
         self.setFindText(self.findTextCtrl)
 
         replaceLabel = wx.StaticText(self, -1, "Replace with:")

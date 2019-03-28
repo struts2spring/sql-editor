@@ -230,7 +230,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         mb = wx.MenuBar()
         # id, name, None, imageName, methodName, enable, perspecitveNameList
         menuItemList = [
-            ("&File", [
+            ["&File", [
                     [wx.ID_NEW, 'New \tAlt+Shift+N', None, None, False, ['Python', 'database']],
                     [ID_openConnection, 'Open Database connection \tCtrl+O', None, None, False, ['database']],
                     [wx.ID_REFRESH, 'Refresh \tF5', None, "refresh.png", False, ['Python']],
@@ -254,8 +254,8 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                     [ID_RESTART, 'Restart', None, "restart.png", False, ['Python']],
                     [],
                     [ wx.ID_EXIT, '&Quit \tCtrl+Q', None, None, False, ['Python']],
-                ]) ,
-            ("&Edit", [
+                ]] ,
+            ["&Edit", [
                     [ wx.ID_UNDO, "Undo \tCtrl+Z", None, "undo_edit.png"],
                     [ wx.ID_REDO, "Redo \tShift+Ctrl+Z", None, "redo_edit.png"],
                     [],
@@ -265,17 +265,17 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                     [],
                     [ wx.ID_DELETE, "Delete", None, "delete_obj.png"],
                     [ wx.NewIdRef(), "Set encoding...", None, None],
-                ]),
-            ("&Search", [
+                ]],
+            ["&Search", [
                     [ID_SEARCH_MENU, 'Search \tCtrl+H', None, 'searchres.png'],
                     [ID_SEARCH_FILE, 'File...', None, 'search_history.png']
-                ]),
-            ("&Navigate", [
+                ]],
+            ["&Navigate", [
                     [ID_OPEN_TYPE, 'Open Type', None, 'opentype.png'],
                     [ID_OPEN_TASK, 'Open Task', None, 'open_task.png'],
                     [ID_GOTO_LINE, 'Go to Line... \tCtrl+L', None, None]
-                ]),
-            ("&Project", [
+                ]],
+            ["&Project", [
                     [ID_OPEN_PROJECT, 'Open Project', None, None],
                     [ID_CLOSE_PROJECT, 'Close Project', None, None],
                     [],
@@ -285,8 +285,8 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                     [ID_BUILD_AUTO, 'Build Automatically', None, None],
                     [],
                     [ID_PROJECT_PROPERTIES, 'Properties', None, None],
-                ]),
-            ("&Run", [
+                ]],
+            ["&Run", [
                     [ID_RUN, 'Run \tCtrl+F11', None, "runlast_co.png"],
                     [ID_DEBUG, 'Debug \tF11', None, "debuglast_co.png"],
                     [],
@@ -298,8 +298,8 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                     [ID_DEBUG_AS, 'Debug As', None, 'run_exc.png'],
                     [ID_DEBUG_CONFIG, 'Debug Configurations...', None, None],
 
-                ]),
-            ("&Window", [
+                ]],
+            ["&Window", [
                     [ID_CREATE_NEW_WINDOW, 'New Window', None, None ],
                     [ID_APPEARANCE, 'Appearance', [
                                                 [ID_HIDE_TOOLBAR, 'Hide Toolbar', "toolbar.png", None],
@@ -351,8 +351,8 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                     ],
                     [],
                     [ID_PREFERENCES, "&Preferences", None, "preference.png" ]
-                ]),
-            ("&Help", [
+                ]],
+            ["&Help", [
                     [ ID_WELCOME, "Welcome", None, "welcome16.png"],
                     [],
                     [ wx.NewIdRef(), "Help Contents", None, "smartmode_co.png"],
@@ -370,11 +370,15 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                     [],
                     [ wx.ID_ABOUT, "&About {}".format(TITLE), None, None],
                     [ wx.NewIdRef(), "Contribute", None, "star.png"],
-                ])
+                ]]
             ]
 
 #         mb = self.createMenu(menuItemList=menuItemList)
 
+#         if self.selectedPerspectiveName == 'python':
+#             logger.debug(self.selectedPerspectiveName)
+#             [ID_openConnection, 'Open Database connection \tCtrl+O', None, None, False, ['database']],
+        
         for menuItem in menuItemList:
             topLevelMenu = wx.Menu()
             if menuItem[1]:

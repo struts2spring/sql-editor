@@ -1,5 +1,6 @@
 eclipse.preferences.version=1
 encoding//src/file_browser/FileHunter.py=utf-8
+encoding//src/view/other/diff/diffutil.py=utf-8
 encoding//src/view/util/syntax/syndata.py=utf-8
 encoding//venv/Lib/site-packages/Werkzeug-0.14.1-py3.6.egg/werkzeug/utils.py=utf-8
 encoding//venv/Lib/site-packages/wxPython-4.0.3-py3.6-win-amd64.egg/wx/lib/agw/aui/aui_constants.py=utf-8

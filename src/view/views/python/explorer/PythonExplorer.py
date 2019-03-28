@@ -375,6 +375,34 @@ class PythonExplorerTreePanel(FileTree):
         self.SetItemImage(item, self.iconManager.GetImageIndex(d, True))
         del cursor
 
+    def AppendFileNodes(self, item, paths):
+        """Append a list of child node to the tree. This
+        method can be used instead of looping on AppendFileNode
+        to get slightly better performance for large sets.
+        @param item: TreeItem parent node
+        @param paths: list of file paths
+        @return: None
+
+        """
+        logger.debug('AppendFileNodes')
+#         getBaseName = os.path.basename
+#         isDir = os.path.os.path.isdir
+#         getImg = self.DoGetFileImage
+#         appendNode = self.AppendItem
+#         setData = self.SetItemData
+        for path in paths:
+            try:
+                img = self.DoGetFileImage(path)
+                name = os.path.basename(path)
+                if not name:
+                    name = path
+                child = self.AppendItem(item, name, img)
+                self.SetItemData(child, path)
+            except Exception as e:
+                logger.error(e, exc_info=True)
+            if os.path.isdir(path):
+                self.SetItemHasChildren(child, True)
+
     def GetDirContents(self, directory):
         """Get the list of files contained in the given directory"""
         logger.debug('GetDirContents')

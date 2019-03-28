@@ -90,8 +90,24 @@ class PythonExplorerIconManager():
         elif os.path.isdir(path):
             if expanded:
                 imageName = 'folder_view.png'
+                for fname in os.listdir(path):
+                    if fname.endswith('__init__.py'):
+                        # do stuff on the file
+                        imageName = 'package_obj.png'
+                        break
+                else:
+                    # do stuff if a file .true doesn't exist.
+                    pass
             else:
                 imageName = 'folder.png'
+                for fname in os.listdir(path):
+                    if fname.endswith('__init__.py'):
+                        # do stuff on the file
+                        imageName = 'package_obj.png'
+                        break
+                else:
+                    # do stuff if a file .true doesn't exist.
+                    pass
         elif os.path.isfile(path):
             filename, fileExtension = os.path.splitext(path)
             fileExtension = fileExtension.lower()
