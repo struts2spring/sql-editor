@@ -90,7 +90,9 @@ class NewFilePanel(wx.Panel):
             fileLabel = "Folder name:"
         fileNameLabel = wx.StaticText(self, -1, fileLabel)
         self.fileNameCtrl = wx.TextCtrl(self, -1, self.fileNameText, size=(400, -1) , style=wx.TE_PROCESS_ENTER)
+        self.fileNameCtrl.SetFocus()
         self.Bind(wx.EVT_TEXT , self.onEnteredText, self.fileNameCtrl)
+        self.Bind(wx.EVT_TEXT_ENTER, self.onEnterButtonPressed, self.fileNameCtrl)
 
         self.folderExplorerTreePanel = FolderExplorerTreePanel(self)
         self.buttons = CreateButtonPanel(self)
@@ -110,6 +112,11 @@ class NewFilePanel(wx.Panel):
         vBox.Add(self.buttons, 0, wx.EXPAND , 0)
         self.SetSizer(vBox)
         self.SetAutoLayout(True)
+
+    def onEnterButtonPressed(self, event):
+        text = event.GetString()
+        logger.debug(f'onEnterButtonPressed: {text}')
+        self.buttons.onFinishClicked(event)
 
     def onEnteredText(self, event):
         text = event.GetString()
