@@ -13,7 +13,7 @@ import logging.config
 from src.view.constants import LOG_SETTINGS, ID_COLLAPSE_ALL, ID_LINK_WITH_EDITOR, \
     ID_VIEW_MENU, setting, menuItemList, ID_EXPORT, ID_IMPORT, ID_NEW, \
     ID_PROJECT_PROPERTIES, ID_CLOSE_PROJECT, ID_DELETE_PROJECT, ID_NEW_FILE, ID_NEW_FOLDER, \
-    ID_RENAME
+    ID_RENAME, ID_REFRESH_TREE_ITEM
 from src.view.views.file.explorer._filetree import FileTree
 from src.view.views.file.MainStcPanel import MainStc
 from src.view.other.NewFile import NewFileFrame
@@ -476,7 +476,7 @@ class PythonExplorerTreePanel(FileTree):
                     [ID_IMPORT, 'Import', "import_prj.png"],
                     [ID_EXPORT, 'Export', "export.png"],
                     [],
-                    [wx.NewIdRef(), 'Refresh', "refresh.png"],
+                    [ID_REFRESH_TREE_ITEM, 'Refresh', "refresh.png"],
                     [ID_CLOSE_PROJECT, 'Close Project', None],
                     [wx.NewIdRef(), 'Close Unreleated Projects', None],
                     [wx.NewIdRef(), 'Run As', "run_exc.png"],
@@ -522,12 +522,22 @@ class PythonExplorerTreePanel(FileTree):
         self.PopupMenu(self.menu)
 
     #---- End FileTree Interface Methods ----#
+    def refreshNode(self):
+        for node in self.GetSelections():
+            self.DoItemCollapsed(node)
+            self.DoItemExpanding(node)
+        
+    
     def onRightClickMenu(self, event, file=None):
         nodes = self.GetSelections()
         file = [ self.GetPyData(node) for node in nodes ][0]
         if os.path.isfile(file):
             file = os.path.dirname(file)
         logger.debug(f'onRightClickMenu: {event.Id}, file:{file} ')
+        if event.Id == ID_REFRESH_TREE_ITEM:
+            logger.debug('ID_REFRESH_TREE_ITEM')
+            self.refreshNode()
+            
         if event.Id == ID_PROJECT_PROPERTIES:
             logger.debug('ID_PROJECT_PROPERTIES')
         if event.Id == ID_CLOSE_PROJECT:
@@ -548,6 +558,8 @@ class PythonExplorerTreePanel(FileTree):
                         logger.debug(f'os.remove({path})')
                         os.remove(path)
                     self.Delete(node)
+                self.DoItemCollapsed(node)
+                self.DoItemExpanding(node)
 #                     self.initProjects()
 #                     self.RemoveWatchDirectory(dname)
         if event.Id == ID_RENAME:
@@ -557,12 +569,12 @@ class PythonExplorerTreePanel(FileTree):
             logger.debug('ID_IMPORT')
         if event.Id == ID_NEW_FILE:
             logger.debug('ID_NEW_FILE')
-            newFileframe = NewFileFrame(None, 'New File', selectedPath=file)
+            newFileframe = NewFileFrame(self, 'New File', selectedPath=file)
             newFileframe.CenterOnScreen()
             newFileframe.Show()
         if event.Id == ID_NEW_FOLDER:
             logger.debug('ID_NEW_FOLDER')
-            newFileframe = NewFileFrame(None, 'New Folder', selectedPath=file)
+            newFileframe = NewFileFrame(self, 'New Folder', selectedPath=file)
             newFileframe.CenterOnScreen()
             newFileframe.Show()
 

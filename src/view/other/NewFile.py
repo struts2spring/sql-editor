@@ -26,7 +26,8 @@ class NewFileFrame(wx.Frame):
     def __init__(self, parent, title, selectedPath=None, size=(350, 420),
                  style=wx.DEFAULT_FRAME_STYLE | wx.NO_FULL_REPAINT_ON_RESIZE | wx.SUNKEN_BORDER | wx.STAY_ON_TOP):
         style = style & (~wx.MINIMIZE_BOX)
-        wx.Frame.__init__(self, parent, -1, title, size=size,
+        self.parent=parent
+        wx.Frame.__init__(self, None, -1, title, size=size,
                           style=style)
         self.title = title
         self.Bind(wx.EVT_CLOSE, self.OnCloseFrame)
@@ -58,6 +59,7 @@ class NewFileFrame(wx.Frame):
         event.Skip()
 
     def OnCloseFrame(self, event):
+        self.parent.refreshNode()
         self.Destroy()
 
     def OnSize(self, event):
