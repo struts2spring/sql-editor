@@ -211,6 +211,7 @@ ID_WEB_SERVICE = wx.NewIdRef()
 
 ID_DELETE_PROJECT = wx.NewIdRef()
 ID_REFRESH_TREE_ITEM = wx.NewIdRef()
+ID_PYTHON_RUN = wx.NewIdRef()
 
 keyMap = {
     wx.WXK_BACK : "WXK_BACK",

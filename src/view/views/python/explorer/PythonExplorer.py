@@ -13,7 +13,7 @@ import logging.config
 from src.view.constants import LOG_SETTINGS, ID_COLLAPSE_ALL, ID_LINK_WITH_EDITOR, \
     ID_VIEW_MENU, setting, menuItemList, ID_EXPORT, ID_IMPORT, ID_NEW, \
     ID_PROJECT_PROPERTIES, ID_CLOSE_PROJECT, ID_DELETE_PROJECT, ID_NEW_FILE, ID_NEW_FOLDER, \
-    ID_RENAME, ID_REFRESH_TREE_ITEM
+    ID_RENAME, ID_REFRESH_TREE_ITEM, ID_PYTHON_RUN
 from src.view.views.file.explorer._filetree import FileTree
 from src.view.views.file.MainStcPanel import MainStc
 from src.view.other.NewFile import NewFileFrame
@@ -54,6 +54,7 @@ class PythonExplorerPanel(wx.Panel):
         self.fileOperations = FileOperations()
         self.topToolbar = self.constructTopToolBar()
         self.pythonExplorerTreePanel = PythonExplorerTreePanel(self)
+        self.linkWithEditor = False
         ####################################################################
         sizer.Add(self.topToolbar, 0, wx.EXPAND)
         sizer.Add(self.pythonExplorerTreePanel, 1, wx.EXPAND)
@@ -72,12 +73,12 @@ class PythonExplorerPanel(wx.Panel):
         tb1 = aui.AuiToolBar(self, -1, wx.DefaultPosition, (10, 10), agwStyle=aui.AUI_TB_DEFAULT_STYLE | aui.AUI_TB_OVERFLOW)
 
 #         tb1.SetToolBitmapSize(wx.Size(16, 16))
-
+        # id, name, image, name, method, kind
         tools = [
-            (ID_COLLAPSE_ALL, "Collapse All", "collapseall-small.png", 'Collapse All', self.onCollapseAll),
-            (ID_LINK_WITH_EDITOR, "Link with Editor", "icon_link_with_editor.png", 'Link with Editor', self.onLinkWithEditor),
+            (ID_COLLAPSE_ALL, "Collapse All", "collapseall-small.png", 'Collapse All', self.onCollapseAll, wx.ITEM_NORMAL),
+            (ID_LINK_WITH_EDITOR, "Link with Editor", "icon_link_with_editor.png", 'Link with Editor', self.onLinkWithEditor, wx.ITEM_CHECK),
             (),
-            (ID_VIEW_MENU, "View Menu", "icon_menu.png", 'View Menu', self.onViewMenu),
+            (ID_VIEW_MENU, "View Menu", "icon_menu.png", 'View Menu', self.onViewMenu, wx.ITEM_NORMAL),
 #             (ID_REFRESH_ROW, "Result refresh", "resultset_refresh.png", 'Result refresh \tF5', self.onRefresh),
 #             (ID_ADD_ROW, "Add a new row", "row_add.png", 'Add a new row', self.onAddRow),
 #             (ID_DUPLICATE_ROW, "Duplicate selected row", "row_copy.png", 'Duplicate selected row', self.onDuplicateRow),
@@ -88,7 +89,8 @@ class PythonExplorerPanel(wx.Panel):
                 tb1.AddSeparator()
             else:
                 logger.debug(tool)
-                toolItem = tb1.AddSimpleTool(tool[0], tool[1], self.fileOperations.getImageBitmap(imageName=tool[2]), short_help_string=tool[3])
+                toolItem = tb1.AddSimpleTool(tool[0], tool[1], self.fileOperations.getImageBitmap(imageName=tool[2]), kind=tool[5], short_help_string=tool[3])
+                
                 if tool[4]:
                     self.Bind(wx.EVT_MENU, tool[4], id=tool[0])
 
@@ -98,9 +100,13 @@ class PythonExplorerPanel(wx.Panel):
 
     def onCollapseAll(self, event):
         logger.debug('onCollapseAll')
+        self.pythonExplorerTreePanel.CollapseAll()
 
     def onLinkWithEditor(self, event):
         logger.debug('onLinkWithEditor')
+        self.linkWithEditor = event.IsChecked()
+        logger.debug(f'{self.linkWithEditor}')
+#         event.
 
     def onViewMenu(self, event):
         logger.debug('onViewMenu')
@@ -457,76 +463,110 @@ class PythonExplorerTreePanel(FileTree):
         logger.debug('DoShowMenu')
         # Check if click was in blank window area
         nodes = self.GetSelections()
-        file = [ self.GetPyData(node) for node in nodes ][0]
-        logger.debug(f'DoShowMenu:{file}')
         activeNode = None
+        items = [
+            [ID_NEW, 'New', None , None],
+            [],
+            [wx.NewIdRef(), 'Copy', "copy_edit.png", None],
+            [wx.NewIdRef(), 'Paste', "paste_edit.png", None],
+            [ID_DELETE_PROJECT, 'Delete', "delete_obj.png", None],
+            [wx.NewIdRef(), 'Move', None, None],
+            [ID_RENAME, 'Rename', None, None],
+            [],
+            [ID_IMPORT, 'Import', "import_prj.png", None],
+            [ID_EXPORT, 'Export', "export.png", None],
+            [],
+            [ID_REFRESH_TREE_ITEM, 'Refresh', "refresh.png", None],
+            [ID_CLOSE_PROJECT, 'Close Project', None, None],
+            [wx.NewIdRef(), 'Close Unreleated Projects', None, None],
+#             [wx.NewIdRef(), 'Run As', "run_exc.png", None, None],
+            [wx.NewIdRef(), 'Debug As', "debug_exc.png", None, None],
+            [],
+            [ID_PROJECT_PROPERTIES, 'Properties', "project_properties.png", None, None],
+            ]
+        if len(nodes) == 1:
+            path = [ self.GetPyData(node) for node in nodes ][0]
+            logger.debug(f'DoShowMenu:{path}')
+            extension = path.split('.')[-1]
+            if os.path.isfile(path):
+                items.insert(0, [wx.NewIdRef(), 'Open', None, None],)
+                fileList = []
+                runList = []
+                if extension == 'py':
+                    fileList.append([wx.NewIdRef(), 'Python', 'python_module.png'])
+                    runList.append([ID_PYTHON_RUN, 'Python Run', 'python_run.png'])
+                    items.insert(1, [wx.NewIdRef(), 'Open With', None, fileList ],)
+                    items.insert(2, [],)
+                if extension == 'java':
+                    fileList.append([wx.NewIdRef(), 'Python', 'python_module.png'])
+                    runList.append([wx.NewIdRef(), 'Java Applicaton', 'java_launch.png'])
+                    items.insert(1, [wx.NewIdRef(), 'Open With', None, fileList ],)
+                    items.insert(2, [],)
+                items.insert(15, [wx.NewIdRef(), 'Run As', "run_exc.png", runList, None],)
+        else:
+            pass
         try:
             activeNode = self.GetPyData(item)
+            selectedPerspectiveName = None
+            try:
+                selectedPerspectiveName = self.GetTopLevelParent().selectedPerspectiveName
+            except Exception as e:
+                logger.error(e)
+                # setting default perspective name as python
+                selectedPerspectiveName = 'python'
             if not self.menu:
-                self.menu = wx.Menu()
-                items = [
-                    [ID_NEW, 'New', None ],
-                    [],
-                    [wx.NewIdRef(), 'Copy', "copy_edit.png"],
-                    [wx.NewIdRef(), 'Paste', "paste_edit.png"],
-                    [ID_DELETE_PROJECT, 'Delete', "delete_obj.png"],
-                    [wx.NewIdRef(), 'Move', None],
-                    [ID_RENAME, 'Rename', None],
-                    [],
-                    [ID_IMPORT, 'Import', "import_prj.png"],
-                    [ID_EXPORT, 'Export', "export.png"],
-                    [],
-                    [ID_REFRESH_TREE_ITEM, 'Refresh', "refresh.png"],
-                    [ID_CLOSE_PROJECT, 'Close Project', None],
-                    [wx.NewIdRef(), 'Close Unreleated Projects', None],
-                    [wx.NewIdRef(), 'Run As', "run_exc.png"],
-                    [wx.NewIdRef(), 'Debug As', "debug_exc.png"],
-                    [],
-                    [ID_PROJECT_PROPERTIES, 'Properties', "project_properties.png"],
-                    ]
+                popupMenu = wx.Menu()
                 #
                 for mi_tup in items:
                     if len(mi_tup) > 0:
                         if mi_tup[0] == ID_NEW:
                             sm = wx.Menu()
-                            try:
-                                selectedPerspectiveName = self.GetTopLevelParent().selectedPerspectiveName
-                            except Exception as e:
-                                logger.error(e)
-                                # setting default perspective name as python
-                                selectedPerspectiveName = 'python'
                             for menuItemName in menuItemList[selectedPerspectiveName]:
                                 if len(menuItemName) > 1:
                                     menuItem = wx.MenuItem(sm, menuItemName[0], menuItemName[1])
                                     if menuItemName[2]:
                                         menuItem.SetBitmap(self.fileOperations.getImageBitmap(imageName=menuItemName[2]))
                                     sm.Append(menuItem)
-                                    self.Bind(wx.EVT_MENU, lambda e:self.onRightClickMenu(e, file=file), id=menuItemName[0])
+                                    self.Bind(wx.EVT_MENU, lambda e:self.onRightClickMenu(e, file=path), id=menuItemName[0])
                                 else:
                                     sm.AppendSeparator()
-                            self.menu.Append(mi_tup[0], mi_tup[1], sm)
+                            popupMenu.Append(mi_tup[0], mi_tup[1], sm)
                         else:
-                            mitem = wx.MenuItem(self.menu, mi_tup[0], mi_tup[1])
-                            if mi_tup[2] is not None:
-                                mitem.SetBitmap(self.fileOperations.getImageBitmap(imageName=mi_tup[2]))
-                            self.menu.Append(mitem)
-                            self.Bind(wx.EVT_MENU, self.onRightClickMenu, id=mi_tup[0])
+                            if mi_tup[3]:
+                                sm = wx.Menu()
+                                for menuItemName in mi_tup[3]:
+                                    menuItem = wx.MenuItem(sm, menuItemName[0], menuItemName[1])
+                                    if menuItemName[2]:
+                                        menuItem.SetBitmap(self.fileOperations.getImageBitmap(imageName=menuItemName[2]))
+                                        sm.Append(menuItem)
+                                        self.Bind(wx.EVT_MENU, lambda e:self.onRightClickMenu(e, file=path), id=menuItemName[0])
+                                    else:
+                                        sm.AppendSeparator()
+                                popupMenu.Append(mi_tup[0], mi_tup[1], sm)
+                            else:
+                                mitem = wx.MenuItem(popupMenu, mi_tup[0], mi_tup[1])
+                                if mi_tup[2] is not None:
+                                    mitem.SetBitmap(self.fileOperations.getImageBitmap(imageName=mi_tup[2]))
+                                popupMenu.Append(mitem)
+                                self.Bind(wx.EVT_MENU, self.onRightClickMenu, id=mi_tup[0])
                     else:
-                        self.menu.AppendSeparator()
+                        popupMenu.AppendSeparator()
 #                         bmp = wx.ArtProvider.GetBitmap(str(mi_tup[2]), wx.ART_MENU)
 #                         mitem.SetBitmap(bmp)
         except Exception as e:
             logger.error(e)
             pass
-
-        self.PopupMenu(self.menu)
+        
+        self.PopupMenu(popupMenu)
+#         self.menu.Destroy()
 
     #---- End FileTree Interface Methods ----#
     def refreshNode(self):
         for node in self.GetSelections():
-            self.DoItemCollapsed(node)
-            self.DoItemExpanding(node)
-        
+            path = self.GetPyData(node)
+            if os.path.isdir(path) and self.IsExpanded(node):
+                self.DoItemCollapsed(node)
+                self.DoItemExpanding(node)
     
     def onRightClickMenu(self, event, file=None):
         nodes = self.GetSelections()
@@ -562,6 +602,8 @@ class PythonExplorerTreePanel(FileTree):
                 self.DoItemExpanding(node)
 #                     self.initProjects()
 #                     self.RemoveWatchDirectory(dname)
+        if event.Id == ID_PYTHON_RUN:
+            logger.debug('ID_PYTHON_RUN')
         if event.Id == ID_RENAME:
             logger.debug('ID_RENAME')
             self.onF2KeyPress(event)
@@ -882,7 +924,7 @@ class FileBrowserMimeManager():
         self.fileImageExtensionDict = {
 #             '.exe':'exe.png',
             '.xml':'xml.png',
-            '.java':'java.png',
+            '.java':'jcu_obj.png',
             '.py':'python_module.png',
             '.html':'web.png',
             '.md':'markdown.png',
@@ -916,7 +958,7 @@ class FileBrowserMimeManager():
             except Exception as e:
                 logger.error(e, exc_info=True)
         for imageName in ['fileType_filter.png', 'folder.png', 'folder_view.png', 'harddisk.png', 'usb.png', 'stop.png',
-                          'java.png', 'python_module.png', 'xml.png', 'python.png', 'java.png', 'jar_file.png', 'markdown.png',
+                          'jcu_obj.png', 'python_module.png', 'xml.png', 'python.png', 'jcu_obj.png', 'jar_file.png', 'markdown.png',
                           'yaml.png', 'spec.png', 'web.png' ]:
             imglist.Add(self.fileOperations.getImageBitmap(imageName=imageName))
             self.iconsDictIndex[imageName] = count
