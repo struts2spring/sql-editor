@@ -4,7 +4,7 @@ Created on Mar 1, 2019
 @author: xbbntni
 '''
 import wx
-from src.view.views.editor.markdown.MarkdownPanel import CreatingMarkdownPanel
+from src.view.views.editor.pandoc.PandocPanel import CreatingPandocPanel
 from src.view.views.file.MainStcPanel import MainStc
 from src.view.util.FileOperationsUtil import FileOperations
 import os
@@ -19,7 +19,7 @@ class EditorWindowManager():
         window = wx.Panel()
         fileExtension = filePath.split('.')[-1]
         if fileExtension == 'md':
-            window = CreatingMarkdownPanel(attachTo, filePath=filePath)
+            window = CreatingPandocPanel(attachTo, filePath=filePath)
 #             window.markdownSourcePanel.stc.LoadFile(path=filePath)
             window.markdownSourcePanel.stc.SetFileName(filePath)
             window.markdownSourcePanel.stc.SetModTime(os.path.getmtime(filePath))

@@ -458,6 +458,7 @@ class PythonExplorerTreePanel(FileTree):
         # Check if click was in blank window area
         nodes = self.GetSelections()
         file = [ self.GetPyData(node) for node in nodes ][0]
+        logger.debug(f'DoShowMenu:{file}')
         activeNode = None
         try:
             activeNode = self.GetPyData(item)
@@ -522,18 +523,30 @@ class PythonExplorerTreePanel(FileTree):
 
     #---- End FileTree Interface Methods ----#
     def onRightClickMenu(self, event, file=None):
-        logger.debug(f'onRightClickMenu: {event.Id}')
+        nodes = self.GetSelections()
+        file = [ self.GetPyData(node) for node in nodes ][0]
+        if os.path.isfile(file):
+            file = os.path.dirname(file)
+        logger.debug(f'onRightClickMenu: {event.Id}, file:{file} ')
         if event.Id == ID_PROJECT_PROPERTIES:
             logger.debug('ID_PROJECT_PROPERTIES')
         if event.Id == ID_CLOSE_PROJECT:
             logger.debug('ID_CLOSE_PROJECT')
         if event.Id == ID_DELETE_PROJECT:
             logger.debug('ID_DELETE_PROJECT')
-            for project in setting.activeWorkspace.projects:
-                for node in self.GetSelections():
-
+            for node in self.GetSelections():
+                for project in setting.activeWorkspace.projects:
                     if project.projectDirName == self.GetItemText(node):
                         setting.activeWorkspace.projects.remove(project)
+                else:
+                    path = self.GetPyData(node)
+                    logger.info(f'deleting : {path} ')
+                    if path is not None and os.path.isdir(path):
+                        logger.debug(f'shutil.rmtree({path})')
+                        shutil.rmtree(path)
+                    elif os.path.isfile(path):
+                        logger.debug(f'os.remove({path})')
+                        os.remove(path)
                     self.Delete(node)
 #                     self.initProjects()
 #                     self.RemoveWatchDirectory(dname)

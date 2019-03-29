@@ -202,7 +202,7 @@ class FileTree(wx.TreeCtrl):
 
     #---- Properties ----#
 
-    SelectedFiles = property(lambda self: self.GetSelectedFiles())
+#     SelectedFiles = property(lambda self: self.GetSelectedFiles())
 
     #---- Overridable methods ----#
 
