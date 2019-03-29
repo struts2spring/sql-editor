@@ -85,7 +85,7 @@ class HeaderPanel(wx.Panel):
         font = wx.Font(10, wx.FONTFAMILY_SCRIPT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
         headerText.SetFont(font)
         
-        bmp = self.fileOperations.getImageBitmap(imageName='eclipse16.png')
+        bmp = self.fileOperations.getImageBitmap(imageName='python-wizban.png')
         rightsImage = wx.StaticBitmap(self, -1, bmp, (80, 150))
         
         hBox.Add(headerText, 1, wx.EXPAND , 0)

@@ -521,8 +521,12 @@ class FileTree(wx.TreeCtrl):
 
         """
         logger.debug('GetSelectedFiles')
-        nodes = self.GetSelections()
-        files = [ self.GetPyData(node) for node in nodes ]
+        files = None
+        try:
+            nodes = self.GetSelections()
+            files = [ self.GetPyData(node) for node in nodes ]
+        except Exception as e:
+            logger.error(e)
         return files
 
     def GetSelectedFilesWithImage(self):
