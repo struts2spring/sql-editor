@@ -59,7 +59,10 @@ class NewFileFrame(wx.Frame):
         event.Skip()
 
     def OnCloseFrame(self, event):
-        self.parent.refreshNode()
+        try:
+            self.parent.refreshNode()
+        except Exception as e:
+            logger.error(e)
         self.Destroy()
 
     def OnSize(self, event):

@@ -4,11 +4,14 @@ import os
 from src.view.util.common.ed_glob import ID_GOTO_LINE
 from src.settings.workspace import Setting
 
+
 TITLE = "Eclipse"
 VERSION = "0.0.6"
 
 
+
 setting=Setting()
+
 
 ID_RESOURCE = wx.NewIdRef()
 ID_WELCOME = wx.NewIdRef()
