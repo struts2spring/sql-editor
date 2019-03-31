@@ -10,165 +10,11 @@ from wx.lib.mixins.treemixin import ExpansionState
 from src.view.util.FileOperationsUtil import FileOperations
 import logging.config
 from src.view.constants import LOG_SETTINGS
+from src.view.other.TreeData import TreeSearch, viewdataList
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 ##################################################
-_treeList1 = [
-    ("General", [
-        ("Appearance", [
-                ("Colors and Fonts"),
-                ("Label Decorations")
-            ]
-        ),
-        ("Capabilities"),
-        ("Compare/Patch"),
-        ("Content Types"),
-        ("Editors", [
-            ("Autosave"),
-            ("File Associations"),
-            ("Structured Text Editors"),
-            ]
-        ),
-        ("Error Reporting"),
-        ("Globalization"),
-        ("Keys"),
-        ("Network Connections", [
-            ("Cache"),
-            ("SSH2")
-            ]
-         )
-        ]
-    ),
-    ("Ant", [
-        ("Editor", [
-                ("Colors and Fonts"),
-                ("Label Decorations")
-            ]
-        ),
-        ("Runtime")
-        ]
-    ),
-    ("Cloud Foundry", [
-        ("HTTP Tracing")
-        ]
-    ), ("Code Recommenders", [
-        ("Advisors"),
-        ("Completions", [
-            ("Calls"),
-            ("Chains"),
-            ("Constructors"),
-            ("Overrides"),
-            ("Statics"),
-            ("Subwords"),
-            ]),
-        ("Models"),
-        ]
-    ),
-    ("Data Management", [
-        ("Connectivity", [
-            ("Database Connection Profile"),
-            ("Driver Definitions"),
-            ("Open Data Access", [
-                ("XML Data Set")
-                ]),
-            ]),
-        ("Label Decorations"),
-        ("SQL Development", [
-            ("Execution Plan View Options"),
-            ("General"),
-            ("Schema Object Editor Configuration"),
-            ("SQL Editor", [
-                ("Code Assist"),
-                ("SQL Files/Scrapbooks"),
-                ("Syntax Coloring"),
-                ("Templates"),
-                ]),
-            ]),
-        ]
-    ),
-    ("Gradle"),
-    ("Help", [("Content")]),
-    (
-     "Install/Update", [
-            ('Automatic Updates'),
-            ('Available plugins')
-        ]
-     ),
-    ("Java", [("Appearance", [("Members Sort Order"), ("Type Filters")]),
-             ("Build Path", [("Classpath Variables"), ("User Liberaries")]),
-             ("Code Coverage"),
-             ("Code Style", [("Clean Up"), ("Code Templates"), ("Formatter"), ("Organize Imports")]),
-             ("Compiler", [("Building"), ("Errors/Warning"), ("Javadoc"), ("Task Tags")]),
-             ("Debug", [("Detail Formatters"), ("Heap Walking"), ("Logical Structures"), ("Premitive Display Options"), ("Step Filtering")]),
-             ("Editor", [("Content Assist"), ("Folding"), ("Hovers"), ("Mark Occurrences"), ("Save Actions"), ("Syntax Coloring"), ("Templates"), ("Typing")]),
-             ("Installed JREs", [("Execution Environments")]),
-             ("JUnit"),
-             ("Properties Files Editor"),
-
-             ]),
-    ("Java EE"),
-    ("Java Persistence"),
-    ("JavaScript"),
-    ("JSON", [("JSON Catalog"), ("JSON Files", [("Editor", [("Content Assist"), ("Syntax Coloring"), ("Templates")]), ("Validation")])]),
-    ("Maven", [("Archetypes"), ("Discovery"), ("Errors/Warning"), ("Installations"), ("Java EE Integration"), ("Lifecycle Mappings"), ("Source Lookup"), ("Templates"), ("User Interface"), ("User Settings")]),
-    ("Python", [("Builders"),
-               ("Debug", [("Source Locator")]),
-               ("Editor", [("Auto Imports")]),
-               ("Code Analysis", [("PyLint")]),
-               ("Code Completion (ctx insensitive and common tokens)"),
-               ("Code Folding"), ("Code Style", [("Block Comments"), ("Code Formatter"), ("Docstrings"), ("File types"), ("Imports")]),
-               ("Editor caption/icon"), ("Hover"), ("Mark Occurrences"), ("Overview Ruler Minimap")
-               ]),
-    ("Remote Systems"),
-    ("Run/Debug"),
-    ("Server"),
-    ("Team", [("File Content"), ("Git", [
-        ("Committing"), ("Configuration"), ("Confirmation and Warning"), ("Date Format"), ("History"), ("Label Decorations"), ("Projects"), ("Staging View"), ("Synchronize"), ("Window Cache"),
-        ]),
-        ("Ignored Resources"), ("Models")
-    ]),
-    ("Terminal", [("Local Terminal")]),
-    ("Validation"),
-    ("Web", [
-        ("CSS Files", [("Editor", [("Content Assist"), ("Syntax Coloring"), ("Templates")])]),
-        ("HTML Files", [("Editor", [("Content Assist"), ("Syntax Coloring"), ("Templates"), ("Typing")]), ("Validation")]),
-        ("JavaServer Faces Tools", [("FacesConfig Editor"), ("Validation"), ("Views", [("JSP Tag Registry")])]),
-        ("JSP Files", [("Editor", [("Content Assist"), ("Syntax Coloring"), ("Templates")])]),
-
-    ]),
-    ("Web Services", [("Axis Emitter"), ("Axis2 Preferences")]),
-    ("XML"),
-]
-
-_treeList = [
-    # new stuff
-    (
-     'General', [
-        'Appearance',
-        'Search',
-        'Workspace',
-        'Keys'
-        ]
-     ),
-    (
-     'Sharing', [
-        'Email book',
-        'Open cloud',
-        'Configure device',
-        ]
-     ),
-    (
-     'Account', [
-        'Email book',
-        'Open cloud',
-        'Configure device',
-        ]
-     ),
-
-    ('Check out the samples dir too', []),
-
-]
 
 
 class OtherViewTreeFrame(wx.Frame):
@@ -340,17 +186,26 @@ class OtherViewTreePanel(wx.Panel):
             return
 
         wx.BeginBusyCursor()
-
-        for category, items in _treeList:
-            self.searchItems[category] = []
-            for childItem in items:
-#                 if SearchDemo(childItem, value):
-                self.searchItems[category].append(childItem)
+# 
+#         for category, items in _treeList:
+#             self.searchItems[category] = []
+#             for childItem in items:
+# #                 if SearchDemo(childItem, value):
+#                 self.searchItems[category].append(childItem)
 
         wx.EndBusyCursor()
         self.RecreateTree()
 
     #---------------------------------------------
+    def constructNode(self, parent=None, treeData=None):
+        logger.debug(treeData)
+        for treeItem in treeData:
+            itemId = self.tree.AppendItem(parent, treeItem.name, image=self.tree.iconsDictIndex[treeItem.imageName])
+            self.tree.SetItemData(itemId, treeItem)
+            if treeItem.child:
+#                     for childItem in treeItem.child:
+                self.constructNode(parent=itemId, treeData=treeItem.child)
+
     def RecreateTree(self, evt=None):
         searchMenu = self.filter.GetMenu().GetMenuItems()
         fullSearch = searchMenu[1].IsChecked()
@@ -396,26 +251,13 @@ class OtherViewTreePanel(wx.Panel):
         filter = self.filter.GetValue()
         count = 0
 
-        def constructNode(parent=None, treeData=None):
-            logger.debug(treeData)
-            for idx, items in enumerate(treeData):
-                logger.debug(items)
-                itemText = None
-                image = 1
-                if isinstance(items, tuple):
-                    itemText = items[0]
-                    image = self.tree.iconsDictIndex['folder.png']
-                else:
-                    itemText = items
-                    image = self.tree.iconsDictIndex['fileType_filter.png']
+        treeSearch = TreeSearch()
+        searchText = self.filter.GetValue()
+        if searchText.strip() == '':
+            searchText = None
+        treeItems = treeSearch.searchedNodes(dataList=viewdataList, searchText=searchText)
 
-                child = self.tree.AppendItem(parent, itemText, image=image)
-#                 self.tree.SetItemFont(child, catFont)
-                self.tree.SetItemData(child, count)
-                if isinstance(items, tuple) and len(items) > 1:
-                    constructNode(parent=child, treeData=items[1])
-
-        constructNode(parent=self.root, treeData=_treeList1)
+        self.constructNode(parent=self.root, treeData=treeItems)
 #         for category, items in _treeList:
 #             category, items
 #             count += 1
@@ -544,7 +386,7 @@ class OtherViewTreePanel(wx.Panel):
         item = event.GetItem()
         logger.debug("OnItemExpanded: %s" , self.tree.GetItemText(item))
         if self.tree.GetItemParent(item):
-            self.tree.SetItemImage(item, self.tree.iconsDictIndex['folder_view.png'])
+            self.tree.SetItemImage(item, self.tree.iconsDictIndex['eclipse_folder.png'])
         event.Skip()
 
     #---------------------------------------------
@@ -552,7 +394,7 @@ class OtherViewTreePanel(wx.Panel):
         item = event.GetItem()
         logger.debug("OnItemCollapsed: %s", self.tree.GetItemText(item))
         if self.tree.GetItemParent(item):
-            self.tree.SetItemImage(item, self.tree.iconsDictIndex['folder.png'])
+            self.tree.SetItemImage(item, self.tree.iconsDictIndex['folderType_filter.png'])
         event.Skip()
 
     #---------------------------------------------
@@ -582,7 +424,10 @@ class OtherViewTreePanel(wx.Panel):
     #         opalPreference.rightPanelItem=opalPreference.getPreferencePanelObj(rightPanel,preferenceName=itemText)
     #         opalPreference.rightPanelItem.Show(True)
     #         opalPreference.rightPanelItem.Layout()
-            for pnl in opalPreference.pnl.GetChildren():
+            pnl_children = list()
+            if hasattr(opalPreference, 'png'):
+                pnl_children = opalPreference.pnl.GetChildren()
+            for pnl in pnl_children:
     #             print(pnl)
                 if pnl.GetName() == 'rightPanel':
                     opalPreference = self.GetTopLevelParent()
@@ -599,8 +444,8 @@ class OtherViewTreePanel(wx.Panel):
             opalPreference.Layout()
     #         print(opalPreference.GetChildrenCount())
     #         opalPreference.GetChildrenCount().rightpanel.Refresh()
-
-            opalPreference.mgr.Update()
+            if hasattr(opalPreference, 'mgr'):
+                opalPreference.mgr.Update()
 
 
 #         self.UpdateNotebook(preferenceName=itemText)
@@ -648,11 +493,18 @@ class OtherViewBaseTreePanel(ExpansionState, TreeCtrl):
         self.iconsDictIndex = {}
         count = 0
         self.fileOperations = FileOperations()
-        for imageName in ['preference.png', 'folder.png', 'folder_view.png', 'fileType_filter.png', 'usb.png', 'stop.png',
-                          'java.png', 'python_module.png', 'xml.png', "other_view.png"]:
-            self.ImageList.Add(self.fileOperations.getImageBitmap(imageName=imageName))
-            self.iconsDictIndex[imageName] = count
-            count += 1
+        for imageName in ['preference.png', 'folderType_filter.png', 'eclipse_folder.png', 'fileType_filter.png', 'usb.png', 'stop.png',
+                          'java.png', 'python_module.png', 'xml.png', "other_view.png", 'console_view.png', 'register_view.png',
+                          'debug_view.png' , 'history_view.png', 'compare_view.png', 'breakpoint_view.png', 'watchlist_view.png',
+                          'history_view.png', 'synch_synch.png', 'variable_view.png', 'internal_browser.png', 'reflog.png', 'staging.png',
+                          'rebase_interactive.png', 'repo_rep.png', 'gitrepository.png','filenav_nav.png','welcome16.png','tasks_tsk.png',
+                          'resource_persp.png','outline_co.png']:
+            try:
+                self.ImageList.Add(self.fileOperations.getImageBitmap(imageName=imageName))
+                self.iconsDictIndex[imageName] = count
+                count += 1
+            except Exception as e:
+                logger.error(e)
 
     def GetItemIdentity(self, item):
         return self.GetItemData(item)
