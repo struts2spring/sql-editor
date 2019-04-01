@@ -378,14 +378,25 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 #         if self.selectedPerspectiveName == 'python':
 #             logger.debug(self.selectedPerspectiveName)
 #             [ID_openConnection, 'Open Database connection \tCtrl+O', None, None, False, ['database']],
-        
+
+#         def creatingMenu(menuItemList):
+#             logger.debug('Adding Menu')
+#             menubar = wx.MenuBar()
+#             for menuItem in menuItemList:
+#                 topLevelMenu = wx.Menu()
+#                 menubar.Append(topLevelMenu, menuItem[0])
+#             return menubar
+# 
+#         creatingMenu(menuItemList)
+                
         for menuItem in menuItemList:
             topLevelMenu = wx.Menu()
             if menuItem[1]:
                 for windowMenu in menuItem[1]:
                     if len(windowMenu) == 0:
                         topLevelMenu.AppendSeparator()
-                    elif windowMenu[2]:
+                        
+                    elif windowMenu[2] and windowMenu[0] != wx.ID_NEW:
                         firstLevelMenu = wx.Menu()
                         try:
                             for showViewMenu in windowMenu[2]:
@@ -413,6 +424,22 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                             topLevelMenu.Append(windowMenu[0], windowMenu[1], firstLevelMenu)
                         except Exception as e:
                             logger.error(e, exc_info=True)
+                    elif windowMenu[0] == wx.ID_NEW:
+                        logger.debug('new menu')
+                        firstLevelMenu = wx.Menu()
+                        
+#                         secondLevelMenuItem = wx.Menu()
+                        self.appendLeafToMenu(wx.NewIdRef(), attacheTo=firstLevelMenu, menuName='Project...', imageName=None)
+                        self.appendLeafToMenu(wx.NewIdRef(), attacheTo=firstLevelMenu, menuName='Example...', imageName=None)
+                        self.appendLeafToMenu(wx.NewIdRef(), attacheTo=firstLevelMenu, menuName='Other...', imageName=None)
+#                         firstLevleMenuItem = firstLevelMenu.Append(-1, 'asdfzxc', secondLevelMenuItem)
+#                         firstLevelMenu.Append(menuItem)
+                        
+#                         firstLevelMenu.Append(-1, 'asdfasd', secondLevelMenuItem)
+#                         firstLevelMenu.Append(wx.NewIdRef(), 'asdasdff', secondLevelMenuItem)
+#                         topLevelMenu.Append(firstLevelMenu)
+                        topLevelMenu.Append(windowMenu[0], windowMenu[1], firstLevelMenu)
+                        
                     else:
                         firstLevelMenu = wx.MenuItem(topLevelMenu, windowMenu[0], windowMenu[1])
                         if windowMenu[3]:
@@ -438,6 +465,10 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         for itemId in itemIdList:
             it = menuBar.FindItemById(itemId)
             it.Enable(False)
+#         item = menuBar.FindItemById(wx.ID_NEW)
+#         menuItem = wx.MenuItem(item, wx.NewIdRef(), "asdf")
+#         item.Append(menuItem)
+        
 #     def createMenu(self, menuBar=wx.MenuBar(), menu=wx.Menu(), menuItemList=list()) :
 #         '''
 #         return mb: wx.MenuBar
