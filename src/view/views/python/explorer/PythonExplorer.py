@@ -616,15 +616,19 @@ class PythonExplorerTreePanel(FileTree):
             logger.debug('ID_IMPORT')
         if event.Id == ID_NEW_FILE:
             logger.debug('ID_NEW_FILE')
-            newFileframe = NewFileFrame(self, 'New File', selectedPath=file)
-            newFileframe.CenterOnScreen()
-            newFileframe.Show()
+            self.newFileFlow(title='New File', file=file)
         if event.Id == ID_NEW_FOLDER:
             logger.debug('ID_NEW_FOLDER')
-            newFileframe = NewFileFrame(self, 'New Folder', selectedPath=file)
+            self.newFileFlow(title='New Folder', file=file)
+#             newFileframe = NewFileFrame(self, 'New Folder', selectedPath=file)
+#             newFileframe.CenterOnScreen()
+#             newFileframe.Show()
+
+    def newFileFlow(self, title=None, file=None):
+            newFileframe = NewFileFrame(self, title, selectedPath=file)
             newFileframe.CenterOnScreen()
             newFileframe.Show()
-
+        
     def OpenFiles(self, filesWithImage=[]):
         """Open the list of files in Editra for editing
         @param files: list of file names

@@ -72,7 +72,7 @@ class NewFileFrame(wx.Frame):
 
 class NewFilePanel(wx.Panel):
 
-    def __init__(self, parent, *args, title=None, selectedPath=None, **kw):
+    def __init__(self, parent, *args, title=None, selectedPath='', **kw):
         wx.Panel.__init__(self, parent, id=-1)
 #         self.parent = parent
         self.title = title
@@ -83,6 +83,7 @@ class NewFilePanel(wx.Panel):
         h2 = wx.BoxSizer(wx.HORIZONTAL)
         ###################################3333333333
         self.parentFolderText = selectedPath
+            
         self.fileNameText = ''
 
         parentFolderLabel = wx.StaticText(self, -1, "Enter or select parent folder:")

@@ -30,6 +30,7 @@ from src.view.views.project.explorer.ProjectExplorer import CreatingProjectExplo
 from src.view.search.SearchFrame import SearchPanelsFrame
 from src.view.views.file.MainStcPanel import MainStc
 from src.view.views.console.worksheet.ResultGrid import ResultDataGrid
+from src.view.other.NewFile import NewFileFrame
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -511,6 +512,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                 if baseMenuItem[2]:
                     menuItem.SetBitmap(self.fileOperations.getImageBitmap(imageName=baseMenuItem[2]))
                 item.Append(menuItem)
+                self.Bind(wx.EVT_MENU, lambda e:self.onRightClickMenu(e), id=baseMenuItem[0])
             else:
                 item.AppendSeparator()
         
@@ -523,9 +525,24 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
             if imageName:
                 menuItem.SetBitmap(self.fileOperations.getImageBitmap(imageName=imageName))
             attacheTo.Append(menuItem)
+            self.Bind(wx.EVT_MENU, lambda e:self.onRightClickMenu(e), id=menuId)
         except Exception as e:
             logger.error(e, exc_info=True)
         return attacheTo
+
+    def onRightClickMenu(self, event):
+        logger.debug(f'onRightClickMenu:{event.Id}')
+        if event.Id == ID_NEW_FILE:
+            logger.debug('ID_NEW_FILE')
+            self.newFileFlow(title='New File', file=None)
+        if event.Id == ID_NEW_FOLDER:
+            logger.debug('ID_NEW_FOLDER')
+            self.newFileFlow(title='New Folder', file=None)
+
+    def newFileFlow(self, title=None, file=None):
+            newFileframe = NewFileFrame(self, title, selectedPath=file)
+            newFileframe.CenterOnScreen()
+            newFileframe.Show()
 
     def bindingEvent(self):
 

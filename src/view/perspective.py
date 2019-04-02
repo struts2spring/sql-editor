@@ -1248,6 +1248,7 @@ class PerspectiveManager(object):
                 if menuItemName[2]:
                     menuItem.SetBitmap(self.fileOperations.getImageBitmap(imageName=menuItemName[2]))
                 menuPopup.Append(menuItem)
+                self.Bind(wx.EVT_MENU, lambda e:self.onRightClickMenu(e), id=menuItemName[0])
             else:
                 menuPopup.AppendSeparator()
         return menuPopup
