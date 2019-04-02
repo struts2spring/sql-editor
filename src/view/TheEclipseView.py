@@ -465,11 +465,22 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         for itemId in itemIdList:
             it = menuBar.FindItemById(itemId)
             it.Enable(False)
-        item = menuBar.FindItemById(wx.ID_NEW).GetSubMenu()
-#         menuItem = wx.MenuItem(attacheTo, menuId, menuName)
-#         item.Append(wx.NewIdRef(), item='asdf', helpString='sadf')
-        menuItem = wx.MenuItem(item, wx.NewIdRef(), "asdf")
-        item.Append(menuItem)
+            
+#         logger.debug(self.selectedPerspectiveName)
+        # default perspective python
+        selectedPerspectiveName = 'python'
+        baseList = menuItemList[selectedPerspectiveName]
+        menuItemListx = {
+                selectedPerspectiveName: baseList
+                }
+        menuPopup = self.createMenuByPerspective(menuItemList=menuItemListx, perspectiveName=selectedPerspectiveName)
+#         item = menuBar.FindItemById(wx.ID_NEW).SetSubMenu(menuPopup)
+        self.appendSubMenu(menuBar=menuBar)
+
+#         item = menuBar.FindItemById(wx.ID_NEW).GetSubMenu()
+#         menuItem = wx.MenuItem(item, wx.NewIdRef(), "asdf")
+#         item.Append(menuItem)
+        
 #         item.AppendItem(menuItem)
 #         self.appendLeafToMenu(wx.NewIdRef(), attacheTo=item, menuName='Project1...', imageName=None)
 #         item.Append(menuItem)
@@ -486,7 +497,23 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 #             self.createMenu(menuBar, menuItem)
 #
 #         return menuBar
-
+    def appendSubMenu(self, menuBar=None, selectedPerspectiveName='python'):
+        item = menuBar.FindItemById(wx.ID_NEW).GetSubMenu()
+        
+        # removing all menu 
+        for menu in item.GetMenuItems():
+            item.Remove(menu.Id)
+        
+        baseList = menuItemList[selectedPerspectiveName]
+        for baseMenuItem in baseList:
+            if len(baseMenuItem) > 1:
+                menuItem = wx.MenuItem(item, baseMenuItem[0], baseMenuItem[1])
+                if baseMenuItem[2]:
+                    menuItem.SetBitmap(self.fileOperations.getImageBitmap(imageName=baseMenuItem[2]))
+                item.Append(menuItem)
+            else:
+                item.AppendSeparator()
+        
     def appendLeafToMenu(self, menuId, attacheTo=None, menuName=None, imageName=None):
         '''
         Append menuItem to menu

@@ -535,7 +535,7 @@ class PerspectiveManager(object):
             (wx.ACCEL_CTRL, ord('C'), ID_COPY),
             (wx.ACCEL_CTRL, ord('V'), ID_PASTE),
             (wx.ACCEL_CTRL, ord('X'), ID_CUT),
-            (wx.ACCEL_CTRL| wx.ACCEL_ALT, wx.WXK_DOWN, ID_DUPLICATE_LINE),
+            (wx.ACCEL_CTRL | wx.ACCEL_ALT, wx.WXK_DOWN, ID_DUPLICATE_LINE),
             (wx.ACCEL_CTRL, ord('S'), ID_SAVE),
             (wx.ACCEL_CTRL, ord('H'), ID_SEARCH_FILE),
             (wx.ACCEL_CTRL | wx.ACCEL_SHIFT, ord('F'), ID_FORMAT_FILE),
@@ -877,6 +877,8 @@ class PerspectiveManager(object):
         for pane in self._mgr.GetAllPanes():
             if pane.window:
                 logger.debug(f'pane.window:{pane.window}, pane.window.IsShown():{pane.window.IsShown()}')
+
+        self.appendSubMenu(menuBar=self.GetMenuBar(), selectedPerspectiveName=self.selectedPerspectiveName)
 
         self._mgr.Update()
 
