@@ -1,4 +1,3 @@
-
 # SQL editor
 
 [![License](http://img.shields.io/badge/license-MIT-green.svg?style=flat)](./LICENSE)

@@ -3,7 +3,7 @@ import re
 from src.view.constants import ID_DATABASE_PERSPECTIVE, ID_DEBUG_PERSPECTIVE, \
     ID_GIT_PERSPECTIVE, ID_JAVA_PERSPECTIVE, ID_PYTHON_PERSPECTIVE, \
     ID_JAVA_EE_PERSPECTIVE, ID_RESOURCE_PERSPECTIVE
-from idlelib.idle_test.test_searchengine import SearchTest
+
 
 viewdataList = [
         [wx.NewIdRef(), "Database", 'folderType_filter.png', None, [
