@@ -34,6 +34,7 @@ from src.view.views.project.explorer.ProjectExplorer import CreatingProjectExplo
 
 from src.view.views.database.explorer.DataSourceExplorer import DataSourcePanel
 from wx.lib.agw.aui import auibook
+from src.view.other.new.NewFlow import NewFlowFrame
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -530,6 +531,7 @@ class PerspectiveManager(object):
         pub.subscribe(self.__onObjectAdded, 'perspectiveClicked')
         pub.subscribe(self.__onUpdatePageText, 'onUpdatePageText')
         self.accel_tbl = wx.AcceleratorTable([
+            (wx.ACCEL_CTRL, ord('N'), ID_NEW),
             (wx.ACCEL_CTRL, ord('Y'), ID_REDO),
             (wx.ACCEL_CTRL, ord('Z'), ID_UNDO),
             (wx.ACCEL_CTRL, ord('C'), ID_COPY),
@@ -1067,6 +1069,9 @@ class PerspectiveManager(object):
 
     def onNewMenu(self, event):
         logger.debug('onNewMenu')
+        newFileframe = NewFlowFrame(self, 'New', selectedPath="c:\work\python-project")
+        newFileframe.CenterOnScreen()
+        newFileframe.Show()
 
 #     def onSave(self, event):
 #         logger.debug('onSave1')
@@ -1142,83 +1147,6 @@ class PerspectiveManager(object):
                         ]
 
             elif event.Id == ID_NEW:
-#                 baseList = [
-#                         [ID_NEW_PROJECT, 'Project', "new_con.png", None],
-#                         [],
-#                         [ID_EXAMPLE_MENU, 'Example', "new_con.png", None],
-#                         [],
-#                         [ID_OTHER_MENU, 'Other (Ctrl+N)', "new_con.png", None],
-#                         ]
-#
-#                 menuItemList = {
-#                     "java":
-#                         [[ID_NEW_JAVA_PROJECT, 'Java Project', 'newjprj_wiz.png', None], ] +
-#                         baseList[0:1] +
-#                         [
-#                             [],
-#                             [10003, 'Package', "newpack_wiz.png", None],
-#                             [ID_CLASS, 'Class', 'newclass_wiz.png', None],
-#                             [ID_INTERFACE, 'Interface', 'newint_wiz.png', None],
-#                             [ID_ENUM, 'Enum', 'newenum_wiz.png', None],
-#                             [ID_ANNOTATION, 'Annotation', 'newannotation_wiz.png', None],
-#                             [10008, 'Source Folder', "newpackfolder_wiz.png", None],
-#
-#                             [10009, 'Java Working Set', "newjworkingSet_wiz.png", None],
-#                             [10010, 'Folder', "new_folder.png", None],
-#                             [20007, 'File', "newfile_wiz.png", None],
-#                             [20007, 'Untitled text file', "new_untitled_text_file.png", None],
-#                             [10011, 'Task', "new_task.png", None],
-#                             [ID_JUNIT_TEST_CASE, 'JUnit Test Case', "new_testcase.png", None],
-#                         ]
-#                         +baseList[1:],
-#                     "java ee":
-#                         [
-#                             [ID_MAVEN_PROJECT, 'Maven Project', 'maven_project.png', None],
-#                             [ID_ENTERPRISE_APP_PROJECT, 'Enterprise Application Project', 'enterprise_app.png', None],
-#                             [ID_DYNAMIC_WEB_PROJECT, 'Dynamic Web Project', 'create_dynamic_web_project.png', None],
-#                             [ID_EJB_PROJECT, 'EJB Project', 'ejb_project.png', None],
-#                             [ID_CONNECTER_PROJECT, 'Connecter Project', 'connecter_prj.png', None],
-#                             [ID_APP_CLIENT_PROJECT, 'Application Client Project', 'app_client_prj.png', None],
-#                             [ID_STATIC_WEB_PROJECT, 'Static Web Project', 'static_web_project.png', None],
-#                             [ID_JPA_PROJECT, 'JPA Project', 'jpa_orm_mapping.png', None],
-#
-#                          ] +
-#                         baseList[0:1] +
-#                         [
-#                             [],
-#
-#                             [ID_SERVLET, 'Servlet', "create_new_servlet.png", None],
-#                             [ID_SESSION_BEAN, 'Session Bean (EJB 3.x)', 'session_bean.png', None],
-#                             [ID_MESSAGE_DRIVEN_BEAN, 'Message-Driven Bean (EJB 3.x)', 'message_driven_bean.png', None],
-#                             [ID_WEB_SERVICE, 'Web Service', 'web_service.png', None],
-#                             [10010, 'Folder', "new_folder.png", None],
-#                             [20007, 'File', "newfile_wiz.png", None],
-#                         ]
-#                         +baseList[1:],
-#                     "python":
-#                         [
-#                             [ID_NEW_PYTHON_PROJECT , 'Python Project', 'new_py_prj_wiz.png', None],
-#                         ] +
-#                         baseList[0:1] +
-#                         [
-#                             [],
-#                             [20003, 'Source Folder', "packagefolder_obj.png", None],
-#                             [ID_NEW_PYTHON_PACKAGE, 'Python Package', "package_obj.png", None],
-#                             [ID_NEW_PYTHON_MODULE, 'Python Module', "project.png", None],
-#                             [20006, 'Folder', "project.png", None],
-#                             [20007, 'File', "newfile_wiz.png", None],
-#                         ]
-#                         +baseList[1:],
-#                     "resource": baseList[0:1] +
-#                         [
-#                             [],
-#                             [20006, 'Folder', "project.png", None],
-#                             [20007, 'File', "newfile_wiz.png", None],
-#                         ]
-#                         +baseList[1:],
-#                     "debug": baseList,
-#                     "database": baseList
-#                     }
 
                 baseList = menuItemList[self.selectedPerspectiveName]
 

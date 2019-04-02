@@ -94,7 +94,12 @@ class FileTree(wx.TreeCtrl):
             self.onF2KeyPress(event)
         elif keypress == '----WXK_DELETE':
             self.onDeleteKeyPress(event)
+        elif keypress == 'Ctrl+---N':
+            self.newFlow(event)
         event.Skip()
+
+    def newFlow(self, event):
+        logger.debug(f'newFlow:{self}')
 
     def onDeleteKeyPress(self, event):
         logger.debug(f'onDeleteKeyPress:{self}')

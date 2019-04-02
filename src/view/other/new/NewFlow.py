@@ -1,23 +1,26 @@
-from wx import TreeCtrl
-from src.view.util.FileOperationsUtil import FileOperations
 import logging.config
-import wx, os
-import stat
-from src.view.constants import LOG_SETTINGS, setting, keyMap
-from src.view.views.file.explorer._filetree import FileTree
-import time
-from src.view.util.common.eclutil import Freezer
 from pathlib import Path
-from wx.lib.pubsub import pub
-from src.view.views.editor.EditorManager import EditorWindowManager
+import stat
+import time
+from wx import TreeCtrl
+import wx, os
+
+from src.view.constants import LOG_SETTINGS, setting, ID_NEW_FILE, ID_NEW, \
+    keyMap
+from src.view.util.FileOperationsUtil import FileOperations
+from src.view.util.common.eclutil import Freezer
 from src.view.util.osutil import GetWindowsDriveType, RemovableDrive, CDROMDrive
+from src.view.views.editor.EditorManager import EditorWindowManager
+from src.view.views.file.explorer._filetree import FileTree
+from wx.lib.pubsub import pub
+
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 ##################################################
 
 
-class NewFileFrame(wx.Frame):
+class NewFlowFrame(wx.Frame):
     '''
     This is for new file and new folder.
     '''
@@ -25,7 +28,7 @@ class NewFileFrame(wx.Frame):
     def __init__(self, parent, title, selectedPath=None, size=(350, 420),
                  style=wx.DEFAULT_FRAME_STYLE | wx.NO_FULL_REPAINT_ON_RESIZE | wx.SUNKEN_BORDER | wx.STAY_ON_TOP):
         style = style & (~wx.MINIMIZE_BOX)
-        self.parent = parent
+        self.parent=parent
         wx.Frame.__init__(self, None, -1, title, size=size,
                           style=style)
         self.title = title
@@ -71,7 +74,7 @@ class NewFileFrame(wx.Frame):
 
 class NewFilePanel(wx.Panel):
 
-    def __init__(self, parent, *args, title=None, selectedPath='', **kw):
+    def __init__(self, parent, *args, title=None, selectedPath=None, **kw):
         wx.Panel.__init__(self, parent, id=-1)
 #         self.parent = parent
         self.title = title
@@ -81,39 +84,51 @@ class NewFilePanel(wx.Panel):
         h1 = wx.BoxSizer(wx.HORIZONTAL)
         h2 = wx.BoxSizer(wx.HORIZONTAL)
         ###################################3333333333
+        self.headerPanel = HeaderPanel(self, title='Select', imageName='import_wiz.png')
         self.parentFolderText = selectedPath
-            
         self.fileNameText = ''
 
-        parentFolderLabel = wx.StaticText(self, -1, "Enter or select parent folder:")
-        self.parentFolderCtrl = wx.TextCtrl(self, -1, self.parentFolderText, size=(400, -1))
+        selectImport="type filter text"
+        self.filter = wx.SearchCtrl(self, style=wx.TE_PROCESS_ENTER)
+        self.filter.SetDescriptiveText(selectImport)
+        self.filter.ShowCancelButton(True)
+#         self.filter.Bind(wx.EVT_TEXT, self.RecreateTree)
+        self.filter.Bind(wx.EVT_SEARCHCTRL_CANCEL_BTN, lambda e: self.filter.SetValue(''))
+#         self.filter.Bind(wx.EVT_TEXT_ENTER, self.OnSearch)
 
-        fileLabel = ''
-        if title == 'New File':
-            fileLabel = "File name:"
-        elif title == 'New Folder':
-            fileLabel = "Folder name:"
-        fileNameLabel = wx.StaticText(self, -1, fileLabel)
-        self.fileNameCtrl = wx.TextCtrl(self, -1, self.fileNameText, size=(400, -1) , style=wx.TE_PROCESS_ENTER)
-        self.fileNameCtrl.SetFocus()
-        self.Bind(wx.EVT_TEXT , self.onEnteredText, self.fileNameCtrl)
-        self.Bind(wx.EVT_TEXT_ENTER, self.onEnterButtonPressed, self.fileNameCtrl)
+        selectImportLabel = wx.StaticText(self, -1, selectImport)
+#         self.parentFolderCtrl = wx.TextCtrl(self, -1, self.parentFolderText, size=(400, -1))
+
+#         fileLabel = ''
+#         if title == 'New File':
+#             fileLabel = "File name:"
+#         elif title == 'New Folder':
+#             fileLabel = "Folder name:"
+#         fileNameLabel = wx.StaticText(self, -1, fileLabel)
+#         self.fileNameCtrl = wx.TextCtrl(self, -1, self.fileNameText, size=(400, -1) , style=wx.TE_PROCESS_ENTER)
+#         self.fileNameCtrl.SetFocus()
+#         self.Bind(wx.EVT_TEXT , self.onEnteredText, self.fileNameCtrl)
+#         self.Bind(wx.EVT_TEXT_ENTER, self.onEnterButtonPressed, self.fileNameCtrl)
 
         self.folderExplorerTreePanel = FolderExplorerTreePanel(self)
         self.buttons = CreateButtonPanel(self)
         ####################################################################
-        v1.Add(parentFolderLabel, 0, wx.ALL, 2)
-        v1.Add(self.parentFolderCtrl, 0, wx.ALL, 2)
-        h2.Add(fileNameLabel, 0, wx.ALL, 2)
-        h2.Add(self.fileNameCtrl, 0, wx.ALL, 2)
+#         v1.Add(self.filter, 0, wx.ALL, 2)
+#         v1.Add(parentFolderLabel, 0, wx.ALL, 2)
+#         v1.Add(self.parentFolderCtrl, 0, wx.ALL, 2)
+#         h2.Add(fileNameLabel, 0, wx.ALL, 2)
+#         h2.Add(self.fileNameCtrl, 0, wx.ALL, 2)
 
         ####################################################################
 
         vBox1 = wx.BoxSizer(wx.VERTICAL)
         vBox1.Add(v1, 0, wx.EXPAND , 0)
+        vBox.Add(self.headerPanel, 0, wx.EXPAND, 0)
+        vBox.Add(selectImportLabel, 0, wx.EXPAND, 0)
+        vBox.Add(self.filter, 0, wx.EXPAND, 0)
         vBox.Add(vBox1, 0, wx.EXPAND, 0)
         vBox.Add(self.folderExplorerTreePanel, 1, wx.EXPAND , 0)
-        vBox.Add(h2, 0, wx.EXPAND , 0)
+#         vBox.Add(h2, 0, wx.EXPAND , 0)
         vBox.Add(self.buttons, 0, wx.EXPAND , 0)
         self.SetSizer(vBox)
         self.SetAutoLayout(True)
@@ -157,6 +172,15 @@ class CreateButtonPanel(wx.Panel):
         hbox1 = wx.BoxSizer(wx.HORIZONTAL)
         hbox2 = wx.BoxSizer(wx.HORIZONTAL)
         hbox3 = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.nextButton = wx.Button(self, -1, "Next >")
+        self.Bind(wx.EVT_BUTTON, self.onCancelClicked, self.nextButton)
+#         self.nextButton.Disable()
+
+        self.previousButton = wx.Button(self, -1, "< Back")
+        self.Bind(wx.EVT_BUTTON, self.onCancelClicked, self.previousButton)
+        self.previousButton.Disable()
+
         self.cancelButton = wx.Button(self, -1, "Cancel")
         self.Bind(wx.EVT_BUTTON, self.onCancelClicked, self.cancelButton)
 #         self.cancelButton.SetDefault()
@@ -165,10 +189,13 @@ class CreateButtonPanel(wx.Panel):
         self.Bind(wx.EVT_BUTTON, self.onFinishClicked, self.finishButton)
         self.finishButton.Disable()
 
+        hbox1.Add(self.previousButton)
+        hbox1.Add(self.nextButton)
         hbox1.Add(self.finishButton)
         hbox1.Add(self.cancelButton)
 
 #         sizer.Add(cancelButton, 0, wx.ALIGN_RIGHT | wx.RIGHT | wx.BOTTOM)
+
         sizer.Add(hbox1, 0, wx.ALIGN_RIGHT | wx.RIGHT , 5)
         sizer.Add(hbox2, 0, wx.ALIGN_RIGHT | wx.RIGHT , 5)
         sizer.Add(hbox3, 0, wx.ALIGN_RIGHT | wx.RIGHT | wx.BOTTOM, 5)
@@ -601,7 +628,7 @@ class FolderExplorerTreePanel(FileTree):
 #             logger.debug('ID_DELETE_PROJECT')
 #             for project in setting.activeWorkspace.projects:
 #                 for node in self.GetSelections():
-# 
+#
 #                     if project.projectDirName == self.GetItemText(node):
 #                         setting.activeWorkspace.projects.remove(project)
 #                     self.Delete(node)
@@ -1258,9 +1285,31 @@ class FolderIconManager():
 
         return imageName
 
+class HeaderPanel(wx.Panel):
+
+    def __init__(self, parent, *args, title="Python Project",imageName='python-wizban.png', selectedPath=None, **kw):
+        wx.Panel.__init__(self, parent, id=-1)
+
+        vBox = wx.BoxSizer(wx.VERTICAL)
+        hBox = wx.BoxSizer(wx.HORIZONTAL)
+        self.SetBackgroundColour(wx.WHITE)
+        self.fileOperations=FileOperations()
+        headerText = wx.StaticText(self, -1, title, (20, 10))
+        font = wx.Font(10, wx.FONTFAMILY_SCRIPT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
+        headerText.SetFont(font)
+
+        bmp = self.fileOperations.getImageBitmap(imageName=imageName)
+        rightsImage = wx.StaticBitmap(self, -1, bmp, (80, 150))
+
+        hBox.Add(headerText, 1, wx.EXPAND , 0)
+        hBox.Add(rightsImage, 0, wx.EXPAND , 0)
+        vBox.Add(hBox, 0, wx.EXPAND , 0)
+        vBox.Add(wx.StaticLine(self, -1), 0, wx.EXPAND | wx.ALL, 0)
+        self.SetSizer(vBox)
+        self.SetAutoLayout(True)
 
 if __name__ == '__main__':
     app = wx.App(False)
-    frame = NewFileFrame(None, 'New File', selectedPath="c:\work\python-project")
+    frame = NewFlowFrame(None, 'New', selectedPath="c:\work\python-project")
     frame.Show()
     app.MainLoop()
