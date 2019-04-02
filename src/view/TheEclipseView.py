@@ -465,8 +465,13 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         for itemId in itemIdList:
             it = menuBar.FindItemById(itemId)
             it.Enable(False)
-#         item = menuBar.FindItemById(wx.ID_NEW)
-#         menuItem = wx.MenuItem(item, wx.NewIdRef(), "asdf")
+        item = menuBar.FindItemById(wx.ID_NEW).GetSubMenu()
+#         menuItem = wx.MenuItem(attacheTo, menuId, menuName)
+#         item.Append(wx.NewIdRef(), item='asdf', helpString='sadf')
+        menuItem = wx.MenuItem(item, wx.NewIdRef(), "asdf")
+        item.Append(menuItem)
+#         item.AppendItem(menuItem)
+#         self.appendLeafToMenu(wx.NewIdRef(), attacheTo=item, menuName='Project1...', imageName=None)
 #         item.Append(menuItem)
         
 #     def createMenu(self, menuBar=wx.MenuBar(), menu=wx.Menu(), menuItemList=list()) :
