@@ -3,8 +3,7 @@ from src.view.util.FileOperationsUtil import FileOperations
 import logging.config
 import wx, os
 import stat
-from src.view.constants import LOG_SETTINGS, setting, ID_NEW_FILE, ID_NEW, \
-    keyMap
+from src.view.constants import LOG_SETTINGS, setting, keyMap
 from src.view.views.file.explorer._filetree import FileTree
 import time
 from src.view.util.common.eclutil import Freezer
@@ -80,7 +79,7 @@ class HeaderPanel(wx.Panel):
         vBox = wx.BoxSizer(wx.VERTICAL)
         hBox = wx.BoxSizer(wx.HORIZONTAL)
         self.SetBackgroundColour(wx.WHITE)
-        self.fileOperations=FileOperations()
+        self.fileOperations = FileOperations()
         headerText = wx.StaticText(self, -1, "Python Project", (20, 10))
         font = wx.Font(10, wx.FONTFAMILY_SCRIPT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
         headerText.SetFont(font)

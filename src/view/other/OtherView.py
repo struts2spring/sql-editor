@@ -343,28 +343,28 @@ class OtherViewTreePanel(wx.Panel):
         filter = self.filter.GetValue()
         count = 0
 
-        for category, items in _treeList:
-            category, items
-            count += 1
-            if filter:
-                if fullSearch:
-                    items = self.searchItems[category]
-                else:
-                    items = [item for item in items if filter.lower() in item.lower()]
-            if items:
-                child = self.tree.AppendItem(self.root, category, image=count)
-                self.tree.SetItemFont(child, catFont)
-                self.tree.SetItemData(child, count)
-                if not firstChild: firstChild = child
-                for childItem in items:
-                    image = count
-#                     if DoesModifiedExist(childItem):
-#                         image = len(_demoPngs)
-                    theDemo = self.tree.AppendItem(child, childItem, image=image)
-                    self.tree.SetItemData(theDemo, count)
-                    self.treeMap[childItem] = theDemo
-                    if current and (childItem, category) == current:
-                        selectItem = theDemo
+#         for category, items in _treeList:
+#             category, items
+#             count += 1
+#             if filter:
+#                 if fullSearch:
+#                     items = self.searchItems[category]
+#                 else:
+#                     items = [item for item in items if filter.lower() in item.lower()]
+#             if items:
+#                 child = self.tree.AppendItem(self.root, category, image=count)
+#                 self.tree.SetItemFont(child, catFont)
+#                 self.tree.SetItemData(child, count)
+#                 if not firstChild: firstChild = child
+#                 for childItem in items:
+#                     image = count
+# #                     if DoesModifiedExist(childItem):
+# #                         image = len(_demoPngs)
+#                     theDemo = self.tree.AppendItem(child, childItem, image=image)
+#                     self.tree.SetItemData(theDemo, count)
+#                     self.treeMap[childItem] = theDemo
+#                     if current and (childItem, category) == current:
+#                         selectItem = theDemo
 
         self.tree.Expand(self.root)
         if firstChild:

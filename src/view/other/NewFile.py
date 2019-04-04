@@ -3,8 +3,7 @@ from src.view.util.FileOperationsUtil import FileOperations
 import logging.config
 import wx, os
 import stat
-from src.view.constants import LOG_SETTINGS, setting, ID_NEW_FILE, ID_NEW, \
-    keyMap
+from src.view.constants import LOG_SETTINGS, setting, keyMap
 from src.view.views.file.explorer._filetree import FileTree
 import time
 from src.view.util.common.eclutil import Freezer
@@ -26,7 +25,7 @@ class NewFileFrame(wx.Frame):
     def __init__(self, parent, title, selectedPath=None, size=(350, 420),
                  style=wx.DEFAULT_FRAME_STYLE | wx.NO_FULL_REPAINT_ON_RESIZE | wx.SUNKEN_BORDER | wx.STAY_ON_TOP):
         style = style & (~wx.MINIMIZE_BOX)
-        self.parent=parent
+        self.parent = parent
         wx.Frame.__init__(self, None, -1, title, size=size,
                           style=style)
         self.title = title
@@ -72,7 +71,7 @@ class NewFileFrame(wx.Frame):
 
 class NewFilePanel(wx.Panel):
 
-    def __init__(self, parent, *args, title=None, selectedPath=None, **kw):
+    def __init__(self, parent, *args, title=None, selectedPath='', **kw):
         wx.Panel.__init__(self, parent, id=-1)
 #         self.parent = parent
         self.title = title
@@ -83,6 +82,7 @@ class NewFilePanel(wx.Panel):
         h2 = wx.BoxSizer(wx.HORIZONTAL)
         ###################################3333333333
         self.parentFolderText = selectedPath
+            
         self.fileNameText = ''
 
         parentFolderLabel = wx.StaticText(self, -1, "Enter or select parent folder:")

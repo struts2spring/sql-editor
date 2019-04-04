@@ -30,6 +30,8 @@ from src.view.views.project.explorer.ProjectExplorer import CreatingProjectExplo
 from src.view.search.SearchFrame import SearchPanelsFrame
 from src.view.views.file.MainStcPanel import MainStc
 from src.view.views.console.worksheet.ResultGrid import ResultDataGrid
+from src.view.other.NewFile import NewFileFrame
+from src.view.other.imported.project.ImportProject import ImportProjectFrame
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -410,6 +412,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                                             secondLevelMenuItem.AppendSeparator()
                                         else:
                                             self.appendLeafToMenu(secondLevelMenu[0], attacheTo=secondLevelMenuItem, menuName=secondLevelMenu[1], imageName=secondLevelMenu[2])
+                                            
                                             if secondLevelMenu[0] == wx.ID_CLEAR:
                                                 print('got')
                                     firstLevleMenuItem = firstLevelMenu.Append(-1, showViewMenu[1], secondLevelMenuItem)
@@ -445,7 +448,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                         if windowMenu[3]:
                             firstLevelMenu.SetBitmap(self.fileOperations.getImageBitmap(imageName=windowMenu[3]))
                         topLevelMenu.Append(firstLevelMenu)
-
+                        self.Bind(wx.EVT_MENU, lambda e:self.onRightClickMenu(e), id=windowMenu[0])
             mb.Append(topLevelMenu, menuItem[0])
 
         self.disableInitial(menuBar=mb)
@@ -465,11 +468,22 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         for itemId in itemIdList:
             it = menuBar.FindItemById(itemId)
             it.Enable(False)
-        item = menuBar.FindItemById(wx.ID_NEW).GetSubMenu()
-#         menuItem = wx.MenuItem(attacheTo, menuId, menuName)
-#         item.Append(wx.NewIdRef(), item='asdf', helpString='sadf')
-        menuItem = wx.MenuItem(item, wx.NewIdRef(), "asdf")
-        item.Append(menuItem)
+            
+#         logger.debug(self.selectedPerspectiveName)
+        # default perspective python
+        selectedPerspectiveName = 'python'
+        baseList = menuItemList[selectedPerspectiveName]
+        menuItemListx = {
+                selectedPerspectiveName: baseList
+                }
+        menuPopup = self.createMenuByPerspective(menuItemList=menuItemListx, perspectiveName=selectedPerspectiveName)
+#         item = menuBar.FindItemById(wx.ID_NEW).SetSubMenu(menuPopup)
+        self.appendSubMenu(menuBar=menuBar)
+
+#         item = menuBar.FindItemById(wx.ID_NEW).GetSubMenu()
+#         menuItem = wx.MenuItem(item, wx.NewIdRef(), "asdf")
+#         item.Append(menuItem)
+        
 #         item.AppendItem(menuItem)
 #         self.appendLeafToMenu(wx.NewIdRef(), attacheTo=item, menuName='Project1...', imageName=None)
 #         item.Append(menuItem)
@@ -486,7 +500,24 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 #             self.createMenu(menuBar, menuItem)
 #
 #         return menuBar
-
+    def appendSubMenu(self, menuBar=None, selectedPerspectiveName='python'):
+        item = menuBar.FindItemById(wx.ID_NEW).GetSubMenu()
+        
+        # removing all menu 
+        for menu in item.GetMenuItems():
+            item.Remove(menu.Id)
+        
+        baseList = menuItemList[selectedPerspectiveName]
+        for baseMenuItem in baseList:
+            if len(baseMenuItem) > 1:
+                menuItem = wx.MenuItem(item, baseMenuItem[0], baseMenuItem[1])
+                if baseMenuItem[2]:
+                    menuItem.SetBitmap(self.fileOperations.getImageBitmap(imageName=baseMenuItem[2]))
+                item.Append(menuItem)
+                self.Bind(wx.EVT_MENU, lambda e:self.onRightClickMenu(e), id=baseMenuItem[0])
+            else:
+                item.AppendSeparator()
+        
     def appendLeafToMenu(self, menuId, attacheTo=None, menuName=None, imageName=None):
         '''
         Append menuItem to menu
@@ -496,9 +527,34 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
             if imageName:
                 menuItem.SetBitmap(self.fileOperations.getImageBitmap(imageName=imageName))
             attacheTo.Append(menuItem)
+            self.Bind(wx.EVT_MENU, lambda e:self.onRightClickMenu(e), id=menuId)
         except Exception as e:
             logger.error(e, exc_info=True)
         return attacheTo
+
+    def onRightClickMenu(self, event):
+        logger.debug(f'onRightClickMenu:{event.Id}')
+        if event.Id == ID_NEW_FILE:
+            logger.debug('ID_NEW_FILE')
+            self.newFileFlow(title='New File', file=None)
+        if event.Id == ID_NEW_FOLDER:
+            logger.debug('ID_NEW_FOLDER')
+            self.newFileFlow(title='New Folder', file=None)
+        if event.Id == ID_IMPORT:
+            logger.debug('ID_IMPORT')
+            self.importFlow(title='Import Project', file=None)
+#             self.newFileFlow(title='New Folder', file=None)
+  
+    def importFlow(self, title=None, file=None):
+        logger.debug('importFlow')
+        importProjectFrame = ImportProjectFrame(self, title, selectedPath=file)
+        importProjectFrame.CenterOnScreen()
+        importProjectFrame.Show()
+    
+    def newFileFlow(self, title=None, file=None):
+        newFileframe = NewFileFrame(self, title, selectedPath=file)
+        newFileframe.CenterOnScreen()
+        newFileframe.Show()
 
     def bindingEvent(self):
 
