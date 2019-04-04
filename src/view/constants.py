@@ -4,14 +4,10 @@ import os
 from src.view.util.common.ed_glob import ID_GOTO_LINE
 from src.settings.workspace import Setting
 
-
 TITLE = "Eclipse"
 VERSION = "0.0.6"
 
-
-
-setting=Setting()
-
+setting = Setting()
 
 ID_RESOURCE = wx.NewIdRef()
 ID_WELCOME = wx.NewIdRef()
@@ -73,7 +69,6 @@ ID_SELECT_SQL = wx.NewIdRef()
 ID_INSERT_SQL = wx.NewIdRef()
 ID_UPDATE_SQL = wx.NewIdRef()
 ID_DELETE_SQL = wx.NewIdRef()
-
 
 ID_NEW_PROJECT = wx.NewIdRef()
 ID_EXAMPLE_MENU = wx.NewIdRef()
@@ -163,12 +158,9 @@ ID_HIDE_STATUSBAR = wx.NewIdRef()
 # search toolbar menu
 ID_SEARCH_FILE = wx.NewIdRef()
 
-
-
-
 ID_COLLAPSE_ALL = wx.NewIdRef()
-ID_LINK_WITH_EDITOR= wx.NewIdRef()
-ID_VIEW_MENU= wx.NewIdRef()
+ID_LINK_WITH_EDITOR = wx.NewIdRef()
+ID_VIEW_MENU = wx.NewIdRef()
 
 # Data tableinfo toolbar menu
 ID_ADD_ROW = wx.NewIdRef()
@@ -211,7 +203,6 @@ ID_ECLIPSE_LINK_ORM_MAPPING_FILE = wx.NewIdRef()
 ID_XDOCKLET_ENTERPRISE_JAVA_BEAN = wx.NewIdRef()
 ID_ECLIPSELINK_DYNAMIC_ENTITY = wx.NewIdRef()
 ID_WEB_SERVICE = wx.NewIdRef()
-
 
 ID_DELETE_PROJECT = wx.NewIdRef()
 ID_REFRESH_TREE_ITEM = wx.NewIdRef()
@@ -366,9 +357,6 @@ LOG_SETTINGS = {
 }
 }
 
-
-
-
 baseList = [
         [ID_NEW_PROJECT, 'Project', "new_con.png", None],
         [],
@@ -379,8 +367,8 @@ baseList = [
 
 menuItemList = {
     "java":
-        [[ID_NEW_JAVA_PROJECT, 'Java Project', 'newjprj_wiz.png', None], ] +
-        baseList[0:1] +
+        [[ID_NEW_JAVA_PROJECT, 'Java Project', 'newjprj_wiz.png', None], ] + 
+        baseList[0:1] + 
         [
             [],
             [10003, 'Package', "newpack_wiz.png", None],
@@ -409,8 +397,8 @@ menuItemList = {
             [ID_STATIC_WEB_PROJECT, 'Static Web Project', 'static_web_project.png', None],
             [ID_JPA_PROJECT, 'JPA Project', 'jpa_orm_mapping.png', None],
 
-         ] +
-        baseList[0:1] +
+         ] + 
+        baseList[0:1] + 
         [
             [],
 
@@ -425,8 +413,8 @@ menuItemList = {
     "python":
         [
             [ID_NEW_PYTHON_PROJECT , 'Python Project', 'new_py_prj_wiz.png', None],
-        ] +
-        baseList[0:1] +
+        ] + 
+        baseList[0:1] + 
         [
             [],
             [20003, 'Source Folder', "packagefolder_obj.png", None],
@@ -436,7 +424,7 @@ menuItemList = {
             [ID_NEW_FILE, 'File', "newfile_wiz.png", None],
         ]
         +baseList[1:],
-    "resource": baseList[0:1] +
+    "resource": baseList[0:1] + 
         [
             [],
             [ID_NEW_FOLDER, 'Folder', "project.png", None],
@@ -444,5 +432,13 @@ menuItemList = {
         ]
         +baseList[1:],
     "debug": baseList,
-    "database": baseList
+    "database": baseList,
+    "calibre": baseList
     }
+
+ID_ADD_BOOK = wx.NewIdRef()
+ID_EDIT_BOOK_METADATA = wx.NewIdRef()
+ID_CONVERT_BOOK = wx.NewIdRef()
+ID_GET_BOOK = wx.NewIdRef()
+ID_EDIT_BOOK = wx.NewIdRef()
+ID_REMOVE_BOOK = wx.NewIdRef()

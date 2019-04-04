@@ -992,6 +992,11 @@ class PerspectiveManager(object):
             (ID_newConnection, "New Connection", "connect.png", "New Connection", None, False, ['database'], True, wx.ITEM_NORMAL),
             (ID_openConnection, "Open Connection", "database_connect.png", 'Open Connection', None, False, ['database'], True, wx.ITEM_NORMAL),
             (ID_newWorksheet, "Script", "script.png", 'Open a new script worksheet', None, False, ['database'], True, wx.ITEM_NORMAL),
+            (ID_ADD_BOOK, "Add Book", "add_book.png", 'Add Book', None, True, ['calibre'], True, wx.ITEM_NORMAL),
+            (ID_EDIT_BOOK_METADATA, "Edit Book metadata", "edit_database.png", 'Edit Book metadata', None, True, ['calibre'], True, wx.ITEM_NORMAL),
+            (ID_CONVERT_BOOK, "Convert Book", "txn_config.png", 'Convert Book', None, False, ['calibre'], True, wx.ITEM_NORMAL),
+            (ID_REMOVE_BOOK, "Remove Book", "delete.png", 'Remove Book', None, False, ['calibre'], True, wx.ITEM_NORMAL),
+            (ID_GET_BOOK, "Get Book", "download.png", 'Get Book', None, False, ['calibre'], True, wx.ITEM_NORMAL),
 #             (wx.ID_PREFERENCES, "Preferences", "preference.png", 'Preference', None),
             ]
 
@@ -1019,6 +1024,7 @@ class PerspectiveManager(object):
                         self.Bind(wx.EVT_MENU, tool[4], tool[0])
                     if tool[5]:
                         toobar.SetToolDropDown(tool[0], tool[5])
+                        self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onRunDebugAsDropDown, id=tool[0])
         ##############################################################
         for tool in toobar._items:
             self.toolbarItems[tool.GetId()] = tool
@@ -1031,12 +1037,12 @@ class PerspectiveManager(object):
                 toobar._items.append(self.toolbarItems[tool[0]])
 
         toobar.Realize()
-        self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onRunDebugAsDropDown, id=ID_NEW)
-        self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onRunDebugAsDropDown, id=ID_RUN_AS_MENU)
-        self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onRunDebugAsDropDown, id=ID_DEBUG_AS_MENU)
-        self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onRunDebugAsDropDown, id=ID_NEW_JAVA_CLASS)
-        self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onRunDebugAsDropDown, id=ID_CREATE_DYNAMIC_WEB_PROJECT)
-        self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onRunDebugAsDropDown, id=ID_CREATE_NEW_SERVLET)
+#         self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onRunDebugAsDropDown, id=ID_NEW)
+#         self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onRunDebugAsDropDown, id=ID_RUN_AS_MENU)
+#         self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onRunDebugAsDropDown, id=ID_DEBUG_AS_MENU)
+#         self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onRunDebugAsDropDown, id=ID_NEW_JAVA_CLASS)
+#         self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onRunDebugAsDropDown, id=ID_CREATE_DYNAMIC_WEB_PROJECT)
+#         self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onRunDebugAsDropDown, id=ID_CREATE_NEW_SERVLET)
         return toobar
 
     def onOpenTerminal(self, event):
@@ -1113,6 +1119,12 @@ class PerspectiveManager(object):
                         [ID_ORGANIZE_FAVORITES, 'Organize Favorites..', None, None],
                         ]
 
+            elif event.Id == ID_ADD_BOOK:
+                baseList = [
+                        [],
+                        [wx.NewIdRef(), 'Add book from directory', "new_testcase.png", None],
+
+                        ]
             elif event.Id == ID_NEW_JAVA_CLASS:
                 baseList = [
                         [],
