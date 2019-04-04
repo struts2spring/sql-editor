@@ -789,6 +789,7 @@ class PerspectiveManager(object):
             [ID_DATABASE_PERSPECTIVE, "Database", 'database.png', 'Database', self.onPerspeciveSelection],
             [ID_GIT_PERSPECTIVE, "Git", 'gitrepository.png', 'Git', self.onPerspeciveSelection],
             [ID_RESOURCE_PERSPECTIVE, "Resources", 'resource_persp.png', 'Resources', self.onPerspeciveSelection],
+            [ID_CALIBRE_PERSPECTIVE, "Calibre", 'library-16.png', 'Calibre', self.onPerspeciveSelection],
             ]
         for perspectiveName in self.perspectiveList:
             if len(perspectiveName) > 1:
@@ -922,6 +923,9 @@ class PerspectiveManager(object):
         logger.debug('onPerspeciveSelection')
 #         pub.sendMessage('perspectiveClicked', data=42, extra1='onJavaPerspective')
         self.selectItem(event.Id)
+        if event.Id == ID_CALIBRE_PERSPECTIVE:
+            self.selectedPerspectiveName = 'calibre'
+            self.viewToolBarByPerspective(self.selectedPerspectiveName)
         if event.Id == ID_JAVA_PERSPECTIVE:
             self.selectedPerspectiveName = 'java'
             self.viewToolBarByPerspective(self.selectedPerspectiveName)
