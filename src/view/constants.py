@@ -22,6 +22,8 @@ ID_RENAME = wx.NewIdRef()
 
 ID_CONNECTION_PROPERTIES = wx.NewIdRef()
 
+ID_OPEN_FILE = wx.NewIdRef()
+ID_OPEN_PROJECT_FROM_FILE_SYSTEM = wx.NewIdRef()
 ID_NEW = wx.NewIdRef()
 ID_SAVE = wx.NewIdRef()
 ID_SAVE_ALL = wx.NewIdRef()

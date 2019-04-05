@@ -235,7 +235,10 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         menuItemList = [
             ["&File", [
                     [wx.ID_NEW, 'New \tAlt+Shift+N', None, None, False, ['Python', 'database']],
-                    [ID_openConnection, 'Open Database connection \tCtrl+O', None, None, False, ['database']],
+                    
+                    [ID_OPEN_FILE, 'Open File... ', None, None, False, ['Python']],
+                    [ID_OPEN_PROJECT_FROM_FILE_SYSTEM, 'Open Project From File System...', None, 'importdir_wiz.png', False, ['Python']],
+#                     [ID_openConnection, 'Open Database connection \tCtrl+O', None, None, False, ['database']],
                     [wx.ID_REFRESH, 'Refresh \tF5', None, "refresh.png", False, ['Python']],
                     [],
                     [ID_CLOSE, 'Close \tCtrl+W', None, None, False, ['Python']],
