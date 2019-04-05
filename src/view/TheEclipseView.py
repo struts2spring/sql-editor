@@ -2,7 +2,8 @@ import platform
 import sys
 
 import wx
-
+from src.view.views.calibre.filter.BookExplorer import BookExplorerPanel
+from src.view.views.calibre.BookBrowser import BookBrowserPanel
 from src.view.connection.NewConnectionWizard import CreateNewConncetionWixard
 from src.view.constants import *
 
@@ -944,6 +945,10 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                 panel = PythonExplorerPanel(self)
             elif name == "expressionsView":
                 panel = PythonExplorerPanel(self)
+            elif name == "bookExplorer":
+                panel = BookExplorerPanel(self)
+            elif name == "bookBrowser":
+                panel = BookBrowserPanel(self)
 
             self._mgr.addTabByWindow(panel, imageName=imageName, name=name , captionName=captionName, tabDirection=tabDirection)
         elif not self._mgr.GetPaneByName(name).IsShown():

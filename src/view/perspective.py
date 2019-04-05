@@ -1,6 +1,7 @@
 import logging.config
 import wx
 
+
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 from src.view.AutoCompleteTextCtrl import TextCtrlAutoComplete
 # from src.view.TreePanel import CreatingTreePanel
@@ -868,6 +869,9 @@ class PerspectiveManager(object):
         elif self.selectedPerspectiveName == 'java':
             self.openPanel(name="consoleOutput", imageName="console_view.png", captionName="Console", tabDirection=3)
             self.openPanel(name="javaPackageExplorer", imageName="package_explorer.png", captionName="Java Package Explorer", tabDirection=4)
+        elif self.selectedPerspectiveName == 'calibre':
+            self.openPanel(name="bookBrowser", imageName="console_view.png", captionName="Book Browser", tabDirection=5)
+            self.openPanel(name="bookExplorer", imageName="package_explorer.png", captionName="Book Explorer", tabDirection=4)
 
 #         else:
 #             databaseNaviagorPane = self._mgr.GetPane("databaseNaviagor")
@@ -887,41 +891,43 @@ class PerspectiveManager(object):
 
         print('viewToolBarByPerspective')
 
-    def openPanel(self, name="consoleOutput", imageName="console_view.png", captionName="Console", tabDirection=3):
-#         name="consoleOutput"
-        pane = self._mgr.GetPane(name)
-        panel = wx.Panel(self)
-        if pane.window == None:
-            if name == "consoleOutput":
-                panel = SqlConsoleOutputPanel(self)
-            elif name == "databaseNaviagor":
-                panel = DataSourcePanel(self)
-            elif name == "pythonPackageExplorer":
-                panel = CreatingPythonExplorerPanel(self)
-            elif name == "projectExplorerView":
-                panel = CreatingProjectExplorerPanel(self)
-            elif name == "javaPackageExplorer":
-                panel = CreatingJavaExplorerPanel(self)
-            elif name == "pythonShellView":
-                intro = f'{py.version.VERSION}'
-                panel = py.shell.Shell(self, -1, introText=intro)
-            elif name == "terminalView":
-                panel = CreatingPythonExplorerPanel(self)
-            elif name == "navigatorView":
-                panel = CreatingPythonExplorerPanel(self)
-            elif name == "tasksView":
-                panel = CreatingPythonExplorerPanel(self)
-            elif name == "fileExplorer":
-                panel = FileBrowser(self, size=(500, 300))
-
-            self._mgr.addTabByWindow(panel, imageName=imageName, name=name , captionName=captionName, tabDirection=tabDirection)
-        elif not pane.IsShown():
-            pane.dock_direction = tabDirection
-            window = pane.window
-            if window:
-                window.Show()
-            pane.Show(True)
-#         item.state=4
+#     def openPanel(self, name="consoleOutput", imageName="console_view.png", captionName="Console", tabDirection=3):
+# #         name="consoleOutput"
+#         pane = self._mgr.GetPane(name)
+#         panel = wx.Panel(self)
+#         if pane.window == None:
+#             if name == "consoleOutput":
+#                 panel = SqlConsoleOutputPanel(self)
+#             elif name == "databaseNaviagor":
+#                 panel = DataSourcePanel(self)
+#             elif name == "pythonPackageExplorer":
+#                 panel = CreatingPythonExplorerPanel(self)
+#             elif name == "projectExplorerView":
+#                 panel = CreatingProjectExplorerPanel(self)
+#             elif name == "javaPackageExplorer":
+#                 panel = CreatingJavaExplorerPanel(self)
+#             elif name == "pythonShellView":
+#                 intro = f'{py.version.VERSION}'
+#                 panel = py.shell.Shell(self, -1, introText=intro)
+#             elif name == "terminalView":
+#                 panel = CreatingPythonExplorerPanel(self)
+#             elif name == "navigatorView":
+#                 panel = CreatingPythonExplorerPanel(self)
+#             elif name == "tasksView":
+#                 panel = CreatingPythonExplorerPanel(self)
+#             elif name == "fileExplorer":
+#                 panel = FileBrowser(self, size=(500, 300))
+#             elif name == "bookExplorer":
+#                 panel = BookExplorerPanel(self, size=(500, 300))
+# 
+#             self._mgr.addTabByWindow(panel, imageName=imageName, name=name , captionName=captionName, tabDirection=tabDirection)
+#         elif not pane.IsShown():
+#             pane.dock_direction = tabDirection
+#             window = pane.window
+#             if window:
+#                 window.Show()
+#             pane.Show(True)
+# #         item.state=4
 
     def onPerspeciveSelection(self, event):
         logger.debug('onPerspeciveSelection')

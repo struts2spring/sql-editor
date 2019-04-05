@@ -436,6 +436,8 @@ menuItemList = {
     "calibre": baseList
     }
 
+
+# Id for book explorer
 ID_ADD_BOOK = wx.NewIdRef()
 ID_EDIT_BOOK_METADATA = wx.NewIdRef()
 ID_CONVERT_BOOK = wx.NewIdRef()
