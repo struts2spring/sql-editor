@@ -35,7 +35,7 @@ class FindAndReplaceFrame(wx.Frame):
         self.Bind(wx.EVT_CHAR_HOOK, self.OnKeyUP)
         self.SetSizer(sizer)
         self.Center()
-#         self.createStatusBar()
+#         self.createStatusBar()ut527
         self.Show(True)
 
 #         self.Bind(wx.EVT_SIZE, self.OnSize)

@@ -558,7 +558,7 @@ class Thumb(object):
     Used internally.
     """
 
-    def __init__(self, parent, folder, filename, caption="", size=0, lastmod=0):
+    def __init__(self, parent, folder, filename, caption="", size=0, lastmod=0, book=None):
         """
         Default class constructor.
 
@@ -582,6 +582,7 @@ class Thumb(object):
         self._image = wx.Image(1, 1)
         self._rotation = 0
         self._alpha = None
+        self.book = book
 
     def SetCaption(self, caption=""):
         """
@@ -905,7 +906,7 @@ class ThumbnailCtrl(wx.Panel):
                    "GetItemCount", "GetThumbWidth", "GetThumbHeight", "GetThumbBorder",
                    "ShowFileNames", "SetPopupMenu", "GetPopupMenu", "SetGlobalPopupMenu",
                    "GetGlobalPopupMenu", "SetSelectionColour", "GetSelectionColour",
-                   "EnableDragging", "SetThumbSize", "GetThumbSize", "ShowThumbs", "ShowDir",
+                   "EnableDragging", "SetThumbSize", "GetThumbSize", "ShowThumbs", "ShowDir","ShowBook",
                    "GetShowDir", "SetSelection", "GetSelection", "SetZoomFactor",
                    "GetZoomFactor", "SetCaptionFont", "GetCaptionFont", "GetItemIndex",
                    "InsertItem", "RemoveItemAt", "IsSelected", "Rotate", "ZoomIn", "ZoomOut",
@@ -1333,11 +1334,19 @@ class ScrolledThumbnail(wx.ScrolledWindow):
         thumbinfo = None
 
         if thumb >= 0:
-            thumbinfo = "Name: " + self._items[thumb].GetFileName() + "\n" \
-                        "Size: " + self._items[thumb].GetFileSize() + "\n" \
-                        "Modified: " + self._items[thumb].GetCreationDate() + "\n" \
-                        "Dimensions: " + str(self._items[thumb].GetOriginalSize()) + "\n" \
-                        "Thumb: " + str(self.GetThumbSize()[0:2])
+            author = ''
+            for a in self._items[thumb].book.authors:
+                author = author + a.authorName + '\n'
+            thumbinfo = f'''
+            Name:{self._items[thumb].book.bookName}
+            Author:{author}
+            Size: {self._items[thumb].book.fileSize}
+            '''
+#             thumbinfo = "Name: " + self._items[thumb].GetFileName() + "\n" \
+#                         "Size: " + self._items[thumb].GetFileSize() + "\n" \
+#                         "Modified: " + self._items[thumb].GetCreationDate() + "\n" \
+#                         "Dimensions: " + str(self._items[thumb].GetOriginalSize()) + "\n" \
+#                         "Thumb: " + str(self.GetThumbSize()[0:2])
 
         return thumbinfo
 
@@ -1463,6 +1472,59 @@ class ScrolledThumbnail(wx.ScrolledWindow):
         self.UpdateProp()
         self.Refresh()
 
+    def ShowBook(self, books, filter=THUMB_FILTER_IMAGES):
+        """
+        Shows thumbnails for a particular books.
+        """
+        if filter >= 0:
+            self._filter = filter        
+        thumbs = []        
+        for book in books:
+            
+            imageName = ''
+            if book.bookPath:
+                self._dir = book.bookPath
+                imagePath = book.bookPath
+                filenames = self.ListDirectory(imagePath, extensions)
+                if filenames:
+                    imageName = filenames[0]
+                    
+                imagePath_1 = os.path.join(imagePath, book.bookImgName)
+                if os.path.exists(imagePath_1):
+                    imageName = book.bookImgName
+            else:
+                imagePath = book.localImagePath
+                self._dir = book.localImagePath
+                imageName = book.imageFileName
+            bookName = book.bookName
+#                 imagePath=os.path.join(book.bookPath,imageName);
+                
+            stats = os.stat(os.path.join(imagePath, imageName))
+            size = stats[6]
+
+            if size < 1000:
+                size = str(size) + " bytes"
+            elif size < 1000000:
+                size = str(int(round(size / 1000.0))) + " Kb"
+            else:
+                size = str(round(size / 1000000.0, 2)) + " Mb"
+
+            lastmod = time.strftime(TIME_FMT, time.localtime(stats[8]))
+
+#             if self._filter & THUMB_FILTER_IMAGES:
+#                 thumbs.append(Thumb(self, folder, files, caption, size, lastmod))
+#                 pass
+            thumbs.append(Thumb(self, imagePath, imageName, bookName, size, lastmod, book))
+
+        caption = None
+        try:
+            if self._dir:
+                caption = self._dir
+        except:
+            pass
+
+        return self.ShowThumbs(thumbs, caption)
+    
     def ShowDir(self, folder, filter=THUMB_FILTER_IMAGES):
         """
         Shows thumbnails for a particular folder.
@@ -1668,7 +1730,7 @@ class ScrolledThumbnail(wx.ScrolledWindow):
 
         capHeight = 0
         for ii in range(begRow, begRow + count):
-            if ii < len(self._tCaptionHeight):
+            if ii < len(self._tCaptionHeight) and len(self._tCaptionHeight) > 0: 
                 capHeight = capHeight + self._tCaptionHeight[ii]
 
         return capHeight * self._tTextHeight
@@ -2056,13 +2118,51 @@ class ScrolledThumbnail(wx.ScrolledWindow):
         self.UpdateProp()
         self.ScrollToSelected()
         self.Refresh()
- 
+
+    def createMenu(self): 
+        menu = wx.Menu()
+        
+        menuItemDataList = [
+            [wx.NewIdRef(), wx.ART_FILE_OPEN, "Download metadata and cover." ],
+            [wx.NewIdRef(), wx.ART_FILE_OPEN, "Open containing folder." ],
+            [wx.NewIdRef(), wx.ART_FILE_OPEN, "Search similar books." ],
+            [wx.NewIdRef(), wx.ART_FILE_OPEN, "Information"],
+            [wx.NewIdRef(), wx.ART_FILE_OPEN, "Open Book"],
+            [wx.NewIdRef(), wx.ART_FILE_OPEN, "Delete Book"],
+            [wx.NewIdRef(), wx.ART_FILE_OPEN, "Information"],
+            ]
+        
+        for menuItemData in menuItemDataList:
+            
+            item = wx.MenuItem(menu, menuItemData[0], menuItemData[2])
+            item.SetBitmap(wx.ArtProvider.GetBitmap(menuItemData[1], wx.ART_MENU, (16, 16)))
+            menu.AppendItem(item)
+            self.Bind(wx.EVT_MENU, lambda e:self.onRighClick(e), id=menuItemData[0])
+        return menu
+
+    def onRighClick(self, event):
+        logger.debug(f'onRighClick:{event.GetId()}')
+        
+
     def OnRightMouseDown(self, event):
-        logger.debug( 'OnRightMouseDown')
-        self.OnMouseDown(event)
+        logger.debug('OnRightMouseDown')
+        logger.debug( 'previous printing all _selected: %s', self._selected)
+        logger.debug( 'printing all _selectedarray: %s', self._selectedarray)
+        x = event.GetX()
+        y = event.GetY()
+        x, y = self.CalcUnscrolledPosition(x, y)
+        # get item number to select
+        lastselected = self._selected
+        self._selected = self.GetItemIndex(x, y)
+        logger.debug('previous printing all _selected:%s', self._selected)
+        if self._selected != -1:
+            name = self._items[self._selected].book.bookName
+            id = self._items[self._selected].book.id
+#         self.OnMouseDown(event)
+        self.SetPopupMenu(self.createMenu())
 
     def OnLeftMouseDown(self, event):
-        logger.debug( 'OnLeftMouseDown')
+        logger.debug('OnLeftMouseDown')
         self.OnMouseDown(event)
 
     def OnMouseDown(self, event):
