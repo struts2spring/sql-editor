@@ -412,41 +412,42 @@ class OtherViewTreePanel(wx.Panel):
 #             return
 
 #         self.StopDownload()
-
-        item = event.GetItem()
-        itemText = self.tree.GetItemText(item)
-        logger.debug(itemText)
-        opalPreference = self.GetTopLevelParent()
-        if opalPreference:
-    #         rightPanel=opalPreference.rightPanelItem.GetParent()
-    #         opalPreference.rightPanelItem.Hide()
-    #         opalPreference.rightPanelItem.Hide()
-    #         opalPreference.rightPanelItem=opalPreference.getPreferencePanelObj(rightPanel,preferenceName=itemText)
-    #         opalPreference.rightPanelItem.Show(True)
-    #         opalPreference.rightPanelItem.Layout()
-            pnl_children = list()
-            if hasattr(opalPreference, 'png'):
-                pnl_children = opalPreference.pnl.GetChildren()
-            for pnl in pnl_children:
-    #             print(pnl)
-                if pnl.GetName() == 'rightPanel':
-                    opalPreference = self.GetTopLevelParent()
-                    for child in pnl.GetChildren():
-#                         if 'preference' in child.name.lower():
-                        child.Hide()
-    #                     break
-    #                     child.opalPreference.getPreferencePanelObj(pnl,preferenceName=itemText)
-                    rightPanelItem = opalPreference.getPreferencePanelObj(pnl, preferenceName=itemText)
-                    opalPreference.addPanel(rightPanelItem)
-                    pnl.Layout()
-                    pnl.Refresh()
-                    pnl.Fit()
-            opalPreference.Layout()
-    #         print(opalPreference.GetChildrenCount())
-    #         opalPreference.GetChildrenCount().rightpanel.Refresh()
-            if hasattr(opalPreference, 'mgr'):
-                opalPreference.mgr.Update()
-
+        try:
+            item = event.GetItem()
+            itemText = self.tree.GetItemText(item)
+            logger.debug(itemText)
+            opalPreference = self.GetTopLevelParent()
+            if opalPreference:
+        #         rightPanel=opalPreference.rightPanelItem.GetParent()
+        #         opalPreference.rightPanelItem.Hide()
+        #         opalPreference.rightPanelItem.Hide()
+        #         opalPreference.rightPanelItem=opalPreference.getPreferencePanelObj(rightPanel,preferenceName=itemText)
+        #         opalPreference.rightPanelItem.Show(True)
+        #         opalPreference.rightPanelItem.Layout()
+                pnl_children = list()
+                if hasattr(opalPreference, 'png'):
+                    pnl_children = opalPreference.pnl.GetChildren()
+                for pnl in pnl_children:
+        #             print(pnl)
+                    if pnl.GetName() == 'rightPanel':
+                        opalPreference = self.GetTopLevelParent()
+                        for child in pnl.GetChildren():
+    #                         if 'preference' in child.name.lower():
+                            child.Hide()
+        #                     break
+        #                     child.opalPreference.getPreferencePanelObj(pnl,preferenceName=itemText)
+                        rightPanelItem = opalPreference.getPreferencePanelObj(pnl, preferenceName=itemText)
+                        opalPreference.addPanel(rightPanelItem)
+                        pnl.Layout()
+                        pnl.Refresh()
+                        pnl.Fit()
+                opalPreference.Layout()
+        #         print(opalPreference.GetChildrenCount())
+        #         opalPreference.GetChildrenCount().rightpanel.Refresh()
+                if hasattr(opalPreference, 'mgr'):
+                    opalPreference.mgr.Update()
+        except:
+            pass
 
 #         self.UpdateNotebook(preferenceName=itemText)
 class OtherViewBaseTreePanel(ExpansionState, TreeCtrl):
