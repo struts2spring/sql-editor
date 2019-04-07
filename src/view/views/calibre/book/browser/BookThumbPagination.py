@@ -30,14 +30,11 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
         self.search.ShowCancelButton(1)
         self.search.SetMenu(None)
         self.search.Bind(wx.EVT_TEXT_ENTER, self.OnSearch)
-
                 
         self.thumbnailCtrl = ThumbnailCtrl(self, -1, imagehandler=NativeImageHandler)
-        os.chdir(r'/home/vijay/Pictures')
-#         thumbnailCtrl.ShowDir(os.getcwd())
-        findingBook = FindingBook(libraryPath=r'/docs/new/library')
-        books = findingBook.searchingBook(searchText='head')
-        self.thumbnailCtrl.ShowBook(books)
+#         findingBook = FindingBook(libraryPath=r'/docs/new/library')
+#         books = findingBook.searchingBook(searchText='head')
+        self.loadingBook()
         ####################################################################
         vBox.Add(self.search , 0, wx.EXPAND | wx.ALL)
         vBox.Add(self.thumbnailCtrl , 1, wx.EXPAND | wx.ALL)
@@ -49,11 +46,17 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
 
     def OnSearch(self, event):
         logger.debug('onSearch')
-        os.chdir(r'/home/vijay/Pictures')
-#         thumbnailCtrl.ShowDir(os.getcwd())
-        findingBook = FindingBook(libraryPath=r'/docs/new/library')
-        books = findingBook.searchingBook(searchText=self.search.GetValue())
-        self.thumbnailCtrl.ShowBook(books)        
+        self.loadingBook()
+
+    def loadingBook(self, searchText=None):
+        libraryPath=r'/docs/new/library'
+        if os.path.exists(libraryPath):
+            findingBook = FindingBook(libraryPath=libraryPath)
+            if searchText:
+                books = findingBook.searchingBook(searchText=self.search.GetValue())
+            else:
+                findingBook.findAllBooks(pageSize=10)
+            self.thumbnailCtrl.ShowBook(books)        
 
     def constructTopToolBar(self):
 
