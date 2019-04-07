@@ -6,6 +6,8 @@ from src.view.views.calibre.book.browser.BookThumbCrtl import ThumbnailCtrl, Nat
 import os
 from src.view.views.calibre.book.browser.SearchBook import FindingBook
 from src.view.util.FileOperationsUtil import FileOperations
+from src.view.constants import ID_FIRST_RESULT, ID_LAST_RESULT, ID_PREVIOUS_RESULT, ID_NEXT_RESULT
+
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 try:
@@ -22,20 +24,36 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
         wx.Panel.__init__(self, parent)
         vBox = wx.BoxSizer(wx.VERTICAL)
         ####################################################################
-        self.fileOperations=FileOperations()
-        thumbnailCtrl = ThumbnailCtrl(self, -1, imagehandler=NativeImageHandler)
+        self.fileOperations = FileOperations()
+        self.search = wx.SearchCtrl(self, size=(200, -1), style=wx.TE_PROCESS_ENTER)
+        self.search.ShowSearchButton(1)
+        self.search.ShowCancelButton(1)
+        self.search.SetMenu(None)
+        self.search.Bind(wx.EVT_TEXT_ENTER, self.OnSearch)
+
+                
+        self.thumbnailCtrl = ThumbnailCtrl(self, -1, imagehandler=NativeImageHandler)
         os.chdir(r'/home/vijay/Pictures')
 #         thumbnailCtrl.ShowDir(os.getcwd())
         findingBook = FindingBook(libraryPath=r'/docs/new/library')
         books = findingBook.searchingBook(searchText='head')
-        thumbnailCtrl.ShowBook(books)
+        self.thumbnailCtrl.ShowBook(books)
         ####################################################################
-        vBox.Add(thumbnailCtrl , 1, wx.EXPAND | wx.ALL)
+        vBox.Add(self.search , 0, wx.EXPAND | wx.ALL)
+        vBox.Add(self.thumbnailCtrl , 1, wx.EXPAND | wx.ALL)
         vBox.Add(self.constructTopToolBar() , 0, wx.EXPAND | wx.ALL)
 #         vBox.Add(self.tree , 1, wx.EXPAND | wx.ALL)
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(vBox, 1, wx.EXPAND , 0)
         self.SetSizer(sizer)
+
+    def OnSearch(self, event):
+        logger.debug('onSearch')
+        os.chdir(r'/home/vijay/Pictures')
+#         thumbnailCtrl.ShowDir(os.getcwd())
+        findingBook = FindingBook(libraryPath=r'/docs/new/library')
+        books = findingBook.searchingBook(searchText=self.search.GetValue())
+        self.thumbnailCtrl.ShowBook(books)        
 
     def constructTopToolBar(self):
 
@@ -44,11 +62,12 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
 
 #         tb1.SetToolBitmapSize(wx.Size(16, 16))
         # id, name, image, name, method, kind
+
         tools = [
-            (wx.NewIdRef(), "First", "resultset_first.png", 'First', lambda e:self.onToolButtonClick(e), wx.ITEM_NORMAL),
-            (wx.NewIdRef(), "Previous", "resultset_previous.png", 'Previous', lambda e:self.onToolButtonClick(e), wx.ITEM_NORMAL),
-            (wx.NewIdRef(), "Next", "resultset_next.png", 'Next', lambda e:self.onToolButtonClick(e), wx.ITEM_NORMAL),
-            (wx.NewIdRef(), "Last", "resultset_last.png", 'Last', lambda e:self.onToolButtonClick(e), wx.ITEM_CHECK),
+            (ID_FIRST_RESULT, "First", "resultset_first.png", 'First', lambda e:self.onToolButtonClick(e), wx.ITEM_NORMAL),
+            (ID_PREVIOUS_RESULT, "Previous", "resultset_previous.png", 'Previous', lambda e:self.onToolButtonClick(e), wx.ITEM_NORMAL),
+            (ID_NEXT_RESULT, "Next", "resultset_next.png", 'Next', lambda e:self.onToolButtonClick(e), wx.ITEM_NORMAL),
+            (ID_LAST_RESULT, "Last", "resultset_last.png", 'Last', lambda e:self.onToolButtonClick(e), wx.ITEM_CHECK),
             (),
 #             (ID_REFRESH_ROW, "Result refresh", "resultset_refresh.png", 'Result refresh \tF5', self.onRefresh),
 #             (ID_ADD_ROW, "Add a new row", "row_add.png", 'Add a new row', self.onAddRow),
@@ -65,13 +84,23 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
                 if tool[4]:
                     self.Bind(wx.EVT_MENU, tool[4], id=tool[0])
         pageNumber = [ "1", "2", "3" ]            
-        choice = wx.Choice(tb1, 10, (-1, -1), (70, 25), pageNumber,style=0)
+        choice = wx.Choice(tb1, 10, (-1, -1), (70, 25), pageNumber, style=0)
         choice.SetSelection(0)
         tb1.AddControl(choice)
         
         tb1.Realize()
 
         return tb1
+
+    def onToolButtonClick(self, e):
+        if e.Id == ID_FIRST_RESULT:
+            logger.debug('ID_FIRST_RESULT')
+        if e.Id == ID_PREVIOUS_RESULT:
+            logger.debug('ID_PREVIOUS_RESULT')
+        if e.Id == ID_NEXT_RESULT:
+            logger.debug('ID_NEXT_RESULT')
+        if e.Id == ID_LAST_RESULT:
+            logger.debug('ID_LAST_RESULT')
 
 
 if __name__ == '__main__':

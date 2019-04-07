@@ -446,3 +446,9 @@ ID_CONVERT_BOOK = wx.NewIdRef()
 ID_GET_BOOK = wx.NewIdRef()
 ID_EDIT_BOOK = wx.NewIdRef()
 ID_REMOVE_BOOK = wx.NewIdRef()
+
+
+ID_FIRST_RESULT=wx.NewIdRef()
+ID_PREVIOUS_RESULT=wx.NewIdRef()
+ID_NEXT_RESULT=wx.NewIdRef()
+ID_LAST_RESULT=wx.NewIdRef()

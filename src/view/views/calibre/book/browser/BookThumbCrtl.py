@@ -2136,7 +2136,7 @@ class ScrolledThumbnail(wx.ScrolledWindow):
             
             item = wx.MenuItem(menu, menuItemData[0], menuItemData[2])
             item.SetBitmap(wx.ArtProvider.GetBitmap(menuItemData[1], wx.ART_MENU, (16, 16)))
-            menu.AppendItem(item)
+            menu.Append(item)
             self.Bind(wx.EVT_MENU, lambda e:self.onRighClick(e), id=menuItemData[0])
         return menu
 
