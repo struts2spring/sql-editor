@@ -7,6 +7,7 @@ import os
 from src.view.views.calibre.book.browser.SearchBook import FindingBook
 from src.view.util.FileOperationsUtil import FileOperations
 from src.view.constants import ID_FIRST_RESULT, ID_LAST_RESULT, ID_PREVIOUS_RESULT, ID_NEXT_RESULT
+from re import search
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -32,6 +33,8 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
         self.search.Bind(wx.EVT_TEXT_ENTER, self.OnSearch)
                 
         self.thumbnailCtrl = ThumbnailCtrl(self, -1, imagehandler=NativeImageHandler)
+        self.thumbnailCtrl.EnableToolTips(enable=True)
+#         self.thumbnailCtrl.ShowDir(r'/home/vijay/Pictures')
 #         findingBook = FindingBook(libraryPath=r'/docs/new/library')
 #         books = findingBook.searchingBook(searchText='head')
         self.loadingBook()
@@ -46,16 +49,17 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
 
     def OnSearch(self, event):
         logger.debug('onSearch')
-        self.loadingBook()
+        self.loadingBook(searchText=self.search.GetValue())
 
     def loadingBook(self, searchText=None):
         libraryPath=r'/docs/new/library'
+        books=None
         if os.path.exists(libraryPath):
             findingBook = FindingBook(libraryPath=libraryPath)
             if searchText:
-                books = findingBook.searchingBook(searchText=self.search.GetValue())
+                books = findingBook.searchingBook(searchText=searchText)
             else:
-                findingBook.findAllBooks(pageSize=10)
+                books = findingBook.findAllBooks(pageSize=10)
             self.thumbnailCtrl.ShowBook(books)        
 
     def constructTopToolBar(self):

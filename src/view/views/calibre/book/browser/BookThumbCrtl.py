@@ -1063,7 +1063,7 @@ class ScrolledThumbnail(wx.ScrolledWindow):
         self._tOutlineNotSelected = True
         self._mouseeventhandled = False
         self._highlight = False
-        self._zoomfactor = 1.4
+        self._zoomfactor = 1.1
         self.SetCaptionFont()
         self._items = []
 
@@ -1337,11 +1337,8 @@ class ScrolledThumbnail(wx.ScrolledWindow):
             author = ''
             for a in self._items[thumb].book.authors:
                 author = author + a.authorName + '\n'
-            thumbinfo = f'''
-            Name:{self._items[thumb].book.bookName}
-            Author:{author}
-            Size: {self._items[thumb].book.fileSize}
-            '''
+            thumbinfo = f'''Name:{self._items[thumb].book.bookName}\nAuthor:{author}\nSize: {self._items[thumb].book.fileSize}
+'''
 #             thumbinfo = "Name: " + self._items[thumb].GetFileName() + "\n" \
 #                         "Size: " + self._items[thumb].GetFileSize() + "\n" \
 #                         "Modified: " + self._items[thumb].GetCreationDate() + "\n" \
@@ -2290,6 +2287,7 @@ class ScrolledThumbnail(wx.ScrolledWindow):
         """
 
         # -- drag & drop --
+        logger.debug('OnMouseMove')
         if self._dragging and event.Dragging() and len(self._selectedarray) > 0:
 
             files = wx.FileDataObject()
@@ -2307,15 +2305,15 @@ class ScrolledThumbnail(wx.ScrolledWindow):
 
         # get item number
         sel = self.GetItemIndex(x, y)
-
+        logger.debug(f'OnMouseMove:{sel}')
         if sel == self._pointed:
             if self._enabletooltip and sel >= 0:
                 if not hasattr(self, "_tipwindow"):
                     self._tipwindow = wx.ToolTip(self.GetThumbInfo(sel))
-                    self._tipwindow.SetDelay(1000)
+                    self._tipwindow.SetDelay(100)
                     self.SetToolTip(self._tipwindow)
                 else:
-                    self._tipwindow.SetDelay(1000)
+                    self._tipwindow.SetDelay(100)
                     self._tipwindow.SetTip(self.GetThumbInfo(sel))
 
             event.Skip()
@@ -2326,16 +2324,17 @@ class ScrolledThumbnail(wx.ScrolledWindow):
                 self._tipwindow.Enable(False)
 
         # update thumbnail
+        self.Refresh()
         self._pointed = sel
 
         if self._enabletooltip and sel >= 0:
             if not hasattr(self, "_tipwindow"):
                 self._tipwindow = wx.ToolTip(self.GetThumbInfo(sel))
-                self._tipwindow.SetDelay(1000)
+                self._tipwindow.SetDelay(100)
                 self._tipwindow.Enable(True)
                 self.SetToolTip(self._tipwindow)
             else:
-                self._tipwindow.SetDelay(1000)
+                self._tipwindow.SetDelay(100)
                 self._tipwindow.Enable(True)
                 self._tipwindow.SetTip(self.GetThumbInfo(sel))
 
