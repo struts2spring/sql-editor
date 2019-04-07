@@ -8,6 +8,7 @@ from src.view.views.calibre.book.browser.SearchBook import FindingBook
 from src.view.util.FileOperationsUtil import FileOperations
 from src.view.constants import ID_FIRST_RESULT, ID_LAST_RESULT, ID_PREVIOUS_RESULT, ID_NEXT_RESULT
 from re import search
+from src.logic.AddingBook import AddBook
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -25,6 +26,8 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
         wx.Panel.__init__(self, parent)
         vBox = wx.BoxSizer(wx.VERTICAL)
         ####################################################################
+        self.libraryPath = r'C:\new\library'
+        self.fileDropTarget = FileDropTarget(self, libraryPath= self.libraryPath )
         self.fileOperations = FileOperations()
         self.search = wx.SearchCtrl(self, size=(200, -1), style=wx.TE_PROCESS_ENTER)
         self.search.ShowSearchButton(1)
@@ -34,6 +37,7 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
                 
         self.thumbnailCtrl = ThumbnailCtrl(self, -1, imagehandler=NativeImageHandler)
         self.thumbnailCtrl.EnableToolTips(enable=True)
+        self.thumbnailCtrl.SetDropTarget(self.fileDropTarget)
 #         self.thumbnailCtrl.ShowDir(r'/home/vijay/Pictures')
 #         findingBook = FindingBook(libraryPath=r'/docs/new/library')
 #         books = findingBook.searchingBook(searchText='head')
@@ -52,10 +56,10 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
         self.loadingBook(searchText=self.search.GetValue())
 
     def loadingBook(self, searchText=None):
-        libraryPath=r'/docs/new/library'
-        books=None
-        if os.path.exists(libraryPath):
-            findingBook = FindingBook(libraryPath=libraryPath)
+        
+        books = None
+        if os.path.exists(self.libraryPath):
+            findingBook = FindingBook(libraryPath=self.libraryPath)
             if searchText:
                 books = findingBook.searchingBook(searchText=searchText)
             else:
@@ -110,6 +114,38 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
             logger.debug('ID_LAST_RESULT')
 
 
+class FileDropTarget(wx.FileDropTarget):
+    """ This object implements Drop Target functionality for Files """
+
+    def __init__(self, obj, libraryPath=None):
+        """ Initialize the Drop Target, passing in the Object Reference to
+            indicate what should receive the dropped files """
+        # Initialize the wxFileDropTarget Object
+        wx.FileDropTarget.__init__(self)
+        # Store the Object Reference for dropped files
+        self.obj = obj
+        self.libraryPath = libraryPath
+    
+    def OnDropFiles(self, x, y, filenames):
+        """ Implement File Drop """
+        # For Demo purposes, this function appends a list of the files dropped at the end of the widget's text
+        # Move Insertion Point to the end of the widget's text
+        logger.debug('OnDropFiles')
+#         self.obj.SetInsertionPointEnd()
+        # append a list of the file names dropped
+        logger.debug (f"{len(filenames)} file(s) dropped at {x}, {y}:\n")
+        for file in filenames:
+            self.selectedFilePath = file
+            logger.debug ('file: %s' , file)
+            if file:
+                AddBook(libraryPath=self.libraryPath).addingBookToWorkspace(file)
+        logger.debug('drop book completed.')
+        return True
+#         text = self.obj.searchCtrlPanel.searchCtrl.GetValue()
+#         self.obj.searchCtrlPanel.doSearch(text)
+
+
+#         self.obj.WriteText('\n')
 if __name__ == '__main__':
     app = wx.App(False)
     frame = wx.Frame(None)

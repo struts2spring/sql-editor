@@ -2287,7 +2287,7 @@ class ScrolledThumbnail(wx.ScrolledWindow):
         """
 
         # -- drag & drop --
-        logger.debug('OnMouseMove')
+#         logger.debug('OnMouseMove')
         if self._dragging and event.Dragging() and len(self._selectedarray) > 0:
 
             files = wx.FileDataObject()
@@ -2305,7 +2305,7 @@ class ScrolledThumbnail(wx.ScrolledWindow):
 
         # get item number
         sel = self.GetItemIndex(x, y)
-        logger.debug(f'OnMouseMove:{sel}')
+#         logger.debug(f'OnMouseMove:{sel}')
         if sel == self._pointed:
             if self._enabletooltip and sel >= 0:
                 if not hasattr(self, "_tipwindow"):
@@ -2377,7 +2377,7 @@ class ScrolledThumbnail(wx.ScrolledWindow):
 
     def onKeyDown(self, event):
         if event.GetKeyCode() == 316:
-            logger.debug('right key pressed:%s', self._selected)
+#             logger.debug('right key pressed:%s', self._selected)
             self._selected = self._selected + 1
             self.ScrollToSelected()
             self.Refresh()

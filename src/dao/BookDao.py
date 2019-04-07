@@ -39,13 +39,18 @@ class CreateDatabase():
         Creating database for library.
         '''
         logger.debug('CreateDatabase')
+        databasePath=os.path.join(libraryPath,databaseFileName)
         self.libraryPath = libraryPath
-        self.engine = create_engine(f'sqlite:///{os.path.join(libraryPath,databaseFileName)}' , echo=False)
+        isDatabaseExist=os.path.exists(databasePath)
+
+        databaseFilePath = f'sqlite:///{databasePath}'
+        self.engine = create_engine(databaseFilePath , echo=False)
         Session = sessionmaker(autoflush=True, autocommit=False, bind=self.engine)
         self.session = Session()
         
-        if not os.path.exists(libraryPath):
-            os.mkdir(libraryPath)
+        if not isDatabaseExist:
+#             os.mkdir(libraryPath)
+            self.creatingDatabase()
         os.chdir(libraryPath)
 
     def creatingDatabase(self):
