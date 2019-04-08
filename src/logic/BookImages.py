@@ -7,12 +7,8 @@ import traceback
 import rarfile
 
 import logging
-import uuid
-import numpy as np
-import glob
 from PIL import Image as Img
-import wand
-import minecart
+import platform
 logger = logging.getLogger('extensive')
 
 
@@ -21,63 +17,20 @@ class BookImage():
     def __init__(self):
         pass
 
-#     def convert(self, filepdf):
-#         # used to generate temp file name. so we will not duplicate or replace anything
-#         uuid_set = str(uuid.uuid4().fields[-1])[:5]
-#         try:
-#             # now lets convert the PDF to Image
-#             # this is good resolution As far as I know
-#             with wand.image.Image(filename=filepdf, resolution=200) as img:
-#                 # keep good quality
-#                 img.compression_quality = 80
-#                 # save it to tmp name
-#                 logger.debug(os.getcwd())
-#                 img.save(filename="temp/temp%s.jpg" % uuid_set)
-#         except Exception as err:
-#             logger.error(err)
-#             # always keep track the error until the code has been clean
-#             # print err
-#             return False
-#         else:
-#             """
-#             We finally success to convert pdf to image. 
-#             but image is not join by it self when we convert pdf files to image. 
-#             now we need to merge all file
-#             """
-#             pathsave = []
-#             try:
-#                 # search all image in temp path. file name ends with uuid_set value
-#                 list_im = glob.glob("temp/temp%s*.jpg" % uuid_set)
-#                 list_im.sort()  # sort the file before joining it
-#                 imgs = [Img.open(i) for i in list_im]
-#                 # now lets Combine several images vertically with Python
-#                 min_shape = sorted([(np.sum(i.size), i.size) for i in imgs])[0][1]
-#                 imgs_comb = np.vstack(
-#                     (np.asarray(i.resize(min_shape)) for i in imgs))
-#                 # for horizontally  change the vstack to hstack
-#                 imgs_comb = Img.fromarray(imgs_comb)
-#                 pathsave = "MyPdf%s.jpg" % uuid_set
-#                 # now save the image
-#                 imgs_comb.save(pathsave)
-#                 # and then remove all temp image
-#                 for i in list_im:
-#                     os.remove(i)
-#             except Exception as err:
-#                 # print err 
-#                 return False
-#         logger.debug(pathsave)
-#         return pathsave
 
-    def getPdfImage(self, filePath):
-        pdffile = open(filePath, 'rb')
-        doc = minecart.Document(pdffile)
-        page = doc.get_page(1)
+
     def getPdfBookImage(self, name=None):
         # Converting first page into JPG
 #         with Image(filename=sourcePdf) as img:
 #             img.save(filename=destImg)
-
-        cmd = 'convert -background white -alpha remove "' + name + '.pdf[0]' + '" "' + name + '.jpg' + '"'
+        if platform.system() == 'Windows':
+            path=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','bin','pdftocairo.exe')
+#             os.chdir(path)
+            cmd=f'{path} -f 1 -l 1 -jpeg -scale-to 400 {name}.pdf {name}.jpg'
+        else:
+            cmd = 'convert -background white -alpha remove "' + name + '.pdf[0]' + '" "' + name + '.jpg' + '"'
+            
+        print(cmd)
         subprocess.call(cmd, shell=True)
         
     def getDjuvBookImage(self, name=None):
@@ -115,8 +68,8 @@ class BookImage():
         '''
         os.chdir(filePath)
         if 'pdf' == bookFormat:
-#             self.getPdfBookImage(name)
-            self.convert(os.path.join(filePath,name))
+            self.getPdfBookImage(name)
+#             self.convert(os.path.join(filePath,name))
 
         elif 'djvu' == bookFormat:
             self.getDjuvBookImage(name)

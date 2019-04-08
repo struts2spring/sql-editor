@@ -48,6 +48,8 @@ class CreateDatabase():
         Session = sessionmaker(autoflush=True, autocommit=False, bind=self.engine)
         self.session = Session()
         
+        
+        os.makedirs(libraryPath, exist_ok=True)
         if not isDatabaseExist:
 #             os.mkdir(libraryPath)
             self.creatingDatabase()
