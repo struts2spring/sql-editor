@@ -26,7 +26,7 @@ class BookImage():
         if platform.system() == 'Windows':
             path=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','bin','pdftocairo.exe')
 #             os.chdir(path)
-            cmd=f'{path} -f 1 -l 1 -jpeg -scale-to 400 {name}.pdf {name}.jpg'
+            cmd=f'''{path} -f 1 -l 1 -jpeg -scale-to 600 "{name}.pdf" "{name}.jpg"'''
         else:
             cmd = 'convert -background white -alpha remove "' + name + '.pdf[0]' + '" "' + name + '.jpg' + '"'
             

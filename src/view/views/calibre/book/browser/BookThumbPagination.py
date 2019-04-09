@@ -9,6 +9,8 @@ from src.view.util.FileOperationsUtil import FileOperations
 from src.view.constants import ID_FIRST_RESULT, ID_LAST_RESULT, ID_PREVIOUS_RESULT, ID_NEXT_RESULT
 from re import search
 from src.logic.AddingBook import AddBook
+from src.view.other.debounce import debounce
+from src.dao.BookDao import CreateDatabase
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -34,6 +36,7 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
         self.search.ShowCancelButton(1)
         self.search.SetMenu(None)
         self.search.Bind(wx.EVT_TEXT_ENTER, self.OnSearch)
+        self.search.Bind(wx.EVT_TEXT, self.OnSearch)
                 
         self.thumbnailCtrl = ThumbnailCtrl(self, -1, imagehandler=NativeImageHandler)
         self.thumbnailCtrl.EnableToolTips(enable=True)
@@ -51,6 +54,7 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
         sizer.Add(vBox, 1, wx.EXPAND , 0)
         self.SetSizer(sizer)
 
+    @debounce(1)
     def OnSearch(self, event):
         logger.debug('onSearch')
         self.loadingBook(searchText=self.search.GetValue())
