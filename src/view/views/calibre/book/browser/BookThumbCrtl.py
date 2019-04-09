@@ -123,9 +123,12 @@ import zlib
 
 import six
 from math import pi
-from src.view.constants import bookMenuRightClickList
+from src.view.constants import bookMenuRightClickList, ID_DOWNLOAD_METADATA, \
+    ID_OPEN_BOOK, ID_BOOK_INFO, ID_DELETE_BOOK
 from src.view.util.FileOperationsUtil import FileOperations
 from wx.lib.embeddedimage import PyEmbeddedImage
+import subprocess
+import platform
 
 if six.PY3:
     import _thread as thread
@@ -167,14 +170,14 @@ def GetMondrianBitmap():
 
 def GetMondrianImage():
     """ Returns a default image placeholder as a :class:`wx.Image`. """
-    stream=None
-    image=wx.Image()
+    stream = None
+    image = wx.Image()
     try:
         stream = six.BytesIO(GetMondrianData())
-        image=wx.Image(stream)
+        image = wx.Image(stream)
     except Exception as e:
         logger.error(e)
-        image=wx.Image()
+        image = wx.Image()
     return image
 
 
@@ -1343,7 +1346,7 @@ class ScrolledThumbnail(wx.ScrolledWindow):
         try:
             if thumb >= 0:
                 author = ''
-                fileSize=0
+                fileSize = 0
                 for a in self._items[thumb].book.authors:
                     author = f'{author}{a.authorName}\n,'
                 if self._items[thumb].book.fileSize:
@@ -1927,13 +1930,13 @@ class ScrolledThumbnail(wx.ScrolledWindow):
         :param `width`: the caption string width, in pixels.
         """
 
-        caption = caption + "..."
+        caption = "..." + caption
 
         while sw > width:
-            caption = caption[1:]
+            caption = caption[:-1]
             sw, sh = dc.GetTextExtent(caption)
 
-        return "..." + caption[0:-3]
+        return  caption[3:] + "..."
 
     def DrawThumbnail(self, bmp, thumb, index):
         """
@@ -2129,7 +2132,7 @@ class ScrolledThumbnail(wx.ScrolledWindow):
         self.Refresh()
 
     def createMenu(self): 
-        self.fileOperations=FileOperations()
+        self.fileOperations = FileOperations()
         menu = wx.Menu()
         
 #         menuItemDataList = [
@@ -2152,6 +2155,64 @@ class ScrolledThumbnail(wx.ScrolledWindow):
 
     def onRighClick(self, event):
         logger.debug(f'onRighClick:{event.GetId()}')
+        if event.GetId() == ID_OPEN_BOOK:
+            self.openBook(event)
+        if event.GetId() == ID_BOOK_INFO:
+            self.showBookProperties(event)
+        if event.GetId() == ID_DELETE_BOOK:
+            self.showBookProperties(event)
+
+    def onCopy(self, event):
+        logger.debug('copy')
+
+    def deleteBook(self, event):
+        logger.debug("On deleteBook Path \n")
+        deleteBooks = []
+        for selectedBookIndex in self._selectedarray:
+            book = self._items[selectedBookIndex].book
+            deleteBooks.append(book)
+#         for book in deleteBooks:
+#             try:
+#                 FindingBook().deleteBook(book)
+#                 text = self.GetTopLevelParent().searchCtrlPanel.searchCtrl.GetValue()
+#                 self.GetTopLevelParent().searchCtrlPanel.doSearch(text)
+#             except Exception as e :
+#                 logger.error(e, exc_info=True)
+#                 logger.error('selectedBookIndex: %s, len: %s', selectedBookIndex, len(self._items))
+        logger.debug(deleteBooks)
+
+    def showBookProperties(self, event):
+        logger.debug("showBookProperties \n")
+        if self._selected != None:
+            book = self._items[self._selected].book
+#             frame = BookPropertyFrame(parent=None,book)
+#             frame = BookPropertyFrame(None, book)
+
+    def openBook(self, event):
+        logger.debug('_selected : %s', self._selected)
+        if self._selected != None:
+            book = self._items[self._selected].book
+            logger.debug(self._selected)
+            bookPath = book.bookPath
+            for name in os.listdir(bookPath):
+                if book.bookFormat != None:
+                    if "." + (book.bookFormat).lower() in name:
+                        file = os.path.join(bookPath, name)
+                        break
+
+            if platform.system() == 'Linux':
+                if book.bookFormat != None and  book.bookFormat.lower() != 'cbr':
+                    try:
+                        subprocess.call(["xdg-open", file])
+                    except Exception as e:
+                        logger.error(e, exc_info=True)
+#                         logger.info('unable to open file')
+                else:
+#                     frame = CbrFrame(None, book)
+                    pass
+            elif platform.system() == 'Windows':
+                os.startfile(file)
+        logger.debug("openBook \n")
 
     def OnRightMouseDown(self, event):
         logger.debug('OnRightMouseDown')
