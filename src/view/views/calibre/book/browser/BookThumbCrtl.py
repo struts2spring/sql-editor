@@ -124,11 +124,13 @@ import zlib
 import six
 from math import pi
 from src.view.constants import bookMenuRightClickList, ID_DOWNLOAD_METADATA, \
-    ID_OPEN_BOOK, ID_BOOK_INFO, ID_DELETE_BOOK
+    ID_OPEN_BOOK, ID_BOOK_INFO, ID_DELETE_BOOK, ID_OPEN_CONTAINING_FOLDER, \
+    ID_EDIT_METADATA, ID_SEARCH_SIMILAR
 from src.view.util.FileOperationsUtil import FileOperations
 from wx.lib.embeddedimage import PyEmbeddedImage
 import subprocess
 import platform
+import sys
 
 if six.PY3:
     import _thread as thread
@@ -2160,10 +2162,33 @@ class ScrolledThumbnail(wx.ScrolledWindow):
         if event.GetId() == ID_BOOK_INFO:
             self.showBookProperties(event)
         if event.GetId() == ID_DELETE_BOOK:
-            self.showBookProperties(event)
+            self.deleteBook(event)
+        if event.GetId() == ID_OPEN_CONTAINING_FOLDER:
+            self.openFolderPath(event)
+        if event.GetId() == ID_DOWNLOAD_METADATA:
+            self.downloadMetadata(event)
+        if event.GetId() == ID_EDIT_METADATA:
+            self.editMetadata(event)
+        if event.GetId() == ID_SEARCH_SIMILAR:
+            self.searchSimilar(event)
 
     def onCopy(self, event):
         logger.debug('copy')
+
+    def searchSimilar(self, event):
+        logger.debug("searchSimilar\n")
+
+    def editMetadata(self, event):
+        logger.debug("editMetadata\n")
+
+    def downloadMetadata(self, event):
+        logger.debug("downloadMetadata\n")
+        selectedBooks = []
+        book = None
+        for selectedBookIndex in self._selectedarray:
+            book = self._items[selectedBookIndex].book
+            selectedBooks.append(book)
+#         frame = ReviewFrame(None, book)
 
     def deleteBook(self, event):
         logger.debug("On deleteBook Path \n")
@@ -2187,6 +2212,16 @@ class ScrolledThumbnail(wx.ScrolledWindow):
             book = self._items[self._selected].book
 #             frame = BookPropertyFrame(parent=None,book)
 #             frame = BookPropertyFrame(None, book)
+
+    def openFolderPath(self, event):
+        logger.debug("OnOpenFolderPath %s", self._selected)
+        if self._selected != None:
+            book = self._items[self._selected].book
+            file = book.bookPath
+        if sys.platform == 'linux2':
+            subprocess.call(["xdg-open", file])
+        elif sys.platform == 'win32':
+            os.startfile(file)
 
     def openBook(self, event):
         logger.debug('_selected : %s', self._selected)
