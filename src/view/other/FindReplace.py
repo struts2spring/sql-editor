@@ -71,6 +71,7 @@ class FindAndReplacePanel(wx.Panel):
         findLabel = wx.StaticText(self, -1, "F&ind:               ")
         self.findTextCtrl = wx.TextCtrl(self, -1, self.findText, size=(400, -1))
         self.findTextCtrl.SetFocus()
+        self.findTextCtrl.SetSelection(0, len(self.findTextCtrl.GetValue()))
         self.setFindText(self.findTextCtrl)
 
         replaceLabel = wx.StaticText(self, -1, "Replace with:")
@@ -144,6 +145,7 @@ class FindAndReplacePanel(wx.Panel):
             wx.TheClipboard.Close()
             if success:
                 self.findTextCtrl.SetValue(do.GetText())
+                self.findTextCtrl.SetSelection(0, len(self.findTextCtrl.GetValue()))
 
     def onChooseBtn(self):
         logger.debug('onChooseBtn')
