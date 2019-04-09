@@ -123,7 +123,8 @@ import zlib
 
 import six
 from math import pi
-
+from src.view.constants import bookMenuRightClickList
+from src.view.util.FileOperationsUtil import FileOperations
 from wx.lib.embeddedimage import PyEmbeddedImage
 
 if six.PY3:
@@ -906,7 +907,7 @@ class ThumbnailCtrl(wx.Panel):
                    "GetItemCount", "GetThumbWidth", "GetThumbHeight", "GetThumbBorder",
                    "ShowFileNames", "SetPopupMenu", "GetPopupMenu", "SetGlobalPopupMenu",
                    "GetGlobalPopupMenu", "SetSelectionColour", "GetSelectionColour",
-                   "EnableDragging", "SetThumbSize", "GetThumbSize", "ShowThumbs", "ShowDir","ShowBook",
+                   "EnableDragging", "SetThumbSize", "GetThumbSize", "ShowThumbs", "ShowDir", "ShowBook",
                    "GetShowDir", "SetSelection", "GetSelection", "SetZoomFactor",
                    "GetZoomFactor", "SetCaptionFont", "GetCaptionFont", "GetItemIndex",
                    "InsertItem", "RemoveItemAt", "IsSelected", "Rotate", "ZoomIn", "ZoomOut",
@@ -1331,14 +1332,19 @@ class ScrolledThumbnail(wx.ScrolledWindow):
         :param `thumb`: the index of the thumbnail for which we are collecting information.
         """
 
-        thumbinfo = None
-
-        if thumb >= 0:
-            author = ''
-            for a in self._items[thumb].book.authors:
-                author = author + a.authorName + '\n'
-            thumbinfo = f'''Name:{self._items[thumb].book.bookName}\nAuthor:{author}\nSize: {self._items[thumb].book.fileSize}
-'''
+        thumbinfo = ''
+        
+        try:
+            if thumb >= 0:
+                author = ''
+                fileSize=0
+                for a in self._items[thumb].book.authors:
+                    author = f'{author}{a.authorName}\n,'
+                if self._items[thumb].book.fileSize:
+                    fileSize = self._items[thumb].book.fileSize
+                thumbinfo = f'''Name:{self._items[thumb].book.bookName}\nAuthor:{author}\nSize: {fileSize}'''
+        except Exception as e:
+            logger.error(e)
 #             thumbinfo = "Name: " + self._items[thumb].GetFileName() + "\n" \
 #                         "Size: " + self._items[thumb].GetFileSize() + "\n" \
 #                         "Modified: " + self._items[thumb].GetCreationDate() + "\n" \
@@ -2117,34 +2123,34 @@ class ScrolledThumbnail(wx.ScrolledWindow):
         self.Refresh()
 
     def createMenu(self): 
+        self.fileOperations=FileOperations()
         menu = wx.Menu()
         
-        menuItemDataList = [
-            [wx.NewIdRef(), wx.ART_FILE_OPEN, "Download metadata and cover." ],
-            [wx.NewIdRef(), wx.ART_FILE_OPEN, "Open containing folder." ],
-            [wx.NewIdRef(), wx.ART_FILE_OPEN, "Search similar books." ],
-            [wx.NewIdRef(), wx.ART_FILE_OPEN, "Information"],
-            [wx.NewIdRef(), wx.ART_FILE_OPEN, "Open Book"],
-            [wx.NewIdRef(), wx.ART_FILE_OPEN, "Delete Book"],
-            [wx.NewIdRef(), wx.ART_FILE_OPEN, "Information"],
-            ]
+#         menuItemDataList = [
+#             [wx.NewIdRef(), wx.ART_FILE_OPEN, "Download metadata and cover." ],
+#             [wx.NewIdRef(), wx.ART_FILE_OPEN, "Open containing folder." ],
+#             [wx.NewIdRef(), wx.ART_FILE_OPEN, "Search similar books." ],
+#             [wx.NewIdRef(), wx.ART_FILE_OPEN, "Information"],
+#             [wx.NewIdRef(), wx.ART_FILE_OPEN, "Open Book"],
+#             [wx.NewIdRef(), wx.ART_FILE_OPEN, "Delete Book"],
+#             [wx.NewIdRef(), wx.ART_FILE_OPEN, "Information"],
+#             ]
         
-        for menuItemData in menuItemDataList:
+        for menuItemData in bookMenuRightClickList:
             
             item = wx.MenuItem(menu, menuItemData[0], menuItemData[2])
-            item.SetBitmap(wx.ArtProvider.GetBitmap(menuItemData[1], wx.ART_MENU, (16, 16)))
+            item.SetBitmap(self.fileOperations.getImageBitmap(imageName=menuItemData[1]))
             menu.Append(item)
             self.Bind(wx.EVT_MENU, lambda e:self.onRighClick(e), id=menuItemData[0])
         return menu
 
     def onRighClick(self, event):
         logger.debug(f'onRighClick:{event.GetId()}')
-        
 
     def OnRightMouseDown(self, event):
         logger.debug('OnRightMouseDown')
-        logger.debug( 'previous printing all _selected: %s', self._selected)
-        logger.debug( 'printing all _selectedarray: %s', self._selectedarray)
+        logger.debug('previous printing all _selected: %s', self._selected)
+        logger.debug('printing all _selectedarray: %s', self._selectedarray)
         x = event.GetX()
         y = event.GetY()
         x, y = self.CalcUnscrolledPosition(x, y)

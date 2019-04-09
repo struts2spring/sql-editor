@@ -438,7 +438,6 @@ menuItemList = {
     "calibre": baseList
     }
 
-
 # Id for book explorer
 ID_ADD_BOOK = wx.NewIdRef()
 ID_EDIT_BOOK_METADATA = wx.NewIdRef()
@@ -448,8 +447,27 @@ ID_CONNECT_SHARE_BOOK = wx.NewIdRef()
 ID_EDIT_BOOK = wx.NewIdRef()
 ID_REMOVE_BOOK = wx.NewIdRef()
 
+ID_FIRST_RESULT = wx.NewIdRef()
+ID_PREVIOUS_RESULT = wx.NewIdRef()
+ID_NEXT_RESULT = wx.NewIdRef()
+ID_LAST_RESULT = wx.NewIdRef()
 
-ID_FIRST_RESULT=wx.NewIdRef()
-ID_PREVIOUS_RESULT=wx.NewIdRef()
-ID_NEXT_RESULT=wx.NewIdRef()
-ID_LAST_RESULT=wx.NewIdRef()
+########################################
+
+ID_BOOK_INFO = wx.NewIdRef()
+ID_DELETE_BOOK = wx.NewIdRef()
+ID_OPEN_BOOK = wx.NewIdRef()
+ID_EDIT_METADATA = wx.NewIdRef()
+ID_SEARCH_SIMILAR = wx.NewIdRef()
+ID_OPEN_CONTAINING_FOLDER = wx.NewIdRef()
+ID_DOWNLOAD_METADATA = wx.NewIdRef()
+
+bookMenuRightClickList = [
+    [ID_DOWNLOAD_METADATA, "download-metadata_16.png", "Download metadata and cover." ],
+    [ID_OPEN_CONTAINING_FOLDER, "folder.png", "Open containing folder." ],
+    [ID_SEARCH_SIMILAR,"similar_16.png", "Search similar books." ],
+    [ID_EDIT_METADATA,"edit_input_16.png", "Edit metadata"],
+    [ID_OPEN_BOOK, "view_16.png", "Open Book"],
+    [ID_DELETE_BOOK, "remove_books_16.png", "Delete Book"],
+    [ID_BOOK_INFO, "catalog_16.png", "Information"],
+    ]

@@ -5,6 +5,7 @@ Created on 30-Dec-2018
 '''
 
 import wx
+from src.view.other.debounce import debounce
 from wx import TreeCtrl
 from wx.lib.mixins.treemixin import ExpansionState
 from src.view.util.FileOperationsUtil import FileOperations
@@ -401,6 +402,7 @@ class ResourcePanel(wx.Panel):
         else:
             self.RecreateTree()
 
+    @debounce(2)
     def OnSearch(self, event=None):
 
         value = self.filter.GetValue()

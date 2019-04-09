@@ -272,7 +272,7 @@ class PrefrencesBaseTreePanel(ExpansionState, TreeCtrl):
         count = 0
         self.fileOperations = FileOperations()
         for imageName in ['preference.png', 'folder.png', 'folder_view.png', 'fileType_filter.png', 'usb.png', 'stop.png',
-                          'java.png', 'python_module.png', 'xml.png']:
+                          'java.png', 'python_module.png', 'xml.png','folderType_filter.png']:
             self.ImageList.Add(self.fileOperations.getImageBitmap(imageName=imageName))
             self.iconsDictIndex[imageName] = count
             count += 1
