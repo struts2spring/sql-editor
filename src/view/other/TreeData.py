@@ -11,25 +11,25 @@ bookExplorerList = [
         [wx.NewIdRef(), "Languages", 'language.png', None, [
             [wx.NewIdRef(), "database browser", 'fileType_filter.png', None, None],
             ], ],
-        [wx.NewIdRef(), "Series", 'folderType_filter.png', None, [
+        [wx.NewIdRef(), "Series", 'books_in_series_16.png', None, [
             [wx.NewIdRef(), "database browser", 'fileType_filter.png', None, None],
             ], ],
-        [wx.NewIdRef(), "Formats", 'folderType_filter.png', None, [
+        [wx.NewIdRef(), "Formats", 'fomat_16.png', None, [
             [wx.NewIdRef(), "database browser", 'fileType_filter.png', None, None],
             ], ],
-        [wx.NewIdRef(), "Publisher", 'folderType_filter.png', None, [
+        [wx.NewIdRef(), "Publisher", 'publisher_16.png', None, [
             [wx.NewIdRef(), "database browser", 'fileType_filter.png', None, None],
             ], ],
-        [wx.NewIdRef(), "Rating", 'folderType_filter.png', None, [
+        [wx.NewIdRef(), "Rating", 'rating_16.png', None, [
             [wx.NewIdRef(), "database browser", 'fileType_filter.png', None, None],
             ], ],
-        [wx.NewIdRef(), "News", 'folderType_filter.png', None, [
+        [wx.NewIdRef(), "News", 'news_16.png', None, [
             [wx.NewIdRef(), "database browser", 'fileType_filter.png', None, None],
             ], ],
-        [wx.NewIdRef(), "Tags", 'folderType_filter.png', None, [
+        [wx.NewIdRef(), "Tags", 'tags_16.png', None, [
             [wx.NewIdRef(), "database browser", 'fileType_filter.png', None, None],
             ], ],
-        [wx.NewIdRef(), "Identifiers", 'folderType_filter.png', None, [
+        [wx.NewIdRef(), "Identifiers", 'identifiers_16.png', None, [
             [wx.NewIdRef(), "database browser", 'fileType_filter.png', None, None],
             ], ],
 

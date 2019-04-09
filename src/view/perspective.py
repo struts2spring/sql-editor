@@ -792,7 +792,7 @@ class PerspectiveManager(object):
             [ID_DATABASE_PERSPECTIVE, "Database", 'database.png', 'Database', self.onPerspeciveSelection],
             [ID_GIT_PERSPECTIVE, "Git", 'gitrepository.png', 'Git', self.onPerspeciveSelection],
             [ID_RESOURCE_PERSPECTIVE, "Resources", 'resource_persp.png', 'Resources', self.onPerspeciveSelection],
-            [ID_CALIBRE_PERSPECTIVE, "Calibre", 'library-16.png', 'Calibre', self.onPerspeciveSelection],
+            [ID_CALIBRE_PERSPECTIVE, "Calibre", 'vl_16.png', 'Calibre', self.onPerspeciveSelection],
             ]
         for perspectiveName in self.perspectiveList:
             if len(perspectiveName) > 1:
@@ -998,11 +998,12 @@ class PerspectiveManager(object):
             (ID_newConnection, "New Connection", "connect.png", "New Connection", None, False, ['database'], True, wx.ITEM_NORMAL),
             (ID_openConnection, "Open Connection", "database_connect.png", 'Open Connection', None, False, ['database'], True, wx.ITEM_NORMAL),
             (ID_newWorksheet, "Script", "script.png", 'Open a new script worksheet', None, False, ['database'], True, wx.ITEM_NORMAL),
-            (ID_ADD_BOOK, "Add Book", "add_book.png", 'Add Book', None, True, ['calibre'], True, wx.ITEM_NORMAL),
-            (ID_EDIT_BOOK_METADATA, "Edit Book metadata", "edit_database.png", 'Edit Book metadata', None, True, ['calibre'], True, wx.ITEM_NORMAL),
+            (ID_ADD_BOOK, "Add Book", "add_book_16.png", 'Add Book', None, True, ['calibre'], True, wx.ITEM_NORMAL),
+            (ID_EDIT_BOOK_METADATA, "Edit Book metadata", "edit_book_16.png", 'Edit Book metadata', None, True, ['calibre'], True, wx.ITEM_NORMAL),
             (ID_CONVERT_BOOK, "Convert Book", "txn_config.png", 'Convert Book', None, False, ['calibre'], True, wx.ITEM_NORMAL),
-            (ID_REMOVE_BOOK, "Remove Book", "delete.png", 'Remove Book', None, False, ['calibre'], True, wx.ITEM_NORMAL),
-            (ID_GET_BOOK, "Get Book", "download.png", 'Get Book', None, False, ['calibre'], True, wx.ITEM_NORMAL),
+            (ID_REMOVE_BOOK, "Remove Book", "remove_books_16.png", 'Remove Book', None, False, ['calibre'], True, wx.ITEM_NORMAL),
+            (ID_GET_BOOK, "Get Book", "store_16.png", 'Get Book', None, False, ['calibre'], True, wx.ITEM_NORMAL),
+            (ID_CONNECT_SHARE_BOOK, "Connect Share", "connect_share_on_16.png", 'Connect Share', None, False, ['calibre'], True, wx.ITEM_NORMAL),
 #             (wx.ID_PREFERENCES, "Preferences", "preference.png", 'Preference', None),
             ]
 
@@ -1040,7 +1041,11 @@ class PerspectiveManager(object):
             self._ctrl.Hide()
         for tool in tools:
             if len(tool) != 0 and perspectiveName in tool[6]:
-                toobar._items.append(self.toolbarItems[tool[0]])
+                try:
+                    toobar._items.append(self.toolbarItems[tool[0]])
+                except Exception as e:
+                    logger.error(e)
+                    logger.error(tool[0],tool)
 
         toobar.Realize()
 #         self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onRunDebugAsDropDown, id=ID_NEW)
