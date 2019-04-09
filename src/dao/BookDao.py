@@ -44,7 +44,7 @@ class CreateDatabase():
         isDatabaseExist=os.path.exists(databasePath)
 
         databaseFilePath = f'sqlite:///{databasePath}'
-        self.engine = create_engine(databaseFilePath , echo=False)
+        self.engine = create_engine(databaseFilePath , echo=False, connect_args={'check_same_thread': False})
         Session = sessionmaker(autoflush=True, autocommit=False, bind=self.engine)
         self.session = Session()
         

@@ -167,9 +167,15 @@ def GetMondrianBitmap():
 
 def GetMondrianImage():
     """ Returns a default image placeholder as a :class:`wx.Image`. """
-
-    stream = six.StringIO(GetMondrianData())
-    return wx.Image(stream)
+    stream=None
+    image=wx.Image()
+    try:
+        stream = six.BytesIO(GetMondrianData())
+        image=wx.Image(stream)
+    except Exception as e:
+        logger.error(e)
+        image=wx.Image()
+    return image
 
 
 #----------------------------------------------------------------------
