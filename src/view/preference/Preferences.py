@@ -1,6 +1,7 @@
 import wx
 from src.view.preference.general.GeneralPanel import GeneralPreferencePanel
 from src.view.preference.general.AppearancePanel import AppearancePreferencePanel
+from src.view.preference.calibre.CalibreGeneralPreference import CalibreGeneralPreferencePanel
 try:
     from agw import aui
     from agw.aui import aui_switcherdialog as ASD
@@ -407,6 +408,8 @@ class OpalPreference(wx.Frame):
             preferencePanelObj = KeysPanel(rightPanel,preferenceName=preferenceName)
         elif preferenceName == 'Sharing':
             preferencePanelObj = PreferencePanel(rightPanel,preferenceName=preferenceName)
+        elif preferenceName == 'Calibre':
+            preferencePanelObj = CalibreGeneralPreferencePanel(rightPanel,preferenceName=preferenceName)
 #         else :
 #             preferencePanelObj = GeneralPreferencePanel(rightPanel, preferenceName=preferenceName)
         

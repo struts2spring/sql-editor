@@ -39,15 +39,14 @@ class CreateDatabase():
         Creating database for library.
         '''
         logger.debug('CreateDatabase')
-        databasePath=os.path.join(libraryPath,databaseFileName)
+        databasePath = os.path.join(libraryPath, databaseFileName)
         self.libraryPath = libraryPath
-        isDatabaseExist=os.path.exists(databasePath)
+        isDatabaseExist = os.path.exists(databasePath)
 
         databaseFilePath = f'sqlite:///{databasePath}'
         self.engine = create_engine(databaseFilePath , echo=False, connect_args={'check_same_thread': False})
         Session = sessionmaker(autoflush=True, autocommit=False, bind=self.engine)
         self.session = Session()
-        
         
         os.makedirs(libraryPath, exist_ok=True)
         if not isDatabaseExist:
@@ -60,6 +59,7 @@ class CreateDatabase():
         os.chdir(self.libraryPath)
         Base.metadata.drop_all(self.engine)
         Base.metadata.create_all(self.engine)
+        logger.debug('database created blank')
 
     def addSingleBookData(self, dirName):
         '''
@@ -73,19 +73,20 @@ class CreateDatabase():
             duplicateBooks = list()
             addDatabase = True
             b = self.readJsonFile(dirName=dirName)
-            book = self.createBookFromJson(bookJson=b)
-            book.bookPath = os.path.join(self.libraryPath , dirName)
-            if book.isbn_13: 
-                if not single.has_key(book.isbn_13):
-                    single[book.isbn_13] = book
-                    
-                else:
-                    duplicate[book.isbn_13] = book
-                    addDatabase = False
-                    duplicateBooks.append(duplicate)
-            if addDatabase:
-                self.session.add(book)
-            self.session.commit()
+            if b:
+                book = self.createBookFromJson(bookJson=b)
+                book.bookPath = os.path.join(self.libraryPath , dirName)
+                if book.isbn_13: 
+                    if not single.has_key(book.isbn_13):
+                        single[book.isbn_13] = book
+                        
+                    else:
+                        duplicate[book.isbn_13] = book
+                        addDatabase = False
+                        duplicateBooks.append(duplicate)
+                if addDatabase:
+                    self.session.add(book)
+                self.session.commit()
         except Exception as e:
             logger.error(e, exc_info=True)
             self.session.rollback();
@@ -158,24 +159,26 @@ class CreateDatabase():
     def readJsonFile(self, dirName=None):
         logger.debug('readJsonFile') 
 #         print 'readJsonFile----->', os.path.join(Workspace().libraryPath, dirName , 'book.json')
+        bookJsonFile = None
+        b = None
         try:
             if os.path.exists(os.path.join(self.libraryPath, dirName , 'book.json')):
                 bookJsonFile = open(os.path.join(self.libraryPath, dirName , 'book.json'), 'r')
-            else:
+                rep = ''
+                for line in bookJsonFile:
+                    rep = rep + line
+                bookJsonFile.close
+                try:
+                    b = json.loads(rep)
+                except Exception as e:
+                    logger.error(e, exc_info=True)
+            elif os.path.exists(os.path.join(self.libraryPath, dirName)):
                 os.removedirs(os.path.join(self.libraryPath, dirName)) 
         except Exception as e:
             logger.debug(os.path.join(self.libraryPath, dirName))
             logger.error(e, exc_info=True)
         
-        rep = ''
-        for line in bookJsonFile:
-            rep = rep + line
-        bookJsonFile.close
-        b = None
-        try:
-            b = json.loads(rep)
-        except Exception as e:
-            logger.error(e, exc_info=True)
+
 #             print rep
         return b
 
@@ -243,18 +246,18 @@ class CreateDatabase():
         try:
             if book:
                 query = self.session.query(Book).filter(Book.id == book.id)
-                book = query.first()
+                session_book = query.first()
 #                 print book
 #                 book = books[0]
                 
                 author_id_lst = []
-                for author in book.authors:
+                for author in session_book.authors:
                     author_id_lst.append(author.id)
                     self.session.delete(author)
                     
 #                 query = self.session.query(AuthorBookLink).filter(AuthorBookLink.bookId == book.id)
 #                 authorBookLinks = query.all()
-                self.session.delete(book)
+                self.session.delete(session_book)
 #                 for authorBook in authorBookLinks:
 #                     self.session.delete(authorBook)
                 

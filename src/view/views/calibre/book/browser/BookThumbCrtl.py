@@ -131,6 +131,8 @@ from wx.lib.embeddedimage import PyEmbeddedImage
 import subprocess
 import platform
 import sys
+from src.view.views.calibre.book.browser.SearchBook import FindingBook
+from src.logic.AddingBook import AddBook
 
 if six.PY3:
     import _thread as thread
@@ -1490,6 +1492,7 @@ class ScrolledThumbnail(wx.ScrolledWindow):
         """
         Shows thumbnails for a particular books.
         """
+        self.books = books
         if filter >= 0:
             self._filter = filter        
         thumbs = []        
@@ -1499,6 +1502,8 @@ class ScrolledThumbnail(wx.ScrolledWindow):
             if book.bookPath:
                 self._dir = book.bookPath
                 imagePath = book.bookPath
+                if not os.path.exists(imagePath):
+                    return
                 filenames = self.ListDirectory(imagePath, extensions)
                 if filenames:
                     imageName = filenames[0]
@@ -2196,14 +2201,15 @@ class ScrolledThumbnail(wx.ScrolledWindow):
         for selectedBookIndex in self._selectedarray:
             book = self._items[selectedBookIndex].book
             deleteBooks.append(book)
-#         for book in deleteBooks:
-#             try:
-#                 FindingBook().deleteBook(book)
+
+        for book in deleteBooks:
+            try:
+                FindingBook(libraryPath=self.GetParent().GetParent().libraryPath).deleteBook(book)
 #                 text = self.GetTopLevelParent().searchCtrlPanel.searchCtrl.GetValue()
 #                 self.GetTopLevelParent().searchCtrlPanel.doSearch(text)
-#             except Exception as e :
-#                 logger.error(e, exc_info=True)
-#                 logger.error('selectedBookIndex: %s, len: %s', selectedBookIndex, len(self._items))
+            except Exception as e :
+                logger.error(e, exc_info=True)
+                logger.error('selectedBookIndex: %s, len: %s', selectedBookIndex, len(self._items))
         logger.debug(deleteBooks)
 
     def showBookProperties(self, event):
@@ -2264,11 +2270,13 @@ class ScrolledThumbnail(wx.ScrolledWindow):
             name = self._items[self._selected].book.bookName
             id = self._items[self._selected].book.id
 #         self.OnMouseDown(event)
+        self.updateStatusBar()
         self.SetPopupMenu(self.createMenu())
 
     def OnLeftMouseDown(self, event):
         logger.debug('OnLeftMouseDown')
         self.OnMouseDown(event)
+        self.updateStatusBar()
 
     def OnMouseDown(self, event):
         """
@@ -2485,20 +2493,24 @@ class ScrolledThumbnail(wx.ScrolledWindow):
 
     def onKeyDown(self, event):
         if event.GetKeyCode() == 316:
-#             logger.debug('right key pressed:%s', self._selected)
-            self._selected = self._selected + 1
-            self.ScrollToSelected()
-            self.Refresh()
-            self.SetFocus()
+            logger.debug('right key pressed:%s,%d', self._selected, len(self.books))
+            if self._selected < len(self.books) - 1:
+                self.SetSelection(self._selected + 1)
             
         elif event.GetKeyCode() == 314:
-            logger.debug('left key pressed: %s', self._selected)
-            self._selected = self._selected - 1
-            self.SetFocus()
+            logger.debug('left key pressed: %s,%d', self._selected, len(self.books))
+            if 0 < self._selected:
+                self.SetSelection(self._selected - 1)
         elif event.GetKeyCode() == 315:
             logger.debug('Up key pressed')
         elif event.GetKeyCode() == 317:
             logger.debug('down key pressed')
+        self.updateStatusBar()
+
+    def updateStatusBar(self):
+        if self.GetSelection() != -1:
+            book = self.GetItem(self.GetSelection()).book
+            self.GetTopLevelParent().SetStatusText(f'{book.bookName}', 0)
 
     def OnChar(self, event):
         """
@@ -2515,7 +2527,7 @@ class ScrolledThumbnail(wx.ScrolledWindow):
          (5) ``+`` key zooms in;
          (6) ``-`` key zooms out.
         """
-
+        logger.debug('OnChar')
         if event.KeyCode == ord("s"):
             self.Rotate()
         elif event.KeyCode == ord("d"):
@@ -2524,6 +2536,7 @@ class ScrolledThumbnail(wx.ScrolledWindow):
             self.Rotate(180)
         elif event.KeyCode == wx.WXK_DELETE:
             self.DeleteFiles()
+            self.deleteBook(event)
         elif event.KeyCode in [wx.WXK_ADD, wx.WXK_NUMPAD_ADD]:
             self.ZoomIn()
         elif event.KeyCode in [wx.WXK_SUBTRACT, wx.WXK_NUMPAD_SUBTRACT]:

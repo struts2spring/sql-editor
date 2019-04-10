@@ -5,7 +5,6 @@ from sqlalchemy.ext.declarative import declarative_base, declarative_base
 from sqlalchemy.orm import relationship, backref, sessionmaker
 from sqlalchemy.sql.schema import UniqueConstraint
 
-
 Base = declarative_base()
 engine = create_engine('sqlite:///better_calibre.sqlite')
 
@@ -37,9 +36,9 @@ class Book(Base):
     uuid = Column('uuid', String)  # uuid
     tag = Column('tag', String)  # a comma separated list of subjects
     bookFileName = Column('book_file_name', String)
-    bookImgName = Column('book_img_name', String) # a comma separated list of images for the book
+    bookImgName = Column('book_img_name', String)  # a comma separated list of images for the book
     wishListed = Column('wish_listed', String)  # this is an indicator that book is not available in workspace.
-    itEbookUrlNumber=Column(String)
+    itEbookUrlNumber = Column(String)
     createdOn = Column('created_on', DateTime, default=func.now())
 #     authors = relationship(
 #         "Author",
@@ -52,5 +51,8 @@ class Book(Base):
         secondary='author_book_link'
     )
 
+    def __repr__(self):
+            
+        return f"""Book:{{id:{self.id}, bookName:{self.bookName}, authors:{self.authors}}}"""
 
 #     __table_args__ = (UniqueConstraint('isbn_13', 'location_code', name='_customer_location_uc'),)

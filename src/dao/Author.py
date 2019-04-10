@@ -1,10 +1,11 @@
 
-from sqlalchemy import Column, DateTime, String, Integer, ForeignKey, Unicode,func,\
+from sqlalchemy import Column, DateTime, String, Integer, ForeignKey, Unicode, func, \
     Column, Integer, String, Column, Integer, String, create_engine, create_engine
 
 from sqlalchemy.ext.declarative import declarative_base, declarative_base
 from sqlalchemy.orm import relationship, backref, sessionmaker
-from src.dao.Book import Base,Book
+from src.dao.Book import Base, Book
+
 
 class Author(Base):
     """A Author class is an entity having database table."""
@@ -20,4 +21,5 @@ class Author(Base):
 #         Book,
 #         secondary='author_book_link', cascade="all"
 #     )
-
+    def __repr__(self):
+        return f"""id:{self.id}, authorName:{self.authorName}"""

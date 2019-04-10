@@ -46,8 +46,8 @@ class AddBook():
         self.libraryPath=libraryPath
         self.createDatabase = CreateDatabase(libraryPath=libraryPath)
 
-    def addingBookToWorkspace(self, sourcePath=None):
 
+    def addingBookToWorkspace(self, sourcePath=None):
         '''
         This function will be creating a new dir. Get the max of id in Book table. Create the folder name with max of id plus one.
         @param sourcePath: This is the path of selected book.

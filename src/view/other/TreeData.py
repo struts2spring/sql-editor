@@ -222,6 +222,14 @@ perferenceTreeList = [
     [wx.NewIdRef(), "JavaScript", 'fileType_filter.png', None, None],
     [wx.NewIdRef(), "JSON", 'folderType_filter.png', None, [[wx.NewIdRef(), "JSON Catalog", 'fileType_filter.png', None, None], [wx.NewIdRef(), "JSON Files", 'folderType_filter.png', None, [[wx.NewIdRef(), "Editor", 'folderType_filter.png', None, [[wx.NewIdRef(), "Content Assist", 'fileType_filter.png', None, None], [wx.NewIdRef(), "Syntax Coloring", 'fileType_filter.png', None, None], [wx.NewIdRef(), "Templates", 'fileType_filter.png', None, None], ]], [wx.NewIdRef(), "Validation", 'fileType_filter.png', None, None], ]]]],
     [wx.NewIdRef(), "Maven", 'folderType_filter.png', None, [[wx.NewIdRef(), "Archetypes", 'fileType_filter.png', None, None], [wx.NewIdRef(), "Discovery", 'fileType_filter.png', None, None], [wx.NewIdRef(), "Errors/Warning", 'fileType_filter.png', None, None], [wx.NewIdRef(), "Installations", 'fileType_filter.png', None, None], [wx.NewIdRef(), "Java EE Integration", 'fileType_filter.png', None, None], [wx.NewIdRef(), "Lifecycle Mappings", 'fileType_filter.png', None, None], [wx.NewIdRef(), "Source Lookup", 'fileType_filter.png', None, None], [wx.NewIdRef(), "Templates", 'fileType_filter.png', None, None], [wx.NewIdRef(), "User Interface", 'fileType_filter.png', None, None], [wx.NewIdRef(), "User Settings", 'fileType_filter.png', None, None], ]],
+    [wx.NewIdRef(), "Calibre", 'folderType_filter.png', None, [
+        [wx.NewIdRef(), "Interface", 'fileType_filter.png', None, None], 
+        [wx.NewIdRef(), "Conversion", 'fileType_filter.png', None, None], 
+        [wx.NewIdRef(), "Import/Export", 'fileType_filter.png', None, None], 
+        [wx.NewIdRef(), "Sharing", 'fileType_filter.png', None, None], 
+
+        ]],
+    
     [wx.NewIdRef(), "Python", 'folderType_filter.png', None, [[wx.NewIdRef(), "Builders", 'fileType_filter.png', None, None],
                [wx.NewIdRef(), "Debug", 'folderType_filter.png', None, [[wx.NewIdRef(), "Source Locator", 'fileType_filter.png', None, None], ]],
                [wx.NewIdRef(), "Editor", 'folderType_filter.png', None, [[wx.NewIdRef(), "Auto Imports", 'fileType_filter.png', None, None], ]],

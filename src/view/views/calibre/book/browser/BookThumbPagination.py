@@ -11,6 +11,7 @@ from re import search
 from src.logic.AddingBook import AddBook
 from src.view.other.debounce import debounce
 from src.dao.BookDao import CreateDatabase
+from pubsub import pub
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -26,10 +27,11 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
 
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
+        pub.subscribe(self.reloadingDatabase, 'reloadingDatabase')
         vBox = wx.BoxSizer(wx.VERTICAL)
         ####################################################################
         self.libraryPath = r'C:\new\library'
-        self.fileDropTarget = FileDropTarget(self, libraryPath= self.libraryPath )
+        self.fileDropTarget = FileDropTarget(self, libraryPath=self.libraryPath)
         self.fileOperations = FileOperations()
         self.search = wx.SearchCtrl(self, size=(200, -1), style=wx.TE_PROCESS_ENTER)
         self.search.ShowSearchButton(1)
@@ -116,6 +118,13 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
             logger.debug('ID_NEXT_RESULT')
         if e.Id == ID_LAST_RESULT:
             logger.debug('ID_LAST_RESULT')
+
+    def reloadingDatabase(self, event):
+        logger.debug('reloadingDatabase')
+        self.createDatabase = CreateDatabase(libraryPath=self.libraryPath)
+        self.createDatabase.creatingDatabase()
+        self.createDatabase.addingData()
+        self.loadingBook(searchText=self.search.GetValue())
 
 
 class FileDropTarget(wx.FileDropTarget):

@@ -444,6 +444,7 @@ ID_EDIT_BOOK_METADATA = wx.NewIdRef()
 ID_CONVERT_BOOK = wx.NewIdRef()
 ID_GET_BOOK = wx.NewIdRef()
 ID_CONNECT_SHARE_BOOK = wx.NewIdRef()
+ID_RELOAD_BOOK = wx.NewIdRef()
 ID_EDIT_BOOK = wx.NewIdRef()
 ID_REMOVE_BOOK = wx.NewIdRef()
 

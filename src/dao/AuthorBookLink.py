@@ -22,3 +22,6 @@ class AuthorBookLink(Base):
     book = relationship(Book, backref=backref("book_assoc", cascade="all, delete-orphan"))
     UniqueConstraint('book_id', 'author_id', name='uix_1')
     createdOn = Column('created_on', DateTime, default=func.now())
+
+    def __repr__(self):
+        return f"""id:{self.id}, authorId:{self.authorId}, bookId:{self.bookId}"""

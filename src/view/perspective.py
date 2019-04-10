@@ -1,7 +1,6 @@
 import logging.config
 import wx
 
-
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 from src.view.AutoCompleteTextCtrl import TextCtrlAutoComplete
 # from src.view.TreePanel import CreatingTreePanel
@@ -998,12 +997,13 @@ class PerspectiveManager(object):
             (ID_newConnection, "New Connection", "connect.png", "New Connection", None, False, ['database'], True, wx.ITEM_NORMAL),
             (ID_openConnection, "Open Connection", "database_connect.png", 'Open Connection', None, False, ['database'], True, wx.ITEM_NORMAL),
             (ID_newWorksheet, "Script", "script.png", 'Open a new script worksheet', None, False, ['database'], True, wx.ITEM_NORMAL),
-            (ID_ADD_BOOK, "Add Book", "add_book_16.png", 'Add Book', None, True, ['calibre'], True, wx.ITEM_NORMAL),
-            (ID_EDIT_BOOK_METADATA, "Edit Book metadata", "edit_book_16.png", 'Edit Book metadata', None, True, ['calibre'], True, wx.ITEM_NORMAL),
-            (ID_CONVERT_BOOK, "Convert Book", "txn_config.png", 'Convert Book', None, False, ['calibre'], True, wx.ITEM_NORMAL),
-            (ID_REMOVE_BOOK, "Remove Book", "remove_books_16.png", 'Remove Book', None, False, ['calibre'], True, wx.ITEM_NORMAL),
-            (ID_GET_BOOK, "Get Book", "store_16.png", 'Get Book', None, False, ['calibre'], True, wx.ITEM_NORMAL),
-            (ID_CONNECT_SHARE_BOOK, "Connect Share", "connect_share_on_16.png", 'Connect Share', None, False, ['calibre'], True, wx.ITEM_NORMAL),
+            (ID_ADD_BOOK, "Add Book", "add_book_16.png", 'Add Book', lambda e: self.onCalibre(e), True, ['calibre'], True, wx.ITEM_NORMAL),
+            (ID_EDIT_BOOK_METADATA, "Edit Book metadata", "edit_book_16.png", 'Edit Book metadata', lambda e: self.onCalibre(e), True, ['calibre'], True, wx.ITEM_NORMAL),
+            (ID_CONVERT_BOOK, "Convert Book", "txn_config.png", 'Convert Book', lambda e: self.onCalibre(e), False, ['calibre'], True, wx.ITEM_NORMAL),
+            (ID_REMOVE_BOOK, "Remove Book", "remove_books_16.png", 'Remove Book', lambda e: self.onCalibre(e), False, ['calibre'], True, wx.ITEM_NORMAL),
+            (ID_GET_BOOK, "Get Book", "store_16.png", 'Get Book', lambda e: self.onCalibre(e), False, ['calibre'], True, wx.ITEM_NORMAL),
+            (ID_CONNECT_SHARE_BOOK, "Connect Share", "connect_share_on_16.png", 'Connect Share', lambda e: self.onCalibre(e), False, ['calibre'], True, wx.ITEM_NORMAL),
+            (ID_RELOAD_BOOK, "Reload Books", "resultset_refresh.png", 'Reload Books', lambda e: self.onCalibre(e), False, ['calibre'], True, wx.ITEM_NORMAL),
 #             (wx.ID_PREFERENCES, "Preferences", "preference.png", 'Preference', None),
             ]
 
@@ -1045,7 +1045,7 @@ class PerspectiveManager(object):
                     toobar._items.append(self.toolbarItems[tool[0]])
                 except Exception as e:
                     logger.error(e)
-                    logger.error(tool[0],tool)
+                    logger.error(tool[0], tool)
 
         toobar.Realize()
 #         self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onRunDebugAsDropDown, id=ID_NEW)
@@ -1056,6 +1056,24 @@ class PerspectiveManager(object):
 #         self.Bind(aui.EVT_AUITOOLBAR_TOOL_DROPDOWN, self.onRunDebugAsDropDown, id=ID_CREATE_NEW_SERVLET)
         return toobar
 
+    def onCalibre(self, event):
+#         logger.debug(f'onCalibre {event.Id}')
+        if event.Id == ID_RELOAD_BOOK:
+            logger.debug(f'ID_RELOAD_BOOK')
+            pub.sendMessage('reloadingDatabase', event=event)
+        if event.Id == ID_ADD_BOOK:
+            logger.debug(f'ID_ADD_BOOK')
+        if event.Id == ID_EDIT_BOOK_METADATA:
+            logger.debug(f'ID_EDIT_BOOK_METADATA')
+        if event.Id == ID_CONVERT_BOOK:
+            logger.debug(f'ID_CONVERT_BOOK')
+        if event.Id == ID_REMOVE_BOOK:
+            logger.debug(f'ID_REMOVE_BOOK')
+        if event.Id == ID_GET_BOOK:
+            logger.debug(f'ID_GET_BOOK')
+        if event.Id == ID_CONNECT_SHARE_BOOK:
+            logger.debug(f'ID_CONNECT_SHARE_BOOK')
+            
     def onOpenTerminal(self, event):
         logger.debug(f'onOpenTerminal {event.Id}')
 
