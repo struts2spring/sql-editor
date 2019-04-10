@@ -1,17 +1,17 @@
 {
     "__class__": "Setting",
-    "__module__": "__main__",
+    "__module__": "src.settings.workspace",
     "maxWorkspace": 10,
     "showWorkspaceSelectionDialog": false,
     "workspaces": [
         {
             "__class__": "Workspace",
-            "__module__": "__main__",
+            "__module__": "src.settings.workspace",
             "active": true,
             "projects": [
                 {
                     "__class__": "Project",
-                    "__module__": "__main__",
+                    "__module__": "src.settings.workspace",
                     "basePath": "/docs/work/python_project",
                     "natures": [
                         "python",
@@ -22,7 +22,7 @@
                 },
                 {
                     "__class__": "Project",
-                    "__module__": "__main__",
+                    "__module__": "src.settings.workspace",
                     "basePath": "c:\\1",
                     "natures": [
                         "python",

@@ -13,8 +13,8 @@ from src.logic.resource.search.ResourceSearch import ResourceSearchLogic
 import logging.config
 from src.view.constants import LOG_SETTINGS, ID_JAVA_EE_PERSPECTIVE, \
     ID_JAVA_PERSPECTIVE, ID_DEBUG_PERSPECTIVE, ID_GIT_PERSPECTIVE, \
-    ID_PYTHON_PERSPECTIVE, ID_DATABASE_PERSPECTIVE, ID_RESOURCE_PERSPECTIVE, \
-    setting
+    ID_PYTHON_PERSPECTIVE, ID_DATABASE_PERSPECTIVE, ID_RESOURCE_PERSPECTIVE
+    
 from src.view.views.editor.EditorManager import EditorWindowManager
 import os
 

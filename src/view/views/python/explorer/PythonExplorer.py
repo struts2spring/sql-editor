@@ -11,7 +11,7 @@ import wx
 # from src.view.table.CreateTable import CreateTableFrame
 import logging.config
 from src.view.constants import LOG_SETTINGS, ID_COLLAPSE_ALL, ID_LINK_WITH_EDITOR, \
-    ID_VIEW_MENU, setting, menuItemList, ID_EXPORT, ID_IMPORT, ID_NEW, \
+    ID_VIEW_MENU,  menuItemList, ID_EXPORT, ID_IMPORT, ID_NEW, \
     ID_PROJECT_PROPERTIES, ID_CLOSE_PROJECT, ID_DELETE_PROJECT, ID_NEW_FILE, ID_NEW_FOLDER, \
     ID_RENAME, ID_REFRESH_TREE_ITEM, ID_PYTHON_RUN, ID_NEW_PYTHON_PROJECT
 from src.view.views.file.explorer._filetree import FileTree

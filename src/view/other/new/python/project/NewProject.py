@@ -3,7 +3,7 @@ from src.view.util.FileOperationsUtil import FileOperations
 import logging.config
 import wx, os
 import stat
-from src.view.constants import LOG_SETTINGS, setting, keyMap
+from src.view.constants import LOG_SETTINGS, keyMap
 from src.view.views.file.explorer._filetree import FileTree
 import time
 from src.view.util.common.eclutil import Freezer

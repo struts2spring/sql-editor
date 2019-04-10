@@ -5,7 +5,7 @@ import time
 from wx import TreeCtrl
 import wx, os
 
-from src.view.constants import LOG_SETTINGS, setting, ID_NEW_FILE, ID_NEW, \
+from src.view.constants import LOG_SETTINGS,  ID_NEW_FILE, ID_NEW, \
     keyMap
 from src.view.util.FileOperationsUtil import FileOperations
 from src.view.util.common.eclutil import Freezer

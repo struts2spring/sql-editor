@@ -3,58 +3,11 @@ Created on Feb 26, 2019
 
 @author: xbbntni
 '''
-import json, os
-import time
+import json
 from datetime import date
+from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 
 
-def convert_to_dict(obj):
-    """
-    A function takes in a custom object and returns a dictionary representation of the object.
-    This dict representation includes meta data such as the object's module and class names.
-    """
-    serial = None
-    if isinstance(obj, date):
-        serial = obj.isoformat()
-    else:
-        serial = obj.__module__
-
-    #  Populate the dictionary with object meta data 
-    obj_dict = {
-      "__class__": obj.__class__.__name__,
-      "__module__": serial
-    }
-    
-    #  Populate the dictionary with object properties
-    obj_dict.update(obj.__dict__)
-    
-    return obj_dict
-
-
-def dict_to_obj(our_dict):
-    """
-    Function that takes in a dict and returns a custom object associated with the dict.
-    This function makes use of the "__module__" and "__class__" metadata in the dictionary
-    to know which object type to create.
-    """
-    if "__class__" in our_dict:
-        # Pop ensures we remove metadata from the dict to leave only the instance arguments
-        class_name = our_dict.pop("__class__")
-        
-        # Get the module name from the dict and import it
-        module_name = our_dict.pop("__module__")
-        
-        # We use the built in __import__ function since the module name is not yet known at runtime
-        module = __import__(module_name)
-        
-        # Get the class from the module
-        class_ = getattr(module, class_name)
-        
-        # Use dictionary unpacking to initialize the object
-        obj = class_(**our_dict)
-    else:
-        obj = our_dict
-    return obj
 
 
 class Project():
@@ -79,7 +32,7 @@ class Workspace():
         self.workspacePath = workspacePath
         self.projects = projects
         self.active = active
-#         self.createdOn = date.today()
+#         self.createdOn = createdOn
 
     def addProject(self, project=None):
         self.projects.append(project)
@@ -170,24 +123,111 @@ class Setting():
     def __repr__(self):
         return f'Setting:{{workspaces:{self.workspaces},maxWorkspace:{self.maxWorkspace},showWorkspaceSelectionDialog:{self.showWorkspaceSelectionDialog},activeWorkspace :{self.activeWorkspace}}}'
 
+def convert_to_dict(obj):
+    """
+    A function takes in a custom object and returns a dictionary representation of the object.
+    This dict representation includes meta data such as the object's module and class names.
+    """
+    serial = None
+    if isinstance(obj, date):
+        serial = obj.isoformat()
+    else:
+        serial = obj.__module__
+
+    #  Populate the dictionary with object meta data 
+    obj_dict = {
+      "__class__": obj.__class__.__name__,
+      "__module__": serial
+    }
+    
+    #  Populate the dictionary with object properties
+    obj_dict.update(obj.__dict__)
+    
+    return obj_dict
+
+
+def dict_to_obj(our_dict):
+    """
+    Function that takes in a dict and returns a custom object associated with the dict.
+    This function makes use of the "__module__" and "__class__" metadata in the dictionary
+    to know which object type to create.
+    """
+    if "__class__" in our_dict:
+        # Pop ensures we remove metadata from the dict to leave only the instance arguments
+        class_name = our_dict.pop("__class__")
+        
+        # Get the module name from the dict and import it
+        module_name = our_dict.pop("__module__")
+        
+        # We use the built in __import__ function since the module name is not yet known at runtime
+        module = __import__(module_name)
+        obj=None
+        try:
+            # Get the class from the module
+            class_ = getattr(module, class_name)
+            # Use dictionary unpacking to initialize the object
+            obj = class_(**our_dict)
+        except Exception as e:
+            print(e)
+        
+        
+    else:
+        obj = our_dict
+    return obj
+
+class SaveSetting():
+    
+    def __init__(self):
+        pass
+    
+    def save(self):
+        settings = Setting()
+        settings.loadJsonSettings()
+    #     settings.write()
+    #     print(settings)
+    #     settings.loadSettings()
+    # 
+        with open('settings.json', 'w') as file:
+            js = json.dump(settings, file, sort_keys=True, indent=4, default=convert_to_dict)
+        with open('settings.json', 'r') as json_file:
+            settingData = json.load(json_file)
+        dataform = settingData.__str__().strip("'<>() ").replace('\'', '\"')
+        dataform = dataform.replace('None', 'null')
+        dataform = dataform.replace('True', 'true')
+        dataform = dataform.replace('False', 'false')
+        print(dataform)
+        settings_reloaded = json.loads(dataform, object_hook=dict_to_obj)
+        print('compltet')
+        
+        sqlExecuter = SQLExecuter()
+        table = 'project_setting'
+        rows = [{'id':None, 'name':'settings', 'value':dataform, 'description':'last updated value'}]
+        sqlExecuter.sqlite_insert(table, rows)
+
 
 if __name__ == '__main__':
 
-    settings = Setting()
-    settings.loadJsonSettings()
+#     settings = Setting()
+#     settings.loadJsonSettings()
+    SaveSetting().save()
 #     settings.write()
 #     print(settings)
 #     settings.loadSettings()
 # 
-    with open('settings.json', 'w') as file:
-        js = json.dump(settings, file, sort_keys=True, indent=4, default=convert_to_dict)
-    with open('settings.json', 'r') as json_file:
-        settingData = json.load(json_file)
-    dataform = settingData.__str__().strip("'<>() ").replace('\'', '\"')
-    dataform = dataform.replace('None', 'null')
-    dataform = dataform.replace('True', 'true')
-    dataform = dataform.replace('False', 'false')
-    print(dataform)
-    settings_reloaded=json.loads(dataform, object_hook=dict_to_obj)
-    print('compltet')
+#     with open('settings.json', 'w') as file:
+#         js = json.dump(settings, file, sort_keys=True, indent=4, default=convert_to_dict)
+#     with open('settings.json', 'r') as json_file:
+#         settingData = json.load(json_file)
+#     dataform = settingData.__str__().strip("'<>() ").replace('\'', '\"')
+#     dataform = dataform.replace('None', 'null')
+#     dataform = dataform.replace('True', 'true')
+#     dataform = dataform.replace('False', 'false')
+#     print(dataform)
+#     settings_reloaded = json.loads(dataform, object_hook=dict_to_obj)
+#     print('compltet')
+#     
+#     sqlExecuter = SQLExecuter()
+#     table = 'project_setting'
+#     rows = [{'id':None, 'name':'settings', 'value':dataform, 'description':'last updated value'}]
+#     sqlExecuter.sqlite_insert(table, rows)
         

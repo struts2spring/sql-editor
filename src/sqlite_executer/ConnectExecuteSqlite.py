@@ -128,7 +128,7 @@ class SQLExecuter():
         for row in rows:
             cols = ', '.join('"{}"'.format(col) for col in row.keys())
             vals = ', '.join(':{}'.format(col) for col in row.keys())
-            sql = 'INSERT INTO "{0}" ({1}) VALUES ({2})'.format(table, cols, vals)
+            sql = f'INSERT INTO "{table}" ({cols}) VALUES ({vals})'
             try:
                 with self.conn:    
                     cur = self.conn.cursor() 
@@ -159,7 +159,7 @@ class SQLExecuter():
         try:
             with self.conn:    
                 cur = self.conn.cursor() 
-                cur.execute("SELECT * FROM " + table)
+                cur.execute(f"SELECT * FROM {table}")
                 rows = cur.fetchall()
                 for row in rows:
                     returnRows.append(row)
