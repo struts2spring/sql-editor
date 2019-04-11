@@ -22,6 +22,29 @@ except ImportError:  # if it's not there locally, try the wxPython lib.
     import wx.lib.agw.aui as aui
     from wx.lib.agw.aui import aui_switcherdialog as ASD
 
+class TransparentText(wx.StaticText):
+    def __init__(self, parent, id=wx.ID_ANY, label='', pos=wx.DefaultPosition,
+                 size=wx.DefaultSize, style=wx.TRANSPARENT_WINDOW, name=''):
+        wx.StaticText.__init__(self, parent, id, label, pos, size, style, name)
+
+        self.Bind(wx.EVT_PAINT, self.on_paint)
+        self.Bind(wx.EVT_ERASE_BACKGROUND, lambda event: None)
+        self.Bind(wx.EVT_SIZE, self.on_size)
+
+    def on_paint(self, event):
+        bdc = wx.PaintDC(self)
+        dc = wx.GCDC(bdc)
+
+        font_face = self.GetFont()
+        font_color = self.GetForegroundColour()
+
+        dc.SetFont(font_face)
+        dc.SetTextForeground(font_color)
+        dc.DrawText(self.GetLabel(), 0, 0)
+
+    def on_size(self, event):
+        self.Refresh()
+        event.Skip()
 
 class ThumbnailCtrlPaginationPanel(wx.Panel):
 
@@ -79,7 +102,12 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
 
 #         tb1.SetToolBitmapSize(wx.Size(16, 16))
         # id, name, image, name, method, kind
-
+        pageSizeText=TransparentText(tb1,-1,"Page Size")
+        tb1.AddControl(pageSizeText)
+        pageNumber = [ "10", "30", "50" ]            
+        choice = wx.Choice(tb1, 10, (-1, -1), (70, 25), pageNumber, style=0)
+        choice.SetSelection(0)
+        tb1.AddControl(choice)
         tools = [
             (ID_FIRST_RESULT, "First", "resultset_first.png", 'First', lambda e:self.onToolButtonClick(e), wx.ITEM_NORMAL),
             (ID_PREVIOUS_RESULT, "Previous", "resultset_previous.png", 'Previous', lambda e:self.onToolButtonClick(e), wx.ITEM_NORMAL),

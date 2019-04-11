@@ -924,7 +924,8 @@ class ThumbnailCtrl(wx.Panel):
                    "GetShowDir", "SetSelection", "GetSelection", "SetZoomFactor",
                    "GetZoomFactor", "SetCaptionFont", "GetCaptionFont", "GetItemIndex",
                    "InsertItem", "RemoveItemAt", "IsSelected", "Rotate", "ZoomIn", "ZoomOut",
-                   "EnableToolTips", "GetThumbInfo", "GetOriginalImage", "SetDropShadow", "GetDropShadow",'selectIndexs']
+                   "EnableToolTips", "GetThumbInfo", "GetOriginalImage", "SetDropShadow", "GetDropShadow",
+                   'selectIndexs','updateStatusBar']
 
         for method in methods:
             setattr(self, method, getattr(self._scrolled, method))
@@ -960,6 +961,8 @@ class ThumbnailCtrl(wx.Panel):
 #             for i in range(self.GetItemCount()):
 #                 self.SetSelection(i)
             self.selectIndexs(0,self.GetItemCount()-1 )
+        self.updateStatusBar(text=f'{self.GetItemCount()} books selected')
+
     def ShowComboBox(self, show=True):
         """
         Shows/Hide the top folder :class:`ComboBox`.
@@ -2296,13 +2299,20 @@ class ScrolledThumbnail(wx.ScrolledWindow):
             name = self._items[self._selected].book.bookName
             id = self._items[self._selected].book.id
 #         self.OnMouseDown(event)
-        self.updateStatusBar()
+        if self.GetSelection() != -1:
+            book = self.GetItem(self.GetSelection()).book
+            self.updateStatusBar(text=f'{book.bookName}')
+
         self.SetPopupMenu(self.createMenu())
 
     def OnLeftMouseDown(self, event):
         logger.debug('OnLeftMouseDown')
         self.OnMouseDown(event)
-        self.updateStatusBar()
+        if self.GetSelection() != -1:
+            book = self.GetItem(self.GetSelection()).book
+            text=f"{len(self._selectedarray)} books selected.| last selected: {book.bookName}" 
+            self.updateStatusBar(text=text)
+
 
     def OnMouseDown(self, event):
         """
@@ -2547,13 +2557,14 @@ class ScrolledThumbnail(wx.ScrolledWindow):
                 self.SetSelection(self._selected+self._cols)
             else:
                 self.SetSelection(self.GetItemCount()-1)
-        self.updateStatusBar()
-
-    def updateStatusBar(self):
         if self.GetSelection() != -1:
             book = self.GetItem(self.GetSelection()).book
-            if str(type(self.GetTopLevelParent()))=="<class 'src.view.TheEclipseView.EclipseMainFrame'>":
-                self.GetTopLevelParent().SetStatusText(f'{book.bookName}', 0)
+            text=f"{len(self._selectedarray)} books selected.| last selected: {book.bookName}" 
+            self.updateStatusBar(text=text)
+
+    def updateStatusBar(self, text=None):
+            if text and str(type(self.GetTopLevelParent()))=="<class 'src.view.TheEclipseView.EclipseMainFrame'>":
+                self.GetTopLevelParent().SetStatusText(text, 0)
 
     def OnChar(self, event):
         """
