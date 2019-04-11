@@ -22,7 +22,9 @@ except ImportError:  # if it's not there locally, try the wxPython lib.
     import wx.lib.agw.aui as aui
     from wx.lib.agw.aui import aui_switcherdialog as ASD
 
+
 class TransparentText(wx.StaticText):
+
     def __init__(self, parent, id=wx.ID_ANY, label='', pos=wx.DefaultPosition,
                  size=wx.DefaultSize, style=wx.TRANSPARENT_WINDOW, name=''):
         wx.StaticText.__init__(self, parent, id, label, pos, size, style, name)
@@ -45,6 +47,14 @@ class TransparentText(wx.StaticText):
     def on_size(self, event):
         self.Refresh()
         event.Skip()
+
+
+class Page():
+
+    def __init__(self, pageSize=30, pageNumbers=[], ):
+        self.pageSize = pageSize
+        self.pageNumbers = pageNumbers
+
 
 class ThumbnailCtrlPaginationPanel(wx.Panel):
 
@@ -73,7 +83,7 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
         ####################################################################
         vBox.Add(self.search , 0, wx.EXPAND | wx.ALL)
         vBox.Add(self.thumbnailCtrl , 1, wx.EXPAND | wx.ALL)
-        vBox.Add(self.constructTopToolBar() , 0, wx.EXPAND | wx.ALL)
+        vBox.Add(self.constructTopToolBar() , 0, wx.EXPAND | wx.ALL, 0)
 #         vBox.Add(self.tree , 1, wx.EXPAND | wx.ALL)
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(vBox, 1, wx.EXPAND , 0)
@@ -102,18 +112,27 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
 
 #         tb1.SetToolBitmapSize(wx.Size(16, 16))
         # id, name, image, name, method, kind
-        pageSizeText=TransparentText(tb1,-1,"Page Size")
-        tb1.AddControl(pageSizeText)
+        pageSizeText = TransparentText(tb1, -1, "Page Size")
+#         tb1.AddControl(pageSizeText)
         pageNumber = [ "10", "30", "50" ]            
-        choice = wx.Choice(tb1, 10, (-1, -1), (70, 25), pageNumber, style=0)
-        choice.SetSelection(0)
-        tb1.AddControl(choice)
+        pageSizeCtrl = wx.Choice(tb1, 10, (-1, -1), (50, 25), pageNumber, style=0)
+        pageSizeCtrl.SetSelection(0)
+        
+        pageNumbers = [ "1", "2", "3" ]            
+        pageNumberCtrl = wx.Choice(tb1, 11, (-1, -1), (50, 25), pageNumbers, style=0)
+        pageNumberCtrl.SetSelection(0)
+        pageNumbersCount = TransparentText(tb1, -1, f"/{len(pageNumbers)}")
+#         tb1.AddControl(choice)
         tools = [
+            ('control', pageSizeText),
+            ('control', pageSizeCtrl),
             (ID_FIRST_RESULT, "First", "resultset_first.png", 'First', lambda e:self.onToolButtonClick(e), wx.ITEM_NORMAL),
             (ID_PREVIOUS_RESULT, "Previous", "resultset_previous.png", 'Previous', lambda e:self.onToolButtonClick(e), wx.ITEM_NORMAL),
+            ('control', pageNumberCtrl),
+            ('control', pageNumbersCount),
             (ID_NEXT_RESULT, "Next", "resultset_next.png", 'Next', lambda e:self.onToolButtonClick(e), wx.ITEM_NORMAL),
             (ID_LAST_RESULT, "Last", "resultset_last.png", 'Last', lambda e:self.onToolButtonClick(e), wx.ITEM_CHECK),
-            (),
+            
 #             (ID_REFRESH_ROW, "Result refresh", "resultset_refresh.png", 'Result refresh \tF5', self.onRefresh),
 #             (ID_ADD_ROW, "Add a new row", "row_add.png", 'Add a new row', self.onAddRow),
 #             (ID_DUPLICATE_ROW, "Duplicate selected row", "row_copy.png", 'Duplicate selected row', self.onDuplicateRow),
@@ -122,16 +141,16 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
         for tool in tools:
             if len(tool) == 0:
                 tb1.AddSeparator()
+            elif len(tool) == 2:
+                tb1.AddControl(tool[1])
             else:
                 logger.debug(tool)
                 toolItem = tb1.AddSimpleTool(tool[0], tool[1], self.fileOperations.getImageBitmap(imageName=tool[2]), kind=tool[5], short_help_string=tool[3])
                 
                 if tool[4]:
                     self.Bind(wx.EVT_MENU, tool[4], id=tool[0])
-        pageNumber = [ "1", "2", "3" ]            
-        choice = wx.Choice(tb1, 10, (-1, -1), (70, 25), pageNumber, style=0)
-        choice.SetSelection(0)
-        tb1.AddControl(choice)
+
+#         tb1.AddControl(choice)
         
         tb1.Realize()
 
