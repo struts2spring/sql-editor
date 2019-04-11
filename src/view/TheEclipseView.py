@@ -265,6 +265,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
                     [ wx.ID_UNDO, "Undo \tCtrl+Z", None, "undo_edit.png"],
                     [ wx.ID_REDO, "Redo \tShift+Ctrl+Z", None, "redo_edit.png"],
                     [],
+                    [ wx.ID_SELECTALL, "Select All \tCtrl+A", None, "double-tick-16.png"],
                     [ wx.ID_CUT, "Cut \tCtrl+X", None, "cut_edit.png"],
                     [ wx.ID_COPY, "Copy \tCtrl+C", None, "copy_edit.png"],
                     [ wx.ID_PASTE, "Paste \tCtrl+V", None, "paste_edit.png"],
@@ -547,6 +548,8 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
         if event.Id == ID_IMPORT:
             logger.debug('ID_IMPORT')
             self.importFlow(title='Import Project', file=None)
+        if event.Id == wx.ID_SELECTALL:
+            logger.debug('wx.ID_SELECTALL')
 #             self.newFileFlow(title='New Folder', file=None)
   
     def importFlow(self, title=None, file=None):

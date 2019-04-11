@@ -924,7 +924,7 @@ class ThumbnailCtrl(wx.Panel):
                    "GetShowDir", "SetSelection", "GetSelection", "SetZoomFactor",
                    "GetZoomFactor", "SetCaptionFont", "GetCaptionFont", "GetItemIndex",
                    "InsertItem", "RemoveItemAt", "IsSelected", "Rotate", "ZoomIn", "ZoomOut",
-                   "EnableToolTips", "GetThumbInfo", "GetOriginalImage", "SetDropShadow", "GetDropShadow"]
+                   "EnableToolTips", "GetThumbInfo", "GetOriginalImage", "SetDropShadow", "GetDropShadow",'selectIndexs']
 
         for method in methods:
             setattr(self, method, getattr(self._scrolled, method))
@@ -934,7 +934,32 @@ class ThumbnailCtrl(wx.Panel):
         self._subsizer = subsizer
 
         self._combo.Bind(wx.EVT_COMBOBOX, self.OnComboBox)
-
+        self.accel_tbl = wx.AcceleratorTable([
+            (wx.ACCEL_CTRL, ord('A'), wx.ID_SELECTALL),
+#             (wx.ACCEL_CTRL, ord('Y'), ID_REDO),
+#             (wx.ACCEL_CTRL, ord('Z'), ID_UNDO),
+#             (wx.ACCEL_CTRL, ord('C'), ID_COPY),
+#             (wx.ACCEL_CTRL, ord('V'), ID_PASTE),
+#             (wx.ACCEL_CTRL, ord('X'), ID_CUT),
+#             (wx.ACCEL_CTRL | wx.ACCEL_ALT, wx.WXK_DOWN, ID_DUPLICATE_LINE),
+#             (wx.ACCEL_CTRL, ord('S'), ID_SAVE),
+#             (wx.ACCEL_CTRL, ord('H'), ID_SEARCH_FILE),
+#             (wx.ACCEL_CTRL | wx.ACCEL_SHIFT, ord('F'), ID_FORMAT_FILE),
+#             (wx.ACCEL_CTRL | wx.ACCEL_SHIFT , ord('R'), ID_RESOURCE),
+#             (wx.ACCEL_CTRL | wx.ACCEL_SHIFT , ord('T'), ID_OPEN_TYPE),
+#                                       (wx.ACCEL_CTRL, ord('V'), wx.ID_PASTE),
+#                                       (wx.ACCEL_ALT, ord('X'), wx.ID_PASTE),
+#                                       (wx.ACCEL_SHIFT | wx.ACCEL_ALT, ord('Y'), wx.ID_PASTE)
+                                     ])
+        self.SetAcceleratorTable(self.accel_tbl)
+        self.Bind(wx.EVT_MENU, lambda e:self.accelHandler(e), id=wx.ID_SELECTALL)
+    
+    def accelHandler(self, event):
+        if event.Id==wx.ID_SELECTALL:
+            logger.debug('wx.ID_SELECTALL')
+#             for i in range(self.GetItemCount()):
+#                 self.SetSelection(i)
+            self.selectIndexs(0,self.GetItemCount()-1 )
     def ShowComboBox(self, show=True):
         """
         Shows/Hide the top folder :class:`ComboBox`.
@@ -1357,7 +1382,8 @@ class ScrolledThumbnail(wx.ScrolledWindow):
                     fileSize = self._items[thumb].book.fileSize
                 thumbinfo = f'''Name:{self._items[thumb].book.bookName}\nAuthor:{author}\nSize: {fileSize}'''
         except Exception as e:
-            logger.error(e)
+#             logger.error(e)
+            pass
 #             thumbinfo = "Name: " + self._items[thumb].GetFileName() + "\n" \
 #                         "Size: " + self._items[thumb].GetFileSize() + "\n" \
 #                         "Modified: " + self._items[thumb].GetCreationDate() + "\n" \
@@ -2342,6 +2368,14 @@ class ScrolledThumbnail(wx.ScrolledWindow):
             self.GetEventHandler().ProcessEvent(eventOut)
 
         self.SetFocus()
+        
+    def selectIndexs(self, begindex, endindex):
+        for ii in range(begindex, endindex + 1):
+            self._selectedarray.append(ii)
+        self.ScrollToSelected()
+        self.Refresh()
+        eventOut = ThumbnailEvent(wxEVT_THUMBNAILS_SEL_CHANGED, self.GetId())
+        self.GetEventHandler().ProcessEvent(eventOut)
 
     def OnMouseUp(self, event):
         """
@@ -2502,15 +2536,24 @@ class ScrolledThumbnail(wx.ScrolledWindow):
             if 0 < self._selected:
                 self.SetSelection(self._selected - 1)
         elif event.GetKeyCode() == 315:
-            logger.debug('Up key pressed')
+            logger.debug(f'Up key pressed selected:{ self._selected} rows:{self._rows} col:{self._cols}')
+            if 0<self._selected-self._cols:
+                self.SetSelection(self._selected-self._cols)
+
         elif event.GetKeyCode() == 317:
-            logger.debug('down key pressed')
+            logger.debug(f'down key pressed selected:{ self._selected} rows:{self._rows} col:{self._cols}')
+            
+            if self._selected+self._cols< self.GetItemCount():
+                self.SetSelection(self._selected+self._cols)
+            else:
+                self.SetSelection(self.GetItemCount()-1)
         self.updateStatusBar()
 
     def updateStatusBar(self):
         if self.GetSelection() != -1:
             book = self.GetItem(self.GetSelection()).book
-            self.GetTopLevelParent().SetStatusText(f'{book.bookName}', 0)
+            if str(type(self.GetTopLevelParent()))=="<class 'src.view.TheEclipseView.EclipseMainFrame'>":
+                self.GetTopLevelParent().SetStatusText(f'{book.bookName}', 0)
 
     def OnChar(self, event):
         """

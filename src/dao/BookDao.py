@@ -15,7 +15,7 @@ from src.dao.Author import Author
 from src.dao.AuthorBookLink import AuthorBookLink
 import json
 from src.dao.Book import Base, Book
-from src.dao.Book import engine
+# from src.dao.Book import engine
 import shutil
 import traceback
 # from src.static.constant import Workspace

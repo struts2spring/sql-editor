@@ -69,7 +69,7 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
             if searchText:
                 books = findingBook.searchingBook(searchText=searchText)
             else:
-                books = findingBook.findAllBooks(pageSize=10)
+                books = findingBook.findAllBooks(pageSize=50)
             self.thumbnailCtrl.ShowBook(books)        
 
     def constructTopToolBar(self):

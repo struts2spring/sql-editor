@@ -6,7 +6,7 @@ from sqlalchemy.orm import relationship, backref, sessionmaker
 from sqlalchemy.sql.schema import UniqueConstraint
 
 Base = declarative_base()
-engine = create_engine('sqlite:///better_calibre.sqlite')
+# engine = create_engine('sqlite:///better_calibre.sqlite')
 
 
 class Book(Base):
