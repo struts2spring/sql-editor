@@ -455,6 +455,7 @@ ID_LAST_RESULT = wx.NewIdRef()
 
 ########################################
 
+ID_COPY_BOOK_NAME = wx.NewIdRef()
 ID_BOOK_INFO = wx.NewIdRef()
 ID_DELETE_BOOK = wx.NewIdRef()
 ID_OPEN_BOOK = wx.NewIdRef()
@@ -471,4 +472,5 @@ bookMenuRightClickList = [
     [ID_OPEN_BOOK, "view_16.png", "Open Book"],
     [ID_DELETE_BOOK, "remove_books_16.png", "Delete Book"],
     [ID_BOOK_INFO, "catalog_16.png", "Information"],
+    [ID_COPY_BOOK_NAME, "page_copy.png", "Copy Book Name"],
     ]

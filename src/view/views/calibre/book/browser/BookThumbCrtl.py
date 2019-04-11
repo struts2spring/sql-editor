@@ -125,7 +125,7 @@ import six
 from math import pi
 from src.view.constants import bookMenuRightClickList, ID_DOWNLOAD_METADATA, \
     ID_OPEN_BOOK, ID_BOOK_INFO, ID_DELETE_BOOK, ID_OPEN_CONTAINING_FOLDER, \
-    ID_EDIT_METADATA, ID_SEARCH_SIMILAR
+    ID_EDIT_METADATA, ID_SEARCH_SIMILAR,ID_COPY_BOOK_NAME
 from src.view.util.FileOperationsUtil import FileOperations
 from wx.lib.embeddedimage import PyEmbeddedImage
 import subprocess
@@ -2238,6 +2238,9 @@ class ScrolledThumbnail(wx.ScrolledWindow):
             self.editMetadata(event)
         if event.GetId() == ID_SEARCH_SIMILAR:
             self.searchSimilar(event)
+        if event.GetId() == ID_COPY_BOOK_NAME:
+            # TODO copy
+            logger.debug('ID_COPY_BOOK_NAME')
 
     def onCopy(self, event):
         logger.debug('copy')
