@@ -925,7 +925,7 @@ class ThumbnailCtrl(wx.Panel):
                    "GetZoomFactor", "SetCaptionFont", "GetCaptionFont", "GetItemIndex",
                    "InsertItem", "RemoveItemAt", "IsSelected", "Rotate", "ZoomIn", "ZoomOut",
                    "EnableToolTips", "GetThumbInfo", "GetOriginalImage", "SetDropShadow", "GetDropShadow",
-                   'selectIndexs','updateStatusBar']
+                   'selectIndexs', 'updateStatusBar']
 
         for method in methods:
             setattr(self, method, getattr(self._scrolled, method))
@@ -956,11 +956,11 @@ class ThumbnailCtrl(wx.Panel):
         self.Bind(wx.EVT_MENU, lambda e:self.accelHandler(e), id=wx.ID_SELECTALL)
     
     def accelHandler(self, event):
-        if event.Id==wx.ID_SELECTALL:
+        if event.Id == wx.ID_SELECTALL:
             logger.debug('wx.ID_SELECTALL')
 #             for i in range(self.GetItemCount()):
 #                 self.SetSelection(i)
-            self.selectIndexs(0,self.GetItemCount()-1 )
+            self.selectIndexs(0, self.GetItemCount() - 1)
         self.updateStatusBar(text=f'{self.GetItemCount()} books selected')
 
     def ShowComboBox(self, show=True):
@@ -1132,13 +1132,46 @@ class ScrolledThumbnail(wx.ScrolledWindow):
         self.Bind(wx.EVT_MOTION, self.OnMouseMove)
         self.Bind(wx.EVT_LEAVE_WINDOW, self.OnMouseLeave)
         self.Bind(EVT_THUMBNAILS_THUMB_CHANGED, self.OnThumbChanged)
-        self.Bind(wx.EVT_CHAR, self.OnChar)
         self.Bind(wx.EVT_KEY_DOWN, self.onKeyDown)
+        self.Bind(wx.EVT_CHAR, self.OnChar)
+        self.Bind(wx.EVT_CHAR_HOOK, self.on_key)
         self.Bind(wx.EVT_MOUSEWHEEL, self.OnMouseWheel)
 
         self.Bind(wx.EVT_SIZE, self.OnResize)
         self.Bind(wx.EVT_ERASE_BACKGROUND, lambda x: None)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
+
+    def on_key(self, event):
+        key = event.GetKeyCode()
+        logger.debug(f'on_key{key}')
+        if event.GetKeyCode() == 316:
+            logger.debug('right key pressed:%s,%d', self._selected, len(self.books))
+            if self._selected < len(self.books) - 1:
+                self.SetSelection(self._selected + 1)
+            
+        elif event.GetKeyCode() == 314:
+            logger.debug('left key pressed: %s,%d', self._selected, len(self.books))
+            if 0 < self._selected:
+                self.SetSelection(self._selected - 1)
+        elif event.GetKeyCode() == 315:
+            logger.debug(f'Up key pressed selected:{ self._selected} rows:{self._rows} col:{self._cols}')
+            if 0 < self._selected - self._cols:
+                self.SetSelection(self._selected - self._cols)
+
+        elif event.GetKeyCode() == 13:
+            self.openBook(event)
+            event.Skip()
+        elif event.GetKeyCode() == 317:
+            logger.debug(f'down key pressed selected:{ self._selected} rows:{self._rows} col:{self._cols}')
+            
+            if self._selected + self._cols < self.GetItemCount():
+                self.SetSelection(self._selected + self._cols)
+            else:
+                self.SetSelection(self.GetItemCount() - 1)
+        if self.GetSelection() != -1:
+            book = self.GetItem(self.GetSelection()).book
+            text = f"{len(self._selectedarray)} books selected.| last selected: {book.bookName}" 
+            self.updateStatusBar(text=text)
 
     def GetSelectedItem(self, index):
         """
@@ -2310,9 +2343,8 @@ class ScrolledThumbnail(wx.ScrolledWindow):
         self.OnMouseDown(event)
         if self.GetSelection() != -1:
             book = self.GetItem(self.GetSelection()).book
-            text=f"{len(self._selectedarray)} books selected.| last selected: {book.bookName}" 
+            text = f"{len(self._selectedarray)} books selected.| last selected: {book.bookName}" 
             self.updateStatusBar(text=text)
-
 
     def OnMouseDown(self, event):
         """
@@ -2438,6 +2470,7 @@ class ScrolledThumbnail(wx.ScrolledWindow):
 
         eventOut = ThumbnailEvent(wxEVT_THUMBNAILS_DCLICK, self.GetId())
         self.GetEventHandler().ProcessEvent(eventOut)
+        self.openBook(event)
 
     def OnMouseMove(self, event):
         """
@@ -2536,6 +2569,7 @@ class ScrolledThumbnail(wx.ScrolledWindow):
         self.Refresh()
 
     def onKeyDown(self, event):
+        logger.debug(f'onKeyDown{event.GetKeyCode()}')
         if event.GetKeyCode() == 316:
             logger.debug('right key pressed:%s,%d', self._selected, len(self.books))
             if self._selected < len(self.books) - 1:
@@ -2547,23 +2581,23 @@ class ScrolledThumbnail(wx.ScrolledWindow):
                 self.SetSelection(self._selected - 1)
         elif event.GetKeyCode() == 315:
             logger.debug(f'Up key pressed selected:{ self._selected} rows:{self._rows} col:{self._cols}')
-            if 0<self._selected-self._cols:
-                self.SetSelection(self._selected-self._cols)
+            if 0 < self._selected - self._cols:
+                self.SetSelection(self._selected - self._cols)
 
         elif event.GetKeyCode() == 317:
             logger.debug(f'down key pressed selected:{ self._selected} rows:{self._rows} col:{self._cols}')
             
-            if self._selected+self._cols< self.GetItemCount():
-                self.SetSelection(self._selected+self._cols)
+            if self._selected + self._cols < self.GetItemCount():
+                self.SetSelection(self._selected + self._cols)
             else:
-                self.SetSelection(self.GetItemCount()-1)
+                self.SetSelection(self.GetItemCount() - 1)
         if self.GetSelection() != -1:
             book = self.GetItem(self.GetSelection()).book
-            text=f"{len(self._selectedarray)} books selected.| last selected: {book.bookName}" 
+            text = f"{len(self._selectedarray)} books selected.| last selected: {book.bookName}" 
             self.updateStatusBar(text=text)
 
     def updateStatusBar(self, text=None):
-            if text and str(type(self.GetTopLevelParent()))=="<class 'src.view.TheEclipseView.EclipseMainFrame'>":
+            if text and str(type(self.GetTopLevelParent())) == "<class 'src.view.TheEclipseView.EclipseMainFrame'>":
                 self.GetTopLevelParent().SetStatusText(text, 0)
 
     def OnChar(self, event):
