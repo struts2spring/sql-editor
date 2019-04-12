@@ -210,6 +210,7 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
         if e.Id == ID_FIRST_RESULT:
             logger.debug('ID_FIRST_RESULT')
             self.pageNumberCtrl.SetSelection(self.page.getFirstPageNumber())
+            self.paginationBar.EnableTool(ID_FIRST_RESULT, False)
             self.paginationBar.EnableTool(ID_PREVIOUS_RESULT, False)
             self.paginationBar.EnableTool(ID_NEXT_RESULT, True)
         if e.Id == ID_PREVIOUS_RESULT:
@@ -217,22 +218,28 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
             logger.debug('ID_PREVIOUS_RESULT')
             if self.page.hasPrevious():
                 self.paginationBar.EnableTool(ID_NEXT_RESULT, True)
+                self.paginationBar.EnableTool(ID_LAST_RESULT, True)
                 self.pageNumberCtrl.SetSelection(self.page.getPreviousPageNumber())
             else:
                 self.paginationBar.EnableTool(ID_PREVIOUS_RESULT, False)
+                self.paginationBar.EnableTool(ID_FIRST_RESULT, False)
                 
         if e.Id == ID_NEXT_RESULT:
             logger.debug('ID_NEXT_RESULT')
             if self.page.hasNext():
                 self.paginationBar.EnableTool(ID_PREVIOUS_RESULT, True)
+                self.paginationBar.EnableTool(ID_FIRST_RESULT, True)
                 self.pageNumberCtrl.SetSelection(self.page.getNextPageNumber())
             else:
                 self.paginationBar.EnableTool(ID_NEXT_RESULT, False)
+                self.paginationBar.EnableTool(ID_LAST_RESULT, False)
                 
         if e.Id == ID_LAST_RESULT:
             logger.debug('ID_LAST_RESULT')
             self.pageNumberCtrl.SetSelection(self.page.getLastPageNumber())
+            self.paginationBar.EnableTool(ID_LAST_RESULT, False)
             self.paginationBar.EnableTool(ID_NEXT_RESULT, False)
+            self.paginationBar.EnableTool(ID_FIRST_RESULT, True)
             self.paginationBar.EnableTool(ID_PREVIOUS_RESULT, True)
 
     def reloadingDatabase(self, event):
