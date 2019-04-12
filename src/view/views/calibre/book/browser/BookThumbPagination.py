@@ -51,9 +51,46 @@ class TransparentText(wx.StaticText):
 
 class Page():
 
-    def __init__(self, pageSize=30, pageNumbers=[], ):
-        self.pageSize = pageSize
-        self.pageNumbers = pageNumbers
+    def __init__(self, searchText='', pageSize=30, pages=100, pageData=None, total=0, offset=0, currentPage=0):
+        self.pageSize = pageSize  # the number of items to be displayed on a page.
+        self.pages = pages  # The total number of pages
+        self.total = total  # the total number of items matching the query
+        self.pageData = pageData  # the items for the current page
+        self.offset = offset
+        self.currentPage = currentPage
+        self.searchText = searchText
+#         self.hasNext = False  # True if a next page exists.
+#         self.hasPrevious = False  # True if a previous page exists
+    
+    def hasNext(self):
+        next = False
+        if self.currentPage + 1 < self.pages:
+            next = True
+        return next
+
+    def hasPrevious(self):
+        previous = False
+        if -1 < self.currentPage - 1:
+            previous = True
+        return previous
+    
+    def getNextPageNumber(self):
+        if self.hasNext():
+            self.currentPage = self.currentPage + 1
+        return self.currentPage
+        
+    def getPreviousPageNumber(self):
+        if self.hasPrevious():
+            self.currentPage = self.currentPage - 1
+        return self.currentPage
+
+    def getFirstPageNumber(self):
+        self.currentPage = 0
+        return self.currentPage
+
+    def getLastPageNumber(self):
+        self.currentPage = self.pages - 1
+        return self.currentPage
 
 
 class ThumbnailCtrlPaginationPanel(wx.Panel):
@@ -79,11 +116,13 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
 #         self.thumbnailCtrl.ShowDir(r'/home/vijay/Pictures')
 #         findingBook = FindingBook(libraryPath=r'/docs/new/library')
 #         books = findingBook.searchingBook(searchText='head')
+        self.page = Page()
         self.loadingBook()
+        self.paginationBar = self.constructTopToolBar()
         ####################################################################
         vBox.Add(self.search , 0, wx.EXPAND | wx.ALL)
         vBox.Add(self.thumbnailCtrl , 1, wx.EXPAND | wx.ALL)
-        vBox.Add(self.constructTopToolBar() , 0, wx.EXPAND | wx.ALL, 0)
+        vBox.Add(self.paginationBar , 0, wx.EXPAND | wx.ALL, 0)
 #         vBox.Add(self.tree , 1, wx.EXPAND | wx.ALL)
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(vBox, 1, wx.EXPAND , 0)
@@ -103,6 +142,8 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
                 books = findingBook.searchingBook(searchText=searchText)
             else:
                 books = findingBook.findAllBooks(pageSize=50)
+            self.page.pageData = books
+            self.page.searchText = searchText
             self.thumbnailCtrl.ShowBook(books)        
 
     def constructTopToolBar(self):
@@ -114,21 +155,21 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
         # id, name, image, name, method, kind
         pageSizeText = TransparentText(tb1, -1, "Page Size")
 #         tb1.AddControl(pageSizeText)
-        pageNumber = [ "10", "30", "50" ]            
-        pageSizeCtrl = wx.Choice(tb1, 10, (-1, -1), (50, 25), pageNumber, style=0)
-        pageSizeCtrl.SetSelection(0)
+        pageNumber = [f'{pageNum}' for pageNum in range(10, 101, 20)]       
+        self.pageSizeCtrl = wx.Choice(tb1, 10, (-1, -1), (50, 25), pageNumber, style=0)
+        self.pageSizeCtrl.SetSelection(0)
         
-        pageNumbers = [ "1", "2", "3" ]            
-        pageNumberCtrl = wx.Choice(tb1, 11, (-1, -1), (50, 25), pageNumbers, style=0)
-        pageNumberCtrl.SetSelection(0)
+        pageNumbers = [f'{1+pageNum}' for pageNum in range(self.page.pages)]            
+        self.pageNumberCtrl = wx.Choice(tb1, 11, (-1, -1), (50, 25), pageNumbers, style=0)
+        self.pageNumberCtrl.SetSelection(0)
         pageNumbersCount = TransparentText(tb1, -1, f"/{len(pageNumbers)}")
 #         tb1.AddControl(choice)
         tools = [
             ('control', pageSizeText),
-            ('control', pageSizeCtrl),
+            ('control', self.pageSizeCtrl),
             (ID_FIRST_RESULT, "First", "resultset_first.png", 'First', lambda e:self.onToolButtonClick(e), wx.ITEM_NORMAL),
             (ID_PREVIOUS_RESULT, "Previous", "resultset_previous.png", 'Previous', lambda e:self.onToolButtonClick(e), wx.ITEM_NORMAL),
-            ('control', pageNumberCtrl),
+            ('control', self.pageNumberCtrl),
             ('control', pageNumbersCount),
             (ID_NEXT_RESULT, "Next", "resultset_next.png", 'Next', lambda e:self.onToolButtonClick(e), wx.ITEM_NORMAL),
             (ID_LAST_RESULT, "Last", "resultset_last.png", 'Last', lambda e:self.onToolButtonClick(e), wx.ITEM_CHECK),
@@ -151,20 +192,48 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
                     self.Bind(wx.EVT_MENU, tool[4], id=tool[0])
 
 #         tb1.AddControl(choice)
-        
+        self.Bind(wx.EVT_CHOICE, self.onPageNumberCtrl, self.pageNumberCtrl)
+        self.Bind(wx.EVT_CHOICE, self.onPageSizeCtrl, self.pageSizeCtrl)
         tb1.Realize()
 
         return tb1
 
+    def onPageNumberCtrl(self, event):
+        logger.debug('onPageNumberCtrl')
+        self.page.currentPage = int(event.GetString()) - 1
+
+    def onPageSizeCtrl(self, event):
+        logger.debug('onPageSizeCtrl')
+        self.page.pageSize = int(event.GetString())
+
     def onToolButtonClick(self, e):
         if e.Id == ID_FIRST_RESULT:
             logger.debug('ID_FIRST_RESULT')
+            self.pageNumberCtrl.SetSelection(self.page.getFirstPageNumber())
+            self.paginationBar.EnableTool(ID_PREVIOUS_RESULT, False)
+            self.paginationBar.EnableTool(ID_NEXT_RESULT, True)
         if e.Id == ID_PREVIOUS_RESULT:
+            
             logger.debug('ID_PREVIOUS_RESULT')
+            if self.page.hasPrevious():
+                self.paginationBar.EnableTool(ID_NEXT_RESULT, True)
+                self.pageNumberCtrl.SetSelection(self.page.getPreviousPageNumber())
+            else:
+                self.paginationBar.EnableTool(ID_PREVIOUS_RESULT, False)
+                
         if e.Id == ID_NEXT_RESULT:
             logger.debug('ID_NEXT_RESULT')
+            if self.page.hasNext():
+                self.paginationBar.EnableTool(ID_PREVIOUS_RESULT, True)
+                self.pageNumberCtrl.SetSelection(self.page.getNextPageNumber())
+            else:
+                self.paginationBar.EnableTool(ID_NEXT_RESULT, False)
+                
         if e.Id == ID_LAST_RESULT:
             logger.debug('ID_LAST_RESULT')
+            self.pageNumberCtrl.SetSelection(self.page.getLastPageNumber())
+            self.paginationBar.EnableTool(ID_NEXT_RESULT, False)
+            self.paginationBar.EnableTool(ID_PREVIOUS_RESULT, True)
 
     def reloadingDatabase(self, event):
         logger.debug('reloadingDatabase')

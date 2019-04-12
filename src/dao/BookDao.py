@@ -177,7 +177,6 @@ class CreateDatabase():
         except Exception as e:
             logger.debug(os.path.join(self.libraryPath, dirName))
             logger.error(e, exc_info=True)
-        
 
 #             print rep
         return b
@@ -207,10 +206,10 @@ class CreateDatabase():
     
     def findAllBook(self, pageSize=None):
         logger.debug('findAllBook pageSize: %s', pageSize)
-        bs = self.pagination(pageSize, 0)
+        bs = self.pagination(limit=pageSize, offset=0)
         return bs
     
-    def pagination(self, limit, offset):
+    def pagination(self, limit=0, offset=0):
         logger.debug('pagination limit : %s , offset: %s', limit, offset)
         if limit:
             query = self.session.query(Book).limit(limit).offset(offset)
