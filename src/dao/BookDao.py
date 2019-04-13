@@ -204,9 +204,9 @@ class CreateDatabase():
             logger.error(e, exc_info=True)
         return bookCount
     
-    def findAllBook(self, pageSize=None):
+    def findAllBook(self, pageSize=None, offset=0):
         logger.debug('findAllBook pageSize: %s', pageSize)
-        bs = self.pagination(limit=pageSize, offset=0)
+        bs = self.pagination(limit=pageSize, offset=offset)
         return bs
     
     def pagination(self, limit=0, offset=0):

@@ -125,7 +125,7 @@ import six
 from math import pi
 from src.view.constants import bookMenuRightClickList, ID_DOWNLOAD_METADATA, \
     ID_OPEN_BOOK, ID_BOOK_INFO, ID_DELETE_BOOK, ID_OPEN_CONTAINING_FOLDER, \
-    ID_EDIT_METADATA, ID_SEARCH_SIMILAR,ID_COPY_BOOK_NAME
+    ID_EDIT_METADATA, ID_SEARCH_SIMILAR,ID_COPY_BOOK_NAME, ID_PASTE
 from src.view.util.FileOperationsUtil import FileOperations
 from wx.lib.embeddedimage import PyEmbeddedImage
 import subprocess
@@ -940,7 +940,7 @@ class ThumbnailCtrl(wx.Panel):
 #             (wx.ACCEL_CTRL, ord('Y'), ID_REDO),
 #             (wx.ACCEL_CTRL, ord('Z'), ID_UNDO),
 #             (wx.ACCEL_CTRL, ord('C'), ID_COPY),
-#             (wx.ACCEL_CTRL, ord('V'), ID_PASTE),
+            (wx.ACCEL_CTRL, ord('V'), ID_PASTE),
 #             (wx.ACCEL_CTRL, ord('X'), ID_CUT),
 #             (wx.ACCEL_CTRL | wx.ACCEL_ALT, wx.WXK_DOWN, ID_DUPLICATE_LINE),
 #             (wx.ACCEL_CTRL, ord('S'), ID_SAVE),
@@ -954,6 +954,7 @@ class ThumbnailCtrl(wx.Panel):
                                      ])
         self.SetAcceleratorTable(self.accel_tbl)
         self.Bind(wx.EVT_MENU, lambda e:self.accelHandler(e), id=wx.ID_SELECTALL)
+        self.Bind(wx.EVT_MENU, lambda e:self.accelHandler(e), id=ID_PASTE)
     
     def accelHandler(self, event):
         if event.Id == wx.ID_SELECTALL:
@@ -961,6 +962,18 @@ class ThumbnailCtrl(wx.Panel):
 #             for i in range(self.GetItemCount()):
 #                 self.SetSelection(i)
             self.selectIndexs(0, self.GetItemCount() - 1)
+        elif event.Id==ID_PASTE:
+            logger.debug('ID_PASTE')
+            if not wx.TheClipboard.IsOpened():  # may crash, otherwise
+                do = wx.TextDataObject()
+                wx.TheClipboard.Open()
+                success = wx.TheClipboard.GetData(do)
+                wx.TheClipboard.Close()
+                if success:
+                    self.text.SetValue(do.GetText())
+                else:
+                    self.text.SetValue("There is no data in the clipboard in the required format")
+
         self.updateStatusBar(text=f'{self.GetItemCount()} books selected')
 
     def ShowComboBox(self, show=True):
@@ -1134,7 +1147,7 @@ class ScrolledThumbnail(wx.ScrolledWindow):
         self.Bind(EVT_THUMBNAILS_THUMB_CHANGED, self.OnThumbChanged)
         self.Bind(wx.EVT_KEY_DOWN, self.onKeyDown)
         self.Bind(wx.EVT_CHAR, self.OnChar)
-        self.Bind(wx.EVT_CHAR_HOOK, self.on_key)
+#         self.Bind(wx.EVT_CHAR_HOOK, self.on_key)
         self.Bind(wx.EVT_MOUSEWHEEL, self.OnMouseWheel)
 
         self.Bind(wx.EVT_SIZE, self.OnResize)
@@ -2470,10 +2483,11 @@ class ScrolledThumbnail(wx.ScrolledWindow):
 
         :param `event`: a :class:`MouseEvent` event to be processed.
         """
-
+        
         eventOut = ThumbnailEvent(wxEVT_THUMBNAILS_DCLICK, self.GetId())
         self.GetEventHandler().ProcessEvent(eventOut)
-        self.openBook(event)
+        if self.GetSelection()!=-1:
+            self.openBook(event)
 
     def OnMouseMove(self, event):
         """
@@ -2594,6 +2608,15 @@ class ScrolledThumbnail(wx.ScrolledWindow):
                 self.SetSelection(self._selected + self._cols)
             else:
                 self.SetSelection(self.GetItemCount() - 1)
+        elif event.GetKeyCode() == 27:
+            logger.debug('esc')
+            self._selected=-1
+            self._selectedarray=[]
+            self.ScrollToSelected()
+            self.Refresh()
+            eventOut = ThumbnailEvent(wxEVT_THUMBNAILS_SEL_CHANGED, self.GetId())
+            self.GetEventHandler().ProcessEvent(eventOut)
+            
         if self.GetSelection() != -1:
             book = self.GetItem(self.GetSelection()).book
             text = f"{len(self._selectedarray)} books selected.| last selected: {book.bookName}" 

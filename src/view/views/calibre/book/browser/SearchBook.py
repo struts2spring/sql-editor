@@ -13,7 +13,7 @@ class FindingBook():
         self.createDatabase = CreateDatabase(libraryPath=libraryPath)
         pass
 
-    def searchingBook(self, searchText=None, exactSearchFlag=False, pageSize=10):
+    def searchingBook(self, searchText=None, exactSearchFlag=False, pageSize=10, offset=0):
         '''
         This method return list of books matching with search text.
         @param searchText: may be a book name 
@@ -24,7 +24,7 @@ class FindingBook():
             if exactSearchFlag:
                 books = self.createDatabase.findByBookName(searchText)
             else:
-                books = self.createDatabase.findBySimlarBookName(bookName=searchText, limit=pageSize)
+                books = self.createDatabase.findBySimlarBookName(bookName=searchText, limit=pageSize, offset=0)
         else:
             books = self.findAllBooks()
         return books
@@ -39,13 +39,13 @@ class FindingBook():
     def findBookByPreviousMaxId(self, bookId=None):
         return self.createDatabase.findBookByPreviousMaxId(bookId)
     
-    def findAllBooks(self, pageSize=None):
+    def findAllBooks(self, pageSize=None, offset=0):
         '''
         This method will give all the books list in book library.
         '''
         books = list()
         os.chdir(self.libraryPath)
-        books = self.createDatabase.findAllBook(pageSize=pageSize)
+        books = self.createDatabase.findAllBook(pageSize=pageSize, offset=offset)
         return books
 
     def findBookByIsbn(self, isbn_13):
