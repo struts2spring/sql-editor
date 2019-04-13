@@ -9,6 +9,8 @@ import rarfile
 import logging
 from PIL import Image as Img
 import platform
+from src.view.constants import LOG_SETTINGS
+logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
 
@@ -17,20 +19,18 @@ class BookImage():
     def __init__(self):
         pass
 
-
-
     def getPdfBookImage(self, name=None):
         # Converting first page into JPG
 #         with Image(filename=sourcePdf) as img:
 #             img.save(filename=destImg)
         if platform.system() == 'Windows':
-            path=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','bin','pdftocairo.exe')
+            path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'bin', 'pdftocairo.exe')
 #             os.chdir(path)
-            cmd=f'''{path} -f 1 -l 1 -jpeg "{name}.pdf" "{name}.jpg"'''
+            cmd = f'''{path} -f 1 -l 1 -jpeg "{name}.pdf" "{name}.jpg"'''
         else:
             cmd = 'convert -background white -alpha remove "' + name + '.pdf[0]' + '" "' + name + '.jpg' + '"'
             
-        print(cmd)
+        logger.debug(cmd)
         subprocess.call(cmd, shell=True)
         
     def getDjuvBookImage(self, name=None):
@@ -66,25 +66,26 @@ class BookImage():
         convert -thumbnail x300 -background white -alpha remove input_file.pdf[0] output_thumbnail.png
         convert azw.png -resize 16% azw3.png
         '''
+        logger.debug('getBookImage')
         os.chdir(filePath)
-        if 'pdf' == bookFormat:
+        if 'pdf' == bookFormat.lower():
             self.getPdfBookImage(name)
 #             self.convert(os.path.join(filePath,name))
 
-        elif 'djvu' == bookFormat:
+        elif 'djvu' == bookFormat.lower():
             self.getDjuvBookImage(name)
             
-        elif 'chm' == bookFormat:
+        elif 'chm' == bookFormat.lower():
             self.getChmBookImage(name)
             
-        elif 'epub' == bookFormat:
+        elif 'epub' == bookFormat.lower():
             file_name = name + '.epub'
             epubBook = EpubBook()
             epubBook.open(file_name)
         
             epubBook.parse_contents()
             epubBook.extract_cover_image(name + '.jpg', outdir='.',)
-        elif 'cbr' == bookFormat:
+        elif 'cbr' == bookFormat.lower():
             logger.info('bookFormat:' + bookFormat)
             self.getCbrBookImage(name)    
         elif 'mobi' == bookFormat:

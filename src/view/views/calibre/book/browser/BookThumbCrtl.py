@@ -125,7 +125,7 @@ import six
 from math import pi
 from src.view.constants import bookMenuRightClickList, ID_DOWNLOAD_METADATA, \
     ID_OPEN_BOOK, ID_BOOK_INFO, ID_DELETE_BOOK, ID_OPEN_CONTAINING_FOLDER, \
-    ID_EDIT_METADATA, ID_SEARCH_SIMILAR,ID_COPY_BOOK_NAME, ID_PASTE
+    ID_EDIT_METADATA, ID_SEARCH_SIMILAR, ID_COPY_BOOK_NAME, ID_PASTE
 from src.view.util.FileOperationsUtil import FileOperations
 from wx.lib.embeddedimage import PyEmbeddedImage
 import subprocess
@@ -962,17 +962,21 @@ class ThumbnailCtrl(wx.Panel):
 #             for i in range(self.GetItemCount()):
 #                 self.SetSelection(i)
             self.selectIndexs(0, self.GetItemCount() - 1)
-        elif event.Id==ID_PASTE:
+        elif event.Id == ID_PASTE:
             logger.debug('ID_PASTE')
             if not wx.TheClipboard.IsOpened():  # may crash, otherwise
-                do = wx.TextDataObject()
+#                 if wx.TheClipboard.IsSupported(wx.DataFormat(wx.DF_FILENAME)):
+                
+                textDo = wx.TextDataObject()
                 wx.TheClipboard.Open()
-                success = wx.TheClipboard.GetData(do)
+                success = wx.TheClipboard.GetData(textDo)
                 wx.TheClipboard.Close()
                 if success:
-                    self.text.SetValue(do.GetText())
+                    logger.info(textDo.GetFormat())
+#                     self.text.SetValue(do.GetText())
                 else:
-                    self.text.SetValue("There is no data in the clipboard in the required format")
+                    logger.info('There is no data in the clipboard in the required format')
+#                     self.text.SetValue("There is no data in the clipboard in the required format")
 
         self.updateStatusBar(text=f'{self.GetItemCount()} books selected')
 
@@ -1146,6 +1150,7 @@ class ScrolledThumbnail(wx.ScrolledWindow):
         self.Bind(wx.EVT_LEAVE_WINDOW, self.OnMouseLeave)
         self.Bind(EVT_THUMBNAILS_THUMB_CHANGED, self.OnThumbChanged)
         self.Bind(wx.EVT_KEY_DOWN, self.onKeyDown)
+        self.Bind(wx.EVT_KEY_UP, self.onKeyUp)
         self.Bind(wx.EVT_CHAR, self.OnChar)
 #         self.Bind(wx.EVT_CHAR_HOOK, self.on_key)
         self.Bind(wx.EVT_MOUSEWHEEL, self.OnMouseWheel)
@@ -2486,7 +2491,7 @@ class ScrolledThumbnail(wx.ScrolledWindow):
         
         eventOut = ThumbnailEvent(wxEVT_THUMBNAILS_DCLICK, self.GetId())
         self.GetEventHandler().ProcessEvent(eventOut)
-        if self.GetSelection()!=-1:
+        if self.GetSelection() != -1:
             self.openBook(event)
 
     def OnMouseMove(self, event):
@@ -2585,6 +2590,13 @@ class ScrolledThumbnail(wx.ScrolledWindow):
 
         self.Refresh()
 
+    def onKeyUp(self, event):
+        logger.debug(f'onKeyUp{event.GetKeyCode()}')
+        if event.GetKeyCode() == 13:
+            logger.debug('enter pressed')
+            self.openBook(event)
+        
+
     def onKeyDown(self, event):
         logger.debug(f'onKeyDown{event.GetKeyCode()}')
         if event.GetKeyCode() == 316:
@@ -2608,10 +2620,13 @@ class ScrolledThumbnail(wx.ScrolledWindow):
                 self.SetSelection(self._selected + self._cols)
             else:
                 self.SetSelection(self.GetItemCount() - 1)
+        elif event.GetKeyCode() == 127:
+            logger.debug(f'Delete {wx.ID_DELETE}')
+            self.deleteBook(event)
         elif event.GetKeyCode() == 27:
             logger.debug('esc')
-            self._selected=-1
-            self._selectedarray=[]
+            self._selected = -1
+            self._selectedarray = []
             self.ScrollToSelected()
             self.Refresh()
             eventOut = ThumbnailEvent(wxEVT_THUMBNAILS_SEL_CHANGED, self.GetId())

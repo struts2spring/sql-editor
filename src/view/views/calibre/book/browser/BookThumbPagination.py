@@ -274,6 +274,7 @@ class FileDropTarget(wx.FileDropTarget):
 #         self.obj.SetInsertionPointEnd()
         # append a list of the file names dropped
         logger.debug (f"{len(filenames)} file(s) dropped at {x}, {y}:\n")
+        # TODO : need to implement threading
         for file in filenames:
             self.selectedFilePath = file
             logger.debug ('file: %s' , file)
