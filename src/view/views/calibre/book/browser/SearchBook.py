@@ -7,12 +7,13 @@ class FindingBook():
     '''
     This class searches book detail in Opal database.this database would be created in workspace(Opal library).
     '''
-    def __init__(self,libraryPath=None):
-        self.libraryPath=libraryPath
+
+    def __init__(self, libraryPath=None):
+        self.libraryPath = libraryPath
         self.createDatabase = CreateDatabase(libraryPath=libraryPath)
         pass
 
-    def searchingBook(self, searchText=None, exactSearchFlag=False):
+    def searchingBook(self, searchText=None, exactSearchFlag=False, pageSize=10):
         '''
         This method return list of books matching with search text.
         @param searchText: may be a book name 
@@ -23,7 +24,7 @@ class FindingBook():
             if exactSearchFlag:
                 books = self.createDatabase.findByBookName(searchText)
             else:
-                books = self.createDatabase.findBySimlarBookName(searchText)
+                books = self.createDatabase.findBySimlarBookName(bookName=searchText, limit=pageSize)
         else:
             books = self.findAllBooks()
         return books
@@ -31,8 +32,10 @@ class FindingBook():
     def countAllBooks(self):
         bookCount = self.createDatabase.countAllBooks()
         return bookCount
+
     def findBookByNextMaxId(self, bookId=None):
         return self.createDatabase.findBookByNextMaxId(bookId)
+
     def findBookByPreviousMaxId(self, bookId=None):
         return self.createDatabase.findBookByPreviousMaxId(bookId)
     
@@ -82,6 +85,8 @@ class FindingBook():
 #                 defaulterList.append(levelOne)
             if len(lst) < 3:
                 defaulterList.append(levelOne)
+
+
 #         print defaulterList
 if __name__ == '__main__':
 #     print 'hi'
