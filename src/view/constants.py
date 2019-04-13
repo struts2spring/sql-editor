@@ -463,6 +463,8 @@ ID_EDIT_METADATA = wx.NewIdRef()
 ID_SEARCH_SIMILAR = wx.NewIdRef()
 ID_OPEN_CONTAINING_FOLDER = wx.NewIdRef()
 ID_DOWNLOAD_METADATA = wx.NewIdRef()
+ID_ZOOM_IN = wx.NewIdRef()
+ID_ZOOM_OUT = wx.NewIdRef()
 
 bookMenuRightClickList = [
     [ID_DOWNLOAD_METADATA, "download-metadata_16.png", "Download metadata and cover." ],

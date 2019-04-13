@@ -206,12 +206,13 @@ class CreateDatabase():
     
     def findAllBook(self, pageSize=None, offset=0):
         logger.debug('findAllBook pageSize: %s', pageSize)
-        bs = self.pagination(limit=pageSize, offset=offset)
-        return bs
+        bs, count = self.pagination(limit=pageSize, offset=offset)
+        return bs, count
     
     def pagination(self, limit=0, offset=0):
         logger.debug('pagination limit : %s , offset: %s', limit, offset)
         if limit:
+            countQuery = self.session.query(Book).count()
             query = self.session.query(Book).limit(limit).offset(offset)
         else:
             query = self.session.query(Book)
@@ -220,7 +221,7 @@ class CreateDatabase():
             bs = query.all()
         except Exception as e:
             logger.error(e, exc_info=True)
-        return bs
+        return bs, countQuery
     
     def findBookByIsbn(self, isbn_13):
         logger.debug('findBookByIsbn : %s', isbn_13)
@@ -287,10 +288,11 @@ class CreateDatabase():
         logger.debug('findByBookName')
         try:
             if bookName:
+                countQuery = self.session.query(Book).filter(func.lower(Book.bookName) == func.lower(bookName)).count()
                 query = self.session.query(Book).filter(func.lower(Book.bookName) == func.lower(bookName)).limit(limit).offset(offset)
 #                 .order_by(Book.id.desc())
                 books = query.all()
-                return books
+                return books, countQuery
         except Exception as e:
             logger.error(e, exc_info=True)
             
@@ -301,10 +303,11 @@ class CreateDatabase():
         logger.debug('findBySimlarBookName bookName: %s', bookName)
         try:
             if bookName:
+                countQuery = self.session.query(Book).filter(Book.bookName.ilike('%' + bookName + '%')).count()
                 query = self.session.query(Book).filter(Book.bookName.ilike('%' + bookName + '%')).limit(limit).offset(offset)
 #                 .order_by(Book.id.desc())
                 books = query.all()
-                return books
+                return books, countQuery
         except Exception as e:
             logger.error(e, exc_info=True)
 

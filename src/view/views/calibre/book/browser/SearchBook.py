@@ -22,12 +22,12 @@ class FindingBook():
         if searchText != None and searchText != '':
             os.chdir(self.libraryPath)
             if exactSearchFlag:
-                books = self.createDatabase.findByBookName(searchText)
+                books, count = self.createDatabase.findByBookName(searchText)
             else:
-                books = self.createDatabase.findBySimlarBookName(bookName=searchText, limit=pageSize, offset=0)
+                books, count = self.createDatabase.findBySimlarBookName(bookName=searchText, limit=pageSize, offset=0)
         else:
-            books = self.findAllBooks()
-        return books
+            books, count = self.findAllBooks()
+        return books, count 
     
     def countAllBooks(self):
         bookCount = self.createDatabase.countAllBooks()
@@ -45,8 +45,8 @@ class FindingBook():
         '''
         books = list()
         os.chdir(self.libraryPath)
-        books = self.createDatabase.findAllBook(pageSize=pageSize, offset=offset)
-        return books
+        books, count = self.createDatabase.findAllBook(pageSize=pageSize, offset=offset)
+        return books, count
 
     def findBookByIsbn(self, isbn_13):
         bs = self.createDatabase.findBookByIsbn(isbn_13)

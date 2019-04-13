@@ -125,7 +125,8 @@ import six
 from math import pi
 from src.view.constants import bookMenuRightClickList, ID_DOWNLOAD_METADATA, \
     ID_OPEN_BOOK, ID_BOOK_INFO, ID_DELETE_BOOK, ID_OPEN_CONTAINING_FOLDER, \
-    ID_EDIT_METADATA, ID_SEARCH_SIMILAR, ID_COPY_BOOK_NAME, ID_PASTE
+    ID_EDIT_METADATA, ID_SEARCH_SIMILAR, ID_COPY_BOOK_NAME, ID_PASTE, ID_ZOOM_IN, \
+    ID_ZOOM_OUT
 from src.view.util.FileOperationsUtil import FileOperations
 from wx.lib.embeddedimage import PyEmbeddedImage
 import subprocess
@@ -941,7 +942,8 @@ class ThumbnailCtrl(wx.Panel):
 #             (wx.ACCEL_CTRL, ord('Z'), ID_UNDO),
 #             (wx.ACCEL_CTRL, ord('C'), ID_COPY),
             (wx.ACCEL_CTRL, ord('V'), ID_PASTE),
-#             (wx.ACCEL_CTRL, ord('X'), ID_CUT),
+            (wx.ACCEL_CTRL, ord('+'), ID_ZOOM_IN),
+            (wx.ACCEL_CTRL, ord('-'), ID_ZOOM_OUT),
 #             (wx.ACCEL_CTRL | wx.ACCEL_ALT, wx.WXK_DOWN, ID_DUPLICATE_LINE),
 #             (wx.ACCEL_CTRL, ord('S'), ID_SAVE),
 #             (wx.ACCEL_CTRL, ord('H'), ID_SEARCH_FILE),
@@ -955,6 +957,8 @@ class ThumbnailCtrl(wx.Panel):
         self.SetAcceleratorTable(self.accel_tbl)
         self.Bind(wx.EVT_MENU, lambda e:self.accelHandler(e), id=wx.ID_SELECTALL)
         self.Bind(wx.EVT_MENU, lambda e:self.accelHandler(e), id=ID_PASTE)
+        self.Bind(wx.EVT_MENU, lambda e:self.accelHandler(e), id=ID_ZOOM_IN)
+        self.Bind(wx.EVT_MENU, lambda e:self.accelHandler(e), id=ID_ZOOM_OUT)
     
     def accelHandler(self, event):
         if event.Id == wx.ID_SELECTALL:
@@ -962,6 +966,12 @@ class ThumbnailCtrl(wx.Panel):
 #             for i in range(self.GetItemCount()):
 #                 self.SetSelection(i)
             self.selectIndexs(0, self.GetItemCount() - 1)
+        elif event.Id == ID_ZOOM_IN:
+            logger.debug('ID_ZOOM_IN')
+            self.ZoomIn()
+        elif event.Id == ID_ZOOM_OUT:
+            logger.debug('ID_ZOOM_OUT')
+            self.ZoomOut()
         elif event.Id == ID_PASTE:
             logger.debug('ID_PASTE')
             if not wx.TheClipboard.IsOpened():  # may crash, otherwise
@@ -2293,7 +2303,10 @@ class ScrolledThumbnail(wx.ScrolledWindow):
             except Exception as e :
                 logger.error(e, exc_info=True)
                 logger.error('selectedBookIndex: %s, len: %s', selectedBookIndex, len(self._items))
-        logger.debug(deleteBooks)
+#         logger.debug(deleteBooks)
+        self.updateStatusBar(text=f'{len(deleteBooks)} books deleted')
+        self.GetParent().GetParent().loadingBook()
+        self.GetParent().GetParent().updatePangnation()
 
     def showBookProperties(self, event):
         logger.debug("showBookProperties \n")
@@ -2596,7 +2609,6 @@ class ScrolledThumbnail(wx.ScrolledWindow):
         if event.GetKeyCode() == 13:
             logger.debug('enter pressed')
             self.openBook(event)
-        
 
     def onKeyDown(self, event):
         logger.debug(f'onKeyDown{event.GetKeyCode()}')
@@ -2634,9 +2646,12 @@ class ScrolledThumbnail(wx.ScrolledWindow):
             self.GetEventHandler().ProcessEvent(eventOut)
             
         if self.GetSelection() != -1:
-            book = self.GetItem(self.GetSelection()).book
-            text = f"{len(self._selectedarray)} books selected.| last selected: {book.bookName}" 
-            self.updateStatusBar(text=text)
+            try:
+                book = self.GetItem(self.GetSelection()).book
+                text = f"{len(self._selectedarray)} books selected.| last selected: {book.bookName}" 
+                self.updateStatusBar(text=text)
+            except Exception as e:
+                logger.error(e)
 
     def updateStatusBar(self, text=None):
             if text and str(type(self.GetTopLevelParent())) == "<class 'src.view.TheEclipseView.EclipseMainFrame'>":
