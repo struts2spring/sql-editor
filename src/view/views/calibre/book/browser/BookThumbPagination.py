@@ -131,6 +131,7 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
     @debounce(1)
     def OnSearch(self, event):
         logger.debug('onSearch')
+        self.page.searchText=self.search.GetValue()
         self.loadingBook(searchText=self.search.GetValue())
 
     def loadingBook(self, searchText=None):
@@ -138,10 +139,10 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
         books = None
         if os.path.exists(self.libraryPath):
             findingBook = FindingBook(libraryPath=self.libraryPath)
-            if searchText:
-                books = findingBook.searchingBook(searchText=searchText)
+            if self.page.searchText:
+                books = findingBook.searchingBook(searchText=self.page.searchText)
             else:
-                books = findingBook.findAllBooks(pageSize=50)
+                books = findingBook.findAllBooks(pageSize=self.page.pageSize)
             self.page.pageData = books
             self.page.searchText = searchText
             self.thumbnailCtrl.ShowBook(books)        
@@ -229,6 +230,7 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
             if self.page.hasNext():
                 self.paginationBar.EnableTool(ID_PREVIOUS_RESULT, True)
                 self.paginationBar.EnableTool(ID_FIRST_RESULT, True)
+                self.paginationBar.EnableTool(ID_LAST_RESULT, True)
                 self.pageNumberCtrl.SetSelection(self.page.getNextPageNumber())
             else:
                 self.paginationBar.EnableTool(ID_NEXT_RESULT, False)
@@ -241,7 +243,7 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
             self.paginationBar.EnableTool(ID_NEXT_RESULT, False)
             self.paginationBar.EnableTool(ID_FIRST_RESULT, True)
             self.paginationBar.EnableTool(ID_PREVIOUS_RESULT, True)
-
+        self.paginationBar.Realize()
     def reloadingDatabase(self, event):
         logger.debug('reloadingDatabase')
         self.createDatabase = CreateDatabase(libraryPath=self.libraryPath)

@@ -44,7 +44,7 @@ class CreateDatabase():
         isDatabaseExist = os.path.exists(databasePath)
 
         databaseFilePath = f'sqlite:///{databasePath}'
-        self.engine = create_engine(databaseFilePath , echo=False, connect_args={'check_same_thread': False})
+        self.engine = create_engine(databaseFilePath , echo=True, connect_args={'check_same_thread': False})
         Session = sessionmaker(autoflush=True, autocommit=False, bind=self.engine)
         self.session = Session()
         
@@ -280,27 +280,29 @@ class CreateDatabase():
 
         return isBookDeleted
 
-    def findByBookName(self, bookName=None):
+    def findByBookName(self, bookName=None, limit=50, offset=0):
         '''
         This method provide search of book name IGNORECASE .
         '''
         logger.debug('findByBookName')
         try:
             if bookName:
-                query = self.session.query(Book).filter(func.lower(Book.bookName) == func.lower(bookName)).order_by(Book.id.desc())
+                query = self.session.query(Book).filter(func.lower(Book.bookName) == func.lower(bookName)).limit(limit).offset(offset)
+#                 .order_by(Book.id.desc())
                 books = query.all()
                 return books
         except Exception as e:
             logger.error(e, exc_info=True)
             
-    def findBySimlarBookName(self, bookName=None):
+    def findBySimlarBookName(self, bookName=None, limit=50, offset=0):
         '''
         This method provide search of book name IGNORECASE and similar result like.
         '''
         logger.debug('findBySimlarBookName bookName: %s', bookName)
         try:
             if bookName:
-                query = self.session.query(Book).filter(Book.bookName.ilike('%' + bookName + '%')).order_by(Book.id.desc())
+                query = self.session.query(Book).filter(Book.bookName.ilike('%' + bookName + '%')).limit(limit).offset(offset)
+#                 .order_by(Book.id.desc())
                 books = query.all()
                 return books
         except Exception as e:

@@ -213,7 +213,7 @@ class CreateButtonPanel(wx.Panel):
 #             mainStc.SetCurrentPos(res + len(searchText))
 #             mainStc.SetSelection(res, res + len(searchText))
 #             mainStc.SetSelectionEnd(res + len(searchText))
-            mainStc.SetSelectionNCaret(res,res + len(searchText))
+            mainStc.SetSelectionNCaret(res, res + len(searchText))
 #             mainStc.GotoPos(res + len(searchText))
 
     def onReplaceClicked(self, event):
