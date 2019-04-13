@@ -2318,11 +2318,12 @@ class ScrolledThumbnail(wx.ScrolledWindow):
             book = self._items[self._selected].book
             logger.debug(self._selected)
             bookPath = book.bookPath
-            for name in os.listdir(bookPath):
-                if book.bookFormat != None:
-                    if "." + (book.bookFormat).lower() in name:
-                        file = os.path.join(bookPath, name)
-                        break
+            file = os.path.join(bookPath, book.bookFileName)
+#             for name in os.listdir(bookPath):
+#                 if book.bookFormat != None:
+#                     if "." + (book.bookFormat).lower() in name:
+#                         file = os.path.join(bookPath, name)
+#                         break
 
             if platform.system() == 'Linux':
                 if book.bookFormat != None and  book.bookFormat.lower() != 'cbr':
@@ -2610,7 +2611,7 @@ class ScrolledThumbnail(wx.ScrolledWindow):
                 self.SetSelection(self._selected - 1)
         elif event.GetKeyCode() == 315:
             logger.debug(f'Up key pressed selected:{ self._selected} rows:{self._rows} col:{self._cols}')
-            if 0 < self._selected - self._cols:
+            if -1 < self._selected - self._cols:
                 self.SetSelection(self._selected - self._cols)
 
         elif event.GetKeyCode() == 317:
