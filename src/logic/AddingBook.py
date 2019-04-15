@@ -20,6 +20,7 @@ from src.view.views.calibre.book.browser.epub.opal_epub_worker import EpubBook
 from src.view.views.calibre.book.browser.util.remove import Util
 import logging.config
 from src.view.constants import LOG_SETTINGS
+import re
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -43,9 +44,8 @@ class AddBook():
         self.book.uuid = str(uuid.uuid4())
         self.book.tag = None
         self.book.authors = list()
-        self.libraryPath=libraryPath
+        self.libraryPath = libraryPath
         self.createDatabase = CreateDatabase(libraryPath=libraryPath)
-
 
     def addingBookToWorkspace(self, sourcePath=None):
         '''
@@ -99,10 +99,25 @@ class AddBook():
                 os.chdir(self.book.bookPath)
                 self.book.bookImgName = book_file_name + '.jpg'
                 BookImage().getBookImage(self.book.bookPath, book_file_name, self.book.bookFormat)
-                
+                self.book.bookImgName = self.getImageFileName()
                 book_copy1 = copy.deepcopy(self.book)
                 self.writeBookJson(self.book.bookPath, book_copy1)
                 self.addingBookInfoInDatabase(self.book)
+
+    def getImageFileName(self):
+        imgFilePath = os.path.join(self.book.bookPath, self.book.bookImgName)
+        if not os.path.exists(imgFilePath):
+            directory = '.'
+            pattern = re.compile(r"\-(\d*)\.jpg$")
+            for file in os.listdir(directory):
+                print(file)
+                m = pattern.search(file)
+                if m:
+#                     print(m.groups())
+                    imgFilePath = m.group()
+                    bookImgName = self.currentBook.bookImgName.replace('.jpg', m.group())
+                    imgFilePath = os.path.join(self.currentBook.bookPath, bookImgName)
+        return bookImgName
 
     def findingSameBook(self):
         '''
@@ -213,7 +228,7 @@ class AddBook():
                 logger.debug('NumPages:%s', pdf_toread.getNumPages())
                 self.book.numberOfPages = pdf_toread.getNumPages()
                 #             value = pdf_info.subject
-                subject=None
+                subject = None
                 if pdf_info.subject and type(pdf_info.subject) == str:
                     # Ignore errors even if the string is not proper UTF-8 or has
                     # broken marker bytes.
