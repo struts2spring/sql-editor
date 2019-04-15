@@ -20,6 +20,7 @@ from src.view.views.calibre.book.browser.epub.opal_epub_worker import EpubBook
 from src.view.views.calibre.book.browser.util.remove import Util
 import logging.config
 from src.view.constants import LOG_SETTINGS
+import re
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -111,6 +112,21 @@ class AddBook():
                 book_copy1 = copy.deepcopy(self.book)
                 self.writeBookJson(self.book.bookPath, book_copy1)
                 self.addingBookInfoInDatabase(self.book)
+
+    def getImageFileName(self):
+        imgFilePath = os.path.join(self.book.bookPath, self.book.bookImgName)
+        if not os.path.exists(imgFilePath):
+            directory = '.'
+            pattern = re.compile(r"\-(\d*)\.jpg$")
+            for file in os.listdir(directory):
+                print(file)
+                m = pattern.search(file)
+                if m:
+#                     print(m.groups())
+                    imgFilePath = m.group()
+                    bookImgName = self.currentBook.bookImgName.replace('.jpg', m.group())
+                    imgFilePath = os.path.join(self.currentBook.bookPath, bookImgName)
+        return bookImgName
 
     def findingSameBook(self):
         '''

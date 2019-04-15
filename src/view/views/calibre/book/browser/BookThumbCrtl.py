@@ -134,6 +134,7 @@ import platform
 import sys
 from src.view.views.calibre.book.browser.SearchBook import FindingBook
 from src.logic.AddingBook import AddBook
+from src.view.views.calibre.book.browser.BookInfo import BookPropertyFrame
 
 if six.PY3:
     import _thread as thread
@@ -2314,7 +2315,7 @@ class ScrolledThumbnail(wx.ScrolledWindow):
         logger.debug("showBookProperties \n")
         if self._selected != None:
             book = self._items[self._selected].book
-#             frame = BookPropertyFrame(parent=None,book)
+            frame = BookPropertyFrame(None,book)
 #             frame = BookPropertyFrame(None, book)
 
     def openFolderPath(self, event):

@@ -26,7 +26,7 @@ class BookImage():
         if platform.system() == 'Windows':
             path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'bin', 'pdftocairo.exe')
 #             os.chdir(path)
-            cmd = f'''{path} -f 1 -l 1 -jpeg "{name}.pdf" "{name}.jpg"'''
+            cmd = f'''{path} -f 1 -l 1 -jpeg "{name}.pdf" "{name}"'''
         else:
             cmd = 'convert -background white -alpha remove "' + name + '.pdf[0]' + '" "' + name + '.jpg' + '"'
             
@@ -70,6 +70,7 @@ class BookImage():
         os.chdir(filePath)
         if 'pdf' == bookFormat.lower():
             self.getPdfBookImage(name)
+            
 #             self.convert(os.path.join(filePath,name))
 
         elif 'djvu' == bookFormat.lower():
