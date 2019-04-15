@@ -345,21 +345,17 @@ class CreateDatabase():
             books = query.all()
         return books
 
-    def getMaxBookID(self, book=None):
+    def getMaxBookID(self):
         '''
-        This method will find the book in database . It will return true.If book present.
-
+        getting max bookId from either of database or library folder.
         '''
-        books = None
-#         maxBookId = self.session.query(func.max(Book.id)).one()
-        length = len(self.libraryPath) + 2
-        logger.debug('length: %s', length)
-        sql = 'select max(substr(book_path,' + str(length) + '), id) from book order by id desc'
-        logger.debug('getMaxBookID sql: %s ', sql)
+        sql = f'select max(substr(book_path,{ len(self.libraryPath) + 2}), id) from book order by id desc'
+        logger.debug(sql)
+        logger.debug(f'getMaxBookID sql: {sql} ')
         maxBookId = self.session.execute(sql).first()
         if maxBookId == None:
             maxBookId = [0]
-        logger.debug('maxBookId: %s', int(maxBookId[0]))
+        logger.debug(f'maxBookId: {maxBookId[0]}')
         return int(maxBookId[0])
 
 

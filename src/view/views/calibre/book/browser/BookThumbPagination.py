@@ -146,13 +146,13 @@ class ThumbnailCtrlPaginationPanel(wx.Panel):
                 books, count = findingBook.findAllBooks(pageSize=self.page.pageSize, offset=self.page.pageSize * self.page.currentPage)
             self.page.pageData = books
             self.page.total = count
-            self.page.pages=int(self.page.total//self.page.pageSize)+1
+            self.page.pages = int(self.page.total // self.page.pageSize) + 1
             self.page.searchText = searchText
             self.thumbnailCtrl.ShowBook(books)
             
     def updatePangnation(self): 
         pageNumbers = [f'{1+pageNum}' for pageNum in range(self.page.pages)] 
-        self.pageNumbersCountText.SetLabel( f"/{len(pageNumbers)}")
+        self.pageNumbersCountText.SetLabel(f"/{len(pageNumbers)}")
         self.pageNumberCtrl.Set(pageNumbers)
         self.pageNumberCtrl.SetSelection(0)
 
@@ -288,11 +288,15 @@ class FileDropTarget(wx.FileDropTarget):
         # append a list of the file names dropped
         logger.debug (f"{len(filenames)} file(s) dropped at {x}, {y}:\n")
         # TODO : need to implement threading
+        addBook = AddBook(libraryPath=self.libraryPath)
+        maxBookID = addBook.getMaxBookID()
         for file in filenames:
             self.selectedFilePath = file
             logger.debug ('file: %s' , file)
             if file:
-                AddBook(libraryPath=self.libraryPath).addingBookToWorkspace(file)
+                addBook = AddBook(libraryPath=self.libraryPath)
+                addBook.addingBookToWorkspace(file, maxBookID)
+            maxBookID = maxBookID + 1
         logger.debug('drop book completed.')
         return True
 #         text = self.obj.searchCtrlPanel.searchCtrl.GetValue()

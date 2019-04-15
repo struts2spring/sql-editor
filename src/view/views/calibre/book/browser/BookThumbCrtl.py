@@ -120,7 +120,7 @@ import wx
 import os
 import time
 import zlib
-
+from wx.lib.pubsub import pub
 import six
 from math import pi
 from src.view.constants import bookMenuRightClickList, ID_DOWNLOAD_METADATA, \
@@ -1083,6 +1083,7 @@ class ScrolledThumbnail(wx.ScrolledWindow):
     def __init__(self, parent, id=wx.ID_ANY, pos=wx.DefaultPosition,
                  size=wx.DefaultSize, thumboutline=THUMB_OUTLINE_IMAGE,
                  thumbfilter=THUMB_FILTER_IMAGES, imagehandler=PILImageHandler):
+        pub.subscribe(self.deleteBook, 'ID_REMOVE_BOOK')
         """
         Default class constructor.
 
@@ -2303,10 +2304,11 @@ class ScrolledThumbnail(wx.ScrolledWindow):
             except Exception as e :
                 logger.error(e, exc_info=True)
                 logger.error('selectedBookIndex: %s, len: %s', selectedBookIndex, len(self._items))
-#         logger.debug(deleteBooks)
-        self.updateStatusBar(text=f'{len(deleteBooks)} books deleted')
-        self.GetParent().GetParent().loadingBook()
-        self.GetParent().GetParent().updatePangnation()
+#         logger.debug(.0deleteBooks)
+        if len(deleteBooks) > 0:
+            self.updateStatusBar(text=f'{len(deleteBooks)} books deleted')
+            self.GetParent().GetParent().loadingBook()
+            self.GetParent().GetParent().updatePangnation()
 
     def showBookProperties(self, event):
         logger.debug("showBookProperties \n")
@@ -2647,9 +2649,10 @@ class ScrolledThumbnail(wx.ScrolledWindow):
             
         if self.GetSelection() != -1:
             try:
-                book = self.GetItem(self.GetSelection()).book
-                text = f"{len(self._selectedarray)} books selected.| last selected: {book.bookName}" 
-                self.updateStatusBar(text=text)
+                if len(self._selectedarray) > 0:
+                    book = self.GetItem(self.GetSelection()).book
+                    text = f"{len(self._selectedarray)} books selected.| last selected: {book.bookName}" 
+                    self.updateStatusBar(text=text)
             except Exception as e:
                 logger.error(e)
 

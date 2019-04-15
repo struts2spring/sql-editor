@@ -375,6 +375,7 @@ class EclipseAuiToolbar(aui.AuiToolBar):
 
         # figure out the dropdown button state (are we hovering or pressing it?)
         self.RefreshOverflowState()
+        self.Realize()
 
 
 class MyAuiManager(aui.AuiManager):
@@ -869,7 +870,7 @@ class PerspectiveManager(object):
             self.openPanel(name="consoleOutput", imageName="console_view.png", captionName="Console", tabDirection=3)
             self.openPanel(name="javaPackageExplorer", imageName="package_explorer.png", captionName="Java Package Explorer", tabDirection=4)
         elif self.selectedPerspectiveName == 'calibre':
-            self.openPanel(name="bookBrowser", imageName="console_view.png", captionName="Book Browser", tabDirection=5)
+            self.openPanel(name="bookBrowser", imageName="library-16.png", captionName="Book Browser", tabDirection=5)
             self.openPanel(name="bookExplorer", imageName="package_explorer.png", captionName="Book Explorer", tabDirection=4)
 
 #         else:
@@ -1000,7 +1001,7 @@ class PerspectiveManager(object):
             (ID_ADD_BOOK, "Add Book", "add_book_16.png", 'Add Book', lambda e: self.onCalibre(e), True, ['calibre'], True, wx.ITEM_NORMAL),
             (ID_EDIT_BOOK_METADATA, "Edit Book metadata", "edit_book_16.png", 'Edit Book metadata', lambda e: self.onCalibre(e), True, ['calibre'], True, wx.ITEM_NORMAL),
             (ID_CONVERT_BOOK, "Convert Book", "txn_config.png", 'Convert Book', lambda e: self.onCalibre(e), False, ['calibre'], True, wx.ITEM_NORMAL),
-            (ID_REMOVE_BOOK, "Remove Book", "remove_books_16.png", 'Remove Book', lambda e: self.onCalibre(e), False, ['calibre'], True, wx.ITEM_NORMAL),
+            (ID_REMOVE_BOOK, "Remove Book", "remove_books_16.png", 'Remove Book', lambda e: self.onCalibre(e), False, ['calibre'], True,wx.ITEM_NORMAL),
             (ID_GET_BOOK, "Get Book", "store_16.png", 'Get Book', lambda e: self.onCalibre(e), False, ['calibre'], True, wx.ITEM_NORMAL),
             (ID_CONNECT_SHARE_BOOK, "Connect Share", "connect_share_on_16.png", 'Connect Share', lambda e: self.onCalibre(e), False, ['calibre'], True, wx.ITEM_NORMAL),
             (ID_RELOAD_BOOK, "Reload Books", "resultset_refresh.png", 'Reload Books', lambda e: self.onCalibre(e), False, ['calibre'], True, wx.ITEM_NORMAL),
@@ -1016,6 +1017,9 @@ class PerspectiveManager(object):
                 else:
                     logger.debug(tool)
                     state = tool[7]
+                    if tool[8] == wx.ITEM_RADIO:
+                        toolItem = toobar.AddToggleTool(tool[0], self.fileOperations.getImageBitmap(imageName=tool[2]), wx.NullBitmap, toggle=True, short_help_string=tool[3])
+                        
                     if tool[8] == wx.ITEM_CHECK:
                         toolItem = toobar.AddToggleTool(tool[0], self.fileOperations.getImageBitmap(imageName=tool[2]), wx.NullBitmap, toggle=True, short_help_string=tool[3])
                         toolItem.__setattr__('toggle', False)
@@ -1042,7 +1046,11 @@ class PerspectiveManager(object):
         for tool in tools:
             if len(tool) != 0 and perspectiveName in tool[6]:
                 try:
-                    toobar._items.append(self.toolbarItems[tool[0]])
+                    if perspectiveName=='calibre':
+                        toobar._items.append(self.toolbarItems[tool[0]])
+                    else:
+                        
+                        toobar._items.append(self.toolbarItems[tool[0]])
                 except Exception as e:
                     logger.error(e)
                     logger.error(tool[0], tool)
@@ -1058,21 +1066,38 @@ class PerspectiveManager(object):
 
     def onCalibre(self, event):
 #         logger.debug(f'onCalibre {event.Id}')
+        viewToolbar = self._mgr.GetPane("viewToolbar").window
         if event.Id == ID_RELOAD_BOOK:
             logger.debug(f'ID_RELOAD_BOOK')
+            item=viewToolbar.FindTool(ID_RELOAD_BOOK)
+            item.SetState(aui.AUI_BUTTON_STATE_NORMAL)
             pub.sendMessage('reloadingDatabase', event=event)
         if event.Id == ID_ADD_BOOK:
             logger.debug(f'ID_ADD_BOOK')
+            item=viewToolbar.FindTool(ID_ADD_BOOK)
+            item.SetState(aui.AUI_BUTTON_STATE_NORMAL)
         if event.Id == ID_EDIT_BOOK_METADATA:
             logger.debug(f'ID_EDIT_BOOK_METADATA')
+            item=viewToolbar.FindTool(ID_EDIT_BOOK_METADATA)
+            item.SetState(aui.AUI_BUTTON_STATE_NORMAL)
         if event.Id == ID_CONVERT_BOOK:
             logger.debug(f'ID_CONVERT_BOOK')
+            item=viewToolbar.FindTool(ID_CONVERT_BOOK)
+            item.SetState(aui.AUI_BUTTON_STATE_NORMAL)
         if event.Id == ID_REMOVE_BOOK:
-            logger.debug(f'ID_REMOVE_BOOK')
+            logger.debug('ID_REMOVE_BOOK')
+            item=viewToolbar.FindTool(ID_REMOVE_BOOK)
+            item.SetState(aui.AUI_BUTTON_STATE_NORMAL)
+#             toolRemove.state =aui.AUI_BUTTON_STATE_NORMAL
+#             pub.sendMessage('ID_REMOVE_BOOK', event=ID_REMOVE_BOOK)
         if event.Id == ID_GET_BOOK:
             logger.debug(f'ID_GET_BOOK')
+            item=viewToolbar.FindTool(ID_GET_BOOK)
+            item.SetState(aui.AUI_BUTTON_STATE_NORMAL)
         if event.Id == ID_CONNECT_SHARE_BOOK:
             logger.debug(f'ID_CONNECT_SHARE_BOOK')
+        viewToolbar.Realize()
+        self._mgr.Update()
             
     def onOpenTerminal(self, event):
         logger.debug(f'onOpenTerminal {event.Id}')

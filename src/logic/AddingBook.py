@@ -43,11 +43,18 @@ class AddBook():
         self.book.uuid = str(uuid.uuid4())
         self.book.tag = None
         self.book.authors = list()
-        self.libraryPath=libraryPath
+        self.libraryPath = libraryPath
         self.createDatabase = CreateDatabase(libraryPath=libraryPath)
 
+    def getMaxBookID(self):
+        
+        maxBookId = self.createDatabase.getMaxBookID()
+        if maxBookId == None:
+            maxBookId = 0
+        return maxBookId
 
-    def addingBookToWorkspace(self, sourcePath=None):
+
+    def addingBookToWorkspace(self, sourcePath=None, maxBookId=None):
         '''
         This function will be creating a new dir. Get the max of id in Book table. Create the folder name with max of id plus one.
         @param sourcePath: This is the path of selected book.
@@ -60,10 +67,11 @@ class AddBook():
         '''
 
         if sourcePath:
-            maxBookId = self.createDatabase.getMaxBookID()
-            
-            if maxBookId == None:
-                maxBookId = 0
+#             if maxBookId:
+#                 maxBookId = self.createDatabase.getMaxBookID()
+#             
+#                 if maxBookId == None:
+#                     maxBookId = 0
 #             workspacePath = Workspace().libraryPath
             self.book.bookPath = os.path.join(self.libraryPath, str(maxBookId + 1))
 
@@ -213,7 +221,7 @@ class AddBook():
                 logger.debug('NumPages:%s', pdf_toread.getNumPages())
                 self.book.numberOfPages = pdf_toread.getNumPages()
                 #             value = pdf_info.subject
-                subject=None
+                subject = None
                 if pdf_info.subject and type(pdf_info.subject) == str:
                     # Ignore errors even if the string is not proper UTF-8 or has
                     # broken marker bytes.
