@@ -2293,7 +2293,6 @@ class ScrolledThumbnail(wx.ScrolledWindow):
             except Exception as e :
                 logger.error(e, exc_info=True)
                 logger.error('selectedBookIndex: %s, len: %s', selectedBookIndex, len(self._items))
-        logger.debug(deleteBooks)
 
     def showBookProperties(self, event):
         logger.debug("showBookProperties \n")
