@@ -2315,7 +2315,7 @@ class ScrolledThumbnail(wx.ScrolledWindow):
         logger.debug("showBookProperties \n")
         if self._selected != None:
             book = self._items[self._selected].book
-            frame = BookPropertyFrame(None,book)
+            frame = BookPropertyFrame(None, book)
 #             frame = BookPropertyFrame(None, book)
 
     def openFolderPath(self, event):
@@ -2613,8 +2613,25 @@ class ScrolledThumbnail(wx.ScrolledWindow):
             logger.debug('enter pressed')
             self.openBook(event)
 
+    def renameBook(self):
+        if len(self._selectedarray) == 1:
+            book = self.GetItem(self.GetSelection()).book
+            initialName = str(book.bookName)
+        dlg = wx.TextEntryDialog(self, f'Rename Book name { initialName}')
+        dlg.SetValue(initialName)
+
+        if dlg.ShowModal() == wx.ID_OK:
+            logger.info('You entered: %s\n', dlg.GetValue())
+            if dlg.GetValue() != initialName:
+                logger.debug("TODO logic for rename goes here.")
+#                     dbObjects = ManageSqliteDatabase(connectionName=connectionName , databaseAbsolutePath=databaseAbsolutePath).executeText(text) 
+        dlg.Destroy()
+
     def onKeyDown(self, event):
         logger.debug(f'onKeyDown{event.GetKeyCode()}')
+        if event.GetKeyCode() == 341:
+            logger.debug('F2 pressed, selected:%s, books: %d', self._selected, len(self.books))
+            self.renameBook()
         if event.GetKeyCode() == 316:
             logger.debug('right key pressed:%s,%d', self._selected, len(self.books))
             if self._selected < len(self.books) - 1:
