@@ -6,6 +6,7 @@ from src.view.util.FileOperationsUtil import FileOperations
 import logging.config
 from src.view.constants import LOG_SETTINGS
 from src.view.other.TreeData import TreeSearch, perferenceTreeList
+from src.view.preference.general.GeneralPanel import GeneralPreferencePanel
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -33,7 +34,7 @@ class PrefrencesTreePanel(wx.Panel):
         
         self.tree.Bind(wx.EVT_TREE_ITEM_EXPANDED, self.OnItemExpanded)
         self.tree.Bind(wx.EVT_TREE_ITEM_COLLAPSED, self.OnItemCollapsed)
-        self.tree.Bind(wx.EVT_TREE_SEL_CHANGED, self.OnSelChanged)
+        self.tree.Bind(wx.EVT_TREE_SEL_CHANGED, self.OnSelectionChanged)
         self.tree.Bind(wx.EVT_LEFT_DOWN, self.OnTreeLeftDown)
 #         self.tree.SelectItem(self.root)
         
@@ -72,11 +73,11 @@ class PrefrencesTreePanel(wx.Panel):
 
         wx.BeginBusyCursor()
         
-        for category, items in _treeList:
-            self.searchItems[category] = []
-            for childItem in items:
-#                 if SearchDemo(childItem, value):
-                self.searchItems[category].append(childItem)
+#         for category, items in _treeList:
+#             self.searchItems[category] = []
+#             for childItem in items:
+# #                 if SearchDemo(childItem, value):
+#                 self.searchItems[category].append(childItem)
 
         wx.EndBusyCursor()
         self.RecreateTree()   
@@ -158,7 +159,6 @@ class PrefrencesTreePanel(wx.Panel):
         self.tree.Thaw()
         self.searchItems = {}
 
-
     #---------------------------------------------
     def OnItemExpanded(self, event):
         item = event.GetItem()
@@ -177,15 +177,16 @@ class PrefrencesTreePanel(wx.Panel):
 
     #---------------------------------------------
     def OnTreeLeftDown(self, event):
+        logger.debug('OnTreeLeftDown')
         # reset the overview text if the tree item is clicked on again
         pt = event.GetPosition();
         item, flags = self.tree.HitTest(pt)
         if item and item == self.tree.GetSelection():
-            print(self.tree.GetItemText(item) + " Overview")
+            logger.debug(self.tree.GetItemText(item) + " Overview")
         event.Skip()
 
     #---------------------------------------------
-    def OnSelChanged(self, event):
+    def OnSelectionChanged(self, event):
 #         if self.dying or not self.loaded or self.skipLoad:
 #             return
 
@@ -194,36 +195,56 @@ class PrefrencesTreePanel(wx.Panel):
         item = event.GetItem()
         itemText = self.tree.GetItemText(item)
         logger.debug(itemText)
-        opalPreference = self.GetTopLevelParent()
-        if opalPreference:
-    #         rightPanel=opalPreference.rightPanelItem.GetParent()
-    #         opalPreference.rightPanelItem.Hide()
-    #         opalPreference.rightPanelItem.Hide()
-    #         opalPreference.rightPanelItem=opalPreference.getPreferencePanelObj(rightPanel,preferenceName=itemText)
-    #         opalPreference.rightPanelItem.Show(True)
-    #         opalPreference.rightPanelItem.Layout()
-            pnlChildren = list()
-            if hasattr(opalPreference, 'pnl'):
-                pnlChildren = opalPreference.pnl.GetChildren()
-            for pnl in pnlChildren:
-    #             print(pnl)
-                if pnl.GetName() == 'rightPanel':
-                    opalPreference = self.GetTopLevelParent()
-                    for child in pnl.GetChildren():
-#                         if 'preference' in child.name.lower():
-                        child.Hide()
-    #                     break
-    #                     child.opalPreference.getPreferencePanelObj(pnl,preferenceName=itemText)
-                    rightPanelItem = opalPreference.getPreferencePanelObj(pnl, preferenceName=itemText)
-                    opalPreference.addPanel(rightPanelItem)
-                    pnl.Layout()
-                    pnl.Refresh()
-                    pnl.Fit()
-            opalPreference.Layout()
-    #         print(opalPreference.GetChildrenCount())
-    #         opalPreference.GetChildrenCount().rightpanel.Refresh()
-            if hasattr(opalPreference, 'mgr'):
-                opalPreference.mgr.Update()
+        centerPane = self.GetTopLevelParent()._mgr.GetPane("center")
+        if centerPane:
+            logger.debug('centerPane')
+            rightPanelItem = None
+            avalialbe = False
+            for panel in centerPane.window.GetChildren():
+                logger.debug(f'{panel.GetId()}: {panel.GetName()} ')
+                if panel.GetName() == itemText:
+                    rightPanelItem = panel
+                    rightPanelItem.Show(show=True)
+                    avalialbe = True
+                else:
+                    panel.Hide()
+                    
+            if not avalialbe:
+                centerPane.window.addPanel(name=itemText)
+            centerPane.window.Layout()
+            centerPane.window.Refresh()
+            
+#             centerPane.window.Hide()
+#             centerPane.window=GeneralPreferencePanel(self, preferenceName="new name")
+#             centerPane.window.Show(show=True)
+#     #         rightPanel=preference.rightPanelItem.GetParent()
+#     #         preference.rightPanelItem.Hide()
+#     #         preference.rightPanelItem.Hide()
+#     #         preference.rightPanelItem=preference.getPreferencePanelObj(rightPanel,preferenceName=itemText)
+#     #         preference.rightPanelItem.Show(True)
+#     #         preference.rightPanelItem.Layout()
+#             pnlChildren = list()
+#             if hasattr(preference, 'pnl'):
+#                 pnlChildren = preference.pnl.GetChildren()
+#             for pnl in pnlChildren:
+#     #             print(pnl)
+#                 if pnl.GetName() == 'rightPanel':
+#                     preference = self.GetTopLevelParent()
+#                     for child in pnl.GetChildren():
+# #                         if 'preference' in child.name.lower():
+#                         child.Hide()
+#     #                     break
+#     #                     child.preference.getPreferencePanelObj(pnl,preferenceName=itemText)
+#                     rightPanelItem = preference.getPreferencePanelObj(pnl, preferenceName=itemText)
+#                     preference.addPanel(rightPanelItem)
+#                     pnl.Layout()
+#                     pnl.Refresh()
+#                     pnl.Fit()
+#             preference.Layout()
+#     #         print(preference.GetChildrenCount())
+#     #         preference.GetChildrenCount().rightpanel.Refresh()
+#             if hasattr(preference, '_mgr'):
+#                 preference.mgr.Update()
 
 
 #         self.UpdateNotebook(preferenceName=itemText)
@@ -272,7 +293,7 @@ class PrefrencesBaseTreePanel(ExpansionState, TreeCtrl):
         count = 0
         self.fileOperations = FileOperations()
         for imageName in ['preference.png', 'folder.png', 'folder_view.png', 'fileType_filter.png', 'usb.png', 'stop.png',
-                          'java.png', 'python_module.png', 'xml.png','folderType_filter.png']:
+                          'java.png', 'python_module.png', 'xml.png', 'folderType_filter.png']:
             self.ImageList.Add(self.fileOperations.getImageBitmap(imageName=imageName))
             self.iconsDictIndex[imageName] = count
             count += 1

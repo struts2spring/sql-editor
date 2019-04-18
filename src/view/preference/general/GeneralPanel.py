@@ -21,12 +21,12 @@ class Window(wx.App):
     def init_ui(self, preferenceName=None):
         self.mainWindow = wx.Frame(None)
         self.mainWindow.SetSize((800, 510))
-        panel = GeneralPreferencePanel(self.mainWindow, preferenceName=preferenceName)
+        panel = GeneralPreferencePanel(self.mainWindow, name=preferenceName)
 
         
 class GeneralPreferencePanel(wx.Panel):
 
-    def __init__(self, parent=None, *args, **kw):
+    def __init__(self, parent=None, name=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
         
@@ -44,7 +44,7 @@ class GeneralPreferencePanel(wx.Panel):
         bf = wx.Font(fs + 4, wx.SWISS, wx.NORMAL, wx.BOLD)
         nf = wx.Font(fs + 2, wx.SWISS, wx.NORMAL, wx.NORMAL)
 
-        self.header = wx.StaticText(self, -1, kw['preferenceName'])
+        self.header = wx.StaticText(self, -1, name)
         self.header.SetFont(bf)
         vBoxHeader.Add(self.header, 0, wx.ALL | wx.EXPAND, 5)
         vBoxHeader.Add(self.st, 0, wx.ALL | wx.EXPAND, 5)
@@ -96,7 +96,7 @@ class GeneralPreferencePanel(wx.Panel):
         vBox.Add(vBoxFooter, 1, wx.EXPAND | wx.ALL, 1)
 
         sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(vBox, 0, wx.EXPAND , 1)
+        sizer.Add(vBox, 1, wx.EXPAND , 1)
         self.SetSizer(sizer)
 
     def apply(self, event):

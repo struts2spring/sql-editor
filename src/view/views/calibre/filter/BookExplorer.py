@@ -170,7 +170,7 @@ class BookExplorerPanel(wx.Panel):
         item = event.GetItem()
         logger.debug("OnItemExpanded: %s" , self.tree.GetItemText(item))
         imageName = self.tree.GetItemData(item).imageName
-#         explandedImageName = 'eclipse_folder.png'
+#         explandedImageName = 'eclipse_open_folder.png'
         data = self.tree.GetItemData(item)
         if imageName == 'user.png':
             explandedImageName = 'folder_user.png'
@@ -274,7 +274,7 @@ class BookExplorerTreePanel(ExpansionState, TreeCtrl):
         self.iconsDictIndex = {}
         count = 0
         self.fileOperations = FileOperations()
-        imageIconsName= ['preference.png', 'folderType_filter.png', 'eclipse_folder.png', 'fileType_filter.png', 'usb.png', 'stop.png',
+        imageIconsName= ['preference.png', 'folderType_filter.png', 'eclipse_open_folder.png', 'fileType_filter.png', 'usb.png', 'stop.png',
                           'java.png', 'python_module.png', 'xml.png', "other_view.png", 'console_view.png', 'register_view.png',
                           'debug_view.png' , 'history_view.png', 'compare_view.png', 'breakpoint_view.png', 'watchlist_view.png',
                           'history_view.png', 'synch_synch.png', 'variable_view.png', 'internal_browser.png', 'reflog.png', 'staging.png',

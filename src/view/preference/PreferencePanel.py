@@ -1,18 +1,18 @@
 import wx
-from src.view.preference.CommandList import CommandKeyListCtrlPanel
+from src.view.preference.keys.CommandList import CommandKeyListCtrlPanel
 from src.view.preference.ApplyResetBtnPanel import ApplyResetButtonPanel
-
 
 import logging.config
 from src.view.constants import LOG_SETTINGS
-
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
 ####################################################################
 
+
 class UserPanel(wx.Panel):
+
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
@@ -61,9 +61,8 @@ class UserPanel(wx.Panel):
         '''
         Footer section
         '''
-        self.applyResetButtonPanel=ApplyResetButtonPanel(self)
+        self.applyResetButtonPanel = ApplyResetButtonPanel(self)
         vBoxFooter.Add(self.applyResetButtonPanel, 0, wx.EXPAND | wx.ALL, 1)
-        
         
         ####################################################################        
         vBoxBody.Add(hBox1, 0, wx.EXPAND | wx.ALL, 1)
@@ -81,6 +80,7 @@ class UserPanel(wx.Panel):
         
         self.Bind(wx.EVT_SPIN, self.OnSpin, self.spin)
         self.Bind(wx.EVT_CHECKBOX, self.EvtCheckBox, self.isPaginationCheckBox)
+
     def OnSpin(self, event):
         self.pageSizeText.SetValue(str(event.GetPosition()))
     
@@ -91,7 +91,9 @@ class UserPanel(wx.Panel):
         if cb.Is3State():
             logger.debug("\t3StateValue: %s\n" % cb.Get3StateValue())
 
+
 class SearchPanel(wx.Panel):
+
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
@@ -136,9 +138,8 @@ class SearchPanel(wx.Panel):
         '''
         Footer section
         '''
-        self.applyResetButtonPanel=ApplyResetButtonPanel(self)
+        self.applyResetButtonPanel = ApplyResetButtonPanel(self)
         vBoxFooter.Add(self.applyResetButtonPanel, 0, wx.EXPAND | wx.ALL, 1)
-        
         
         ####################################################################        
         
@@ -175,6 +176,7 @@ class SearchPanel(wx.Panel):
         
         self.Bind(wx.EVT_SPIN, self.OnSpin, self.spin)
         self.Bind(wx.EVT_CHECKBOX, self.EvtCheckBox, self.isPaginationCheckBox)
+
     def OnSpin(self, event):
         self.pageSizeText.SetValue(str(event.GetPosition()))
     
@@ -185,7 +187,9 @@ class SearchPanel(wx.Panel):
         if cb.Is3State():
             logger.debug("\t3StateValue: %s\n" % cb.Get3StateValue())
 
+
 class WorkspacePanel(wx.Panel):
+
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
@@ -249,9 +253,8 @@ class WorkspacePanel(wx.Panel):
         '''
         Footer section
         '''
-        self.applyResetButtonPanel=ApplyResetButtonPanel(self)
+        self.applyResetButtonPanel = ApplyResetButtonPanel(self)
         vBoxFooter.Add(self.applyResetButtonPanel, 0, wx.EXPAND | wx.ALL, 1)
-        
         
         ####################################################################        
         vBoxBody.Add(hBox1, 0, wx.EXPAND | wx.ALL, 1)
@@ -266,11 +269,11 @@ class WorkspacePanel(wx.Panel):
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(vBox, 0, wx.EXPAND , 1)
         self.SetSizer(sizer)
-        
 
 
 class KeysPanel(wx.Panel):
-    def __init__(self, parent=None, *args, **kw):
+
+    def __init__(self, parent=None, name='', *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
         
@@ -287,7 +290,7 @@ class KeysPanel(wx.Panel):
         bf = wx.Font(fs + 4, wx.SWISS, wx.NORMAL, wx.BOLD)
         nf = wx.Font(fs + 2, wx.SWISS, wx.NORMAL, wx.NORMAL)
 
-        self.header = wx.StaticText(self, -1, kw['preferenceName'])
+        self.header = wx.StaticText(self, -1, name)
         self.header.SetFont(bf)
         vBoxHeader.Add(self.header, 0, wx.ALL | wx.EXPAND, 5)
         vBoxHeader.Add(self.st, 0, wx.ALL | wx.EXPAND, 5)
@@ -300,9 +303,8 @@ class KeysPanel(wx.Panel):
         '''
         Footer section
         '''
-        self.applyResetButtonPanel=ApplyResetButtonPanel(self)
+        self.applyResetButtonPanel = ApplyResetButtonPanel(self)
         vBoxFooter.Add(self.applyResetButtonPanel, 0, wx.EXPAND | wx.ALL, 1)
-        
         
         ####################################################################
         vBox.Add(vBoxHeader, 1, wx.EXPAND | wx.ALL, 1)
@@ -312,6 +314,7 @@ class KeysPanel(wx.Panel):
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(vBox, 0, wx.EXPAND , 1)
         self.SetSizer(sizer)
+
             # When the user selects something, we go here.
     def EvtComboBox(self, evt):
         cb = evt.GetEventObject()
@@ -321,8 +324,10 @@ class KeysPanel(wx.Panel):
         if evt.GetString() == 'one':
             logger.debug("You follow directions well!\n\n")
 
+
 class PreferencePanel(wx.Panel):
-    def __init__(self, parent=None, *args, **kw):
+
+    def __init__(self, parent=None, name='', *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
         
@@ -340,7 +345,7 @@ class PreferencePanel(wx.Panel):
         bf = wx.Font(fs + 4, wx.SWISS, wx.NORMAL, wx.BOLD)
         nf = wx.Font(fs + 2, wx.SWISS, wx.NORMAL, wx.NORMAL)
 
-        self.header = wx.StaticText(self, -1, kw['preferenceName'])
+        self.header = wx.StaticText(self, -1, name)
         self.header.SetFont(bf)
         vBoxHeader.Add(self.header, 0, wx.ALL | wx.EXPAND, 5)
         vBoxHeader.Add(self.st, 0, wx.ALL | wx.EXPAND, 5)
@@ -357,7 +362,6 @@ class PreferencePanel(wx.Panel):
         
 #         numberOfPagesLabel = wx.StaticText(self, -1, "Number of pages:") 
 #         numberOfPages = wx.TextCtrl(self, -1, "", size=(70, -1));
-        
         
         hBox1 = wx.BoxSizer(wx.HORIZONTAL)
 #         hBox1.Add(bookNameLabel, 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
@@ -380,9 +384,8 @@ class PreferencePanel(wx.Panel):
         '''
         Footer section
         '''
-        self.applyResetButtonPanel=ApplyResetButtonPanel(self)
+        self.applyResetButtonPanel = ApplyResetButtonPanel(self)
         vBoxFooter.Add(self.applyResetButtonPanel, 0, wx.EXPAND | wx.ALL, 1)
-        
         
         ####################################################################        
         vBoxBody.Add(hBox1, 0, wx.EXPAND | wx.ALL, 1)
@@ -397,6 +400,7 @@ class PreferencePanel(wx.Panel):
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(vBox, 0, wx.EXPAND , 1)
         self.SetSizer(sizer)
+
 
 if __name__ == '__main__':
     app = wx.App(False)

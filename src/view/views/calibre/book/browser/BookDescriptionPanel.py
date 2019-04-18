@@ -483,7 +483,7 @@ class RichTextPanel(wx.Panel):
 
         self.fileOperations = FileOperations()
         tbar = wx.ToolBar(self, style=wx.TB_FLAT)
-        doBind(tbar.AddTool(-1, "Open", self.fileOperations.getImageBitmap(imageName='eclipse_folder.png'), "Open"), self.OnFileOpen)
+        doBind(tbar.AddTool(-1, "Open", self.fileOperations.getImageBitmap(imageName='eclipse_open_folder.png'), "Open"), self.OnFileOpen)
         doBind(tbar.AddTool(-1, "Save", self.fileOperations.getImageBitmap(imageName='save.png'), "Save"), self.OnFileSave)
         tbar.AddSeparator()
         doBind(tbar.AddTool(wx.ID_CUT, "Cut", self.fileOperations.getImageBitmap(imageName='cut_edit.png')), self.ForwardEvent, self.ForwardEvent)

@@ -8,7 +8,7 @@ from src.view.connection.NewConnectionWizard import CreateNewConncetionWixard
 from src.view.constants import *
 
 from src.view.openConnection.OpenExistingConnection import OpenExistingConnectionFrame
-from src.view.preference.Preferences import OpalPreference
+from src.view.preference.layout.Preferences import Preference
 from src.view.util.FileOperationsUtil import FileOperations
 
 from src.view.perspective import PerspectiveManager
@@ -816,7 +816,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
     def onPreferences(self, event):
         logger.debug('onPreferences')
-        frame1 = OpalPreference(None, "Preferences", size=(600, 560))
+        frame1 = Preference(None, "Preferences", size=(700, 500))
 
     def onHideToolbar(self, event):
         logger.debug('onHideStatusbar')
