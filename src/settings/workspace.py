@@ -6,8 +6,7 @@ Created on Feb 26, 2019
 import json
 from datetime import date
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
-
-
+import os
 
 
 class Project():
@@ -21,6 +20,9 @@ class Project():
 
     def addNature(self, nature=None):
         self.natures.append(nature)
+
+    def getProjectPath(self):
+        return os.path.join(self.basePath, self.projectDirName)
 
     def __repr__(self):
         return f'{{basePath:{self.basePath},projectName:{self.projectName},projectDirName:{self.projectDirName}}}'
@@ -81,19 +83,19 @@ class Setting():
         self.showWorkspaceSelectionDialog = self.showWorkspaceSelection()
 
     def getActiveWorkspace(self):
-        workspce = None
+        activeWorkspce = None
         for workspce in self.workspaces:
             if workspce.active:
-                workspce = workspce
+                activeWorkspce = workspce
                 break
-        return workspce
+        return activeWorkspce
 
     def loadSettings(self):
         workspace = Workspace(workspacePath=r'C:\Users\xbbntni\eclipse-workspace')
         project = Project(basePath=r'/docs/work/python_project', projectDirName='sql_editor')
         project.addNature(nature='python')
         workspace.addProject(project)
-        project = Project(basePath=r'c:\1', projectDirName='sql_editor')
+        project = Project(basePath=r'C:\work\python_project', projectDirName='sql-editor')
         project.addNature(nature='python')
         workspace.addProject(project)
 
@@ -122,6 +124,7 @@ class Setting():
 
     def __repr__(self):
         return f'Setting:{{workspaces:{self.workspaces},maxWorkspace:{self.maxWorkspace},showWorkspaceSelectionDialog:{self.showWorkspaceSelectionDialog},activeWorkspace :{self.activeWorkspace}}}'
+
 
 def convert_to_dict(obj):
     """
@@ -161,7 +164,7 @@ def dict_to_obj(our_dict):
         
         # We use the built in __import__ function since the module name is not yet known at runtime
         module = __import__(module_name)
-        obj=None
+        obj = None
         try:
             # Get the class from the module
             class_ = getattr(module, class_name)
@@ -170,10 +173,10 @@ def dict_to_obj(our_dict):
         except Exception as e:
             print(e)
         
-        
     else:
         obj = our_dict
     return obj
+
 
 class SaveSetting():
     

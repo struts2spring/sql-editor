@@ -17,7 +17,7 @@ from src.view.constants import LOG_SETTINGS, ID_JAVA_EE_PERSPECTIVE, \
     
 from src.view.views.editor.EditorManager import EditorWindowManager
 import os
-
+from src.settings.workspace import Setting
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -45,161 +45,6 @@ perspectiveList = [
         [wx.NewIdRef(), "XML", 'xml_perspective.png', None],
     ]
 
-_treeList1 = [
-    ("General", [
-        ("Appearance", [
-                ("Colors and Fonts"),
-                ("Label Decorations")
-            ]
-        ),
-        ("Capabilities"),
-        ("Compare/Patch"),
-        ("Content Types"),
-        ("Editors", [
-            ("Autosave"),
-            ("File Associations"),
-            ("Structured Text Editors"),
-            ]
-        ),
-        ("Error Reporting"),
-        ("Globalization"),
-        ("Keys"),
-        ("Network Connections", [
-            ("Cache"),
-            ("SSH2")
-            ]
-         )
-        ]
-    ),
-    ("Ant", [
-        ("Editor", [
-                ("Colors and Fonts"),
-                ("Label Decorations")
-            ]
-        ),
-        ("Runtime")
-        ]
-    ),
-    ("Cloud Foundry", [
-        ("HTTP Tracing")
-        ]
-    ), ("Code Recommenders", [
-        ("Advisors"),
-        ("Completions", [
-            ("Calls"),
-            ("Chains"),
-            ("Constructors"),
-            ("Overrides"),
-            ("Statics"),
-            ("Subwords"),
-            ]),
-        ("Models"),
-        ]
-    ),
-    ("Data Management", [
-        ("Connectivity", [
-            ("Database Connection Profile"),
-            ("Driver Definitions"),
-            ("Open Data Access", [
-                ("XML Data Set")
-                ]),
-            ]),
-        ("Label Decorations"),
-        ("SQL Development", [
-            ("Execution Plan View Options"),
-            ("General"),
-            ("Schema Object Editor Configuration"),
-            ("SQL Editor", [
-                ("Code Assist"),
-                ("SQL Files/Scrapbooks"),
-                ("Syntax Coloring"),
-                ("Templates"),
-                ]),
-            ]),
-        ]
-    ),
-    ("Gradle"),
-    ("Help", [("Content")]),
-    (
-     "Install/Update", [
-            ('Automatic Updates'),
-            ('Available plugins')
-        ]
-     ),
-    ("Java", [("Appearance", [("Members Sort Order"), ("Type Filters")]),
-             ("Build Path", [("Classpath Variables"), ("User Liberaries")]),
-             ("Code Coverage"),
-             ("Code Style", [("Clean Up"), ("Code Templates"), ("Formatter"), ("Organize Imports")]),
-             ("Compiler", [("Building"), ("Errors/Warning"), ("Javadoc"), ("Task Tags")]),
-             ("Debug", [("Detail Formatters"), ("Heap Walking"), ("Logical Structures"), ("Premitive Display Options"), ("Step Filtering")]),
-             ("Editor", [("Content Assist"), ("Folding"), ("Hovers"), ("Mark Occurrences"), ("Save Actions"), ("Syntax Coloring"), ("Templates"), ("Typing")]),
-             ("Installed JREs", [("Execution Environments")]),
-             ("JUnit"),
-             ("Properties Files Editor"),
-
-             ]),
-    ("Java EE"),
-    ("Java Persistence"),
-    ("JavaScript"),
-    ("JSON", [("JSON Catalog"), ("JSON Files", [("Editor", [("Content Assist"), ("Syntax Coloring"), ("Templates")]), ("Validation")])]),
-    ("Maven", [("Archetypes"), ("Discovery"), ("Errors/Warning"), ("Installations"), ("Java EE Integration"), ("Lifecycle Mappings"), ("Source Lookup"), ("Templates"), ("User Interface"), ("User Settings")]),
-    ("Python", [("Builders"),
-               ("Debug", [("Source Locator")]),
-               ("Editor", [("Auto Imports")]),
-               ("Code Analysis", [("PyLint")]),
-               ("Code Completion (ctx insensitive and common tokens)"),
-               ("Code Folding"), ("Code Style", [("Block Comments"), ("Code Formatter"), ("Docstrings"), ("File types"), ("Imports")]),
-               ("Editor caption/icon"), ("Hover"), ("Mark Occurrences"), ("Overview Ruler Minimap")
-               ]),
-    ("Remote Systems"),
-    ("Run/Debug"),
-    ("Server"),
-    ("Team", [("File Content"), ("Git", [
-        ("Committing"), ("Configuration"), ("Confirmation and Warning"), ("Date Format"), ("History"), ("Label Decorations"), ("Projects"), ("Staging View"), ("Synchronize"), ("Window Cache"),
-        ]),
-        ("Ignored Resources"), ("Models")
-    ]),
-    ("Terminal", [("Local Terminal")]),
-    ("Validation"),
-    ("Web", [
-        ("CSS Files", [("Editor", [("Content Assist"), ("Syntax Coloring"), ("Templates")])]),
-        ("HTML Files", [("Editor", [("Content Assist"), ("Syntax Coloring"), ("Templates"), ("Typing")]), ("Validation")]),
-        ("JavaServer Faces Tools", [("FacesConfig Editor"), ("Validation"), ("Views", [("JSP Tag Registry")])]),
-        ("JSP Files", [("Editor", [("Content Assist"), ("Syntax Coloring"), ("Templates")])]),
-
-    ]),
-    ("Web Services", [("Axis Emitter"), ("Axis2 Preferences")]),
-    ("XML"),
-]
-
-_treeList = [
-    # new stuff
-    (
-     'General', [
-        'Appearance',
-        'Search',
-        'Workspace',
-        'Keys'
-        ]
-     ),
-    (
-     'Sharing', [
-        'Email book',
-        'Open cloud',
-        'Configure device',
-        ]
-     ),
-    (
-     'Account', [
-        'Email book',
-        'Open cloud',
-        'Configure device',
-        ]
-     ),
-
-    ('Check out the samples dir too', []),
-
-]
 
 
 class ResourceFrame(wx.Frame):
@@ -350,6 +195,8 @@ class ResourcePanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
+        self.setting = Setting()
+        self.setting.loadSettings()
 #         self.fileOperations = FileOperations()
         self.connDict = dict()
         vBox = wx.BoxSizer(wx.VERTICAL)
@@ -413,9 +260,9 @@ class ResourcePanel(wx.Panel):
         wx.BeginBusyCursor()
         logger.debug(value)
         self.resourceSearchLogic.clearLastResult()
-        setting.activeWorkspace.projects
+        self.setting.getActiveWorkspace().projects
 
-        for project in setting.activeWorkspace.projects:
+        for project in self.setting.getActiveWorkspace().projects:
             self.searchResult = self.resourceSearchLogic.getFiles(basePath=project.basePath, projectDirName=project.projectDirName, searchText=value)
 
         self.resourceSearchResultListCtrl.loadData(self.searchResult)

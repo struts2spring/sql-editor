@@ -11,7 +11,7 @@ import wx
 # from src.view.table.CreateTable import CreateTableFrame
 import logging.config
 from src.view.constants import LOG_SETTINGS, ID_COLLAPSE_ALL, ID_LINK_WITH_EDITOR, \
-    ID_VIEW_MENU,  menuItemList, ID_EXPORT, ID_IMPORT, ID_NEW, \
+    ID_VIEW_MENU, menuItemList, ID_EXPORT, ID_IMPORT, ID_NEW, \
     ID_PROJECT_PROPERTIES, ID_CLOSE_PROJECT, ID_DELETE_PROJECT, ID_NEW_FILE, ID_NEW_FOLDER, \
     ID_RENAME, ID_REFRESH_TREE_ITEM, ID_PYTHON_RUN, ID_NEW_PYTHON_PROJECT
 from src.view.views.file.explorer._filetree import FileTree
@@ -32,6 +32,7 @@ from src.view.views.python.explorer.IconManager import PythonExplorerIconManager
 from src.view.views.editor.EditorManager import EditorWindowManager
 from src.view.other.new.python.project.NewProject import NewProjectFrame
 import shutil
+from src.settings.workspace import Setting
 
 try:
     from agw import aui
@@ -50,6 +51,8 @@ class PythonExplorerPanel(wx.Panel):
         wx.Panel.__init__(self, parent, -1)
         self.parent = parent
         sizer = wx.BoxSizer(wx.VERTICAL)
+        self.setting = Setting()
+        self.setting.loadSettings()
 #         self.title = title
         ####################################################################
         self.fileOperations = FileOperations()
@@ -118,6 +121,9 @@ class PythonExplorerTreePanel(FileTree):
     def __init__(self, parent, size=wx.DefaultSize):
         self.iconManager = PythonExplorerIconManager()
         super().__init__(parent)
+        self.setting = Setting()
+        self.setting.loadSettings()
+        
         self._mw = None
         self.isClosing = False
         self.syncTimer = wx.Timer(self)
@@ -134,10 +140,10 @@ class PythonExplorerTreePanel(FileTree):
     def initProjects(self):
         try:
 
-            for project in setting.activeWorkspace.projects:
+            for project in self.setting.getActiveWorkspace().projects:
                 self.AddWatchDirectory(project=project)
-        except:
-            pass
+        except Exception as e:
+            logger.error(e)
 
     def onDeleteKeyPress(self, event):
         logger.debug(f'onDeleteKeyPress:{self}')
@@ -202,9 +208,9 @@ class PythonExplorerTreePanel(FileTree):
         childNode = None
 
 #         dname = r"c:\1\sql_editor"
-        if project.projectPath not in self._watch:
+        if project.getProjectPath() not in self._watch:
 
-            self._watch.append(project.projectPath)
+            self._watch.append(project.getProjectPath())
             childNode = self.AppendFileNode(self.RootItem, project=project)
             return childNode
 
@@ -216,13 +222,13 @@ class PythonExplorerTreePanel(FileTree):
 
         """
         logger.debug('AppendFileNode')
-        img = self.DoGetFileImage(project.projectPath)
-        name = os.path.basename(project.projectPath)
+        img = self.DoGetFileImage(project.getProjectPath())
+        name = os.path.basename(project.getProjectPath())
         if not name:
-            name = project.projectPath
+            name = project.getProjectPath()
         child = self.AppendItem(item, name, img)
-        self.SetItemData(child, project.projectPath)
-        if os.path.isdir(project.projectPath):
+        self.SetItemData(child, project.getProjectPath())
+        if os.path.isdir(project.getProjectPath()):
             self.SetItemHasChildren(child, True)
         return child
 
@@ -590,9 +596,9 @@ class PythonExplorerTreePanel(FileTree):
         if event.Id == ID_DELETE_PROJECT:
             logger.debug('ID_DELETE_PROJECT')
             for node in self.GetSelections():
-                for project in setting.activeWorkspace.projects:
+                for project in self.setting.getActiveWorkspace().projects:
                     if project.projectDirName == self.GetItemText(node):
-                        setting.activeWorkspace.projects.remove(project)
+                        self.setting.getActiveWorkspace().projects.remove(project)
                 else:
                     path = self.GetPyData(node)
                     logger.info(f'deleting : {path} ')
