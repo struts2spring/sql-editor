@@ -43,7 +43,7 @@ except ImportError:  # if it's not there locally, try the wxPython lib.
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
-
+from src.dao.workspace.WorkspaceDao import getWorkspace
 
 class PythonExplorerPanel(wx.Panel):
 
@@ -51,8 +51,9 @@ class PythonExplorerPanel(wx.Panel):
         wx.Panel.__init__(self, parent, -1)
         self.parent = parent
         sizer = wx.BoxSizer(wx.VERTICAL)
-        self.setting = Setting()
-        self.setting.loadSettings()
+        workspace = getWorkspace()
+#         self.setting = Setting()
+#         self.setting.loadSettings()
 #         self.title = title
         ####################################################################
         self.fileOperations = FileOperations()
@@ -121,8 +122,9 @@ class PythonExplorerTreePanel(FileTree):
     def __init__(self, parent, size=wx.DefaultSize):
         self.iconManager = PythonExplorerIconManager()
         super().__init__(parent)
-        self.setting = Setting()
-        self.setting.loadSettings()
+#         self.setting = Setting()
+#         self.setting.loadSettings()
+        
         
         self._mw = None
         self.isClosing = False
@@ -139,8 +141,8 @@ class PythonExplorerTreePanel(FileTree):
 
     def initProjects(self):
         try:
-
-            for project in self.setting.getActiveWorkspace().projects:
+            workspace=getWorkspace()
+            for project in workspace.projects:
                 self.AddWatchDirectory(project=project)
         except Exception as e:
             logger.error(e)
@@ -213,7 +215,8 @@ class PythonExplorerTreePanel(FileTree):
             self._watch.append(project.getProjectPath())
             childNode = self.AppendFileNode(self.RootItem, project=project)
             return childNode
-
+    
+    
     def AppendFileNode(self, item, project=None):
         """Append a child node to the tree
         @param item: TreeItem parent node
