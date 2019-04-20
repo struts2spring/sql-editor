@@ -32,7 +32,8 @@ from src.view.views.python.explorer.IconManager import PythonExplorerIconManager
 from src.view.views.editor.EditorManager import EditorWindowManager
 from src.view.other.new.python.project.NewProject import NewProjectFrame
 import shutil
-from src.settings.workspace import Setting
+# from src.dao.workspace.WorksapaceDao import WorkspaceDatasource
+# from src.settings.workspace import Setting
 
 try:
     from agw import aui
@@ -43,7 +44,8 @@ except ImportError:  # if it's not there locally, try the wxPython lib.
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
-from src.dao.workspace.WorkspaceDao import getWorkspace
+from src.dao.workspace.WorkspaceDao import getWorkspace, WorkspaceDatasource
+
 
 class PythonExplorerPanel(wx.Panel):
 
@@ -125,7 +127,6 @@ class PythonExplorerTreePanel(FileTree):
 #         self.setting = Setting()
 #         self.setting.loadSettings()
         
-        
         self._mw = None
         self.isClosing = False
         self.syncTimer = wx.Timer(self)
@@ -141,7 +142,8 @@ class PythonExplorerTreePanel(FileTree):
 
     def initProjects(self):
         try:
-            workspace=getWorkspace()
+            datasource = WorkspaceDatasource()
+            workspace = datasource.findActiveWorkspace()
             for project in workspace.projects:
                 self.AddWatchDirectory(project=project)
         except Exception as e:
@@ -215,7 +217,6 @@ class PythonExplorerTreePanel(FileTree):
             self._watch.append(project.getProjectPath())
             childNode = self.AppendFileNode(self.RootItem, project=project)
             return childNode
-    
     
     def AppendFileNode(self, item, project=None):
         """Append a child node to the tree
@@ -302,7 +303,8 @@ class PythonExplorerTreePanel(FileTree):
 #         if d:
 #             self._monitor.RemoveDirectory(d)
         super().DoItemCollapsed(item)
-        self.SetItemImage(item, self.iconManager.GetImageIndex(d, False))
+        if d:
+            self.SetItemImage(item, self.iconManager.GetImageIndex(d, False))
 
     def ShouldDisplayFile(self, path):
         """Check if the given file should be displayed based on configuration
@@ -388,7 +390,8 @@ class PythonExplorerTreePanel(FileTree):
 #                 return
 
         # Update tree image
-        self.SetItemImage(item, self.iconManager.GetImageIndex(d, True))
+        if d:
+            self.SetItemImage(item, self.iconManager.GetImageIndex(d, True))
         del cursor
 
     def AppendFileNodes(self, item, paths):
@@ -599,17 +602,16 @@ class PythonExplorerTreePanel(FileTree):
         if event.Id == ID_DELETE_PROJECT:
             logger.debug('ID_DELETE_PROJECT')
             for node in self.GetSelections():
-                for project in self.setting.getActiveWorkspace().projects:
-                    if project.projectDirName == self.GetItemText(node):
-                        self.setting.getActiveWorkspace().projects.remove(project)
-                else:
-                    path = self.GetPyData(node)
-                    logger.info(f'deleting : {path} ')
+                logger.debug(f'going to delete: {self.GetItemText(node)}')
+                path = self.GetPyData(node)
+                logger.info(f'deleting : {path} ')
+                name = self.GetItemText(node)
+                if not self.removeProject(name, path, node):
                     if path is not None and os.path.isdir(path):
-                        logger.debug(f'shutil.rmtree({path})')
-                        shutil.rmtree(path)
-                    elif os.path.isfile(path):
-                        logger.debug(f'os.remove({path})')
+                        logger.debug(f'shutil.rmtree: {path}')
+#                             shutil.rmtree(path)
+                    elif path and os.path.isfile(path):
+                        logger.debug(f'os.remove:{path}')
                         os.remove(path)
                     self.Delete(node)
                 self.DoItemCollapsed(node)
@@ -632,6 +634,18 @@ class PythonExplorerTreePanel(FileTree):
 #             newFileframe = NewFileFrame(self, 'New Folder', selectedPath=file)
 #             newFileframe.CenterOnScreen()
 #             newFileframe.Show()
+
+    def removeProject(self, name, path, node):
+        isRemoveProject = False
+        for project in getWorkspace().projects:
+            
+            if project.name == name and project.getProjectPath() == path:
+                datasource = WorkspaceDatasource()
+                datasource.removeProject(projectName=name)
+                isRemoveProject = True
+                self.Delete(node)
+                break
+        return isRemoveProject
 
     def newFileFlow(self, title=None, file=None):
             newFileframe = NewFileFrame(self, title, selectedPath=file)

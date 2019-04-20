@@ -83,6 +83,7 @@ class PythonExplorerIconManager():
         @param path: file name or path
 
         """
+        logger.debug(f'path: {path}')
         imageName = 'fileType_filter.png'
         if not os.access(path, os.R_OK):
             imageName = 'stop.png'

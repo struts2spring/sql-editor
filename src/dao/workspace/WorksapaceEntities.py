@@ -19,10 +19,13 @@ class Project(Base):
     dirName = Column('dir_name', String)
     created_on = Column(DateTime, default=func.now())
     UniqueConstraint(basePath, name, dirName, name='project_unique')
+#     project_workspace_link_id = Column(Integer,
+#             ForeignKey('project_workspace_link.project_id', ondelete='CASCADE')
+#                 )
 
-#     books = relationship(
-#         Book,
-#         secondary='author_book_link', cascade="all"
+#     workspaces = relationship(
+#         Workspace,
+#         secondary='workspace_project_link', cascade="all"
 #     )
 
     def __init__(self, basePath, name, dirName):

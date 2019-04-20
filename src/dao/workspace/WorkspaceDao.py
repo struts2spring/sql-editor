@@ -24,6 +24,7 @@ import datetime
 # from src.static.SessionUtil import SingletonSession
 from os.path import expanduser
 import logging
+# from build.lib.src.view.util.FileOperationsUtil import data
 
 logger = logging.getLogger('extensive')
 
@@ -33,7 +34,7 @@ logger = logging.getLogger('extensive')
 #     
 
  
-class CreateDatabase():
+class WorkspaceDatasource():
 
     def __init__(self, databaseFileName='_opal.sqlite'):
         '''
@@ -107,8 +108,26 @@ class CreateDatabase():
 
     def addProject(self, project):
         workspace = self.findActiveWorkspace()
-        workspace.projects.append(project)
+        if workspace:
+            workspace.projects.append(project)
+            self.saveEntity(workspace)
+        
+    def removeProject(self, projectName=''):
+        workspace = self.findActiveWorkspace()
+        project=None
+        for p in workspace.projects:
+            if p.name == projectName:
+                workspace.projects.remove(p)
+                project=p
+                self.session.delete(p)
+                break
         self.saveEntity(workspace)
+#         try:
+#             if project:
+#                 self.session.delete(project)
+#         except Exception as e:
+#             logger.error(e)
+        
         
     def findAllSetting(self):
         query = self.session.query(Setting)
@@ -126,19 +145,23 @@ class CreateDatabase():
 
         
 def getWorkspace():
-    datasource = CreateDatabase()
+    datasource = WorkspaceDatasource()
     return datasource.findActiveWorkspace()
 
         
 if __name__ == '__main__':
-    datasource = CreateDatabase()
+    datasource = WorkspaceDatasource()
+    datasource.recreateDatabase()
+    datasource.load()
+    datasource.addProject(Project(r'C:\work\python_project', r'Phoenix', r'Phoenix'))
+    datasource.addProject(Project(r'C:\work\python_project', r'TextEditor', r'TextEditor'))
+    datasource.removeProject('TextEditor')
 #     workspaces = datasource.findAllWorkspace()
 #     workspace = None
 #     for workspace in workspaces:
 #         print(workspace)
 #         workspace = workspace
-#     workspace.projects.append(Project(r'C:\work\python_project', r'Phoenix', r'Phoenix'))
-    datasource.addProject(Project(r'C:\work\python_project', r'Pydev', r'Pydev'))
+#     datasource.addProject(Project(r'C:\work\python_project', r'sql_editor', r'sql-editor'))
 #     workspaceSettingLink=workspace.workspace_setting_assoc[0]
 #     workspaceSettingLink.
     
