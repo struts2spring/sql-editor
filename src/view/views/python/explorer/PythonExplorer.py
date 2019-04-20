@@ -227,9 +227,10 @@ class PythonExplorerTreePanel(FileTree):
         """
         logger.debug('AppendFileNode')
         img = self.DoGetFileImage(project.getProjectPath())
-        name = os.path.basename(project.getProjectPath())
-        if not name:
-            name = project.getProjectPath()
+        name=project.name
+#         name = os.path.basename(project.getProjectPath())
+#         if not name:
+#             name = project.getProjectPath()
         child = self.AppendItem(item, name, img)
         self.SetItemData(child, project.getProjectPath())
         if os.path.isdir(project.getProjectPath()):
@@ -640,10 +641,10 @@ class PythonExplorerTreePanel(FileTree):
         for project in getWorkspace().projects:
             
             if project.name == name and project.getProjectPath() == path:
+                self.Delete(node)
                 datasource = WorkspaceDatasource()
                 datasource.removeProject(projectName=name)
                 isRemoveProject = True
-                self.Delete(node)
                 break
         return isRemoveProject
 

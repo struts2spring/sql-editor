@@ -53,19 +53,23 @@ class WorkspaceDatasource():
         self.session = Session()
         
         os.makedirs(home, exist_ok=True)
+        self.recreateDatabase()
 #         Base.metadata.create_all(self.engine)
-        if not isDatabaseExist:
-#             os.mkdir(libraryPath)
-            self.creatingDatabase()
+#         if not isDatabaseExist:
+# #             os.mkdir(libraryPath)
+#             self.creatingDatabase()
         os.chdir(home)
 
     def recreateDatabase(self):
         logger.debug('recreateDatabase')
         os.chdir(self.home)
-        Base.metadata.drop_all(self.engine)
-        Base.metadata.create_all(self.engine)
-        logger.debug('database created blank')
-
+        try:
+            if not self.engine.dialect.has_table(self.engine, 'workspace'):
+                Base.metadata.drop_all(self.engine)
+                Base.metadata.create_all(self.engine)
+                logger.debug('database created blank')
+        except Exception as e:
+            logger.error(e)
     def saveEntity(self, entity):
         self.session.add(entity)
         try:
@@ -99,7 +103,11 @@ class WorkspaceDatasource():
         datasource.saveEntity(workspaceSetting)
 
     def findActiveWorkspace(self):
-        workspace = self.session.query(Workspace).filter_by(active=True).first()
+        workspace=None
+        try:
+            workspace = self.session.query(Workspace).filter_by(active=True).first()
+        except Exception as e:
+            logger.error(e)
         return workspace
     
     def findAllProject(self):
@@ -151,11 +159,11 @@ def getWorkspace():
         
 if __name__ == '__main__':
     datasource = WorkspaceDatasource()
-    datasource.recreateDatabase()
-    datasource.load()
-    datasource.addProject(Project(r'C:\work\python_project', r'Phoenix', r'Phoenix'))
-    datasource.addProject(Project(r'C:\work\python_project', r'TextEditor', r'TextEditor'))
-    datasource.removeProject('TextEditor')
+#     datasource.recreateDatabase()
+#     datasource.load()
+#     datasource.addProject(Project(r'C:\work\python_project', r'Phoenix', r'Phoenix'))
+#     datasource.addProject(Project(r'C:\work\python_project', r'TextEditor', r'TextEditor'))
+#     datasource.removeProject('TextEditor')
 #     workspaces = datasource.findAllWorkspace()
 #     workspace = None
 #     for workspace in workspaces:
