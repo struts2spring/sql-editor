@@ -54,7 +54,7 @@ class MainFrame(wx.Frame):
         
         tb1 = wx.ToolBar(self, -1, wx.DefaultPosition, wx.DefaultSize, wx.TB_FLAT | wx.TB_NODIVIDER)
         tb1.SetToolBitmapSize(wx.Size(24, 24))
-        tb1.AddLabelTool(ID_search, "Search", wx.ArtProvider_GetBitmap(wx.ART_FIND))
+        tb1.AddLabelTool(ID_search, "Search", wx.ArtProvider.GetBitmap(wx.ART_FIND))
         self.Bind(wx.EVT_MENU, self.onSearch, id=ID_search)
         
         tb1.AddSeparator()
@@ -89,13 +89,13 @@ class MainFrame(wx.Frame):
                 self.browser.SetStandardFonts()
         return self.browser     
     def OnClose(self, event):
-        print 'OnClose'
+        print('OnClose')
         self._mgr.UnInit()
         del self._mgr
         self.Destroy()
 
     def onSearch(self, event):
-        print 'onSearch'
+        print('onSearch')
         
     def OnSize(self, event):
         event.Skip()
@@ -104,7 +104,7 @@ class MainFrame(wx.Frame):
         
     def OnPaneClose(self, event):
         caption = event.GetPane().caption
-        print caption
+        print( caption)
 
         if caption in ["Tree Pane", "Dock Manager Settings", "Fixed Pane"]:
             msg = "Are You Sure You Want To Close This Pane?"

@@ -13,8 +13,8 @@ class EpubWorker():
     def get_epub_content_soup(self, _ePub):
         try:
             the_container = _ePub.read('META-INF/container.xml')
-        except AttributeError, e:
-            print 'Error encountered: %s' % e
+        except AttributeError as e:
+            print('Error encountered: %s' % e)
             return
     
         cSoup = BS(the_container)
@@ -22,8 +22,8 @@ class EpubWorker():
     
         try:
             the_content = rootfile.attrs['full-path']
-        except KeyError, e:
-            print 'Error encountered: Key %s does not exist!' % e
+        except KeyError as e:
+            print('Error encountered: Key %s does not exist!' % e)
             return
     
         try:
@@ -79,7 +79,7 @@ class EpubWorker():
                     content = BS(_ePub.read(item))
                     return content
         except:
-            print 'Received an error from the "get_epub_section" function.'
+            print('Received an error from the "get_epub_section" function.')
             return
     
     def preprocess_image(self, _ePub, image):

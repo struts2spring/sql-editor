@@ -287,7 +287,7 @@ class StyleEditorBox(ed_basewin.EdBaseCtrlBox):
             if not os.path.exists(user_config):
                 try:
                     os.mkdir(user_config)
-                except (OSError, IOError), msg:
+                except (OSError, IOError) as msg:
                     util.Log("[style_editor][err] %s" % msg)
                 else:
                     ed_glob.CONFIG['STYLES_DIR'] = user_config
@@ -342,7 +342,7 @@ class StyleEditorBox(ed_basewin.EdBaseCtrlBox):
             writer = util.GetFileWriter(path)
             writer.write(self.Window.GenerateStyleSheet())
             writer.close()
-        except (AttributeError, IOError), msg:
+        except (AttributeError, IOError) as msg:
             util.Log('[style_editor][err] Failed to export style sheet')
             util.Log('[style_editor][err] %s' % msg)
             bOk = False
@@ -371,7 +371,7 @@ class StyleEditorBox(ed_basewin.EdBaseCtrlBox):
             path = self.GetStyleSheetPath(self.StyleTheme)
             try:
                 os.remove(path)
-            except OSError, msg:
+            except OSError as msg:
                 wx.MessageBox(_("Failed to delete style sheet:\nError:\n%s") % msg,
                               style=wx.OK|wx.CENTER|wx.ICON_ERROR)
             else:

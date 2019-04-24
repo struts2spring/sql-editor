@@ -204,4 +204,4 @@ if __name__=='__main__':
     for index, token, txt in lexer.get_tokens_unprocessed(text):
         if token is Token.EndOfLine:
             line += 1
-        print line, token, txt
+        print( line, token, txt)
