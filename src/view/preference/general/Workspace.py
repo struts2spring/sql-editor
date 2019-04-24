@@ -6,16 +6,10 @@ Created on 24-Apr-2019
 import wx
 from src.view.preference.ApplyResetBtnPanel import ApplyResetButtonPanel
 from src.dao.workspace.WorkspaceDao import WorkspaceDatasource
+from src.logic.WorkspaceUtil import WorkspaceHelper
 
 
-class WorkspaceHelper():
 
-    def __init__(self):
-        datasource = WorkspaceDatasource()
-        self.workspace = datasource.findActiveWorkspace()
-
-    def getWorkpacePath(self):
-        return self.workspace.workspacePath
 
 
 class WorkspacePanel(wx.Panel, WorkspaceHelper):
