@@ -70,6 +70,7 @@ class WorkspaceDatasource():
                 logger.debug('database created blank')
         except Exception as e:
             logger.error(e)
+
     def saveEntity(self, entity):
         self.session.add(entity)
         try:
@@ -93,7 +94,7 @@ class WorkspaceDatasource():
         return workspaces
 
     def load(self):
-        project = Project(r'C:\work\python_project', r'sql_editor', r'sql-editor')
+        project = Project(r'C:\work\python_project', r'sql_editor', r'sql-editor', True, 'python')
         workspace = Workspace(r'C:\work\python_project')
     #     workspace.projects=[project]
         setting = Setting('SHOW_RECENT_WORKS', 'user.home/workspace', 'RECENT_WORKSPACES')
@@ -103,7 +104,7 @@ class WorkspaceDatasource():
         datasource.saveEntity(workspaceSetting)
 
     def findActiveWorkspace(self):
-        workspace=None
+        workspace = None
         try:
             workspace = self.session.query(Workspace).filter_by(active=True).first()
         except Exception as e:
@@ -122,11 +123,11 @@ class WorkspaceDatasource():
         
     def removeProject(self, projectName=''):
         workspace = self.findActiveWorkspace()
-        project=None
+        project = None
         for p in workspace.projects:
             if p.name == projectName:
                 workspace.projects.remove(p)
-                project=p
+                project = p
                 self.session.delete(p)
                 break
         self.saveEntity(workspace)
@@ -135,7 +136,6 @@ class WorkspaceDatasource():
 #                 self.session.delete(project)
 #         except Exception as e:
 #             logger.error(e)
-        
         
     def findAllSetting(self):
         query = self.session.query(Setting)
@@ -160,7 +160,7 @@ def getWorkspace():
 if __name__ == '__main__':
     datasource = WorkspaceDatasource()
 #     datasource.recreateDatabase()
-#     datasource.load()
+    datasource.load()
 #     datasource.addProject(Project(r'C:\work\python_project', r'Phoenix', r'Phoenix'))
 #     datasource.addProject(Project(r'C:\work\python_project', r'TextEditor', r'TextEditor'))
 #     datasource.removeProject('TextEditor')

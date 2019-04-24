@@ -9,8 +9,6 @@ from src.view.util.FileOperationsUtil import FileOperations
 from src.view.util.common.eclutil import Freezer
 from src.view.util.osutil import GetWindowsDriveType, RemovableDrive, CDROMDrive
 from src.view.views.editor.EditorManager import EditorWindowManager
-from src.view.views.file.explorer._filetree import FileTree
-from wx import TreeCtrl
 import wx, os
 from wx.lib.pubsub import pub
 

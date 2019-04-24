@@ -2,6 +2,7 @@ import wx
 from src.view.preference.layout.PreferencesTree import PrefrencesTreePanel
 from src.view.util.FileOperationsUtil import FileOperations
 from src.view.preference.layout.ApplyCloseBtn import ApplyCloseButtonPanel
+from src.view.preference.general.Workspace import WorkspacePanel
 
 try:
     from agw import aui
@@ -100,7 +101,7 @@ from src.view.preference.general.GeneralPanel import GeneralPreferencePanel
 from src.view.preference.general.AppearancePanel import AppearancePreferencePanel
 from src.view.preference.calibre.CalibreGeneralPreference import CalibreGeneralPreferencePanel
 from src.view.preference.PreferencePanel import PreferencePanel, \
-    SearchPanel, WorkspacePanel, KeysPanel
+    SearchPanel, KeysPanel
 
 
 class RightPanel(wx.Panel):

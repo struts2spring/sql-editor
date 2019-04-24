@@ -17,6 +17,8 @@ class Project(Base):
     basePath = Column('base_path', String, nullable=False)
     name = Column('name', String)
     dirName = Column('dir_name', String)
+    status = Column('status', Boolean)  # defing is project open = True, if close status=False
+    nature = Column('nature', String)  # example of nature are java, python, javascript
     created_on = Column(DateTime, default=func.now())
     UniqueConstraint(basePath, name, dirName, name='project_unique')
 #     project_workspace_link_id = Column(Integer,
@@ -28,10 +30,12 @@ class Project(Base):
 #         secondary='workspace_project_link', cascade="all"
 #     )
 
-    def __init__(self, basePath, name, dirName):
+    def __init__(self, basePath, name, dirName, status, nature):
         self.basePath = basePath
         self.name = name
         self.dirName = dirName
+        self.status = status
+        self.nature = nature
 
     def getProjectPath(self):
         return os.path.join(self.basePath, self.dirName)
@@ -63,7 +67,9 @@ class Workspace(Base):
 
 
 class Setting(Base):
-    """A Setting class is an entity having database table."""
+    """A Setting class is an entity having database table.
+        here we are defining workspace setting for eclipse.
+    """
 
     __tablename__ = 'setting'
     id = Column(Integer, primary_key=True)

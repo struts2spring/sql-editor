@@ -183,9 +183,20 @@ perferenceTreeList = [
         [wx.NewIdRef(), "Error Reporting", 'fileType_filter.png', None, None],
         [wx.NewIdRef(), "Globalization", 'fileType_filter.png', None, None],
         [wx.NewIdRef(), "Keys", 'fileType_filter.png', None, None],
+        [wx.NewIdRef(), "Keys", 'fileType_filter.png', None, None],
         [wx.NewIdRef(), "Network Connections", 'folderType_filter.png', None, [
             [wx.NewIdRef(), "Cache", 'fileType_filter.png', None, None],
             [wx.NewIdRef(), "SSH2", 'fileType_filter.png', None, None],
+            ]
+         ],
+        [wx.NewIdRef(), "Startup and Shutdown", 'folderType_filter.png', None, [
+            [wx.NewIdRef(), "Workspaces", 'fileType_filter.png', None, None],
+            ]
+         ],
+        [wx.NewIdRef(), "Workspace", 'folderType_filter.png', None, [
+            [wx.NewIdRef(), "Build", 'fileType_filter.png', None, None],
+            [wx.NewIdRef(), "Linked Resource", 'fileType_filter.png', None, None],
+            [wx.NewIdRef(), "Local History", 'fileType_filter.png', None, None],
             ]
          ]
         ]
