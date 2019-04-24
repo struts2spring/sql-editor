@@ -13,6 +13,7 @@ import wx, os
 from wx.lib.pubsub import pub
 
 from src.view.other.imported.project.ImportProjectTree import ImportProjectTreePanel
+from src.view.other.imported.project.ImportBody import BodyPanel
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -86,32 +87,14 @@ class NewFilePanel(wx.Panel):
         self.headerPanel = HeaderPanel(self, title='Select', subTitle=subTitle, imageName='import_wiz.png')
         self.parentFolderText = selectedPath
         self.fileNameText = ''
-
-        selectImport = "Select an import wizard"
-#         self.filter = wx.SearchCtrl(self, style=wx.TE_PROCESS_ENTER)
-#         self.filter.SetDescriptiveText(selectImport)
-#         self.filter.ShowCancelButton(True)
-# #         self.filter.Bind(wx.EVT_TEXT, self.RecreateTree)
-#         self.filter.Bind(wx.EVT_SEARCHCTRL_CANCEL_BTN, lambda e: self.filter.SetValue(''))
-#         self.filter.Bind(wx.EVT_TEXT_ENTER, self.OnSearch)
-
-        selectImportLabel = wx.StaticText(self, -1, selectImport)
-#         self.parentFolderCtrl = wx.TextCtrl(self, -1, self.parentFolderText, size=(400, -1))
-
-#         fileLabel = ''
-#         if title == 'New File':
-#             fileLabel = "File name:"
-#         elif title == 'New Folder':
-#             fileLabel = "Folder name:"
-#         fileNameLabel = wx.StaticText(self, -1, fileLabel)
-#         self.fileNameCtrl = wx.TextCtrl(self, -1, self.fileNameText, size=(400, -1) , style=wx.TE_PROCESS_ENTER)
-#         self.fileNameCtrl.SetFocus()
-#         self.Bind(wx.EVT_TEXT , self.onEnteredText, self.fileNameCtrl)
-#         self.Bind(wx.EVT_TEXT_ENTER, self.onEnterButtonPressed, self.fileNameCtrl)
-
-        self.importProjectTreePanel = ImportProjectTreePanel(self)
+#         selectImport = "Select an import wizard"
+#         selectImportLabel = wx.StaticText(self, -1, selectImport)
+        self.bodyPanel =  BodyPanel(self, -1, wx.DefaultPosition)
+        self.bodyPanel.addPanel(name="ImportProjectTree")
+#         self.bodyPanel.importProjectTreePanel = ImportProjectTreePanel(self.bodyPanel)
         self.buttons = CreateButtonPanel(self)
         ####################################################################
+        line = wx.StaticLine(self, -1, size=(20, -1), style=wx.LI_HORIZONTAL)
 #         v1.Add(self.filter, 0, wx.ALL, 2)
 #         v1.Add(parentFolderLabel, 0, wx.ALL, 2)
 #         v1.Add(self.parentFolderCtrl, 0, wx.ALL, 2)
@@ -123,11 +106,12 @@ class NewFilePanel(wx.Panel):
         vBox1 = wx.BoxSizer(wx.VERTICAL)
         vBox1.Add(v1, 0, wx.EXPAND , 0)
         vBox.Add(self.headerPanel, 0, wx.EXPAND, 0)
-        vBox.Add(selectImportLabel, 0, wx.EXPAND | wx.LEFT | wx.RIGHT , 15, 15)
+#         vBox.Add(selectImportLabel, 0, wx.EXPAND | wx.LEFT | wx.RIGHT , 15, 15)
 #         vBox.Add(self.filter, 0, wx.EXPAND, 0)
         vBox.Add(vBox1, 0, wx.EXPAND, 0)
-        vBox.Add(self.importProjectTreePanel, 1, wx.EXPAND | wx.LEFT | wx.RIGHT, 15, 15)
+        vBox.Add(self.bodyPanel, 1, wx.EXPAND | wx.LEFT | wx.RIGHT, 15, 15)
 #         vBox.Add(h2, 0, wx.EXPAND , 0)
+        vBox.Add(line, 0, wx.EXPAND , 0)
         vBox.Add(self.buttons, 0, wx.EXPAND | wx.ALL , 15)
         self.SetSizer(vBox)
         self.SetAutoLayout(True)
@@ -173,11 +157,11 @@ class CreateButtonPanel(wx.Panel):
         hbox3 = wx.BoxSizer(wx.HORIZONTAL)
 
         self.nextButton = wx.Button(self, -1, "Next >")
-        self.Bind(wx.EVT_BUTTON, self.onCancelClicked, self.nextButton)
+        self.Bind(wx.EVT_BUTTON, self.onNextClicked, self.nextButton)
 #         self.nextButton.Disable()
 
         self.previousButton = wx.Button(self, -1, "< Back")
-        self.Bind(wx.EVT_BUTTON, self.onCancelClicked, self.previousButton)
+        self.Bind(wx.EVT_BUTTON, self.onPreviousClicked, self.previousButton)
         self.previousButton.Disable()
 
         self.cancelButton = wx.Button(self, -1, "Cancel")
@@ -201,6 +185,15 @@ class CreateButtonPanel(wx.Panel):
 #         sizer.Add(vBox, 1, wx.EXPAND , 0)
         self.SetAutoLayout(True)
         self.SetSizer(sizer)
+
+    def onNextClicked(self, event):
+        logger.debug('onNextClicked: ')
+        logger.info(self.GetParent().bodyPanel)
+        if self.GetParent().bodyPanel.selection == '':
+            logger.info(self.GetParent().importProjectTreePanel.selection)
+
+    def onPreviousClicked(self, event):
+        logger.debug('onPreviousClicked: ')
 
     def onCancelClicked(self, event):
         logger.debug('onCancelClicked: ')

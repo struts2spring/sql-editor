@@ -9,6 +9,7 @@ from src.view.other.TreeData import TreeSearch, importProjectDataList
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
+
 class ImportProjectTreePanel(wx.Panel):
 
     def __init__(self, parent=None, *args, **kw):
@@ -18,6 +19,10 @@ class ImportProjectTreePanel(wx.Panel):
         self.connDict = dict()
         vBox = wx.BoxSizer(wx.VERTICAL)
         ####################################################################
+        self.selection = ''
+        selectImport = "Select an import wizard"
+        selectImportLabel = wx.StaticText(self, -1, selectImport)
+        
         self.treeMap = {}
         self.tree = OtherViewBaseTreePanel(self)
 
@@ -42,6 +47,7 @@ class ImportProjectTreePanel(wx.Panel):
         self.filter.SetMenu(searchMenu)
         self.RecreateTree()
         ####################################################################
+        vBox.Add(selectImportLabel, 0, wx.EXPAND | wx.LEFT | wx.RIGHT , 15, 15)
         vBox.Add(self.filter , 0, wx.EXPAND | wx.ALL)
         vBox.Add(self.tree , 1, wx.EXPAND | wx.ALL)
         sizer = wx.BoxSizer(wx.VERTICAL)
@@ -284,53 +290,20 @@ class ImportProjectTreePanel(wx.Panel):
         pt = event.GetPosition();
         item, flags = self.tree.HitTest(pt)
         if item and item == self.tree.GetSelection():
-            print(self.tree.GetItemText(item) + " Overview")
+            logger.info(self.tree.GetItemText(item) + " Overview")
         event.Skip()
 
     #---------------------------------------------
     def OnSelChanged(self, event):
-#         if self.dying or not self.loaded or self.skipLoad:
-#             return
-
-#         self.StopDownload()
         try:
             item = event.GetItem()
             itemText = self.tree.GetItemText(item)
             logger.debug(itemText)
-            opalPreference = self.GetTopLevelParent()
-            if opalPreference:
-        #         rightPanel=opalPreference.rightPanelItem.GetParent()
-        #         opalPreference.rightPanelItem.Hide()
-        #         opalPreference.rightPanelItem.Hide()
-        #         opalPreference.rightPanelItem=opalPreference.getPreferencePanelObj(rightPanel,preferenceName=itemText)
-        #         opalPreference.rightPanelItem.Show(True)
-        #         opalPreference.rightPanelItem.Layout()
-                pnl_children = list()
-                if hasattr(opalPreference, 'png'):
-                    pnl_children = opalPreference.pnl.GetChildren()
-                for pnl in pnl_children:
-        #             print(pnl)
-                    if pnl.GetName() == 'rightPanel':
-                        opalPreference = self.GetTopLevelParent()
-                        for child in pnl.GetChildren():
-    #                         if 'preference' in child.name.lower():
-                            child.Hide()
-        #                     break
-        #                     child.opalPreference.getPreferencePanelObj(pnl,preferenceName=itemText)
-                        rightPanelItem = opalPreference.getPreferencePanelObj(pnl, preferenceName=itemText)
-                        opalPreference.addPanel(rightPanelItem)
-                        pnl.Layout()
-                        pnl.Refresh()
-                        pnl.Fit()
-                opalPreference.Layout()
-        #         print(opalPreference.GetChildrenCount())
-        #         opalPreference.GetChildrenCount().rightpanel.Refresh()
-                if hasattr(opalPreference, 'mgr'):
-                    opalPreference.mgr.Update()
-        except:
-            pass
+            self.selection = itemText
+        except Exception as e:
+            logger.error(e)
 
-#         self.UpdateNotebook(preferenceName=itemText)
+
 class OtherViewBaseTreePanel(ExpansionState, TreeCtrl):
     '''
     Left navigation tree in preferences page
@@ -375,14 +348,14 @@ class OtherViewBaseTreePanel(ExpansionState, TreeCtrl):
         self.iconsDictIndex = {}
         count = 0
         self.fileOperations = FileOperations()
-        imageNameSet=set()
+        imageNameSet = set()
         for data in importProjectDataList:
             for dx in data:
-                if type(dx)==type(list()):
+                if type(dx) == type(list()):
                     for d in dx:
                         imageNameSet.add(d[2])
             imageNameSet.add(data[2])
-        imageNameList=list(imageNameSet)
+        imageNameList = list(imageNameSet)
         
 #         for imageName in ['preference.png', 'folderType_filter.png', 'eclipse_open_folder.png', 'fileType_filter.png', 'usb.png', 'stop.png',
 #                           'java.png', 'python_module.png', 'xml.png', "other_view.png", 'console_view.png', 'register_view.png',
@@ -390,7 +363,7 @@ class OtherViewBaseTreePanel(ExpansionState, TreeCtrl):
 #                           'history_view.png', 'synch_synch.png', 'variable_view.png', 'internal_browser.png', 'reflog.png', 'staging.png',
 #                           'rebase_interactive.png', 'repo_rep.png', 'gitrepository.png','filenav_nav.png','welcome16.png','tasks_tsk.png',
 #                           'resource_persp.png','outline_co.png']:
-        imageNameList.extend(['other_view.png','eclipse_open_folder.png'])
+        imageNameList.extend(['other_view.png', 'eclipse_open_folder.png'])
         for imageName in imageNameList: 
             try:
                 self.ImageList.Add(self.fileOperations.getImageBitmap(imageName=imageName))
