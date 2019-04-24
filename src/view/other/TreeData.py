@@ -34,6 +34,42 @@ bookExplorerList = [
             ], ],
 
     ]
+
+importProjectDataList = [
+        [wx.NewIdRef(), "General", 'folderType_filter.png', None, [
+                [wx.NewIdRef(), "Archive File", 'fileType_filter.png', None, None],
+                [wx.NewIdRef(), "Existing Project into Workspace", 'console_view.png', None, None],
+                [wx.NewIdRef(), "File System", 'fileType_filter.png', None, None],
+                [wx.NewIdRef(), "Preferences", 'fileType_filter.png', None, None],
+                [wx.NewIdRef(), "Project From Folder or Archive", 'internal_browser.png', None, None],
+                [wx.NewIdRef(), "Working Sets", 'fileType_filter.png', None, None],
+            ],
+        ],
+        [wx.NewIdRef(), "Git", 'folderType_filter.png', None, [
+                [wx.NewIdRef(), "Project from git", 'breakpoint_view.png', None, None],
+            ],
+        ],
+        [wx.NewIdRef(), "Install", 'folderType_filter.png', None, [
+                [wx.NewIdRef(), "git interactive rebase", 'rebase_interactive.png', None, None],
+            ],
+        ],
+        [wx.NewIdRef(), "Run/Debug ", 'folderType_filter.png', None, [
+                [wx.NewIdRef(), "cheat sheets", 'fileType_filter.png', None, None],
+                [wx.NewIdRef(), "help", 'fileType_filter.png', None, None],
+            ],
+        ],
+        [wx.NewIdRef(), "Team", 'folderType_filter.png', None, [
+                [wx.NewIdRef(), "caugth exceptions", 'fileType_filter.png', None, None],
+            ],
+        ],
+        [wx.NewIdRef(), "Third party configuration", 'folderType_filter.png', None, [
+                [wx.NewIdRef(), "History", 'history_view.png', None, None],
+                [wx.NewIdRef(), "Syncheronize", 'synch_synch.png', None, None],
+            ]
+        ],
+      
+    ]
+
 viewdataList = [
         [wx.NewIdRef(), "Database", 'folderType_filter.png', None, [
                 [wx.NewIdRef(), "database browser", 'fileType_filter.png', None, None],
@@ -98,6 +134,11 @@ viewdataList = [
         [wx.NewIdRef(), "Team", 'folderType_filter.png', None, [
                 [wx.NewIdRef(), "History", 'history_view.png', None, None],
                 [wx.NewIdRef(), "Syncheronize", 'synch_synch.png', None, None],
+            ]
+        ],
+        [wx.NewIdRef(), "Calibre", 'folderType_filter.png', None, [
+                [wx.NewIdRef(), "Book Explorer", 'file_explorer.png', None, None],
+                [wx.NewIdRef(), "Book Browser", 'library-16.png', None, None],
             ]
         ]
     ]
@@ -223,10 +264,10 @@ perferenceTreeList = [
     [wx.NewIdRef(), "JSON", 'folderType_filter.png', None, [[wx.NewIdRef(), "JSON Catalog", 'fileType_filter.png', None, None], [wx.NewIdRef(), "JSON Files", 'folderType_filter.png', None, [[wx.NewIdRef(), "Editor", 'folderType_filter.png', None, [[wx.NewIdRef(), "Content Assist", 'fileType_filter.png', None, None], [wx.NewIdRef(), "Syntax Coloring", 'fileType_filter.png', None, None], [wx.NewIdRef(), "Templates", 'fileType_filter.png', None, None], ]], [wx.NewIdRef(), "Validation", 'fileType_filter.png', None, None], ]]]],
     [wx.NewIdRef(), "Maven", 'folderType_filter.png', None, [[wx.NewIdRef(), "Archetypes", 'fileType_filter.png', None, None], [wx.NewIdRef(), "Discovery", 'fileType_filter.png', None, None], [wx.NewIdRef(), "Errors/Warning", 'fileType_filter.png', None, None], [wx.NewIdRef(), "Installations", 'fileType_filter.png', None, None], [wx.NewIdRef(), "Java EE Integration", 'fileType_filter.png', None, None], [wx.NewIdRef(), "Lifecycle Mappings", 'fileType_filter.png', None, None], [wx.NewIdRef(), "Source Lookup", 'fileType_filter.png', None, None], [wx.NewIdRef(), "Templates", 'fileType_filter.png', None, None], [wx.NewIdRef(), "User Interface", 'fileType_filter.png', None, None], [wx.NewIdRef(), "User Settings", 'fileType_filter.png', None, None], ]],
     [wx.NewIdRef(), "Calibre", 'folderType_filter.png', None, [
-        [wx.NewIdRef(), "Interface", 'fileType_filter.png', None, None], 
-        [wx.NewIdRef(), "Conversion", 'fileType_filter.png', None, None], 
-        [wx.NewIdRef(), "Import/Export", 'fileType_filter.png', None, None], 
-        [wx.NewIdRef(), "Sharing", 'fileType_filter.png', None, None], 
+        [wx.NewIdRef(), "Interface", 'fileType_filter.png', None, None],
+        [wx.NewIdRef(), "Conversion", 'fileType_filter.png', None, None],
+        [wx.NewIdRef(), "Import/Export", 'fileType_filter.png', None, None],
+        [wx.NewIdRef(), "Sharing", 'fileType_filter.png', None, None],
 
         ]],
     
