@@ -11,6 +11,7 @@ from src.view.openConnection.OpenExistingConnection import OpenExistingConnectio
 from src.view.preference.layout.Preferences import Preference
 from src.view.util.FileOperationsUtil import FileOperations
 
+from src.view.other.select.workspace.SelectWorkspace import SelectWorkspaceFrame
 from src.view.perspective import PerspectiveManager
 from src.view.views.console.worksheet.WelcomePage import WelcomePanel
 from src.view.other.OtherView import OtherViewTreePanel, OtherViewTreeFrame
@@ -550,6 +551,15 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
             self.importFlow(title='Import Project', file=None)
         if event.Id == wx.ID_SELECTALL:
             logger.debug('wx.ID_SELECTALL')
+        if event.Id == ID_SWITCH_WORKSPACE:
+            logger.debug('ID_SWITCH_WORKSPACE')
+            frame = SelectWorkspaceFrame(None, 'Select Workspace',
+                             size=(550, 200),
+                             titleHead='Select a directory as a workspace',
+                             subTitle='Use the directory to store its preferences and development artifacts',
+                             )
+            frame.Show()
+        
 #             self.newFileFlow(title='New Folder', file=None)
   
     def importFlow(self, title=None, file=None):
