@@ -139,7 +139,7 @@ class BodyPanel(wx.Panel):
         preferencePanelObj = None
         if name == 'ImportProjectTree':
             preferencePanelObj = ImportProjectTreePanel(self, name=name)
-        elif name == 'Preferences':
+        elif name == 'Project From Folder Or Archive':
             preferencePanelObj = PreferencePanel(self, name=name)
         elif name == 'Appearance':
             preferencePanelObj = AppearancePreferencePanel(self, name=name)

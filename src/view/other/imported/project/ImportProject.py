@@ -89,7 +89,7 @@ class NewFilePanel(wx.Panel):
         self.fileNameText = ''
 #         selectImport = "Select an import wizard"
 #         selectImportLabel = wx.StaticText(self, -1, selectImport)
-        self.bodyPanel =  BodyPanel(self, -1, wx.DefaultPosition)
+        self.bodyPanel = BodyPanel(self, -1, wx.DefaultPosition)
         self.bodyPanel.addPanel(name="ImportProjectTree")
 #         self.bodyPanel.importProjectTreePanel = ImportProjectTreePanel(self.bodyPanel)
         self.buttons = CreateButtonPanel(self)
@@ -147,7 +147,9 @@ class CreateButtonPanel(wx.Panel):
     def __init__(self, parent=None, *args, **kw):
 
         wx.Panel.__init__(self, parent, id=-1)
-
+        
+        # stack for next and previous
+        self.stack = list()
 #         self.parent = parent
         self.fileOperations = FileOperations()
         sizer = wx.BoxSizer(wx.VERTICAL)
@@ -185,15 +187,54 @@ class CreateButtonPanel(wx.Panel):
 #         sizer.Add(vBox, 1, wx.EXPAND , 0)
         self.SetAutoLayout(True)
         self.SetSizer(sizer)
+    
+    def isPanelPresent(self, name=None):
+        p = None
+        if name:
+            for panel in self.GetParent().bodyPanel.GetChildren():
+                if panel.GetName() == name:
+                    p = panel
+        return p
 
     def onNextClicked(self, event):
         logger.debug('onNextClicked: ')
-        logger.info(self.GetParent().bodyPanel)
-        if self.GetParent().bodyPanel.selection == '':
-            logger.info(self.GetParent().importProjectTreePanel.selection)
+        logger.info(self.GetParent().bodyPanel.GetChildren())
+        self.GetParent().bodyPanel.GetChildren()
+        selection=None
+        for panel in self.GetParent().bodyPanel.GetChildren():
+            if panel.IsShown() and panel.GetName() == 'ImportProjectTree':
+                logger.info(panel.selection)
+                selection=panel.selection
+            panel.Hide()
+        if selection:
+            pan=self.isPanelPresent(selection)
+            if pan:
+                pan.Show()
+            else:
+                panelObj = self.GetParent().bodyPanel.addPanel(name=selection)
+            
 
+        if len(self.GetParent().bodyPanel.GetChildren()) > 1:
+            self.previousButton.Enable(enable=True)
+            self.nextButton.Enable(enable=False)
+        self.GetParent().bodyPanel.Layout()
+        self.GetParent().bodyPanel.Refresh()
+        
     def onPreviousClicked(self, event):
         logger.debug('onPreviousClicked: ')
+#         self.GetParent().bodyPanel.RemoveChild(self.GetParent().bodyPanel.GetChildren()[-1])
+        self.GetParent().bodyPanel.GetChildren()[-1].Hide()
+        self.GetParent().bodyPanel.GetChildren()[-2].Show()
+#         self.stack.pop()
+#         for panel in self.GetParent().bodyPanel.GetChildren():
+#             panel.Hide()
+
+#         if len(self.GetParent().bodyPanel.GetChildren()) == 1:
+#             self.previousButton.Enable(enable=False)
+        self.previousButton.Enable(enable=False)
+        self.nextButton.Enable(enable=True)
+        self.GetParent().bodyPanel.Layout()
+        self.GetParent().bodyPanel.Refresh()        
 
     def onCancelClicked(self, event):
         logger.debug('onCancelClicked: ')
@@ -237,7 +278,7 @@ class HeaderPanel(wx.Panel):
         headerText = wx.StaticText(self, -1, title, (20, 10))
         font = wx.Font(10, wx.FONTFAMILY_SCRIPT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
         headerText.SetFont(font)
-        
+
         subTitleText = wx.StaticText(self, -1, subTitle, (20, 10))
 #         font = wx.Font(10, wx.FONTFAMILY_SCRIPT, wx.FONTSTYLE_NORMAL, wx.FONTSTYLE_NORMAL)
 #         subTitleText.SetFont(font)
