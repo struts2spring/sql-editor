@@ -19,7 +19,7 @@ class ImportProjectTreePanel(wx.Panel):
         self.connDict = dict()
         vBox = wx.BoxSizer(wx.VERTICAL)
         ####################################################################
-        self.selection = ''
+        self.selection = None
         selectImport = "Select an import wizard"
         selectImportLabel = wx.StaticText(self, -1, selectImport)
         
@@ -299,7 +299,10 @@ class ImportProjectTreePanel(wx.Panel):
             item = event.GetItem()
             itemText = self.tree.GetItemText(item)
             logger.debug(itemText)
-            self.selection = itemText
+            node = self.tree.GetItemData(item)
+            self.selection = node
+            self.GetParent().GetParent().headerPanel.subTitleText.LabelText=node.tooltip
+            self.GetParent().GetParent().headerPanel.headerText.LabelText=node.name
         except Exception as e:
             logger.error(e)
 

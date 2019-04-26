@@ -15,6 +15,8 @@ from src.view.preference.calibre.CalibreGeneralPreference import CalibreGeneralP
 from src.view.preference.PreferencePanel import PreferencePanel, \
     SearchPanel, KeysPanel
 from src.view.other.imported.project.ImportProjectTree import ImportProjectTreePanel
+from src.view.other.imported.project.ProjectFromFolder import ProjectFromFolderPanel
+
 
 try:
     from agw import aui
@@ -140,7 +142,7 @@ class BodyPanel(wx.Panel):
         if name == 'ImportProjectTree':
             preferencePanelObj = ImportProjectTreePanel(self, name=name)
         elif name == 'Project From Folder Or Archive':
-            preferencePanelObj = PreferencePanel(self, name=name)
+            preferencePanelObj = ProjectFromFolderPanel(self, name=name)
         elif name == 'Appearance':
             preferencePanelObj = AppearancePreferencePanel(self, name=name)
         elif name == 'Search':
