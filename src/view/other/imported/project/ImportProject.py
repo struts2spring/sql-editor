@@ -61,10 +61,6 @@ class ImportProjectFrame(wx.Frame):
         event.Skip()
 
     def OnCloseFrame(self, event):
-        try:
-            self.parent.refreshNode()
-        except Exception as e:
-            logger.error(e)
         self.Destroy()
 
     def OnSize(self, event):
@@ -90,7 +86,7 @@ class NewFilePanel(wx.Panel):
 #         selectImport = "Select an import wizard"
 #         selectImportLabel = wx.StaticText(self, -1, selectImport)
         self.bodyPanel = BodyPanel(self, -1, wx.DefaultPosition)
-        self.bodyPanel.addPanel(name="ImportProjectTree")
+        pan = self.bodyPanel.addPanel(name="ImportProjectTree")
 #         self.bodyPanel.importProjectTreePanel = ImportProjectTreePanel(self.bodyPanel)
         self.buttons = CreateButtonPanel(self)
         ####################################################################
@@ -200,19 +196,17 @@ class CreateButtonPanel(wx.Panel):
         logger.debug('onNextClicked: ')
         logger.info(self.GetParent().bodyPanel.GetChildren())
         self.GetParent().bodyPanel.GetChildren()
-        selection=None
+        node = None
         for panel in self.GetParent().bodyPanel.GetChildren():
             if panel.IsShown() and panel.GetName() == 'ImportProjectTree':
-                logger.info(panel.selection)
-                selection=panel.selection
+                node = panel.selection
             panel.Hide()
-        if selection:
-            pan=self.isPanelPresent(selection)
+        if node:
+            pan = self.isPanelPresent(node.name)
             if pan:
                 pan.Show()
             else:
-                panelObj = self.GetParent().bodyPanel.addPanel(name=selection)
-            
+                panelObj = self.GetParent().bodyPanel.addPanel(name=node.name)
 
         if len(self.GetParent().bodyPanel.GetChildren()) > 1:
             self.previousButton.Enable(enable=True)
@@ -275,19 +269,19 @@ class HeaderPanel(wx.Panel):
         hBox = wx.BoxSizer(wx.HORIZONTAL)
         self.SetBackgroundColour(wx.WHITE)
         self.fileOperations = FileOperations()
-        headerText = wx.StaticText(self, -1, title, (20, 10))
+        self.headerText = wx.StaticText(self, -1, title, (20, 10))
         font = wx.Font(10, wx.FONTFAMILY_SCRIPT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
-        headerText.SetFont(font)
+        self.headerText.SetFont(font)
 
-        subTitleText = wx.StaticText(self, -1, subTitle, (20, 10))
+        self.subTitleText = wx.StaticText(self, -1, subTitle, (20, 10))
 #         font = wx.Font(10, wx.FONTFAMILY_SCRIPT, wx.FONTSTYLE_NORMAL, wx.FONTSTYLE_NORMAL)
 #         subTitleText.SetFont(font)
 
         bmp = self.fileOperations.getImageBitmap(imageName=imageName)
         rightsImage = wx.StaticBitmap(self, -1, bmp, (80, 150))
         vBox1 = wx.BoxSizer(wx.VERTICAL)
-        vBox1.Add(headerText, 1, wx.EXPAND | wx.LEFT, 10)
-        vBox1.Add(subTitleText, 1, wx.EXPAND | wx.LEFT, 15)
+        vBox1.Add(self.headerText, 1, wx.EXPAND | wx.LEFT, 10)
+        vBox1.Add(self.subTitleText, 1, wx.EXPAND | wx.LEFT, 15)
         hBox.Add(vBox1, 1, wx.EXPAND , 0)
         hBox.Add(rightsImage, 0, wx.EXPAND , 0)
         vBox.Add(hBox, 0, wx.EXPAND , 0)

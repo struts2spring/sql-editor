@@ -41,7 +41,7 @@ importProjectDataList = [
                 [wx.NewIdRef(), "Existing Project into Workspace", 'console_view.png', None, None],
                 [wx.NewIdRef(), "File System", 'fileType_filter.png', None, None],
                 [wx.NewIdRef(), "Preferences", 'fileType_filter.png', None, None],
-                [wx.NewIdRef(), "Project From Folder or Archive", 'internal_browser.png', None, None],
+                [wx.NewIdRef(), "Project From Folder or Archive", 'internal_browser.png', "Analyzes the content of your folder or archive file to find projects and import them in the IDE.", None],
                 [wx.NewIdRef(), "Working Sets", 'fileType_filter.png', None, None],
             ],
         ],
@@ -334,7 +334,7 @@ class Node():
         return firstChild
 
     def __repr__(self):
-        return f' name:{self.name},  child:{self.child}'
+        return f' name:{self.name},tooltip:{self.tooltip}, imageName:{self.imageName}  child:{self.child}'
 
 
 class TreeSearch():
