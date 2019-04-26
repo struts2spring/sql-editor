@@ -2306,7 +2306,7 @@ class ScrolledThumbnail(wx.ScrolledWindow):
                 logger.error(e, exc_info=True)
                 logger.error('selectedBookIndex: %s, len: %s', selectedBookIndex, len(self._items))
 #         logger.debug(.0deleteBooks)
-        if len(deleteBooks) > 0:
+        if len(deleteBooks) >= 0:
             self.updateStatusBar(text=f'{len(deleteBooks)} books deleted')
             self.GetParent().GetParent().loadingBook()
             self.GetParent().GetParent().updatePangnation()
