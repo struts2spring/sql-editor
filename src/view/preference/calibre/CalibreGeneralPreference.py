@@ -11,6 +11,8 @@ from src.view.preference.ApplyResetBtnPanel import ApplyResetButtonPanel
 import logging.config
 from src.view.constants import LOG_SETTINGS
 import wx.lib.filebrowsebutton as filebrowse
+from src.logic.WorkspaceUtil import WorkspaceHelper
+import os
 logger = logging.getLogger('extensive')
 
 logging.config.dictConfig(LOG_SETTINGS)
@@ -29,12 +31,13 @@ class Window(wx.App):
         panel = CalibreGeneralPreferencePanel(self.mainWindow, preferenceName=preferenceName)
 
         
-class CalibreGeneralPreferencePanel(wx.Panel):
+class CalibreGeneralPreferencePanel(wx.Panel, WorkspaceHelper):
 
     def __init__(self, parent=None, name='', *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
+        WorkspaceHelper.__init__(self)
         self.parent = parent
-        
+        self.info = wx.InfoBar(self)
         vBox = wx.BoxSizer(wx.VERTICAL)
         vBoxHeader = wx.BoxSizer(wx.VERTICAL)
         vBoxBody = wx.BoxSizer(wx.VERTICAL)
@@ -82,11 +85,13 @@ class CalibreGeneralPreferencePanel(wx.Panel):
 #         vBox1.Add(self.showHeapStatus, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, 5)
 #         vBox1.Add(hbox1, 0, wx.EXPAND | wx.ALL, 5)
 #         vBox1.Add(box, 0, wx.EXPAND | wx.ALL, 5)
+        libraryPath = self.getLibraryPath()
         hbox1 = wx.BoxSizer(wx.HORIZONTAL) 
         self.dbb = filebrowse.DirBrowseButton(
             self, -1, size=(450, -1), changeCallback=self.dbbCallback, labelText="Library path:"
             )
-        
+        self.dbb.startDirectory = libraryPath
+        self.dbb.SetValue(libraryPath)
         hbox1.Add(self.dbb, 1, wx.EXPAND | wx.ALIGN_LEFT | wx.ALL, 5)            
 
 #         btn = wx.Button(self, wx.ID_HELP)
@@ -101,11 +106,13 @@ class CalibreGeneralPreferencePanel(wx.Panel):
         
         ####################################################################        
 #         vBoxBody.Add(vBox1, 0, wx.EXPAND | wx.ALL, 1)
+        vBox.Add(self.info, 0, wx.EXPAND)
         vBoxBody.Add(hbox1, 0, wx.EXPAND | wx.ALL, 1)
         
-        vBox.Add(vBoxHeader, 1, wx.EXPAND | wx.ALL, 1)
-        vBox.Add(vBoxBody, 99, wx.EXPAND | wx.ALL, 1)
-        vBox.Add(vBoxFooter, 1, wx.EXPAND | wx.ALL, 1)
+        vBox.Add(vBoxHeader, 0, wx.EXPAND | wx.ALL, 1)
+        
+        vBox.Add(vBoxBody, 1, wx.EXPAND | wx.ALL, 1)
+        vBox.Add(vBoxFooter, 0, wx.EXPAND | wx.ALL, 1)
 
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(vBox, 0, wx.EXPAND , 1)
@@ -113,6 +120,17 @@ class CalibreGeneralPreferencePanel(wx.Panel):
 
     def dbbCallback(self, evt):
         logger.debug('DirBrowseButton: %s\n' % evt.GetString())
+        if not os.path.isdir(evt.GetString()):
+            self.info.ShowMessage('This directory path does not exist. OK will create a new directory path.', wx.ICON_WARNING)
+            self.newPath = evt.GetString()
+        else:
+            self.info.Dismiss()
+        if os.path.isdir(evt.GetString()):
+            os.chdir(evt.GetString())
+
+    def OnDismiss(self, evt):
+        logger.info('OnDismiss')
+        self.info.Dismiss()
 
     def apply(self, event):
         logger.debug('apply')

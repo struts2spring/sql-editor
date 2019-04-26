@@ -97,11 +97,16 @@ class WorkspaceDatasource():
         project = Project(r'C:\work\python_project', r'sql_editor', r'sql-editor', True, 'python')
         workspace = Workspace(r'C:\work\python_project')
     #     workspace.projects=[project]
-        setting = Setting('SHOW_RECENT_WORKS', 'user.home/workspace', 'RECENT_WORKSPACES')
+        settingList=[
+            ['SHOW_RECENT_WORKS', r'user.home/workspace', 'RECENT_WORKSPACES'],
+            ['BOOK_LIBRARY',r'c:\new\library','latest library']
+            ]
+        for settingRow in settingList:
+            setting = Setting(settingRow[0],settingRow[1],settingRow[2])
+            workspaceSetting = WorkspaceSettingLink(workspace, setting)
+            datasource.saveEntity(workspaceSetting)
         projectWorkspace = ProjectWorkspaceLink(project, workspace)
-        workspaceSetting = WorkspaceSettingLink(workspace, setting)
         datasource.saveEntity(projectWorkspace)
-        datasource.saveEntity(workspaceSetting)
 
     def findActiveWorkspace(self):
         workspace = None

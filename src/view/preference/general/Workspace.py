@@ -7,9 +7,8 @@ import wx
 from src.view.preference.ApplyResetBtnPanel import ApplyResetButtonPanel
 from src.dao.workspace.WorkspaceDao import WorkspaceDatasource
 from src.logic.WorkspaceUtil import WorkspaceHelper
-
-
-
+import wx.lib.filebrowsebutton as filebrowse
+import os
 
 
 class WorkspacePanel(wx.Panel, WorkspaceHelper):
@@ -18,7 +17,7 @@ class WorkspacePanel(wx.Panel, WorkspaceHelper):
         wx.Panel.__init__(self, parent, id=-1)
         WorkspaceHelper.__init__(self)
         self.parent = parent
-        
+        self.info = wx.InfoBar(self)
         vBox = wx.BoxSizer(wx.VERTICAL)
         vBoxHeader = wx.BoxSizer(wx.VERTICAL)
         vBoxBody = wx.BoxSizer(wx.VERTICAL)
@@ -38,9 +37,14 @@ class WorkspacePanel(wx.Panel, WorkspaceHelper):
         vBoxHeader.Add(self.header, 0, wx.ALL | wx.EXPAND, 5)
         vBoxHeader.Add(self.st, 0, wx.ALL | wx.EXPAND, 5)
         ####################################################################)
-        
-        self.workspacePathLabel = wx.StaticText(self, -1, "Workspace path:") 
-        self.workspacePathText = wx.TextCtrl(self, -1, self.getWorkpacePath(), size=(150, -1));
+        workspacePath = self.getWorkpacePath()
+#         self.workspacePathLabel = wx.StaticText(self, -1, "Workspace path:")
+        self.workspacePathText = filebrowse.DirBrowseButton(
+            self, -1, size=(450, -1), changeCallback=self.dbbCallback, labelText="Workspace path:"
+            )
+        self.workspacePathText.startDirectory = workspacePath
+        self.workspacePathText.SetValue(workspacePath) 
+#         self.workspacePathText = wx.TextCtrl(self, -1, self.getWorkpacePath(), size=(150, -1));
         self.workspacePathText.SetHelpText("Workspace Path")
 #         self.workspacePathText.SetBackgroundColour("light Gray")
 #         self.workspacePathText.SetBackgroundStyle(wx.TE_READONLY)
@@ -59,7 +63,7 @@ class WorkspacePanel(wx.Panel, WorkspaceHelper):
 #         
         
         hBox1 = wx.BoxSizer(wx.HORIZONTAL)
-        hBox1.Add(self.workspacePathLabel , 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
+#         hBox1.Add(self.workspacePathLabel , 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
         hBox1.Add(self.workspacePathText , 0, wx.EXPAND | wx.ALL)
         
         hBox2 = wx.BoxSizer(wx.HORIZONTAL)
@@ -86,7 +90,7 @@ class WorkspacePanel(wx.Panel, WorkspaceHelper):
         vBoxBody.Add(hBox2, 0, wx.EXPAND | wx.ALL, 1)
         vBoxBody.Add(hBox3, 0, wx.EXPAND | wx.ALL, 1)
         vBoxBody.Add(hBox4, 0, wx.EXPAND | wx.ALL, 1)
-        
+        vBox.Add(self.info, 0, wx.EXPAND)
         vBox.Add(vBoxHeader, 1, wx.EXPAND | wx.ALL, 1)
         vBox.Add(vBoxBody, 99, wx.EXPAND | wx.ALL, 1)
         vBox.Add(vBoxFooter, 1, wx.EXPAND | wx.ALL, 1)
@@ -94,6 +98,21 @@ class WorkspacePanel(wx.Panel, WorkspaceHelper):
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(vBox, 0, wx.EXPAND , 1)
         self.SetSizer(sizer)
+
+    def OnDismiss(self, evt):
+        self.info.Dismiss()
+
+    def dbbCallback(self, evt):
+#         print ('DirBrowseButton: %s\n' % evt.GetString())
+#         print os.path.isdir(evt.GetString())
+        
+        if not os.path.isdir(evt.GetString()):
+            self.info.ShowMessage('This directory path does not exist. OK will create a new directory path.', wx.ICON_WARNING)
+            self.newPath = evt.GetString()
+        else:
+            self.info.Dismiss()
+        if os.path.isdir(evt.GetString()):
+            os.chdir(evt.GetString())
 
 
 if __name__ == '__main__':

@@ -140,16 +140,18 @@ class ThumbnailCtrlPaginationPanel(wx.Panel, WorkspaceHelper):
     def loadingBook(self, searchText=None):
         
         books = None
-        if os.path.exists(self.libraryPath):
+        count=0
+        if self.libraryPath and os.path.exists(self.libraryPath):
             findingBook = FindingBook(libraryPath=self.libraryPath)
             if self.page.searchText:
                 books, count = findingBook.searchingBook(searchText=self.page.searchText, pageSize=self.page.pageSize, offset=self.page.pageSize * self.page.currentPage)
             else:
                 books, count = findingBook.findAllBooks(pageSize=self.page.pageSize, offset=self.page.pageSize * self.page.currentPage)
-            self.page.pageData = books
-            self.page.total = count
-            self.page.pages = int(self.page.total // self.page.pageSize) + 1
-            self.page.searchText = searchText
+        self.page.pageData = books
+        self.page.total = count
+        self.page.pages = int(self.page.total // self.page.pageSize) + 1
+        self.page.searchText = searchText
+        if books:
             self.thumbnailCtrl.ShowBook(books)
             
     def updatePangnation(self): 
