@@ -12,6 +12,7 @@ from src.logic.AddingBook import AddBook
 from src.view.other.debounce import debounce
 from src.dao.BookDao import CreateDatabase
 from pubsub import pub
+from src.logic.WorkspaceUtil import WorkspaceHelper
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -93,14 +94,15 @@ class Page():
         return self.currentPage
 
 
-class ThumbnailCtrlPaginationPanel(wx.Panel):
+class ThumbnailCtrlPaginationPanel(wx.Panel, WorkspaceHelper):
 
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
+        WorkspaceHelper.__init__(self)
         pub.subscribe(self.reloadingDatabase, 'reloadingDatabase')
         vBox = wx.BoxSizer(wx.VERTICAL)
         ####################################################################
-        self.libraryPath = r'C:\new\library'
+        self.libraryPath = self.getLibraryPath()
         self.fileDropTarget = FileDropTarget(self, libraryPath=self.libraryPath)
         self.fileOperations = FileOperations()
         self.search = wx.SearchCtrl(self, size=(200, -1), style=wx.TE_PROCESS_ENTER)
