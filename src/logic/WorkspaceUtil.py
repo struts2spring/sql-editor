@@ -13,10 +13,11 @@ class WorkspaceHelper():
     def getLibraryPath(self):
         libraryPath = None
         self.workspace
-        for workspaceSetting in self.workspace.workspace_setting_assoc:
-            if workspaceSetting.setting.name == 'BOOK_LIBRARY':
-                libraryPath = workspaceSetting.setting.value
-                break
+        if self.workspace:
+            for workspaceSetting in self.workspace.workspace_setting_assoc:
+                if workspaceSetting.setting.name == 'BOOK_LIBRARY':
+                    libraryPath = workspaceSetting.setting.value
+                    break
         return libraryPath
         
 

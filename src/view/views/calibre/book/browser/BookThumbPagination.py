@@ -151,8 +151,8 @@ class ThumbnailCtrlPaginationPanel(wx.Panel, WorkspaceHelper):
         self.page.total = count
         self.page.pages = int(self.page.total // self.page.pageSize) + 1
         self.page.searchText = searchText
-        if books:
-            self.thumbnailCtrl.ShowBook(books)
+        
+        self.thumbnailCtrl.ShowBook(books)
             
     def updatePangnation(self): 
         pageNumbers = [f'{1+pageNum}' for pageNum in range(self.page.pages)] 
@@ -302,9 +302,9 @@ class FileDropTarget(wx.FileDropTarget):
                 addBook.addingBookToWorkspace(file, maxBookID)
             maxBookID = maxBookID + 1
         logger.debug('drop book completed.')
-        return True
 #         text = self.obj.searchCtrlPanel.searchCtrl.GetValue()
 #         self.obj.searchCtrlPanel.doSearch(text)
+        return True
 
 
 #         self.obj.WriteText('\n')
