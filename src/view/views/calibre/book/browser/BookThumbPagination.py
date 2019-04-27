@@ -121,6 +121,7 @@ class ThumbnailCtrlPaginationPanel(wx.Panel, WorkspaceHelper):
         self.page = Page()
         self.loadingBook()
         self.paginationBar = self.constructTopToolBar()
+        self.setPaginationBarStatus()
         ####################################################################
         vBox.Add(self.search , 0, wx.EXPAND | wx.ALL)
         vBox.Add(self.thumbnailCtrl , 1, wx.EXPAND | wx.ALL)
@@ -140,7 +141,7 @@ class ThumbnailCtrlPaginationPanel(wx.Panel, WorkspaceHelper):
     def loadingBook(self, searchText=None):
         
         books = None
-        count=0
+        count = 0
         if self.libraryPath and os.path.exists(self.libraryPath):
             findingBook = FindingBook(libraryPath=self.libraryPath)
             if self.page.searchText:
@@ -152,12 +153,40 @@ class ThumbnailCtrlPaginationPanel(wx.Panel, WorkspaceHelper):
         self.page.pages = int(self.page.total // self.page.pageSize) + 1
         self.page.searchText = searchText
         self.thumbnailCtrl.ShowBook(books)
-            
+        
+        
+        totalBooks=findingBook.countAllBooks()
+        self.updateStatusBar(text=f'found : {count} of {totalBooks}')
+        
+        # update pagination toolbar status
+        
+#         self.setPaginationBarStatus()
+    def updateStatusBar(self, text=None):
+            if text and str(type(self.GetTopLevelParent())) == "<class 'src.view.TheEclipseView.EclipseMainFrame'>":
+                self.GetTopLevelParent().SetStatusText(text, 0)        
+
+    def setPaginationBarStatus(self):
+        logger.debug(f'setPaginationBarStatus:{self.page.pages}')
+        if self.page.pages == 1:
+            self.paginationBar.EnableTool(ID_FIRST_RESULT, False)
+            self.paginationBar.EnableTool(ID_PREVIOUS_RESULT, False)
+            self.paginationBar.EnableTool(ID_NEXT_RESULT, False)         
+            self.paginationBar.EnableTool(ID_LAST_RESULT, False)
+        if self.page.pages > 1:
+            self.paginationBar.EnableTool(ID_FIRST_RESULT, False)
+            self.paginationBar.EnableTool(ID_PREVIOUS_RESULT, False)
+            self.paginationBar.EnableTool(ID_NEXT_RESULT, True)         
+            self.paginationBar.EnableTool(ID_LAST_RESULT, True)
+        self.paginationBar.Realize()
+
     def updatePangnation(self): 
         pageNumbers = [f'{1+pageNum}' for pageNum in range(self.page.pages)] 
-        self.pageNumbersCountText.SetLabel(f"/{len(pageNumbers)}")
-        self.pageNumberCtrl.Set(pageNumbers)
-        self.pageNumberCtrl.SetSelection(0)
+        if hasattr(self, 'pageNumbersCountText'):
+            self.pageNumbersCountText.SetLabel(f"/{len(pageNumbers)}")
+        self.setPaginationBarStatus()
+#         if hasattr(self, 'pageNumberCtrl'):
+#             self.pageNumberCtrl.Set(pageNumbers)
+#             self.pageNumberCtrl.SetSelection(0)
 
     def constructTopToolBar(self):
 
@@ -221,6 +250,14 @@ class ThumbnailCtrlPaginationPanel(wx.Panel, WorkspaceHelper):
         logger.debug('onPageSizeCtrl')
         self.page.pageSize = int(event.GetString())
         self.loadingBook()
+        if hasattr(self, 'pageNumberCtrl'):
+            pageNumbers = [f'{1+pageNum}' for pageNum in range(self.page.pages)] 
+            self.pageNumberCtrl.Set(pageNumbers)
+            self.pageNumberCtrl.SetSelection(0)
+        if hasattr(self, 'pageNumbersCountText'):
+            self.pageNumbersCountText.SetLabel(f"/{len(pageNumbers)}")
+        
+        self.setPaginationBarStatus()
 
     def onToolButtonClick(self, e):
         if e.Id == ID_FIRST_RESULT:
@@ -246,7 +283,9 @@ class ThumbnailCtrlPaginationPanel(wx.Panel, WorkspaceHelper):
                 self.paginationBar.EnableTool(ID_PREVIOUS_RESULT, True)
                 self.paginationBar.EnableTool(ID_FIRST_RESULT, True)
                 self.paginationBar.EnableTool(ID_LAST_RESULT, True)
-                self.pageNumberCtrl.SetSelection(self.page.getNextPageNumber())
+                nextPageNumber = self.page.getNextPageNumber()
+                logger.debug(nextPageNumber)
+                self.pageNumberCtrl.SetSelection(nextPageNumber)
             else:
                 self.paginationBar.EnableTool(ID_NEXT_RESULT, False)
                 self.paginationBar.EnableTool(ID_LAST_RESULT, False)
