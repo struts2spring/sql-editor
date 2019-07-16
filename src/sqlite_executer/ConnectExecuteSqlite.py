@@ -499,7 +499,7 @@ class ManageSqliteDatabase():
             for sqliteType in sqliteTypes:
                 query = f"""select * from sqlite_master where type='{sqliteType[0]}' 
                     AND name NOT LIKE 'sqlite_%' 
-                    AND name != 'SAMPLE' ;
+                    AND name != 'SAMPLE' order by 2;
                 """
                 logger.debug(query)
                 queryResult = cur.execute(query).fetchall()
