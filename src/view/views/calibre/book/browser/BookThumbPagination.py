@@ -152,6 +152,7 @@ class ThumbnailCtrlPaginationPanel(wx.Panel, WorkspaceHelper):
         self.page.total = count
         self.page.pages = int(self.page.total // self.page.pageSize) + 1
         self.page.searchText = searchText
+        
         self.thumbnailCtrl.ShowBook(books)
         
         

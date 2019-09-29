@@ -1587,46 +1587,47 @@ class ScrolledThumbnail(wx.ScrolledWindow):
         self.books = books
         if filter >= 0:
             self._filter = filter        
-        thumbs = []        
-        for book in books:
-            
-            imageName = ''
-            if book.bookPath:
-                self._dir = book.bookPath
-                imagePath = book.bookPath
-                if not os.path.exists(imagePath):
-                    return
-                filenames = self.ListDirectory(imagePath, extensions)
-                if filenames:
-                    imageName = filenames[0]
-                    
-                imagePath_1 = os.path.join(imagePath, book.bookImgName)
-                if os.path.exists(imagePath_1):
-                    imageName = book.bookImgName
-            else:
-                imagePath = book.localImagePath
-                self._dir = book.localImagePath
-                imageName = book.imageFileName
-            bookName = book.bookName
-#                 imagePath=os.path.join(book.bookPath,imageName);
+        thumbs = []     
+        if books:   
+            for book in books:
                 
-            stats = os.stat(os.path.join(imagePath, imageName))
-            size = stats[6]
-
-            if size < 1000:
-                size = str(size) + " bytes"
-            elif size < 1000000:
-                size = str(int(round(size / 1000.0))) + " Kb"
-            else:
-                size = str(round(size / 1000000.0, 2)) + " Mb"
-
-            lastmod = time.strftime(TIME_FMT, time.localtime(stats[8]))
-
-#             if self._filter & THUMB_FILTER_IMAGES:
-#                 thumbs.append(Thumb(self, folder, files, caption, size, lastmod))
-#                 pass
-            thumbs.append(Thumb(self, imagePath, imageName, bookName, size, lastmod, book))
-
+                imageName = ''
+                if book.bookPath:
+                    self._dir = book.bookPath
+                    imagePath = book.bookPath
+                    if not os.path.exists(imagePath):
+                        return
+                    filenames = self.ListDirectory(imagePath, extensions)
+                    if filenames:
+                        imageName = filenames[0]
+                        
+                    imagePath_1 = os.path.join(imagePath, book.bookImgName)
+                    if os.path.exists(imagePath_1):
+                        imageName = book.bookImgName
+                else:
+                    imagePath = book.localImagePath
+                    self._dir = book.localImagePath
+                    imageName = book.imageFileName
+                bookName = book.bookName
+    #                 imagePath=os.path.join(book.bookPath,imageName);
+                    
+                stats = os.stat(os.path.join(imagePath, imageName))
+                size = stats[6]
+    
+                if size < 1000:
+                    size = str(size) + " bytes"
+                elif size < 1000000:
+                    size = str(int(round(size / 1000.0))) + " Kb"
+                else:
+                    size = str(round(size / 1000000.0, 2)) + " Mb"
+    
+                lastmod = time.strftime(TIME_FMT, time.localtime(stats[8]))
+    
+    #             if self._filter & THUMB_FILTER_IMAGES:
+    #                 thumbs.append(Thumb(self, folder, files, caption, size, lastmod))
+    #                 pass
+                thumbs.append(Thumb(self, imagePath, imageName, bookName, size, lastmod, book))
+    
         caption = None
         try:
             if self._dir:
