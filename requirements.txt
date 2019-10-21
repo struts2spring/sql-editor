@@ -31,7 +31,7 @@ markupsafe==1.1.0
 matplotlib==3.0.2
 mkdocs==1.0.4
 multi-key-dict==2.0.3
-nltk==3.4
+nltk==3.4.5
 numpy==1.15.4
 ofxtools==0.5.1
 openapi-spec-validator==0.2.4
