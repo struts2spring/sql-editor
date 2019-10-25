@@ -29,6 +29,7 @@ logger = logging.getLogger('extensive')
 # import traceback
 # from src.ui.view.epub.opal_epub_worker import EpubBook
 import uuid
+
 # import logging
 
 # logger = logging.getLogger('extensive')
@@ -38,7 +39,7 @@ class AddBook():
     '''
     This class have been written to add book to Opal workspace library.
     '''
-    
+
     def __init__(self, libraryPath=None):
         self.book = Book()
         self.book.uuid = str(uuid.uuid4())
@@ -48,12 +49,11 @@ class AddBook():
         self.createDatabase = CreateDatabase(libraryPath=libraryPath)
 
     def getMaxBookID(self):
-        
+
         maxBookId = self.createDatabase.getMaxBookID()
         if maxBookId == None:
             maxBookId = 0
         return maxBookId
-
 
     def addingBookToWorkspace(self, sourcePath=None, maxBookId=None):
         '''
@@ -68,47 +68,50 @@ class AddBook():
         '''
 
         if sourcePath:
-#             if maxBookId:
-#                 maxBookId = self.createDatabase.getMaxBookID()
-#             
-#                 if maxBookId == None:
-#                     maxBookId = 0
-#             workspacePath = Workspace().libraryPath
-            self.book.bookPath = os.path.join(self.libraryPath, str(maxBookId + 1))
+            #             if maxBookId:
+            #                 maxBookId = self.createDatabase.getMaxBookID()
+            #
+            #                 if maxBookId == None:
+            #                     maxBookId = 0
+            #             workspacePath = Workspace().libraryPath
+            self.book.bookPath = os.path.join(self.libraryPath,
+                                              str(maxBookId + 1))
 
             head, tail = os.path.split(sourcePath)
             self.book.bookFileName = tail
-            
+
             self.book.inLanguage = 'English'
             self.book.hasCover = 'Y'
-            
+
             splited_name = tail.split(".")
             self.book.bookFormat = splited_name[-1:][0]
             splited_name.remove(self.book.bookFormat)
             book_file_name = '.'.join(splited_name)
             self.book.bookName = book_file_name
             self.book.wishListed = 'No'
-            
+
             if not self.findingSameBook():
-            
-                self.book.bookPath = os.path.join(self.libraryPath, str(maxBookId + 1))
+
+                self.book.bookPath = os.path.join(self.libraryPath,
+                                                  str(maxBookId + 1))
                 if not os.path.exists(self.book.bookPath):
                     os.makedirs(self.book.bookPath)
-                
+
                 dest = os.path.join(self.book.bookPath, tail)
                 if sourcePath != dest:
-                    shutil.copy (sourcePath, dest)
-                
-                if 'pdf' == self.book.bookFormat :
+                    shutil.copy(sourcePath, dest)
+
+                if 'pdf' == self.book.bookFormat:
                     self.getPdfMetadata(sourcePath)
                 if 'epub' == self.book.bookFormat:
                     self.getEpubMetadata(sourcePath)
                     pass
-                
+
                 os.chdir(self.book.bookPath)
                 self.book.bookImgName = book_file_name + '.jpg'
-                BookImage().getBookImage(self.book.bookPath, book_file_name, self.book.bookFormat)
-                
+                BookImage().getBookImage(self.book.bookPath, book_file_name,
+                                         self.book.bookFormat)
+
                 book_copy1 = copy.deepcopy(self.book)
                 self.writeBookJson(self.book.bookPath, book_copy1)
                 self.addingBookInfoInDatabase(self.book)
@@ -122,10 +125,12 @@ class AddBook():
                 print(file)
                 m = pattern.search(file)
                 if m:
-#                     print(m.groups())
+                    #                     print(m.groups())
                     imgFilePath = m.group()
-                    bookImgName = self.currentBook.bookImgName.replace('.jpg', m.group())
-                    imgFilePath = os.path.join(self.currentBook.bookPath, bookImgName)
+                    bookImgName = self.currentBook.bookImgName.replace(
+                        '.jpg', m.group())
+                    imgFilePath = os.path.join(self.currentBook.bookPath,
+                                               bookImgName)
         return bookImgName
 
     def findingSameBook(self):
@@ -155,7 +160,7 @@ class AddBook():
         This function will write book.json (metadata) of the newly added book in workspace.
         '''
         logger.debug('writeBookJson newDirPath: %s', newDirPath)
-        f = open(os.path.join(newDirPath , 'book.json'), 'w')
+        f = open(os.path.join(newDirPath, 'book.json'), 'w')
         row2dict = dict(book.__dict__)
         authors = []
         try:
@@ -172,11 +177,11 @@ class AddBook():
                 authors.append(author)
             if '_sa_instance_state' in row2dict:
                 del row2dict['_sa_instance_state']
-            if 'authors' in row2dict:   
+            if 'authors' in row2dict:
                 del row2dict['authors']
-            if 'book_assoc' in row2dict:  
+            if 'book_assoc' in row2dict:
                 del row2dict['book_assoc']
-    
+
             row2dict['authors'] = authors
             row2dict['publishedOn'] = str(datetime.now())
             row2dict['createdOn'] = str(datetime.now())
@@ -194,22 +199,22 @@ class AddBook():
         file_name = self.book.bookName + '.epub'
         epubBook = EpubBook()
         epubBook.open(file_name)
-    
+
         epubBook.parse_contents()
-        
+
         authorList = list()
         for authorName in epubBook.get_authors():
-            
+
             author = Author()
             author.authorName = authorName
             author.aboutAuthor = 'aboutAuthor'
             authorList.append(author)
         self.book.authors = authorList
-        
+
         self.book.tag = epubBook.subjectTag
         epubBook.extract_cover_image(outdir='.')
         self.book.createdOn = datetime.now()
-    
+
     def getPdfMetadata(self, path=None):
         '''
         This method will get the pdf metadata and return book object.
@@ -243,12 +248,12 @@ class AddBook():
                     # broken marker bytes.
                     # Python built-in function unicode() can do this.
                     subject = pdf_info.subject
-                    
+
 #                 else:
 #                     # Assume the value object has proper __unicode__() method
 #                     value = unicode(pdf_info.subject)
 #                     print 'else'
-                if not self.book.tag and subject :
+                if not self.book.tag and subject:
                     self.book.tag = subject
                 elif self.book.tag and subject:
                     self.book.tag = self.book.tag + '' + subject
@@ -259,7 +264,7 @@ class AddBook():
                     self.book.bookName = str(pdf_info.title)
             except Exception as e:
                 logger.error(e, exc_info=True)
-            
+
             try:
                 if pdf_info.creator:
                     self.book.publisher = str(pdf_info.creator.encode('utf-8'))
@@ -267,24 +272,27 @@ class AddBook():
                 logger.error(e, exc_info=True)
             self.book.createdOn = datetime.now()
             try:
-#                 print str(pdf_info['/CreationDate'])[2:10]
-                date = datetime.strptime(str(pdf_info['/CreationDate'])[2:10] , '%Y%m%d')
+                #                 print str(pdf_info['/CreationDate'])[2:10]
+                date = datetime.strptime(
+                    str(pdf_info['/CreationDate'])[2:10], '%Y%m%d')
                 self.book.publishedOn = date
             except Exception as e:
                 logger.error(e, exc_info=True)
                 logger.error('CreationDate not found')
-            
+
             logger.debug(Util().convert_bytes(os.path.getsize(path)))
             self.book.fileSize = Util().convert_bytes(os.path.getsize(path))
 
-#             if 'ISBN'.lower() in str(pdf_info['/Subject']).lower():
-#                 self.book.isbn_13 = str(pdf_info['/Subject'])[6:]
+            #             if 'ISBN'.lower() in str(pdf_info['/Subject']).lower():
+            #                 self.book.isbn_13 = str(pdf_info['/Subject'])[6:]
 
             author = Author()
             val = 'Unknown'
             try:
                 if pdf_info.author != None and pdf_info.author.strip() != '':
                     val = pdf_info.author
+
+
 #                     val = val.encode("utf8", "ignore")
             except Exception as e:
                 logger.error(e, exc_info=True)
@@ -294,18 +302,17 @@ class AddBook():
             authorList.append(author)
             self.book.authors = authorList
 
-
 if __name__ == '__main__':
-#     sourcePath='C:\\Users\\vijay\\Downloads\\ST-52900095-16911.pdf'
-#     sourcePath = 'C:\\Users\\vijay\\Downloads\\Head First Rails.pdf'
-#     sys.set
-#     sourcePath = '/home/vijay/Downloads/1389095365492.pdf'
-#     AddBook().addingBookToWorkspace(sourcePath)
+    #     sourcePath='C:\\Users\\vijay\\Downloads\\ST-52900095-16911.pdf'
+    #     sourcePath = 'C:\\Users\\vijay\\Downloads\\Head First Rails.pdf'
+    #     sys.set
+    #     sourcePath = '/home/vijay/Downloads/1389095365492.pdf'
+    #     AddBook().addingBookToWorkspace(sourcePath)
     path = "/home/vijay/Downloads/9781784398224-FUNCTIONAL_PROGRAMMING_IN_JAVASCRIPT.pdf"
     addBook = AddBook()
-#     path = "/media/vijay/Seagate Backup Plus Drive/vijay/books/English Grammar - A function-based introduction/English Grammar - A function-based introduction. Volume I.pdf"
-#     path = "/media/vijay/Seagate Backup Plus Drive/vijay/books/Apress.Venture.Capitalists.at.Work.Nov.2011/Apress.Venture.Capitalists.at.Work.Nov.2011.pdf"
-     
+    #     path = "/media/vijay/Seagate Backup Plus Drive/vijay/books/English Grammar - A function-based introduction/English Grammar - A function-based introduction. Volume I.pdf"
+    #     path = "/media/vijay/Seagate Backup Plus Drive/vijay/books/Apress.Venture.Capitalists.at.Work.Nov.2011/Apress.Venture.Capitalists.at.Work.Nov.2011.pdf"
+
     addBook.getPdfMetadata(path)
     newDirPath = '/docs/new/library/1'
     addBook.writeBookJson(newDirPath, addBook.book)

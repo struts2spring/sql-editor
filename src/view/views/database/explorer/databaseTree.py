@@ -24,7 +24,7 @@ from src.view.views.console.worksheet.tableInfoPanel import CreatingTableInfoPan
 from src.view.schema.CreateSchemaViewer import CreateErDiagramFrame
 
 from src.view.views.database.explorer.GenerateSql import GenerateSqlFrame
-
+from src.view.views.database.properties.PropertiesPanel import PropertiesFrame
 import itertools
 
 logging.config.dictConfig(LOG_SETTINGS)
@@ -296,11 +296,11 @@ class DatabaseTree(TreeCtrl):
             self.connectingDatabase(event=evt, nodes=nodes)
             
         if dataSourceTreeNode.nodeType == 'table':
-            iconIndex=self.GetItemImage(itemId)
-            icon=self.GetImageList().GetBitmap(iconIndex)
+            iconIndex = self.GetItemImage(itemId)
+            icon = self.GetImageList().GetBitmap(iconIndex)
             if hasattr(self.GetTopLevelParent(), '_mgr'):
                 tableInfo = CreatingTableInfoPanel(self, -1, style=wx.CLIP_CHILDREN | wx.BORDER_NONE, tableName=dataSourceTreeNode.sqlType.name, dataSourceTreeNode=dataSourceTreeNode)
-                sqlExecutionTab = self.GetTopLevelParent()._mgr.addTabByWindow(window=tableInfo ,icon=icon,imageName="script.png", captionName=dataSourceTreeNode.sqlType.name, tabDirection=5)
+                sqlExecutionTab = self.GetTopLevelParent()._mgr.addTabByWindow(window=tableInfo , icon=icon, imageName="script.png", captionName=dataSourceTreeNode.sqlType.name, tabDirection=5)
 #             self.openWorksheet(sheetName=dataSourceTreeNode.sqlType.name, dataSourceTreeNode=dataSourceTreeNode)
         if dataSourceTreeNode.nodeType == 'view':
             # TODO : need to write a view panel
@@ -362,7 +362,7 @@ class DatabaseTree(TreeCtrl):
 #             nodes = self.GetSelections()
             for node in self.GetChildNodes(self.RootItem):
                 dataSourceTreeNode = self.GetItemData(node)
-                if dataSourceTreeNode.dataSource.isConnected and connectionName==dataSourceTreeNode.dataSource.connectionName:
+                if dataSourceTreeNode.dataSource.isConnected and connectionName == dataSourceTreeNode.dataSource.connectionName:
                     self.onDisconnectDb(event, [node])
                     self.onConnectDb(event, [node])
             pass
@@ -424,7 +424,7 @@ class DatabaseTree(TreeCtrl):
                     editTableItem = menu.Append(editTableBmp) 
                     
         #             editTableItem = menu.Append(wx.ID_ANY, "Edit table ")
-                    copyItemBmp = wx.MenuItem(menu,wx.ID_COPY, "Copy \tCtrl+C")
+                    copyItemBmp = wx.MenuItem(menu, wx.ID_COPY, "Copy \tCtrl+C")
                     copyItemBmp.SetBitmap(self.fileOperations.getImageBitmap(imageName="copy_edit_co.png"))
                     copyItemItem = menu.Append(copyItemBmp)
                     
@@ -741,7 +741,16 @@ class DatabaseTree(TreeCtrl):
         
     def onProperties(self, event, nodes):
         if event.Id == ID_CONNECTION_PROPERTIES:
-            logger.debug('onProperties')
+            logger.debug(f'onProperties {nodes}')
+            frame = None
+            title=''
+            for node in nodes:
+                dataSourceTreeNode = self.GetItemData(node)
+                logger.debug(dataSourceTreeNode)
+                if dataSourceTreeNode.depth == 0:
+                    title="Connection properties"
+                frame = PropertiesFrame(None, title, depth=dataSourceTreeNode.depth)
+            frame.Show()
         
     def onExport(self, event, nodes):
         logger.debug('onExport')
