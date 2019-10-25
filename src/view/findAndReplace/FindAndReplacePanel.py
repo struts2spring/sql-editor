@@ -169,7 +169,10 @@ class CreatingFindAndReplacePanel(wx.Panel):
             success = wx.TheClipboard.GetData(do)
             wx.TheClipboard.Close()
             if success:
-                self.findText.SetValue(do.GetText())
+                try:
+                    self.findText.SetValue(do.GetText())
+                except:
+                    pass
 #---------------------------------------------------------------------------
 
 
