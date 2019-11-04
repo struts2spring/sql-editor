@@ -141,6 +141,7 @@ class ThumbnailCtrlPaginationPanel(wx.Panel, WorkspaceHelper):
     def loadingBook(self, searchText=None):
         
         books = None
+        totalBooks=0
         count = 0
         if self.libraryPath and os.path.exists(self.libraryPath):
             findingBook = FindingBook(libraryPath=self.libraryPath)
@@ -148,6 +149,7 @@ class ThumbnailCtrlPaginationPanel(wx.Panel, WorkspaceHelper):
                 books, count = findingBook.searchingBook(searchText=self.page.searchText, pageSize=self.page.pageSize, offset=self.page.pageSize * self.page.currentPage)
             else:
                 books, count = findingBook.findAllBooks(pageSize=self.page.pageSize, offset=self.page.pageSize * self.page.currentPage)
+            totalBooks=findingBook.countAllBooks()
         self.page.pageData = books
         self.page.total = count
         self.page.pages = int(self.page.total // self.page.pageSize) + 1
@@ -156,7 +158,7 @@ class ThumbnailCtrlPaginationPanel(wx.Panel, WorkspaceHelper):
         self.thumbnailCtrl.ShowBook(books)
         
         
-        totalBooks=findingBook.countAllBooks()
+        
         self.updateStatusBar(text=f'found : {count} of {totalBooks}')
         
         # update pagination toolbar status
