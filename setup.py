@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 
 
 def get_version():
-    with open(os.path.join('src','view', 'constants.py')) as f:
+    with open(os.path.join('src', 'view', 'constants.py')) as f:
         for line in f:
             if line.strip().startswith('VERSION'):
                 return eval(line.split('=')[-1])
@@ -47,6 +47,8 @@ setuptools.setup(
         'Programming Language :: Python :: 3.6',
         'Topic :: Scientific/Engineering :: Information Analysis',
     ],
-    package_data={'src.images': ['*.png'],'src.view.util.styles':['*.ess'],'src.bin':['*.dll','*.exe']},
-    include_package_data=True
+    package_data={'src.images': ['*.png'], 'src.view.util.styles':['*.ess'], 'src.bin':['*.dll', '*.exe']},
+    include_package_data=True,
+
+    zip_safe=False,
 )

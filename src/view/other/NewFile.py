@@ -86,7 +86,7 @@ class NewFilePanel(wx.Panel):
         self.fileNameText = ''
 
         parentFolderLabel = wx.StaticText(self, -1, "Enter or select parent folder:")
-        self.parentFolderCtrl = wx.TextCtrl(self, -1, self.parentFolderText, size=(400, -1))
+        self.parentFolderCtrl = wx.TextCtrl(self, id=-1, name=title, size=(400, -1))
 
         fileLabel = ''
         if title == 'New File':
