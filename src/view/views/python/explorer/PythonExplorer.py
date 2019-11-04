@@ -144,8 +144,13 @@ class PythonExplorerTreePanel(FileTree):
         try:
             datasource = WorkspaceDatasource()
             workspace = datasource.findActiveWorkspace()
-            for project in workspace.projects:
-                self.AddWatchDirectory(project=project)
+            if workspace and workspace.projects:
+                for project in workspace.projects:
+                    self.AddWatchDirectory(project=project)
+            else:
+                # TODO popup for workspace definition
+                pass
+            
         except Exception as e:
             logger.error(e)
 
