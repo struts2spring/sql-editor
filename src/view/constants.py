@@ -433,6 +433,7 @@ menuItemList = {
             [ID_NEW_FILE, 'File', "newfile_wiz.png", None],
         ]
         +baseList[1:],
+    "git": baseList,
     "debug": baseList,
     "database": baseList,
     "calibre": baseList

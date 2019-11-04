@@ -622,7 +622,8 @@ class BaseStc(stc.StyledTextCtrl, StyleManager):
             line, col = self.GetCurLine()
             col = self.GetColumn(self.GetCurrentPos())
         try:
-            cmd = self._code['compsvc'].GetCommandString(self, line, col)
+            if self._code['compsvc']:
+                cmd = self._code['compsvc'].GetCommandString(self, line, col)
         except Exception as e:
             logger.error(e)
         return cmd
