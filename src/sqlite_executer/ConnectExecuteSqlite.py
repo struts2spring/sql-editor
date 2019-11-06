@@ -402,6 +402,8 @@ class SQLUtils():
         rows = [{'id':None, 'sql':str(sqlText), 'connection_name':connectionName, 'created_time':datetime.now(), 'executed':'1', 'duration':duration}]
         sqlExecuter.sqlite_insert(table, rows)
         
+    
+    
     def refreshSqlLogUi(self):
         logger.debug('refreshSqlLogUi')
         historyGrid = self.GetTopLevelParent()._mgr.GetPane("sqlLog").window

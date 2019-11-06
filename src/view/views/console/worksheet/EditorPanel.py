@@ -580,7 +580,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
             self.ShowPosition(loc)
             self.SetSelection(loc, loc + len(findstring))
 
-        logger.info("%s -- Find text: %s   Replace text: %s  Flags: %d  \n" %
+        logger.info("%s -- Find text: %s   Replace text: %s  Flags: %d  \n" % 
                        (evtType, evt.GetFindString(), replaceTxt, evt.GetFlags()))
 
 #         findstring = self.finddata.GetFindString().lower()
@@ -593,10 +593,49 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 
     def getAdvice(self):
         del self.adviceList[:]
-        self.adviceList.append("select * from ")
-        self.adviceList.append("create table Table_1 ( id number); ")
-        self.adviceList.append("desc ")
+        self.adviseUtil()
         return self.adviceList
+
+    def adviseUtil(self, previousText=None, curPos=None):
+        cur = self.GetCurrentPos()
+        previousString = self.GetRange(0, cur).lower()
+        initalPreviousString = str(previousString)
+        previousString = previousString.rstrip()
+        # Get all the table name
+        # if previous char is ; advise for "select * from "
+        # if previous str is from advise for all the table
+        sqlList = sqlparse.split(previousString)
+        tokens = None
+        for singleSql in sqlList:
+            parsedSingleSql = sqlparse.parse(singleSql)
+            tokens = parsedSingleSql[0].tokens
+            
+        # get previous keyword
+        isToken=False
+        count=-1
+        previousTokenKey=None
+        while not isToken:
+            if len(tokens)>abs(count):
+                isToken=tokens[count].is_keyword
+                if isToken:
+                    previousTokenKey=tokens[count]
+                count=count-1
+            else:
+                break
+        
+        if previousTokenKey.value == 'from':
+            
+            sqlText = "select name from sqlite_master where type='table' order by 1;"
+            tables = self.executeSqlText(sqlText)
+            for table in tables:
+                self.adviceList.append(table[0])
+        elif previousTokenKey.value == 'select':
+            # get all the columns for 
+            pass
+        else:
+            self.adviceList.append("select * from ")
+            self.adviceList.append("create table Table_1 ( id number); ")
+            self.adviceList.append("desc ")
 
     def OnUpdateUI(self, evt):
         # check for matching braces
@@ -910,6 +949,16 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         if cmd:
             self.CmdKeyExecute(cmd)
 
+    def executeSqlText(self, sqlText=None):
+        connectionName, databaseAbsolutePath = self.findingConnectionName()
+        sqlOutput = None
+        try:
+            manageSqliteDatabase = ManageSqliteDatabase(connectionName=connectionName, databaseAbsolutePath=databaseAbsolutePath)
+            sqlOutput = manageSqliteDatabase.executeSelectQuery(sqlText)
+        except Exception as e:
+            logger.error(e, exc_info=True)
+        return sqlOutput
+            
     def executeSQL(self, event=None):
         '''
         '''
