@@ -1,4 +1,3 @@
-
 import logging.config
 
 from src.view.constants import LOG_SETTINGS

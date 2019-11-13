@@ -25,7 +25,7 @@ import datetime
 import logging.config
 from src.view.constants import LOG_SETTINGS
 from src.view.views.console.worksheet.tableInfoPanel import CreatingTableInfoPanel
-from wx.lib.pubsub import pub
+from pubsub import pub
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')

@@ -26,7 +26,7 @@ from src.view.views.file.explorer.FileBrowserPanel import FileBrowser, \
 import time
 from src.view.util.common.fileutil import IsHidden, GetFileName
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
-from wx.lib.pubsub import pub
+from pubsub import pub
 # from src.settings.workspace import Setting
 from src.view.views.python.explorer.IconManager import PythonExplorerIconManager
 from src.view.views.editor.EditorManager import EditorWindowManager

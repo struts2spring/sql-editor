@@ -23,7 +23,7 @@ import wx.html2 as webview
 import pypandoc
 from src.view.constants import LOG_SETTINGS
 from src.view.views.file.explorer._filetree import FileTree
-from wx.lib.pubsub import pub
+from pubsub import pub
 try:
     from agw import aui
     from agw.aui import aui_switcherdialog as ASD

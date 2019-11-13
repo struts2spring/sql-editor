@@ -7,7 +7,7 @@ import logging.config
 
 from src.view.util.FileOperationsUtil import FileOperations
 import wx, os
-from wx.lib.pubsub import pub
+from pubsub import pub
 import  wx.lib.filebrowsebutton as filebrowse
 from src.view.preference.general.Workspace import WorkspaceHelper
 from src.view.constants import LOG_SETTINGS

@@ -6,7 +6,7 @@ Created on Feb 15, 2019
 
 import wx
 from src.view.util.FileOperationsUtil import FileOperations
-from wx.lib.pubsub import pub
+from pubsub import pub
 try:
     from agw import aui
     from agw.aui import aui_switcherdialog as ASD

@@ -22,7 +22,7 @@ from wx.lib.platebtn import PlateButton, PB_STYLE_DEFAULT, PB_STYLE_DROPARROW
 
 # from wx.lib.pubsub import setupkwargs
 # regular pubsub import
-from wx.lib.pubsub import pub
+from pubsub import pub
 from wx.lib.agw.aui.auibar import AuiToolBarEvent, \
     wxEVT_COMMAND_AUITOOLBAR_BEGIN_DRAG, wxEVT_COMMAND_AUITOOLBAR_MIDDLE_CLICK, \
     wxEVT_COMMAND_AUITOOLBAR_RIGHT_CLICK

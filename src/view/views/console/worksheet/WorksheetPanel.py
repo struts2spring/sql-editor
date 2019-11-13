@@ -26,7 +26,7 @@ from src.view.views.database.explorer.databaseTree import DataSourceTreeNode, \
     DataSource
 from src.sqlite_executer.ConnectExecuteSqlite import SQLExecuter
 from src.view.AutoCompleteTextCtrl import TextCtrlAutoComplete
-from wx.lib.pubsub import pub
+from pubsub import pub
 from src.view.util.FileOperationsUtil import FileOperations
 try:
     from agw import aui

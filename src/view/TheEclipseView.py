@@ -44,7 +44,8 @@ try:
 except ImportError:  # if it's not there locally, try the wxPython lib.
     import wx.lib.agw.aui as aui
     from wx.lib.agw.aui import aui_switcherdialog as ASD
-from wx.lib.pubsub import pub
+# from pubsub import pub
+from pubsub import pub
 
 
 class EclipseMainFrame(wx.Frame, PerspectiveManager):
