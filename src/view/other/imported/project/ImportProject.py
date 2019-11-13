@@ -10,7 +10,7 @@ from src.view.util.common.eclutil import Freezer
 from src.view.util.osutil import GetWindowsDriveType, RemovableDrive, CDROMDrive
 from src.view.views.editor.EditorManager import EditorWindowManager
 import wx, os
-from wx.lib.pubsub import pub
+from pubsub import pub
 
 from src.view.other.imported.project.ImportProjectTree import ImportProjectTreePanel
 from src.view.other.imported.project.ImportBody import BodyPanel

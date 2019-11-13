@@ -16,7 +16,7 @@ import os
 from src.sqlite_executer.ConnectExecuteSqlite import ManageSqliteDatabase, \
     SQLUtils, SQLExecuter
 
-from wx.lib.pubsub import pub
+from pubsub import pub
 from src.view.importing.importCsvExcel import ImportingCsvExcelFrame
 from src.view.table.CreateTable import CreateTableFrame
 import datetime

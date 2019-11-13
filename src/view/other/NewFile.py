@@ -8,7 +8,7 @@ from src.view.views.file.explorer._filetree import FileTree
 import time
 from src.view.util.common.eclutil import Freezer
 from pathlib import Path
-from wx.lib.pubsub import pub
+from pubsub import pub
 from src.view.views.editor.EditorManager import EditorWindowManager
 from src.view.util.osutil import GetWindowsDriveType, RemovableDrive, CDROMDrive
 

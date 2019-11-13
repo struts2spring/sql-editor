@@ -9,7 +9,7 @@ import os
 import ntpath
 from src.view.views.database.explorer.databaseTree import DatabaseTree
 
-from wx.lib.pubsub import pub
+from pubsub import pub
 import logging.config
 from src.view.util.FileOperationsUtil import FileOperations
 try:

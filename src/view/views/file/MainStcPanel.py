@@ -16,7 +16,7 @@ import logging.config
 import os
 
 from src.view.constants import LOG_SETTINGS
-from wx.lib.pubsub import pub
+from pubsub import pub
 import wx.stc
 
 from src.view.util.common.FileObjectWrapper import EVT_FILE_LOAD, \

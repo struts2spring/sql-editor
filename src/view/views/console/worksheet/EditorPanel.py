@@ -9,7 +9,7 @@ import wx
 import wx.stc as stc
 # from src.view.images import images
 import os, re
-from wx.lib.pubsub import pub
+from pubsub import pub
 # import string
 
 # from src.SqlBeautifier.sqlbeautifier import SqlBeautifierCommand

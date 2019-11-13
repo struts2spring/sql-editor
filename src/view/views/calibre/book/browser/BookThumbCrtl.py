@@ -120,7 +120,7 @@ import wx
 import os
 import time
 import zlib
-from wx.lib.pubsub import pub
+from pubsub import pub
 import six
 from math import pi
 from src.view.constants import bookMenuRightClickList, ID_DOWNLOAD_METADATA, \

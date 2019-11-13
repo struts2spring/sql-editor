@@ -10,7 +10,7 @@ from src.view.constants import LOG_SETTINGS
 from src.view.util.FileOperationsUtil import FileOperations
 from wx._grid import GridCellRenderer
 from src.sqlite_executer.ConnectExecuteSqlite import Column, SqlType
-from wx.lib.pubsub import pub
+from pubsub import pub
 from src.view.views.console.worksheet.EditorPanel import CreatingEditorPanel
 
 try:
