@@ -401,8 +401,6 @@ class SQLUtils():
         table = 'sql_log'
         rows = [{'id':None, 'sql':str(sqlText), 'connection_name':connectionName, 'created_time':datetime.now(), 'executed':'1', 'duration':duration}]
         sqlExecuter.sqlite_insert(table, rows)
-        
-    
     
     def refreshSqlLogUi(self):
         logger.debug('refreshSqlLogUi')
@@ -590,9 +588,11 @@ class ManageSqliteDatabase():
                 cur = self.conn.cursor() 
 
                 if text.count(';') > 1 :
-                    cur.executescript(text)
+                    result =cur.executescript(text)
                 elif text.strip().lower().startswith(('update', 'drop', 'alter')):
                     cur.execute(text)
+                elif text.strip().lower().startswith(('insert')):
+                    result = cur.execute(text)
                 else:
                     rows = cur.execute(text).fetchall()
                     if cur.description:
@@ -604,7 +604,7 @@ class ManageSqliteDatabase():
                             items = []
                             for v in item:
                                 if v is None:
-                                    v = '-______-NULL'# this is to make a distinguish between Null
+                                    v = '-______-NULL'  # this is to make a distinguish between Null
                                 elif self.isBlob(v):
                                     v = '-______-BLOB'
                                     
@@ -617,11 +617,13 @@ class ManageSqliteDatabase():
             self.conn.rollback()
         return sqlOutput 
     
-    def isBlob(self, text):
+    def isBlob(self, data):
         blob = False
         try:
-            if text != None and not isinstance(text, int) and not isinstance(text, str) and text.startswith(b'\x89'):
-                blob = True
+            if data != None:  
+                if isinstance(data, (bytes, bytearray)) and data.startswith(b'\x89'):
+    #             if text != None and not isinstance(text, int) and not isinstance(text, str) and text.startswith(b'\x89'):
+                    blob = True
         except:
             logger.error('isBlob')
         return blob

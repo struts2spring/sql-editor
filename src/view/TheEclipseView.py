@@ -759,7 +759,7 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
     def onCopy(self, event):
         logger.debug('onCopy')
-        self._mgr.GetManagedWindow().FindFocus().Copy()
+        self._mgr.GetManagedWindow().FindFocus().copy()
 
 #         currentlySelectedPage = event.GetSelection()
 #         logger.debug("onTabRightDown: currentlySelectedPage %s", currentlySelectedPage)

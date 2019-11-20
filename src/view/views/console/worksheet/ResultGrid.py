@@ -405,13 +405,14 @@ class ResultDataGrid(gridlib.Grid):
 
     def copy(self):
         logger.info("Copy method")
+        data = None
         # Number of rows and cols
         if len(self.GetSelectionBlockBottomRight()) > 0:
+            data = ''
             rows = self.GetSelectionBlockBottomRight()[0][0] - self.GetSelectionBlockTopLeft()[0][0] + 1
             cols = self.GetSelectionBlockBottomRight()[0][1] - self.GetSelectionBlockTopLeft()[0][1] + 1
 
             # data variable contain text that must be set in the clipboard
-            data = ''
 
             # For each cell in selected range append the cell value in the data variable
             # Tabs '\t' for cols and '\r' for rows
@@ -421,17 +422,24 @@ class ResultDataGrid(gridlib.Grid):
                     if c < cols - 1:
                         data = data + '\t'
                 data = data + '\n'
-            # Create text data object
-            clipboard = wx.TextDataObject()
-            # Set data object value
-            clipboard.SetText(data)
-            # Put the data in the clipboard
-            if wx.TheClipboard.Open():
-                wx.TheClipboard.SetData(clipboard)
-                wx.TheClipboard.Close()
-            else:
-                wx.MessageBox("Can't open the clipboard", "Error")
+        else:
+            # setting the current cell value
+            data = self.GetCellValue(self.GridCursorRow,self.GridCursorCol)        
+        if data:
+            self.createClipboardData(data)
 
+    def createClipboardData(self, data):
+        # Create text data object
+        clipboard = wx.TextDataObject()
+        # Set data object value
+        clipboard.SetText(data)
+        # Put the data in the clipboard
+        if wx.TheClipboard.Open():
+            wx.TheClipboard.SetData(clipboard)
+            wx.TheClipboard.Close()
+        else:
+            wx.MessageBox("Can't open the clipboard", "Error")
+        
     def paste(self):
         logger.info("Paste method")
         clipboard = wx.TextDataObject()

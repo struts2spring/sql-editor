@@ -438,6 +438,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 
         elif key == wx.WXK_RETURN and event.ControlDown():
             logger.debug('ctrl+Enter: execute sql')
+            # TODO logic to implement a popup for result rows more than 500. 
             self.executeSQL()
 
             # Refresh tree if it required
