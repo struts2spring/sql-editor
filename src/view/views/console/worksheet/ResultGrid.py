@@ -13,11 +13,81 @@ import  wx.grid as gridlib
 import logging.config
 from src.view.constants import LOG_SETTINGS
 from src.view.util.FileOperationsUtil import FileOperations
+from _io import StringIO
+import io
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
 
+#############################################################################
+class MegaImageRenderer(gridlib.GridCellRenderer):
+
+    def __init__(self, table, blobData=None):
+        """
+        Image Renderer Test.  This just places an image in a cell
+        based on the row index.  There are N choices and the
+        choice is made by  choice[row%N]
+        """
+        gridlib.GridCellRenderer.__init__(self)
+        self.table = table
+        self.blobData = blobData
+
+        self._choices = []
+#         self._choices = [images.Smiles.GetBitmap,
+#                          images.Mondrian.GetBitmap,
+#                          images.WXPdemo.GetBitmap,
+#                          ]
+
+        self.colSize = None
+        self.rowSize = None
+
+    def Draw(self, grid, attr, dc, rect, row, col, isSelected):
+#         choice = self.table.GetRawValue(row, col)
+#         if self._choices:
+        bmp = wx.Bitmap(2, 2)
+        if self.blobData:
+            try:
+                img1 = wx.Image(self.blobData)
+                if img1:
+                    img1.SetType(wx.BITMAP_TYPE_ANY)
+#                 img1 = wx.Image(self.blobData)
+                    img1 = img1.Scale(50, 50)
+                    bmp = wx.Bitmap(img1)
+            except Exception as e:
+                print(e)
+#         bmp = wx.Bitmap("IMG_20180918_115610.jpg", wx.BITMAP_TYPE_ANY).ConvertToBitmap()
+#             bmp = self._choices[ choice % len(self._choices)]()
+        
+        image = wx.MemoryDC()
+        image.SelectObject(bmp)
+
+        # clear the background
+        dc.SetBackgroundMode(wx.SOLID)
+
+        if isSelected:
+            dc.SetBrush(wx.Brush(wx.BLUE, wx.BRUSHSTYLE_SOLID))
+            dc.SetPen(wx.Pen(wx.BLUE, 1, wx.PENSTYLE_SOLID))
+        else:
+            dc.SetBrush(wx.Brush(wx.WHITE, wx.BRUSHSTYLE_SOLID))
+            dc.SetPen(wx.Pen(wx.WHITE, 1, wx.PENSTYLE_SOLID))
+        dc.DrawRectangle(rect)
+
+        # copy the image but only to the size of the grid cell
+        width, height = bmp.GetWidth(), bmp.GetHeight()
+
+        if width > rect.width - 2:
+            width = rect.width - 2
+
+        if height > rect.height - 2:
+            height = rect.height - 2
+
+        dc.Blit(rect.x + 1, rect.y + 1, width, height,
+                image,
+                0, 0, wx.COPY, True)
+
+
+#############################################################################
 #---------------------------------------------------------------------------
 class MyCellEditor(gridlib.PyGridCellEditor):
     """
@@ -243,11 +313,14 @@ class ResultDataGrid(gridlib.Grid):
         self.ClearGrid()
         try:
             if data and len(data) > 0:
+                dataTypeRow = data.get(-1)
 #                 logger.info('rows:', self.GetNumberRows())
 #                 logger.info('cols:', self.GetNumberCols())
         #         self.DeleteRows()
                 currentRows, currentCols = (self.GetNumberRows(), self.GetNumberCols())
                 newRows = len(data) - 1
+                if dataTypeRow:
+                    newRows = newRows - 1
                 newCols = len(data[0])
         #         self.AppendRows(numRows=len(data)-1, updateLabels=True)
         #         if len(data) > 0 :
@@ -272,16 +345,32 @@ class ResultDataGrid(gridlib.Grid):
 #                     logger.info(dataKey, dataValue)
                     for idx, colValue in enumerate(dataValue):
         #                 logger.info(idx, dataValue)
+
                         if dataKey == 0:
                             self.SetColLabelValue(idx, str(colValue))
-                        else:
+                        elif dataKey > 0:
+                            row = dataKey - 1
+                            col = idx
                             try:
+#                                 if col==3:
+#                                     size=self.GetCellSize(row, col)
+#                                     data='3.jpg'
+#                                     self.SetCellRenderer(row, col, MegaImageRenderer(self.GetTable(), data))
+#                                 elif str(colValue).startswith('-______-'):
+                                    
                                 if str(colValue).startswith('-______-'):
                                     newStringValue = str(colValue).replace('-______-', '')
-                                    self.SetCellFont(dataKey - 1, idx, wx.Font(10, wx.FONTFAMILY_SCRIPT, wx.FONTSTYLE_ITALIC, wx.FONTWEIGHT_NORMAL))
-                                    self.SetCellTextColour(dataKey - 1, idx, wx.LIGHT_GREY)
-                                    self.SetCellValue(dataKey - 1, idx, newStringValue)
+                                    self.SetCellFont(row, col, wx.Font(10, wx.FONTFAMILY_SCRIPT, wx.FONTSTYLE_ITALIC, wx.FONTWEIGHT_NORMAL))
+                                    self.SetCellTextColour(row, col, wx.LIGHT_GREY)
+                                    self.SetCellValue(row, col, newStringValue)
                                 else:
+                                    if dataTypeRow and dataTypeRow[col] == 'blob':
+#                                         data='3.jpg'
+                                        buf = open("3.jpg", "rb").read()
+                                        blobData = io.BytesIO(buf)
+                                        self.SetCellRenderer(row, col, MegaImageRenderer(self.GetTable(), blobData))
+                                    elif dataTypeRow and dataTypeRow[col] in ['varchar', 'int']:
+                                        pass
 #                                     self.SetCellFont(dataKey - 1, idx,  wx.Font(10, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_ITALIC, wx.FONTWEIGHT_NORMAL))
 #                                     self.SetCellTextColour(dataKey - 1, idx,wx.LIGHT_GREY)
                                     self.SetCellValue(dataKey - 1, idx, str(colValue))
@@ -327,6 +416,7 @@ class ResultDataGrid(gridlib.Grid):
         col = self.GetGridCursorCol()
         cell = (row, col)
         logger.info("Current cell " + str(cell))
+        return row, col
 
     def OnKey(self, event):
         # If Ctrl+C is pressed...
@@ -424,7 +514,7 @@ class ResultDataGrid(gridlib.Grid):
                 data = data + '\n'
         else:
             # setting the current cell value
-            data = self.GetCellValue(self.GridCursorRow,self.GridCursorCol)        
+            data = self.GetCellValue(self.GridCursorRow, self.GridCursorCol)        
         if data:
             self.createClipboardData(data)
 
@@ -706,7 +796,7 @@ class ResultDataGrid(gridlib.Grid):
         self.PopupMenu(menu, event.GetPosition())
         menu.Destroy()
 
-
+        
 class GridCellPopupMenu(wx.Menu):
 
     def __init__(self, header=None):
@@ -826,6 +916,7 @@ class TestFrame(wx.Frame):
         wx.Frame.__init__(self, parent, -1, "Custom Grid Cell Editor Test", size=(640, 480))
         resultDataGrid = ResultDataGrid(self)
         data = {
+#             -1: ('int', 'varchar', 'varchar', 'blob'),
             0: ('ID', 'PICTURE', 'TYPE', 'FILE_NAME'),
             1: (1, None, u'.jpg', u'IMG_20180918_115610'),
             2: (1, None, u'.jpg', u'IMG_20180918_115610')
