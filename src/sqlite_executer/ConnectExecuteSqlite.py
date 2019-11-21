@@ -12,6 +12,7 @@ from datetime import datetime
 
 import logging.config
 from src.view.constants import LOG_SETTINGS
+import sqlparse
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -592,6 +593,13 @@ class ManageSqliteDatabase():
                 elif text.strip().lower().startswith(('update', 'drop', 'alter')):
                     cur.execute(text)
                 elif text.strip().lower().startswith(('insert')):
+                    sqlParse=sqlparse.parse(text)
+                    for token in sqlParse[0].tokens:
+                        if token._get_repr_name()=='Parenthesis':
+                            print(token.normalized)
+                            for t in token.tokens:
+                                if t._get_repr_name()=='IdentifierList':
+                                    print(t) 
                     result = cur.execute(text)
                 else:
                     rows = cur.execute(text).fetchall()

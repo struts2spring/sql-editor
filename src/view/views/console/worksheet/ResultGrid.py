@@ -45,17 +45,16 @@ class MegaImageRenderer(gridlib.GridCellRenderer):
     def Draw(self, grid, attr, dc, rect, row, col, isSelected):
 #         choice = self.table.GetRawValue(row, col)
 #         if self._choices:
+        blobData=grid.data.get(row+1)[col]
         bmp = wx.Bitmap(2, 2)
-        if self.blobData:
-            try:
-                img1 = wx.Image(self.blobData)
-                if img1:
-                    img1.SetType(wx.BITMAP_TYPE_ANY)
+        try:
+            img1 = wx.Image(blobData)
+#             img1.SetType(wx.BITMAP_TYPE_ANY)
 #                 img1 = wx.Image(self.blobData)
-                    img1 = img1.Scale(50, 50)
-                    bmp = wx.Bitmap(img1)
-            except Exception as e:
-                print(e)
+#             img1 = img1.Scale(50, 50)
+            bmp = wx.Bitmap(img1)
+        except Exception as e:
+            print(e)
 #         bmp = wx.Bitmap("IMG_20180918_115610.jpg", wx.BITMAP_TYPE_ANY).ConvertToBitmap()
 #             bmp = self._choices[ choice % len(self._choices)]()
         
@@ -349,7 +348,7 @@ class ResultDataGrid(gridlib.Grid):
                         if dataKey == 0:
                             self.SetColLabelValue(idx, str(colValue))
                         elif dataKey > 0:
-                            row = dataKey - 1
+                            row = dataKey-1
                             col = idx
                             try:
 #                                 if col==3:
@@ -366,14 +365,13 @@ class ResultDataGrid(gridlib.Grid):
                                 else:
                                     if dataTypeRow and dataTypeRow[col] == 'blob':
 #                                         data='3.jpg'
-                                        buf = open("3.jpg", "rb").read()
-                                        blobData = io.BytesIO(buf)
-                                        self.SetCellRenderer(row, col, MegaImageRenderer(self.GetTable(), blobData))
-                                    elif dataTypeRow and dataTypeRow[col] in ['varchar', 'int']:
-                                        pass
+                                        
+                                        self.SetCellRenderer(row, col, MegaImageRenderer(self.GetTable(), colValue))
+#                                     elif dataTypeRow and dataTypeRow[col] in ['varchar', 'int']:
+                                    else:                               
 #                                     self.SetCellFont(dataKey - 1, idx,  wx.Font(10, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_ITALIC, wx.FONTWEIGHT_NORMAL))
 #                                     self.SetCellTextColour(dataKey - 1, idx,wx.LIGHT_GREY)
-                                    self.SetCellValue(dataKey - 1, idx, str(colValue))
+                                        self.SetCellValue(row, col, str(colValue))
 #                                 self.SetCellAlignment(dataKey - 1,idx, wx.ALIGN_RIGHT)
                             except Exception as e:
                                 logger.error(e, exc_info=True)
@@ -915,11 +913,15 @@ class TestFrame(wx.Frame):
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, -1, "Custom Grid Cell Editor Test", size=(640, 480))
         resultDataGrid = ResultDataGrid(self)
+        buf = open("user_1.png", "rb").read()
+        blobData = io.BytesIO(buf)
         data = {
-#             -1: ('int', 'varchar', 'varchar', 'blob'),
+            -1: ('int', 'varchar', 'varchar', 'blob'),
             0: ('ID', 'PICTURE', 'TYPE', 'FILE_NAME'),
-            1: (1, None, u'.jpg', u'IMG_20180918_115610'),
-            2: (1, None, u'.jpg', u'IMG_20180918_115610')
+            1: (1, None, u'.jpg', blobData),
+            2: (2, None, u'.jpg', blobData),
+            3: (3, None, u'.jpg', blobData),
+            4: (4, None, u'.jpg', blobData)
             }
         resultDataGrid.addData(data)
 
