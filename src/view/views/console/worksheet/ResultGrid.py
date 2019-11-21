@@ -48,7 +48,8 @@ class MegaImageRenderer(gridlib.GridCellRenderer):
         blobData=grid.data.get(row+1)[col]
         bmp = wx.Bitmap(2, 2)
         try:
-            img1 = wx.Image(blobData)
+            
+            img1 = wx.Image(io.BytesIO(blobData))
 #             img1.SetType(wx.BITMAP_TYPE_ANY)
 #                 img1 = wx.Image(self.blobData)
 #             img1 = img1.Scale(50, 50)
@@ -363,10 +364,15 @@ class ResultDataGrid(gridlib.Grid):
                                     self.SetCellTextColour(row, col, wx.LIGHT_GREY)
                                     self.SetCellValue(row, col, newStringValue)
                                 else:
-                                    if dataTypeRow and dataTypeRow[col] == 'blob':
+                                    if dataTypeRow and dataTypeRow[col].lower() == 'blob':
 #                                         data='3.jpg'
-                                        
-                                        self.SetCellRenderer(row, col, MegaImageRenderer(self.GetTable(), colValue))
+                                        if str(colValue).startswith('-______-'):
+                                            newStringValue = str(colValue).replace('-______-', '')
+                                            self.SetCellFont(row, col, wx.Font(10, wx.FONTFAMILY_SCRIPT, wx.FONTSTYLE_ITALIC, wx.FONTWEIGHT_NORMAL))
+                                            self.SetCellTextColour(row, col, wx.LIGHT_GREY)
+                                            self.SetCellValue(row, col, newStringValue)
+                                        else:
+                                            self.SetCellRenderer(row, col, MegaImageRenderer(self.GetTable(), colValue))
 #                                     elif dataTypeRow and dataTypeRow[col] in ['varchar', 'int']:
                                     else:                               
 #                                     self.SetCellFont(dataKey - 1, idx,  wx.Font(10, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_ITALIC, wx.FONTWEIGHT_NORMAL))

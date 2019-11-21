@@ -13,6 +13,8 @@ from datetime import datetime
 import logging.config
 from src.view.constants import LOG_SETTINGS
 import sqlparse
+import platform
+import pathlib
 
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
@@ -579,6 +581,87 @@ class ManageSqliteDatabase():
         databaseList.append(dbObjects)
         return databaseList        
 
+    def parseSelectSql(self, sql=None):
+        parsedSelect = {}
+        sqlParse = sqlparse.parse(sql)
+        for token in sqlParse[0].tokens:
+            if token._get_repr_name() == 'Identifier':
+                parsedSelect ['tableName'] = token.value
+        return parsedSelect
+    
+    def parseInsertSql(self, sql=None):
+        parsedInsert = {
+            'prepend':'',
+            'tableName':'',
+            'columns':[],
+            'values':[]
+            }
+        sqlParse = sqlparse.parse(sql)
+        for token_1 in sqlParse[0].tokens:
+            if token_1._get_repr_name() == 'Function':
+                for token_11 in token_1.tokens:
+                    if token_11._get_repr_name() == 'Identifier':
+                        parsedInsert['tableName'] = token_11.value
+                    if token_11._get_repr_name() == 'Parenthesis':
+                        for token_12 in token_11.tokens:
+                            if token_12._get_repr_name() == 'IdentifierList':
+                                for token_13 in token_12.tokens:
+                                    if token_13.value != ',':
+                                        parsedInsert.get('columns').append(token_13.value)
+                        
+            if token_1._get_repr_name() == 'Values':
+                for token_2 in token_1.tokens:
+                    if token_2._get_repr_name() == 'Parenthesis':
+                        for token_3 in token_2.tokens:
+                            if token_3._get_repr_name() == 'IdentifierList':
+                                for token_4 in token_3.tokens:
+                                    if token_4.value != ',':
+                                        parsedInsert.get('values').append(token_4.value)
+        end = sql.find(parsedInsert.get('tableName'))
+        prependSql = sql[:end]
+        parsedInsert['prepend'] = prependSql
+        return parsedInsert
+                            
+    def createInsertSql(self, parsedInsert, columnsDatatype):
+        for idx, columnDatatype in enumerate(columnsDatatype):
+            if columnDatatype.lower()=='blob':
+                blobData = self.convertToBinaryData(parsedInsert.get('values')[idx])
+                parsedInsert.get('values')[idx] = blobData
+        
+        values = f"{'?,'*len(parsedInsert.get('values'))}"[:-1]
+        sql = f"{parsedInsert.get('prepend')} {parsedInsert.get('tableName')} ({','.join(parsedInsert.get('columns'))}) VALUES ( {values})"
+        tupleValues = tuple(parsedInsert.get('values'))
+        return sql, tupleValues
+    
+    def convertToBinaryData(self, filename):
+        # Convert digital data to binary format
+        blobData = None
+        try:
+            if platform.system() == 'Linux':
+                pass
+            elif platform.system() == 'Windows':
+                filename = str(filename).replace('\\', '\\\\')
+                filename = str(filename).replace("'", "")
+            elif platform.system() == 'Darwin':
+                pass
+            filePath = os.path.normpath(filename)
+#             filePath=pathlib.Path(filename)
+            with open(filePath, 'rb') as file:
+                blobData = file.read()
+        except Exception as e:
+            print(e)
+        return blobData  
+
+    def getColumnsDatatype(self, cur, tableName):
+        columns = []
+        rows = cur.execute(f"pragma table_info('{tableName}');").fetchall()
+        columnDatatype = []
+        for row in rows:
+            column = Column(row[0], row[1], row[2], row[3], row[4], row[5])
+            columnDatatype.append(column.dataType)
+            columns.append(column)
+        return columnDatatype
+
     def executeText(self, text=None):
         ''' This method takes input text to execute in database.
         @return script output as dict
@@ -589,19 +672,25 @@ class ManageSqliteDatabase():
                 cur = self.conn.cursor() 
 
                 if text.count(';') > 1 :
-                    result =cur.executescript(text)
+                    result = cur.executescript(text)
                 elif text.strip().lower().startswith(('update', 'drop', 'alter')):
                     cur.execute(text)
                 elif text.strip().lower().startswith(('insert')):
-                    sqlParse=sqlparse.parse(text)
-                    for token in sqlParse[0].tokens:
-                        if token._get_repr_name()=='Parenthesis':
-                            print(token.normalized)
-                            for t in token.tokens:
-                                if t._get_repr_name()=='IdentifierList':
-                                    print(t) 
-                    result = cur.execute(text)
+                    parsedInsert = self.parseInsertSql(sql=text)
+                    tableName = parsedInsert.get('tableName').replace('`', '')
+                    columnsDatatype = self.getColumnsDatatype(cur, tableName)
+#                     sqlOutput[-1] = columnDatatype
+                    sqlText, dataTuple = self.createInsertSql(parsedInsert, columnsDatatype)
+                    result = cur.execute(sqlText, dataTuple)
                 else:
+                    try:
+                        parsedSelect = self.parseSelectSql(sql=text)
+                        tableName = parsedSelect.get('tableName').replace('`', '')
+                        columnDatatype = self.getColumnsDatatype(cur, tableName)
+                        sqlOutput[-1] = tuple(columnDatatype)
+                    except Exception as e:
+                        logger.error(e)
+                        
                     rows = cur.execute(text).fetchall()
                     if cur.description:
                         headerList = list()
@@ -613,8 +702,8 @@ class ManageSqliteDatabase():
                             for v in item:
                                 if v is None:
                                     v = '-______-NULL'  # this is to make a distinguish between Null
-                                elif self.isBlob(v):
-                                    v = '-______-BLOB'
+#                                 elif self.isBlob(v):
+#                                     v = '-______-BLOB'
                                     
                                 items.append(v)
 #                             item=['-______-Null' if v is None else v for v in item] 
