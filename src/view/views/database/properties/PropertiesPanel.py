@@ -17,7 +17,7 @@ propertiesDataList = [
 
 class PropertiesFrame(wx.Frame):
     
-    def __init__(self, parent, title=None, size=(970, 720), depth=None):
+    def __init__(self, parent, title=None, size=(970, 720), depth=None, dataSource=None):
         wx.Frame.__init__(self, parent, -1, title, size=size,
                           style=wx.DEFAULT_FRAME_STYLE | wx.NO_FULL_REPAINT_ON_RESIZE)
         self.fileOperations = FileOperations()
@@ -37,7 +37,7 @@ class PropertiesFrame(wx.Frame):
         self.splitter.SetMinimumPaneSize(20)
         
         self.createLeftPropertiesTreePanel = CreateLeftPropertiesTreePanel(self.splitter)
-        self.rightPanel = RightPanel(self.splitter, name='Resource')
+        self.rightPanel = RightPanel(self.splitter, name='Resource', dataSource=dataSource)
 #         self.resultDataGrid = ResultDataGrid(self.splitter)
         self.splitter.SplitVertically(self.createLeftPropertiesTreePanel, self.rightPanel, sashPosition=210)
         logger.info(self.splitter.GetDefaultSashSize())
@@ -618,10 +618,10 @@ class CreatePropertiesPanel(wx.Panel):
 class RightPanel(wx.Panel):
 
     def __init__(self, parent=None, id=wx.ID_ANY, pos=wx.DefaultPosition,
-                size=wx.DefaultSize, name=None):
+                size=wx.DefaultSize, name=None, dataSource=None):
         wx.Panel.__init__(self, parent, id, pos, size, style=wx.NO_BORDER)
         self.parent = parent
-        
+        self.dataSource=dataSource
         self.vBox = wx.BoxSizer(wx.VERTICAL)
         ####
         
@@ -641,7 +641,7 @@ class RightPanel(wx.Panel):
     def getPreferencePanelObj(self, name='Preferences'):
         preferencePanelObj = None
         if name == 'Resource':
-            preferencePanelObj = ResourcePanel(self, name=name)
+            preferencePanelObj = ResourcePanel(self, name=name, dataSource=self.dataSource)
 #         elif name == 'Preferences':
 #             preferencePanelObj = PreferencePanel(self, name=name)
 #         elif name == 'Appearance':
@@ -726,7 +726,7 @@ class SizeReportCtrl(wx.Control):
 
 class ResourcePanel(wx.Panel):
 
-    def __init__(self, parent=None, name='', *args, **kw):
+    def __init__(self, parent=None, name='',dataSource=None, *args, **kw):
         wx.Panel.__init__(self, parent, id=-1)
         self.parent = parent
         
@@ -750,14 +750,10 @@ class ResourcePanel(wx.Panel):
         vBoxHeader.Add(self.st, 0, wx.ALL | wx.EXPAND, 5)
         ####################################################################
         
-        resourceDict={
-                'Path':'_exam',
-                'Type':'sqlite connection',
-                'Location':'c:\\'
-                }
+
             
         
-        for k, v in resourceDict.items():
+        for k, v in dataSource.__dict__.items():
             kLabel = wx.StaticText(self, -1, f"{k}:") 
             vLabel = wx.StaticText(self, -1, f"{v}") 
             hBox1 = wx.BoxSizer(wx.HORIZONTAL)

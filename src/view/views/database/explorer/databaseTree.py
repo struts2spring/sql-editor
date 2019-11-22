@@ -749,7 +749,7 @@ class DatabaseTree(TreeCtrl):
                 logger.debug(dataSourceTreeNode)
                 if dataSourceTreeNode.depth == 0:
                     title="Connection properties"
-                frame = PropertiesFrame(None, title, size=(500, 420), depth=dataSourceTreeNode.depth)
+                frame = PropertiesFrame(None, title, size=(500, 420), depth=dataSourceTreeNode.depth, dataSource=dataSourceTreeNode.dataSource)
             frame.Show()
         
     def onExport(self, event, nodes):
