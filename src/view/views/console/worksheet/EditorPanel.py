@@ -303,10 +303,10 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
         if self.CallTipActive():
             self.CallTipCancel()
         key = event.GetKeyCode()
-        logger.debug('OnKeyUp: GetKeyCode:%s ControlDown:%s ShiftDown:%s', event.GetKeyCode(), event.ControlDown(), event.ShiftDown())
+        logger.debug(f'OnKeyUp: GetKeyCode:{event.GetKeyCode()} ControlDown:{event.ControlDown()} ShiftDown:{event.ShiftDown()}')
 
         if event.ControlDown() and  key == 47:
-            logger.debug('ctrl+/ %s', self.GetSelectedText())
+            logger.debug(f'ctrl+/ {self.GetSelectedText()}')
             if self.GetSelectedText():
                 logger.debug(self.GetSelectedText())
                 logger.debug(self.GetSelectionNStart())
@@ -336,7 +336,7 @@ class SqlStyleTextCtrl(stc.StyledTextCtrl):
 #                 self.Paste()
 
         elif event.ControlDown() and  key == 76:
-            logger.debug('ctrl+L %s', self.GetSelectedText())
+            logger.debug(f'ctrl+L {self.GetSelectedText()}', )
             dlg = CreatingGoToLinePanel(self, -1, title="Go to Line", size=(485, 192),
                  style=wx.DEFAULT_DIALOG_STYLE, numberOfLines=self.LineCount
                  )
