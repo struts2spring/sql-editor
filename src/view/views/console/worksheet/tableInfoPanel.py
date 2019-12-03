@@ -334,7 +334,7 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
             resultPanel = ResultDataGrid(self, data=None)
             data = None
             if tableName:
-                data = db.executeText(text=f"SELECT * FROM '{tableName}' LIMIT 500;")
+                data = db.executeText(text=f"SELECT * FROM `{tableName}` LIMIT 500;")
             if data:
                 logger.debug('setResultData count: %s', len(data.keys()))
 #                 self.bottomResultToolbar.SetStatusText("Count: {}".format(str(len(data.keys()))))

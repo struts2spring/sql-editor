@@ -82,6 +82,7 @@ class DatabaseTree(TreeCtrl):
         self.Bind(wx.EVT_TREE_ITEM_MENU, self._OnMenu)
         self.Bind(wx.EVT_TREE_BEGIN_LABEL_EDIT, self._OnBeginEdit)
         self.Bind(wx.EVT_TREE_END_LABEL_EDIT, self._OnEndEdit)
+        self.Bind(wx.EVT_TREE_ITEM_RIGHT_CLICK, self.onTreeRightClick)
 #         self.Bind(wx.EVT_TREE_KEY_DOWN, self._onTreeKeyDown)
 #         self.Bind(wx.EVT_TREE_BEGIN_DRAG, self._onTreeBeginDrag)
 #         self.Bind(wx.EVT_TREE_ITEM_EXPANDED, self._onItemExpanded)
@@ -102,6 +103,17 @@ class DatabaseTree(TreeCtrl):
                                              ])
         self.SetAcceleratorTable(self.accel_tbl)
         self.Bind(wx.EVT_MENU, self.onTreeCopy, id=wx.ID_COPY)
+        self.Bind(wx.EVT_RIGHT_DOWN, self.rightDown)
+
+    def rightDown(self, event):
+        logger.info('rightDown')
+        self._OnMenu(event)
+        
+    def onTreeRightClick(self, event):
+        logger.info('onTreeRightClick')
+#         self.SelectItem(event.GetItem())
+#         self.SetFocusedItem(event.GetItem())
+        self._OnMenu(event)
         
     def OnChar(self, evt):
         logger.debug('OnChar')
@@ -113,6 +125,8 @@ class DatabaseTree(TreeCtrl):
             self.onF2KeyPress(evt)
         elif keyname == 'WXK_DELETE':
             self.onDeleteKeyPress(evt)
+        elif keyname == 'WXK_ESCAPE':
+            self.onEscape(evt)
 
     def LogKeyEvent(self, evType, evt):
         keycode = evt.GetKeyCode()
@@ -198,6 +212,10 @@ class DatabaseTree(TreeCtrl):
         return modifiers + keyname
 
     #----------------------------------------------------------------------
+    def onEscape(self, event):
+        logger.info('onEscape unselect all')
+        self.UnselectAll()
+        
     def onDeleteKeyPress(self, event):
         try:
             nodes = self.GetSelections()
@@ -340,7 +358,6 @@ class DatabaseTree(TreeCtrl):
     def _OnMenu(self, evt):
         logger.debug('_OnMenu')
         try:
-            item = evt.GetItem()
             
             menu = self.createMenu()
             self.PopupMenu(menu)
@@ -356,8 +373,11 @@ class DatabaseTree(TreeCtrl):
         2. refresh only that connection.
         '''
         if nodes:
-            self.onDisconnectDb(event, nodes)
-            self.onConnectDb(event, nodes)
+            for node in nodes:
+                dataSourceTreeNode = self.GetItemData(node)
+                if dataSourceTreeNode.dataSource.isConnected :
+                    self.onDisconnectDb(event, nodes)
+                    self.onConnectDb(event, nodes)
         else:
 #             nodes = self.GetSelections()
             for node in self.GetChildNodes(self.RootItem):
@@ -376,7 +396,7 @@ class DatabaseTree(TreeCtrl):
         logger.debug('createMenu')
         menu = wx.Menu()
         nodes = self.GetSelections()
-        
+        dataSourceTreeNode=None
         if len(nodes) == 1 :
             dataSourceTreeNode = self.GetItemData(nodes[0])
             logger.debug(dataSourceTreeNode.dataSource.connectionName)
@@ -400,9 +420,7 @@ class DatabaseTree(TreeCtrl):
                     self.Bind(wx.EVT_MENU, lambda e: self.onOpenSqlEditorTab(e, nodes), item3)
                 if dataSourceTreeNode.nodeType == 'table':
                     secondLevelMenuItem = wx.Menu()
-#                     generateBmp = wx.MenuItem(menu, wx.ID_ANY, "Generate SQL")
-#                     generateBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="table_edit.png")))
-#                     generateItem = menu.Append(generateBmp)
+
 
                     secondLevelMenuList = [
                                             [ID_SELECT_SQL, "SELECT"],
@@ -423,7 +441,6 @@ class DatabaseTree(TreeCtrl):
                     editTableBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="table_edit.png")))
                     editTableItem = menu.Append(editTableBmp) 
                     
-        #             editTableItem = menu.Append(wx.ID_ANY, "Edit table ")
                     copyItemBmp = wx.MenuItem(menu, wx.ID_COPY, "Copy \tCtrl+C")
                     copyItemBmp.SetBitmap(self.fileOperations.getImageBitmap(imageName="copy_edit_co.png"))
                     copyItemItem = menu.Append(copyItemBmp)
@@ -441,30 +458,24 @@ class DatabaseTree(TreeCtrl):
                     self.Bind(wx.EVT_MENU, lambda e: self.onRenameTable(e, dataSourceTreeNode=dataSourceTreeNode, node=nodes[0]), renameTableItem)
                     self.Bind(wx.EVT_MENU, self.onCopyCreateTableStatement, copyCreateTableItem)
                         
-#             if dataSourceTreeNode.depth == 1:
                 node = item = nodes[0]
             if dataSourceTreeNode.nodeType in ('folder_table', 'table'):
                 newTableBmp = wx.MenuItem(menu, wx.ID_ANY, "Create new table")
                 newTableBmp.SetBitmap(self.fileOperations.getImageBitmap(imageName="table_add.png"))
                 newTableItem = menu.Append(newTableBmp)                 
                 
-#                 newTableItem = menu.Append(wx.ID_ANY, "Create new table")
                 erDiagramItem = menu.Append(wx.ID_ANY, "Create ER diagram")
-#                     refreshTableItem = menu.Append(wx.ID_ANY, "Refresh  \tF5")
                 
                 self.Bind(wx.EVT_MENU, lambda e: self.onNewTable(e, dataSourceTreeNode=dataSourceTreeNode, node=node), newTableItem)
                 
                 self.Bind(wx.EVT_MENU, lambda e: self.onCreateErDiagramItem(e, dataSourceTreeNode=dataSourceTreeNode, node=node), erDiagramItem)
                 
-#                     self.Bind(wx.EVT_MENU, lambda e: self.onRefreshTable(e, item), refreshTableItem)
                 
             if dataSourceTreeNode.nodeType == 'folder_view':
                 newViewItem = menu.Append(wx.ID_ANY, "Create new view")
-#                     item2 = menu.Append(wx.ID_ANY, "Refresh \tF5")
                 self.Bind(wx.EVT_MENU, lambda e: self.onNewView(e, dataSourceTreeNode=dataSourceTreeNode, node=item), newViewItem)
             if dataSourceTreeNode.nodeType == 'folder_index':
                 newIndexItem = menu.Append(wx.ID_ANY, "Create new index")
-#                     item2 = menu.Append(wx.ID_ANY, "Refresh \tF5")
                 self.Bind(wx.EVT_MENU, lambda e: self.onNewIndex(e, dataSourceTreeNode=dataSourceTreeNode, node=item), newIndexItem)
             elif dataSourceTreeNode.nodeType in ('folder_column', 'table'):
                     newColumnItem = menu.Append(wx.ID_ANY, "Add new column")
@@ -481,13 +492,7 @@ class DatabaseTree(TreeCtrl):
             bmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="compare.png")))
             compareMenu = menu.Append(bmp)
             self.Bind(wx.EVT_MENU, lambda e:  self.onCompareDatabase(e, nodes), compareMenu)
-            
-#         for node in nodes:
-#             dataSourceTreeNode = self.GetItemData(node)
-#             logger.debug(dataSourceTreeNode.dataSource.connectionName)
-#             if dataSourceTreeNode.depth == 0:
-#                 dataSourceTreeNode = self.GetItemData(node)
-                     
+        
         refreshBmp = wx.MenuItem(menu, ID_ROOT_REFERESH, "&Refresh \tF5")
         refreshBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="database_refresh.png")))
         rootRefresh = menu.Append(refreshBmp)
@@ -497,17 +502,8 @@ class DatabaseTree(TreeCtrl):
         infoMenuItem.SetBitmap(infoBmp)     
         item4 = menu.Append(infoMenuItem)    
         
-#         refreshBmp = wx.MenuItem(menu, wx.ID_REFRESH, "&Refresh")
-#         refreshBmp.SetBitmap(wx.Bitmap(self.fileOperations.getImageBitmap(imageName="database_refresh.png")))
-#         item5 = menu.Append(refreshBmp)
-        
-#             item6 = menu.Append(wx.ID_ANY, "Properties")
-#             item7 = wx.MenuItem(menu, wx.ID_ANY, "&Smile!\tCtrl+S", "This one has an icon")
-#             item7.SetBitmap(wx.Bitmap(os.path.abspath(os.path.join(path, "index.png"))))
-#             menu.AppendItem(item7)
-        
-#         if self.isAllNodeOfGivenDepth(depth=0, nodes=nodes):
-        if dataSourceTreeNode.nodeType == 'connection':        
+
+        if dataSourceTreeNode != None and dataSourceTreeNode.nodeType == 'connection':        
             menu.AppendSeparator()
             if self.isAllConnected(nodes=nodes):
     
@@ -538,10 +534,6 @@ class DatabaseTree(TreeCtrl):
             self.Bind(wx.EVT_MENU, lambda e: self.onDeleteWithDatabaseTable(e, nodes), deleteWithDatabaseMenu)  
         
         self.Bind(wx.EVT_MENU, lambda e: self.onProperties(e, nodes), item4)
-        
-#         self.Bind(wx.EVT_MENU, lambda e: self.onRefresh(e, nodes), item5)
-#             self.Bind(wx.EVT_MENU, self.onEditConnection, item6)
-
         self.Bind(wx.EVT_MENU, lambda e: self.onRefresh(e, nodes), rootRefresh)
         return menu
 

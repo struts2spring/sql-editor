@@ -683,13 +683,19 @@ class ManageSqliteDatabase():
                     sqlText, dataTuple = self.createInsertSql(parsedInsert, columnsDatatype)
                     result = cur.execute(sqlText, dataTuple)
                 else:
-                    try:
-                        parsedSelect = self.parseSelectSql(sql=text)
-                        tableName = parsedSelect.get('tableName').replace('`', '')
-                        columnDatatype = self.getColumnsDatatype(cur, tableName)
-                        sqlOutput[-1] = tuple(columnDatatype)
-                    except Exception as e:
-                        logger.error(e)
+                    if text.strip().lower().startswith(('pragma')):
+                        pass
+                    else:
+                        try:
+                            parsedSelect = self.parseSelectSql(sql=text)
+                            if parsedSelect and parsedSelect.get('tableName'):
+                                tableName = parsedSelect.get('tableName').replace('`', '')
+                                columnDatatype = self.getColumnsDatatype(cur, tableName)
+                                sqlOutput[-1] = tuple(columnDatatype)
+                        except Exception as e:
+                            logger.error(e)
+                            logger.error(text)
+                            logger.error(parsedSelect)
                         
                     rows = cur.execute(text).fetchall()
                     if cur.description:
