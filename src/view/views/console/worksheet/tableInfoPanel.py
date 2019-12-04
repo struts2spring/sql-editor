@@ -324,6 +324,8 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
             resultPanel = ResultDataGrid(self, data=None)
             if tableName:
                 rows = db.executeText(f"pragma table_info('{tableName}');")
+                if rows:
+                    rows[-1]=['INTEGER', 'VARCHAR', 'VARCHAR','BOOLEAN', 'VARCHAR','BOOLEAN' ]
                 resultPanel.addData(rows)
         elif tabName == 'Indexes':
             resultPanel = ResultDataGrid(self, data=None)

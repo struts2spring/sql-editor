@@ -373,6 +373,17 @@ class ResultDataGrid(gridlib.Grid):
                                             self.SetCellValue(row, col, newStringValue)
                                         else:
                                             self.SetCellRenderer(row, col, MegaImageRenderer(self.GetTable(), colValue))
+                                    elif dataTypeRow and dataTypeRow[col].lower() == 'integer':
+                                        self.SetCellRenderer(row, col, gridlib.GridCellNumberRenderer())
+                                        self.SetCellValue(row, col,  str(colValue))
+                                    elif dataTypeRow and dataTypeRow[col].lower() == 'datetime':
+                                        self.SetCellRenderer(row, col, gridlib.GridCellDateTimeRenderer())
+                                        self.SetCellValue(row, col, colValue)
+                                    elif dataTypeRow and dataTypeRow[col].lower() == 'boolean':
+                                        self.SetCellEditor(row, col, gridlib.GridCellBoolEditor())
+                                        self.SetCellRenderer(row, col, CheckBoxCellRenderer(self))
+                                        self.SetCellValue(row, col, str(colValue))
+                                        self.SetCellAlignment(row, col, wx.ALIGN_RIGHT, wx.ALIGN_CENTRE)
 #                                     elif dataTypeRow and dataTypeRow[col] in ['varchar', 'int']:
                                     else:                               
 #                                     self.SetCellFont(dataKey - 1, idx,  wx.Font(10, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_ITALIC, wx.FONTWEIGHT_NORMAL))
@@ -931,6 +942,33 @@ class TestFrame(wx.Frame):
             }
         resultDataGrid.addData(data)
 
+
+class CheckBoxCellRenderer(gridlib.GridCellRenderer):
+    SIZE = 8
+ 
+    def __init__(self, parent, showBox=True):
+        self.parent = parent
+        self.showBox = showBox
+        self.enabled = True
+ 
+        gridlib.GridCellRenderer.__init__(self)
+ 
+    def GetBestSize(self, _grid, _attr, _dc, _row, _col):
+        return wx.Size(self.SIZE * 2, self.SIZE)
+ 
+    def Draw(self, grid, _attr, dc, rect, row, col, _isSelected):
+        flags = 0
+        if grid.GetCellValue(row, col) == "1":
+            flags = wx.CONTROL_CHECKED
+        if not self.enabled:
+            flags |= wx.CONTROL_DISABLED
+ 
+        dc.DrawRectangle(rect)
+        renderer = wx.RendererNative.Get()
+        renderer.DrawCheckBox(self.parent, dc, rect, flags)
+ 
+    def Enable(self, enabled):
+        self.enabled = enabled
 
 #---------------------------------------------------------------------------
 if __name__ == '__main__':
