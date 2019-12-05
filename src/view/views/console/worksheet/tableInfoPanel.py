@@ -213,21 +213,38 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
         originalData = self.resultPanel.getData()
         for row in range(self.resultPanel.GetNumberRows()):
             rowMatch = True
+            rowPresent = False
             for col in range(self.resultPanel.GetNumberCols()):
                 newVal = self.resultPanel.GetCellValue(row, col)
-                originalValue = originalData[row+1][col]
-                if '-______-NULL' == originalValue:
-                    originalValue = originalValue.replace('-______-', '')
-                if str(originalValue) != newVal:
-                    rowMatch = False
-                    break
-            if not rowMatch:
+                if row + 1 in originalData:
+                    rowPresent = True
+                    originalValue = originalData[row + 1][col]
+                    if '-______-NULL' == originalValue:
+                        originalValue = originalValue.replace('-______-', '')
+                    if str(originalValue) != newVal:
+                        rowMatch = False
+                        break
+                else:
+                    rowPresent = False
+            if rowPresent and not rowMatch:
                 newData = [self.resultPanel.GetCellValue(row, col) for col in range(self.resultPanel.GetNumberCols())]
                 columnClauseForUpdate = self.getColumnClauseForUpdate(newData=newData)
-                whereClause = self.getWhereClause(originalData[row+1])
-                self.sqlList[row] = f"UPDATE '{self.dataSourceTreeNode.nodeLabel}' SET {columnClauseForUpdate} WHERE {whereClause} ;"
+                whereClause = self.getWhereClause(originalData[row + 1])
+                sql = f"UPDATE '{self.dataSourceTreeNode.nodeLabel}' SET {columnClauseForUpdate} WHERE {whereClause} ;"
+                self.sqlList[row] = {
+                                    'sql':sql,
+                                    'dml':'UPDATE',
+                                    'tableName':self.dataSourceTreeNode.nodeLabel,
+                                    'columns':self.dataSourceTreeNode.sqlType.columns,
+                                    'newValues':newData,
+                                    'oldValues':originalData[row + 1]
+                                    }
+            elif not rowPresent:
+                newData = [self.resultPanel.GetCellValue(row, col) for col in range(self.resultPanel.GetNumberCols())]
+                self.sqlList.get(row)['values']=newData
         db = ManageSqliteDatabase(connectionName=self.dataSourceTreeNode.dataSource.connectionName, databaseAbsolutePath=self.dataSourceTreeNode.dataSource.filePath)
-        for row, sql in self.sqlList.items():
+        for row, sqlListRow in self.sqlList.items():
+            sql = self.getSql(sqlListRow).get('sql')
             db.executeText(sql)
         self.sqlList = dict()
 # #         sqlText = self.generateSql()
@@ -277,9 +294,17 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
         columnsName = [column.name for column in self.dataSourceTreeNode.sqlType.columns]
         values = 'null,' * len(columnsName)
         values = values[:-1]
+        valuesList = values[:-1].split(',')
         columns = "`,`".join(columnsName)
         sql = f'''INSERT INTO '{self.dataSourceTreeNode.nodeLabel}' (`{columns}`) VALUES ({values});'''
-        self.sqlList[self.resultPanel.GetNumberRows()] = sql
+#         self.sqlList[self.resultPanel.GetNumberRows()] = sql
+        self.sqlList[self.resultPanel.GetNumberRows()] = {
+                                    'sql':sql,
+                                    'dml':'INSERT',
+                                    'tableName':self.dataSourceTreeNode.nodeLabel,
+                                    'columns':columns,
+                                    'values':valuesList
+                                    }
         self.resultPanel.AppendRows(numRows=1, updateLabels=True)
         
         # TODO : a logic for save insert, update , delete has to go here
@@ -295,24 +320,51 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
             if selectedRow in self.sqlList:
                 del self.sqlList[selectedRow]
             elif selectedRow in originalData:
+                columnsName = [column.name for column in self.dataSourceTreeNode.sqlType.columns]
+                columns = "`,`".join(columnsName)
                 data = originalData[selectedRow + 1]
                 whereClause = self.getWhereClause(data)
                 sql = f"""DELETE FROM '{self.dataSourceTreeNode.nodeLabel}' WHERE {whereClause} ;"""
-                self.sqlList[selectedRow] = sql
+#                 self.sqlList[selectedRow] = sql
+                self.sqlList[selectedRow] = {
+                                    'sql':sql,
+                                    'dml':'DELETE',
+                                    'tableName':self.dataSourceTreeNode.nodeLabel,
+                                    'columns':columns,
+                                    'values':data
+                                    }
 #             self.newRows.append(list())
 #             if selectedRow+1 in self.newRows: 
 #                 del self.newRows[selectedRow+1]
             self.resultPanel.DeleteRows(pos=selectedRow, numRows=1, updateLabels=True)
 
 #         self.resultPanel.DeleteRows(pos=0, numRows=numRows, updateLabels=True)
-#         self.resultPanel.dele        
+#         self.resultPanel.dele  
+    def getSql(self, sqlListRow): 
+        sql=None
+        columnsName = [column.name for column in self.dataSourceTreeNode.sqlType.columns]
+        columns = "`,`".join(columnsName)
+        if sqlListRow.get('dml') == 'DELETE':
+            whereClause = self.getWhereClause(sqlListRow.get('values'))
+            sql = f"""DELETE FROM '{sqlListRow.get('tableName')}' WHERE {whereClause} ;"""
+        elif sqlListRow.get('dml') == 'INSERT':
+#             columns = "`,`".join(sqlListRow.get('columns'))
+            values="','".join(sqlListRow.get('values'))
+            sql = f'''INSERT INTO '{sqlListRow.get('tableName')}' (`{sqlListRow.get('columns')}`) VALUES ('{values}');'''
+        elif sqlListRow.get('dml') == 'UPDATE':
+            columnClauseForUpdate = self.getColumnClauseForUpdate(newData=sqlListRow.get('newValues'))
+            whereClause = self.getWhereClause(sqlListRow.get('oldValues'))
+            sql = f"UPDATE '{self.dataSourceTreeNode.nodeLabel}' SET {columnClauseForUpdate} WHERE {whereClause} ;"
+        sqlListRow['sql']=sql
+        return sqlListRow   
+        
     def getColumnClauseForUpdate(self, newData=None):
         columnClauseForUpdate = []
         for idx, column in enumerate(self.dataSourceTreeNode.sqlType.columns):
             dataStr = newData[idx]
             if '-______-NULL' == dataStr:
                 dataStr = dataStr.replace('-______-', '')
-            if column.primaryKey!=1:
+            if column.primaryKey != 1:
                 columnClauseForUpdate.append(f" `{column.name}` = {dataStr}")
         columnClauseForUpdateStr = ",".join(columnClauseForUpdate)     
         
