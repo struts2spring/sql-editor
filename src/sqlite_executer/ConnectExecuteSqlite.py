@@ -598,7 +598,25 @@ class ManageSqliteDatabase():
             }
         sqlParse = sqlparse.parse(sql)
         for token_1 in sqlParse[0].tokens:
-            if token_1._get_repr_name() == 'Function':
+            
+            if token_1.is_keyword:
+                continue
+            elif token_1.is_whitespace:
+                continue
+            elif token_1._get_repr_name() == 'Punctuation':
+                continue
+            elif token_1._get_repr_name() == 'Parenthesis':
+                parsedInsert['columns']=token_1.value[1:-1].split(',')
+            elif token_1._get_repr_name() == 'Values':
+                for token_2 in token_1.tokens:
+                    if token_2._get_repr_name() == 'Parenthesis':
+                        for token_3 in token_2.tokens:
+                            if token_3._get_repr_name() == 'IdentifierList':
+                                for token_4 in token_3.tokens:
+                                    if token_4.value != ',':
+                                        parsedInsert.get('values').append(token_4.value)
+                
+            elif token_1._get_repr_name() == 'Function':
                 for token_11 in token_1.tokens:
                     if token_11._get_repr_name() == 'Identifier':
                         parsedInsert['tableName'] = token_11.value
@@ -608,15 +626,9 @@ class ManageSqliteDatabase():
                                 for token_13 in token_12.tokens:
                                     if token_13.value != ',':
                                         parsedInsert.get('columns').append(token_13.value)
+            else:
+                parsedInsert['tableName'] = token_1.value
                         
-            if token_1._get_repr_name() == 'Values':
-                for token_2 in token_1.tokens:
-                    if token_2._get_repr_name() == 'Parenthesis':
-                        for token_3 in token_2.tokens:
-                            if token_3._get_repr_name() == 'IdentifierList':
-                                for token_4 in token_3.tokens:
-                                    if token_4.value != ',':
-                                        parsedInsert.get('values').append(token_4.value)
         end = sql.find(parsedInsert.get('tableName'))
         prependSql = sql[:end]
         parsedInsert['prepend'] = prependSql
@@ -654,6 +666,8 @@ class ManageSqliteDatabase():
 
     def getColumnsDatatype(self, cur, tableName):
         columns = []
+        tableName = str(tableName).replace("'", "")
+        tableName = str(tableName).replace("`", "")
         rows = cur.execute(f"pragma table_info('{tableName}');").fetchall()
         columnDatatype = []
         for row in rows:
@@ -675,13 +689,14 @@ class ManageSqliteDatabase():
                     result = cur.executescript(text)
                 elif text.strip().lower().startswith(('update', 'drop', 'alter')):
                     cur.execute(text)
-                elif text.strip().lower().startswith(('insert')):
-                    parsedInsert = self.parseInsertSql(sql=text)
-                    tableName = parsedInsert.get('tableName').replace('`', '')
-                    columnsDatatype = self.getColumnsDatatype(cur, tableName)
-#                     sqlOutput[-1] = columnDatatype
-                    sqlText, dataTuple = self.createInsertSql(parsedInsert, columnsDatatype)
-                    result = cur.execute(sqlText, dataTuple)
+#                 elif text.strip().lower().startswith(('insert')):
+#                     parsedInsert = self.parseInsertSql(sql=text)
+#                     tableName = parsedInsert.get('tableName').replace('`', '')
+#                     tableName = tableName.replace("'", '')
+#                     columnsDatatype = self.getColumnsDatatype(cur, tableName)
+# #                     sqlOutput[-1] = columnDatatype
+#                     sqlText, dataTuple = self.createInsertSql(parsedInsert, columnsDatatype)
+#                     result = cur.execute(sqlText, dataTuple)
                 else:
                     if text.strip().lower().startswith(('pragma')):
                         pass
@@ -716,6 +731,7 @@ class ManageSqliteDatabase():
                             sqlOutput[idx + 1] = items
         except Exception as e:
             logger.error(e, exc_info=True)
+            logger.error(text)
             raise e
             self.conn.rollback()
         return sqlOutput 

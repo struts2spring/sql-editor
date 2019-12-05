@@ -140,6 +140,7 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
         self.tabName = kw['tabName']
         self.dataSourceTreeNode = kw['dataSourceTreeNode']
         self.data = list()
+        self.sqlList = dict()
         vBox = wx.BoxSizer(wx.VERTICAL)
         logger.debug(kw)
         ####################################################################
@@ -207,33 +208,56 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
 
     def onSave(self, event):
         logger.debug('onSave')
-#         sqlText = self.generateSql()
-        db = ManageSqliteDatabase(connectionName=self.dataSourceTreeNode.dataSource.connectionName, databaseAbsolutePath=self.dataSourceTreeNode.dataSource.filePath)
-#         db.executeText(sqlText)
         
+        # finding rows to be updated
         originalData = self.resultPanel.getData()
-        originalDataSet = set()
-        for k, v in originalData.items():
-            if k > 0:
-                originalDataSet.add(tuple([str(x) for x in v]))
-        
-        newData = set()
-        
         for row in range(self.resultPanel.GetNumberRows()):
-            newRow = []
+            rowMatch = True
             for col in range(self.resultPanel.GetNumberCols()):
-                val = self.resultPanel.GetCellValue(row, col)
-                if self.resultPanel.GetCellTextColour(row, col) == wx.LIGHT_GREY and val in ('NULL','BLOB'):
-                    newRow.append(f'-______-{val}')
-                else:
-                    newRow.append(self.resultPanel.GetCellValue(row, col))
-            newData.add(tuple(newRow))
-        
-        sql=self.generateSql(oldDataSet=originalDataSet, newDataSet=newData)
-        print(sql)
+                newVal = self.resultPanel.GetCellValue(row, col)
+                originalValue = originalData[row+1][col]
+                if '-______-NULL' == originalValue:
+                    originalValue = originalValue.replace('-______-', '')
+                if str(originalValue) != newVal:
+                    rowMatch = False
+                    break
+            if not rowMatch:
+                newData = [self.resultPanel.GetCellValue(row, col) for col in range(self.resultPanel.GetNumberCols())]
+                columnClauseForUpdate = self.getColumnClauseForUpdate(newData=newData)
+                whereClause = self.getWhereClause(originalData[row+1])
+                self.sqlList[row] = f"UPDATE '{self.dataSourceTreeNode.nodeLabel}' SET {columnClauseForUpdate} WHERE {whereClause} ;"
+        db = ManageSqliteDatabase(connectionName=self.dataSourceTreeNode.dataSource.connectionName, databaseAbsolutePath=self.dataSourceTreeNode.dataSource.filePath)
+        for row, sql in self.sqlList.items():
+            db.executeText(sql)
+        self.sqlList = dict()
+# #         sqlText = self.generateSql()
+#         db = ManageSqliteDatabase(connectionName=self.dataSourceTreeNode.dataSource.connectionName, databaseAbsolutePath=self.dataSourceTreeNode.dataSource.filePath)
+# #         db.executeText(sqlText)
+#         
+#         originalData = self.resultPanel.getData()
+#         originalDataSet = set()
+#         for k, v in originalData.items():
+#             if k > 0:
+#                 originalDataSet.add(tuple([str(x) for x in v]))
+#         
+#         newData = set()
+#         
+#         for row in range(self.resultPanel.GetNumberRows()):
+#             newRow = []
+#             for col in range(self.resultPanel.GetNumberCols()):
+#                 val = self.resultPanel.GetCellValue(row, col)
+#                 if self.resultPanel.GetCellTextColour(row, col) == wx.LIGHT_GREY and val in ('NULL', 'BLOB'):
+#                     newRow.append(f'-______-{val}')
+#                 else:
+#                     newRow.append(self.resultPanel.GetCellValue(row, col))
+#             newData.add(tuple(newRow))
+#         
+#         sql = self.generateSql(oldDataSet=originalDataSet, newDataSet=newData)
+#         print(sql)
 
     def onRefresh(self, event):
         logger.debug('onRefresh')
+        self.sqlList = dict()
         db = ManageSqliteDatabase(connectionName=self.dataSourceTreeNode.dataSource.connectionName, databaseAbsolutePath=self.dataSourceTreeNode.dataSource.filePath)
 #         result = db.sqlite_select(tableName="sqlite_master")
         data = None
@@ -250,50 +274,86 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
         logger.debug(self.resultPanel.GetNumberRows())
 #         self.newRows[self.resultPanel.GetNumberRows()+1]=list()
 #         data=self.resultPanel.getData()
-        
+        columnsName = [column.name for column in self.dataSourceTreeNode.sqlType.columns]
+        values = 'null,' * len(columnsName)
+        values = values[:-1]
+        columns = "`,`".join(columnsName)
+        sql = f'''INSERT INTO '{self.dataSourceTreeNode.nodeLabel}' (`{columns}`) VALUES ({values});'''
+        self.sqlList[self.resultPanel.GetNumberRows()] = sql
         self.resultPanel.AppendRows(numRows=1, updateLabels=True)
         
         # TODO : a logic for save insert, update , delete has to go here
-        
-    def generateSql(self, oldDataSet=None, newDataSet=None):
-        logger.debug('generateSql')
-        intersect=oldDataSet.intersection(newDataSet)
-        insertSqlData=newDataSet-oldDataSet
-        oldPKSet=set(self.getPrimaryKeyValue(oldDataSet))
-        newPKSet=set(self.getPrimaryKeyValue(newDataSet))
-        insertPKSet=set(self.getPrimaryKeyValue(insertSqlData))
-        updatePKSet=oldPKSet.intersection(insertPKSet)
-        columnsName=[column.name for column in self.dataSourceTreeNode.sqlType.columns]
-        columns="','".join(columnsName)
-        updateSqlDataSet=set()
-        valuesList=list()
-        for insertSqlDataRow in insertSqlData:
-            if insertSqlDataRow[0] in updatePKSet:
-                updateSqlDataSet.add(insertSqlDataRow)
-            else:
-                valuesList.append("','".join(insertSqlDataRow))
-        sqlList=list()
-        for values in valuesList: 
-            sqlList.append(f'''INSERT INTO '{self.dataSourceTreeNode.nodeLabel}' ('{columns}') VALUES ('{values}');''')
-        return '\n'.join(sqlList)
-
-    def getPrimaryKeyValue(self,oldDataSet):
-        return [str(oldData[0]) for oldData in oldDataSet]
     def onDuplicateRow(self, event):
         logger.debug('onDuplicateRow')
 
     def onDeleteRow(self, event):
-        logger.debug(f'onDeleteRow')
         seletedRows = list(self.resultPanel.GetSelectedRows())
+        logger.debug(f'onDeleteRow: {seletedRows}')
         seletedRows.sort(reverse=True)
+        originalData = self.resultPanel.getData()
         for selectedRow in seletedRows:
+            if selectedRow in self.sqlList:
+                del self.sqlList[selectedRow]
+            elif selectedRow in originalData:
+                data = originalData[selectedRow + 1]
+                whereClause = self.getWhereClause(data)
+                sql = f"""DELETE FROM '{self.dataSourceTreeNode.nodeLabel}' WHERE {whereClause} ;"""
+                self.sqlList[selectedRow] = sql
 #             self.newRows.append(list())
 #             if selectedRow+1 in self.newRows: 
 #                 del self.newRows[selectedRow+1]
             self.resultPanel.DeleteRows(pos=selectedRow, numRows=1, updateLabels=True)
 
 #         self.resultPanel.DeleteRows(pos=0, numRows=numRows, updateLabels=True)
-#         self.resultPanel.dele
+#         self.resultPanel.dele        
+    def getColumnClauseForUpdate(self, newData=None):
+        columnClauseForUpdate = []
+        for idx, column in enumerate(self.dataSourceTreeNode.sqlType.columns):
+            dataStr = newData[idx]
+            if '-______-NULL' == dataStr:
+                dataStr = dataStr.replace('-______-', '')
+            if column.primaryKey!=1:
+                columnClauseForUpdate.append(f" `{column.name}` = {dataStr}")
+        columnClauseForUpdateStr = ",".join(columnClauseForUpdate)     
+        
+        return columnClauseForUpdateStr
+
+    def getWhereClause(self, data):
+        whereClasue = []
+        for idx, column in enumerate(self.dataSourceTreeNode.sqlType.columns):
+            dataStr = data[idx]
+            if '-______-NULL' == dataStr:
+                dataStr = dataStr.replace('-______-', '')
+                whereClasue.append(f" `{column.name}` is {dataStr}")
+            else:
+                whereClasue.append(f" `{column.name}`={dataStr}")
+        whereClasueStr = " AND".join(whereClasue)
+        return whereClasueStr
+
+    def generateSql(self, oldDataSet=None, newDataSet=None):
+        logger.debug('generateSql')
+        intersect = oldDataSet.intersection(newDataSet)
+        insertSqlData = newDataSet - oldDataSet
+        oldPKSet = set(self.getPrimaryKeyValue(oldDataSet))
+        newPKSet = set(self.getPrimaryKeyValue(newDataSet))
+        insertPKSet = set(self.getPrimaryKeyValue(insertSqlData))
+        updatePKSet = oldPKSet.intersection(insertPKSet)
+        columnsName = [column.name for column in self.dataSourceTreeNode.sqlType.columns]
+        columns = "','".join(columnsName)
+        updateSqlDataSet = set()
+        valuesList = list()
+        for insertSqlDataRow in insertSqlData:
+            if insertSqlDataRow[0] in updatePKSet:
+                updateSqlDataSet.add(insertSqlDataRow)
+            else:
+                valuesList.append("','".join(insertSqlDataRow))
+        sqlList = list()
+        for values in valuesList: 
+            sqlList.append(f'''INSERT INTO '{self.dataSourceTreeNode.nodeLabel}' ('{columns}') VALUES ('{values}');''')
+        return '\n'.join(sqlList)
+
+    def getPrimaryKeyValue(self, oldDataSet):
+        return [str(oldData[0]) for oldData in oldDataSet]
 
     def getPanelByTabName(self, tableName=None, tabName=None):
         toolbar = self.constructTopResultToolBar()
@@ -325,7 +385,7 @@ class CreatingTableInfoToolbarPanel(wx.Panel):
             if tableName:
                 rows = db.executeText(f"pragma table_info('{tableName}');")
                 if rows:
-                    rows[-1]=['INTEGER', 'VARCHAR', 'VARCHAR','BOOLEAN', 'VARCHAR','BOOLEAN' ]
+                    rows[-1] = ['INTEGER', 'VARCHAR', 'VARCHAR', 'BOOLEAN', 'VARCHAR', 'BOOLEAN' ]
                 resultPanel.addData(rows)
         elif tabName == 'Indexes':
             resultPanel = ResultDataGrid(self, data=None)

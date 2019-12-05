@@ -759,7 +759,10 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
     def onCopy(self, event):
         logger.debug('onCopy')
-        self._mgr.GetManagedWindow().FindFocus().copy()
+        if isinstance(self._mgr.GetManagedWindow().FindFocus(), ResultDataGrid):
+            self._mgr.GetManagedWindow().FindFocus().copy()
+        else:
+            self._mgr.GetManagedWindow().FindFocus().Copy()
 
 #         currentlySelectedPage = event.GetSelection()
 #         logger.debug("onTabRightDown: currentlySelectedPage %s", currentlySelectedPage)
@@ -768,7 +771,10 @@ class EclipseMainFrame(wx.Frame, PerspectiveManager):
 
     def onPaste(self, event):
         logger.debug('onPaste')
-        self._mgr.GetManagedWindow().FindFocus().Paste()
+        if isinstance(self._mgr.GetManagedWindow().FindFocus(), ResultDataGrid):
+            self._mgr.GetManagedWindow().FindFocus().paste()
+        else:
+            self._mgr.GetManagedWindow().FindFocus().Paste()
 
     def onCut(self, event):
         logger.debug('onCut')

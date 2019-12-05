@@ -45,7 +45,7 @@ class MegaImageRenderer(gridlib.GridCellRenderer):
     def Draw(self, grid, attr, dc, rect, row, col, isSelected):
 #         choice = self.table.GetRawValue(row, col)
 #         if self._choices:
-        blobData=grid.data.get(row+1)[col]
+        blobData = grid.data.get(row + 1)[col]
         bmp = wx.Bitmap(2, 2)
         try:
             
@@ -268,6 +268,7 @@ class ResultDataGrid(gridlib.Grid):
         self.Bind(gridlib.EVT_GRID_CELL_RIGHT_CLICK, self.showGridCellPopupMenu)
         self.Bind(gridlib.EVT_GRID_LABEL_RIGHT_CLICK, self.showHeaderPopupMenu)
         self.Bind(wx.EVT_KEY_DOWN, self.OnKey)
+        self.Bind(gridlib.EVT_GRID_CELL_CHANGED, self.cellChange) 
         self.data = None
         self.sqlText = ''
 #         self.SetCellAlignment(row, col, horiz, vert)
@@ -305,6 +306,20 @@ class ResultDataGrid(gridlib.Grid):
 
     def getData(self):
         return self.data
+
+    def cellChange(self, evt):
+        row = evt.GetRow()
+        col = evt.GetCol()
+ 
+        # #print 'Cell changed at', row, col
+        value = self.GetTable().GetValue(row, col)
+        logger.info(f'cellChange ({row,col}):{value}')
+        # #print 'New value', value
+        # #print 'Type', type(value)
+ 
+        evt.Skip()
+ 
+        return
 
     def addData(self, data=None):
         self.data = data
@@ -349,7 +364,7 @@ class ResultDataGrid(gridlib.Grid):
                         if dataKey == 0:
                             self.SetColLabelValue(idx, str(colValue))
                         elif dataKey > 0:
-                            row = dataKey-1
+                            row = dataKey - 1
                             col = idx
                             try:
 #                                 if col==3:
@@ -375,7 +390,7 @@ class ResultDataGrid(gridlib.Grid):
                                             self.SetCellRenderer(row, col, MegaImageRenderer(self.GetTable(), colValue))
                                     elif dataTypeRow and dataTypeRow[col].lower() == 'integer':
                                         self.SetCellRenderer(row, col, gridlib.GridCellNumberRenderer())
-                                        self.SetCellValue(row, col,  str(colValue))
+                                        self.SetCellValue(row, col, str(colValue))
                                     elif dataTypeRow and dataTypeRow[col].lower() == 'datetime':
                                         self.SetCellRenderer(row, col, gridlib.GridCellDateTimeRenderer())
                                         self.SetCellValue(row, col, colValue)
@@ -969,6 +984,7 @@ class CheckBoxCellRenderer(gridlib.GridCellRenderer):
  
     def Enable(self, enabled):
         self.enabled = enabled
+
 
 #---------------------------------------------------------------------------
 if __name__ == '__main__':
