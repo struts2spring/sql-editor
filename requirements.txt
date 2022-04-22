@@ -1,7 +1,7 @@
 numpy==1.17.3
 pillow==6.2.1
 pypandoc==1.4
-PyPDF2==1.26.0
+PyPDF2==1.27.5
 pypubsub==4.0.0
 rarfile==3.1
 six==1.11.0
